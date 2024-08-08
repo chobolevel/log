@@ -1,0 +1,59 @@
+server:
+  port: 9565
+
+logging:
+  level:
+    org.hibernate.envers.boot: OFF
+
+spring:
+  jpa:
+    database: mysql
+    open-in-view: false
+    databse-platform: org.hibernate.dialect.MySQLDialect
+    properties:
+      hibernate.id.new_generator_mappings: false
+      hibernate.implicit_naming_strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+      hibernate.physical_naming_strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+      hibernate.globally_quoted_identifiers: true
+      hibernate.globally_quoted_identifiers_skip_column_definitions: true
+      hibernate.default_batch_fetch_size: 1000
+      org:
+        hibernate:
+          envers:
+            revision_field_name: rev_id
+            audit_table_suffix: _histories
+            store_data_at_delete: true
+      hibernate:
+        show_sql: true
+    generate-ddl: false
+    hibernate:
+      ddl-auto: validate
+  datasource:
+    url: jdbc:mysql://localhost:3306/log
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 1234
+
+redis:
+  lettuce:
+    pool:
+      max-active: 10
+      max-idle: 10
+      min-idle: 2
+  host: localhost
+  port: 6379
+
+jwt:
+  issuer: "movie land"
+  secret-key: "chobolevel"
+
+cloud:
+  aws:
+    s3:
+      bucket: "chobolevel"
+    stack.auto: false
+    region.static: "ap-northeast-2"
+    credentials:
+      accessKey: "AKIARUGQHO32SWIRERQ5"
+      secretKey: "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"
+
