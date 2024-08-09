@@ -40,9 +40,17 @@ dependencies {
     // devtools
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
-    // kapt
+    // kapt(java annotation -> kotlin annotation)
     kapt("com.querydsl:querydsl-apt:${queryDslVersion}:jakarta")
     kapt("jakarta.annotation:jakarta.annotation-api")
     kapt("jakarta.persistence:jakarta.persistence-api")
     kapt("org.springframework.boot:spring-boot-configuration-processor")
+}
+
+flyway {
+    url = "jdbc:mysql://localhost:3306/log"
+    user = "root"
+    password = "1234"
+    baselineVersion = "0"
+    outOfOrder = true
 }

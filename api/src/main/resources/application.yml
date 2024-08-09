@@ -33,6 +33,10 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: 1234
+  flyway:
+    enabled: true
+    baseline-version: 0
+    out-of-order: true
 
 redis:
   lettuce:
