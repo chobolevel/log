@@ -1,12 +1,12 @@
-package com.chobolevel.api.service
+package com.chobolevel.api.service.user
 
 import com.chobolevel.api.dto.common.PaginationResponseDto
 import com.chobolevel.api.dto.user.CreateUserRequestDto
 import com.chobolevel.api.dto.user.UpdateUserRequestDto
 import com.chobolevel.api.dto.user.UserResponseDto
-import com.chobolevel.api.service.converter.UserConverter
-import com.chobolevel.api.service.updater.UserUpdatable
-import com.chobolevel.api.service.validator.UpdateUserValidatable
+import com.chobolevel.api.service.user.converter.UserConverter
+import com.chobolevel.api.service.user.updater.UserUpdatable
+import com.chobolevel.api.service.user.validator.UpdateUserValidatable
 import com.chobolevel.domain.Pagination
 import com.chobolevel.domain.entity.user.UserFinder
 import com.chobolevel.domain.entity.user.UserOrderType

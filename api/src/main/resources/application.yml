@@ -58,4 +58,7 @@ cloud:
     stack.auto: false
     region.static: "ap-northeast-2"
     credentials:
+      # TODO 로컬에서만 사용하자
+      accessKey: "AKIARUGQHO32SWIRERQ5"
+      secretKey: "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"
 

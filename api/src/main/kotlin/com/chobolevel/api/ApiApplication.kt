@@ -6,7 +6,9 @@ import org.springframework.boot.runApplication
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 
-@ComponentScan("com.chobolevel.domain")
+@EntityScan(basePackages = ["com.chobolevel.domain"])
+@EnableJpaRepositories(basePackages = ["com.chobolevel.domain"])
+@ComponentScan(basePackages = ["com.chobolevel.domain"])
 @SpringBootApplication
 class ApiApplication
 
