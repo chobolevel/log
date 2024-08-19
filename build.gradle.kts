@@ -13,6 +13,7 @@ group = "com.chobolevel"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
+// gradle tasks 사용 목록
 plugins {
     val kotlinVersion = "1.8.21"
     kotlin("jvm") version kotlinVersion
@@ -42,7 +43,7 @@ allprojects {
     }
 }
 
-// 프로젝트 하위에 있는 모듈 관리
+// 프로젝트 하위에 있는 모듈 관리(settings.gradle 파일 내 include 모듈)
 subprojects {
     apply(plugin = "kotlin")
     apply(plugin = "jacoco")
