@@ -5,10 +5,10 @@ import com.chobolevel.domain.entity.user.QUser.user
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
 import com.querydsl.core.types.OrderSpecifier
-import jakarta.persistence.EntityNotFoundException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
+import kotlin.jvm.Throws
 
 @Component
 class UserFinder(
@@ -16,8 +16,18 @@ class UserFinder(
     private val customRepository: UserCustomRepository
 ) {
 
+    @Throws(ApiException::class)
     fun findById(id: Long): User {
         return repository.findByIdOrNull(id) ?: throw ApiException(
+            errorCode = ErrorCode.U001,
+            status = HttpStatus.BAD_REQUEST,
+            message = "회원 정보를 찾을 수 없습니다."
+        )
+    }
+
+    @Throws(ApiException::class)
+    fun findByEmailAndLoginType(email: String, loginType: UserLoginType): User {
+        return repository.findByEmailAndLoginTypeAndResignedFalse(email, loginType) ?: throw ApiException(
             errorCode = ErrorCode.U001,
             status = HttpStatus.BAD_REQUEST,
             message = "회원 정보를 찾을 수 없습니다."
