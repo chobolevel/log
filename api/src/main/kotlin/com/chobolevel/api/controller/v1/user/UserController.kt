@@ -96,7 +96,8 @@ class UserController(
     fun updateUser(
         principal: Principal,
         @PathVariable id: Long,
-        @RequestBody @Valid request: UpdateUserRequestDto
+        @RequestBody @Valid
+        request: UpdateUserRequestDto
     ): ResponseEntity<ResultResponse> {
         val result = service.updateUser(principal.getUserId(), request)
         return ResponseEntity.ok(ResultResponse(result))
