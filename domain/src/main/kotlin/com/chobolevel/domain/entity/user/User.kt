@@ -24,6 +24,8 @@ class User(
     var email: String,
     @Column(nullable = false)
     var password: String,
+    @Column(nullable = true)
+    var socialId: String?,
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     var loginType: UserLoginType,

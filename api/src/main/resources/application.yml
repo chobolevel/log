@@ -48,8 +48,8 @@ redis:
   port: 6379
 
 jwt:
-  issuer: "movie land"
-  secret-key: "chobolevel"
+  issuer: chobolevel
+  secret: rkddlswo218@
 
 cloud:
   aws:

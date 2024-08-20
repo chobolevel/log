@@ -13,8 +13,8 @@ import jakarta.validation.constraints.Pattern
 data class CreateUserRequestDto(
     @field:NotBlank(message = "이메일은 필수 값입니다.")
     val email: String,
-    @field:NotBlank(message = "비밀번호는 필수 값입니다.")
-    val password: String,
+    val password: String?,
+    val socialId: String?,
     @field:NotNull(message = "회원 가입 유형은 필수 값입니다.")
     val loginType: UserLoginType,
     @field:NotBlank(message = "닉네임은 필수 값입니다.")

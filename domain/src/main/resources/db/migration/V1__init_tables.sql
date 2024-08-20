@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS log.rev_info;
+
 create table log.rev_info
 (
   id         bigint auto_increment
@@ -5,6 +7,8 @@ create table log.rev_info
   revstmp    bigint                             not null,
   created_at datetime default CURRENT_TIMESTAMP not null
 );
+
+DROP TABLE IF EXISTS log.users;
 
 create table log.users
 (
@@ -23,6 +27,8 @@ create table log.users
 
 create index users_email_login_type_index
   on log.users (email, login_type);
+
+DROP TABLE IF EXISTS log.users_histories;
 
 create table log.users_histories
 (

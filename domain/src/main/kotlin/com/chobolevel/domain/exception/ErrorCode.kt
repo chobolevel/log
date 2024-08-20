@@ -4,6 +4,10 @@ enum class ErrorCode {
     // common
     INVALID_PARAMETER,
 
+    // AUTH
+    EXPIRED_TOKEN,
+    INVALID_TOKEN,
+
     // UNKNOWN ERROR CODE
     UNKNOWN_ERROR,
 

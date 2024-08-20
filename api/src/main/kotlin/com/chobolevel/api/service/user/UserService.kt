@@ -6,6 +6,7 @@ import com.chobolevel.api.dto.user.UpdateUserRequestDto
 import com.chobolevel.api.dto.user.UserResponseDto
 import com.chobolevel.api.service.user.converter.UserConverter
 import com.chobolevel.api.service.user.updater.UserUpdatable
+import com.chobolevel.api.service.user.validator.CreateUserValidatable
 import com.chobolevel.api.service.user.validator.UpdateUserValidatable
 import com.chobolevel.domain.Pagination
 import com.chobolevel.domain.entity.user.UserFinder
@@ -20,12 +21,14 @@ class UserService(
     private val repository: UserRepository,
     private val finder: UserFinder,
     private val converter: UserConverter,
+    private val createValidators: List<CreateUserValidatable>,
     private val updateValidators: List<UpdateUserValidatable>,
     private val updaters: List<UserUpdatable>
 ) {
 
     @Transactional
     fun createUser(request: CreateUserRequestDto): Long {
+        createValidators.forEach { it.validate(request) }
         val user = converter.convert(request)
         return repository.save(user).id!!
     }
