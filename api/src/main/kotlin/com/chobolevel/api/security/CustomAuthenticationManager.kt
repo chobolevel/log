@@ -21,15 +21,18 @@ class CustomAuthenticationManager(
 
     override fun authenticate(authentication: Authentication): Authentication {
         val combine = authentication.name.split("/")
-        val email = combine[0]
+        val tokenName = combine[0]
         val loginType = UserLoginType.find(combine[1]) ?: throw ApiException(
             errorCode = ErrorCode.INVALID_PARAMETER,
             status = HttpStatus.BAD_REQUEST,
             message = "유효하지 않은 회원 로그인 타입입니다."
         )
-        val password = authentication.credentials.toString()
-        val user = userFinder.findByEmailAndLoginType(email, loginType)
-        if (!passwordEncoder.matches(password, user.password)) {
+        val tokenCredentials = authentication.credentials.toString()
+        val user = when (loginType) {
+            UserLoginType.GENERAL -> userFinder.findByEmailAndLoginType(tokenName, loginType)
+            else -> userFinder.findBySocialIdAndLoginType(tokenName, loginType)
+        }
+        if (!passwordEncoder.matches(tokenCredentials, user.password)) {
             throw BadCredentialsException("아이디 또는 비밀번호가 일치하지 않습니다.")
         }
         val authorities = AuthorityUtils.createAuthorityList(user.role.name)
