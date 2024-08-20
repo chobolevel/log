@@ -1,4 +1,4 @@
-package com.chobolevel.api.service.converter
+package com.chobolevel.api.service.user.converter
 
 import com.chobolevel.api.dto.user.CreateUserRequestDto
 import com.chobolevel.api.dto.user.UserResponseDto

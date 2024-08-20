@@ -1,4 +1,4 @@
-package com.chobolevel.api.service.validator
+package com.chobolevel.api.service.user.validator
 
 import com.chobolevel.api.dto.user.UpdateUserRequestDto
 
