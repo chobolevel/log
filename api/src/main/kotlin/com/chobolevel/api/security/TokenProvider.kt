@@ -28,32 +28,49 @@ class TokenProvider(
 
     fun generateToken(authentication: Authentication): JwtResponse {
         val now = Date()
-        val accessToken = Jwts.builder()
-            .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
-            .setIssuer(jwtProperties.issuer)
-            .setIssuedAt(now)
-            .setExpiration(Date(now.time + TimeUnit.HOURS.toMillis(1)))
-            .setSubject(authentication.name)
-            .claim("authorities", authentication.authorities)
-            .signWith(SignatureAlgorithm.HS256, jwtProperties.secret)
-            .compact()
-        val refreshToken = Jwts.builder()
-            .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
-            .setIssuer(jwtProperties.issuer)
-            .setIssuedAt(now)
-            .setExpiration(Date(now.time + TimeUnit.DAYS.toMillis(30)))
-            .setSubject(authentication.name)
-            .claim("authorities", authentication.authorities)
-            .signWith(SignatureAlgorithm.HS256, jwtProperties.secret)
-            .compact()
+        val accessToken = issueAccessToken(
+            issuedAt = now,
+            expiration = Date(now.time + TimeUnit.HOURS.toMillis(1)),
+            authentication = authentication
+        )
+        val refreshToken = issueRefreshToken(
+            issuedAt = now,
+            expiration = Date(now.time + TimeUnit.DAYS.toMillis(30)),
+            authentication = authentication
+        )
         return JwtResponse(
             accessToken = accessToken,
             refreshToken = refreshToken
         )
     }
 
+    private fun issueAccessToken(issuedAt: Date, expiration: Date, authentication: Authentication): String {
+        return Jwts.builder()
+            .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
+            .setIssuer(jwtProperties.issuer)
+            .setIssuedAt(issuedAt)
+            .setExpiration(expiration)
+            .setSubject(authentication.name)
+            .claim("authorities", authentication.authorities)
+            .signWith(SignatureAlgorithm.HS256, jwtProperties.secret)
+            .compact()
+    }
+
+    private fun issueRefreshToken(issuedAt: Date, expiration: Date, authentication: Authentication): String {
+        return Jwts.builder()
+            .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
+            .setIssuer(jwtProperties.issuer)
+            .setIssuedAt(issuedAt)
+            .setExpiration(expiration)
+            .setSubject(authentication.name)
+            .claim("authorities", authentication.authorities)
+            .signWith(SignatureAlgorithm.HS256, jwtProperties.secret)
+            .compact()
+    }
+
     fun getAuthentication(token: String): Authentication? {
         return try {
+            validateToken(token)
             val claims = Jwts.parser()
                 .setSigningKey(jwtProperties.secret)
                 .parseClaimsJws(token)
@@ -62,7 +79,7 @@ class TokenProvider(
             val userDetails = UserDetailsImpl(foundUser)
             return UsernamePasswordAuthenticationToken(userDetails, token, userDetails.authorities)
         } catch (e: Exception) {
-            logger.warn("Token is invalie", e)
+            logger.warn("Token is invalid", e)
             null
         }
     }
