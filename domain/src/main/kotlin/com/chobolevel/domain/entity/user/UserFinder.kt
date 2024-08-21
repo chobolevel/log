@@ -34,6 +34,15 @@ class UserFinder(
         )
     }
 
+    @Throws(ApiException::class)
+    fun findBySocialIdAndLoginType(socialId: String, loginType: UserLoginType): User {
+        return repository.findBySocialIdAndLoginTypeAndResignedFalse(socialId, loginType) ?: throw ApiException(
+            errorCode = ErrorCode.U001,
+            status = HttpStatus.BAD_REQUEST,
+            message = "회원 정보를 찾을 수 없습니다."
+        )
+    }
+
     fun search(queryFilter: UserQueryFilter, pagination: Pagination, orderTypes: List<UserOrderType>?): List<User> {
         val orderSpecifiers = orderSpecifiers(orderTypes ?: emptyList())
         return customRepository.searchByPredicates(queryFilter.toPredicates(), pagination, orderSpecifiers)
