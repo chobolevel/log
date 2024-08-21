@@ -1,7 +1,7 @@
-package com.chobolevel.domain.entity.post.tag
+package com.chobolevel.domain.entity.tag
 
 import com.chobolevel.domain.Pagination
-import com.chobolevel.domain.entity.post.tag.QPostTag.postTag
+import com.chobolevel.domain.entity.tag.QTag.tag
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
 import com.querydsl.core.types.OrderSpecifier
@@ -10,12 +10,12 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 
 @Component
-class PostTagFinder(
-    private val repository: PostTagRepository,
-    private val customRepository: PostTagCustomRepository
+class TagFinder(
+    private val repository: TagRepository,
+    private val customRepository: TagCustomRepository
 ) {
 
-    fun findById(id: Long): PostTag {
+    fun findById(id: Long): Tag {
         return repository.findByIdOrNull(id) ?: throw ApiException(
             errorCode = ErrorCode.INVALID_PARAMETER,
             status = HttpStatus.BAD_REQUEST,
@@ -24,23 +24,23 @@ class PostTagFinder(
     }
 
     fun search(
-        queryFilter: PostTagQueryFilter,
+        queryFilter: TagQueryFilter,
         pagination: Pagination,
-        orderTypes: List<PostTagOrderType>?
-    ): List<PostTag> {
+        orderTypes: List<TagOrderType>?
+    ): List<Tag> {
         val orderSpecifiers = orderSpecifiers(orderTypes ?: emptyList())
         return customRepository.searchByPredicates(queryFilter.toPredicates(), pagination, orderSpecifiers)
     }
 
-    fun searchCount(queryFilter: PostTagQueryFilter): Long {
+    fun searchCount(queryFilter: TagQueryFilter): Long {
         return customRepository.countByPredicates(queryFilter.toPredicates())
     }
 
-    private fun orderSpecifiers(orderTypes: List<PostTagOrderType>): Array<OrderSpecifier<*>> {
+    private fun orderSpecifiers(orderTypes: List<TagOrderType>): Array<OrderSpecifier<*>> {
         return orderTypes.map {
             when (it) {
-                PostTagOrderType.ORDER_ASC -> postTag.order.asc()
-                PostTagOrderType.ORDER_DESC -> postTag.order.desc()
+                TagOrderType.ORDER_ASC -> tag.order.asc()
+                TagOrderType.ORDER_DESC -> tag.order.desc()
             }
         }.toTypedArray()
     }

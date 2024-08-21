@@ -1,4 +1,4 @@
-create table if not exists log.post_tags
+create table if not exists log.tags
 (
   id
   bigint
@@ -16,7 +16,7 @@ create table if not exists log.post_tags
   updated_at datetime not null
   );
 
-create table log.post_tags_histories
+create table log.tags_histories
 (
   id         bigint       not null,
   rev_id     bigint       not null,

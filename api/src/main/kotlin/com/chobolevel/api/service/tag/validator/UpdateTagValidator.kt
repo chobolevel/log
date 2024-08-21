@@ -1,19 +1,19 @@
-package com.chobolevel.api.service.post.validator
+package com.chobolevel.api.service.tag.validator
 
-import com.chobolevel.api.dto.post.UpdatePostTagRequestDto
-import com.chobolevel.domain.entity.post.tag.PostTagUpdateMask
+import com.chobolevel.api.dto.tag.UpdateTagRequestDto
+import com.chobolevel.domain.entity.tag.TagUpdateMask
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 
 @Component
-class UpdatePostTagValidator : UpdatePostTagValidatable {
+class UpdateTagValidator : UpdateTagValidatable {
 
-    override fun validate(request: UpdatePostTagRequestDto) {
+    override fun validate(request: UpdateTagRequestDto) {
         request.updateMask.forEach {
             when (it) {
-                PostTagUpdateMask.NAME -> {
+                TagUpdateMask.NAME -> {
                     if (request.name.isNullOrEmpty()) {
                         throw ApiException(
                             errorCode = ErrorCode.INVALID_PARAMETER,
@@ -23,7 +23,7 @@ class UpdatePostTagValidator : UpdatePostTagValidatable {
                     }
                 }
 
-                PostTagUpdateMask.ORDER -> {
+                TagUpdateMask.ORDER -> {
                     if (request.order == null) {
                         throw ApiException(
                             errorCode = ErrorCode.INVALID_PARAMETER,
