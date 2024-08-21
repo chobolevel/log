@@ -3,6 +3,7 @@ server:
 
 logging:
   level:
+    root: info
     org.hibernate.envers.boot: OFF
 
 spring:
