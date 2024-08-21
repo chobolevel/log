@@ -1,14 +1,14 @@
-package com.chobolevel.api.service.post.query
+package com.chobolevel.api.service.tag.query
 
 import com.chobolevel.domain.Pagination
-import com.chobolevel.domain.entity.post.tag.PostTagQueryFilter
+import com.chobolevel.domain.entity.tag.TagQueryFilter
 import org.springframework.stereotype.Component
 
 @Component
-class PostTagQueryCreator {
+class TagQueryCreator {
 
-    fun createQueryFilter(name: String?): PostTagQueryFilter {
-        return PostTagQueryFilter(
+    fun createQueryFilter(name: String?): TagQueryFilter {
+        return TagQueryFilter(
             name = name
         )
     }

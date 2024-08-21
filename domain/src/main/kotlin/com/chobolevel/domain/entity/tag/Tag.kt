@@ -1,4 +1,4 @@
-package com.chobolevel.domain.entity.post.tag
+package com.chobolevel.domain.entity.tag
 
 import com.chobolevel.domain.entity.Audit
 import jakarta.persistence.Column
@@ -14,10 +14,10 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener
 
 @EntityListeners(value = [AuditingEntityListener::class])
 @Entity
-@Table(name = "post_tags")
+@Table(name = "tags")
 @Audited
-@SQLDelete(sql = "UPDATE post_tags SET deleted = true WHERE id = ?")
-class PostTag(
+@SQLDelete(sql = "UPDATE tags SET deleted = true WHERE id = ?")
+class Tag(
     @Column(nullable = false)
     var name: String,
     @Column(nullable = false)
@@ -32,12 +32,12 @@ class PostTag(
     var deleted: Boolean = false
 }
 
-enum class PostTagOrderType {
+enum class TagOrderType {
     ORDER_ASC,
     ORDER_DESC
 }
 
-enum class PostTagUpdateMask {
+enum class TagUpdateMask {
     NAME,
     ORDER
 }
