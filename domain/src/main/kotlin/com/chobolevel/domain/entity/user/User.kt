@@ -1,6 +1,8 @@
 package com.chobolevel.domain.entity.user
 
 import com.chobolevel.domain.entity.Audit
+import com.chobolevel.domain.entity.user.image.UserImage
+import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EntityListeners
@@ -9,8 +11,10 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.SQLDelete
+import org.hibernate.annotations.Where
 import org.hibernate.envers.Audited
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
 
@@ -44,6 +48,15 @@ class User(
 
     @Column(nullable = false)
     var resigned: Boolean = false
+
+    @OneToOne(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var profileImage: UserImage? = null
+
+    fun addImage(userImage: UserImage) {
+        if (this.profileImage != userImage) {
+            this.profileImage = userImage
+        }
+    }
 }
 
 enum class UserLoginType {

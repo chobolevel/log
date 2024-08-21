@@ -13,5 +13,8 @@ enum class ErrorCode {
 
     // USER
     // NOT FOUND
-    U001
+    U001,
+
+    // USER IMAGE
+    UI001
 }

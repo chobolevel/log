@@ -10,7 +10,8 @@ import org.springframework.stereotype.Component
 
 @Component
 class UserConverter(
-    private val passwordEncoder: BCryptPasswordEncoder
+    private val passwordEncoder: BCryptPasswordEncoder,
+    private val userImageConverter: UserImageConverter
 ) {
 
     fun convert(request: CreateUserRequestDto): User {
@@ -37,6 +38,7 @@ class UserConverter(
             nickname = entity.nickname,
             phone = entity.phone,
             role = entity.role,
+            profileImage = if (entity.profileImage != null) userImageConverter.convert(entity.profileImage!!) else null,
             createdAt = entity.createdAt!!.toInstant().toEpochMilli(),
             updatedAt = entity.updatedAt!!.toInstant().toEpochMilli()
         )
