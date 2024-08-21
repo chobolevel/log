@@ -1,12 +1,12 @@
-package com.chobolevel.api.controller.v1.post
+package com.chobolevel.api.controller.v1.tag
 
 import com.chobolevel.api.annotation.HasAuthorityAdmin
 import com.chobolevel.api.dto.common.ResultResponse
-import com.chobolevel.api.dto.post.CreatePostTagRequestDto
-import com.chobolevel.api.dto.post.UpdatePostTagRequestDto
-import com.chobolevel.api.service.post.PostTagService
-import com.chobolevel.api.service.post.query.PostTagQueryCreator
-import com.chobolevel.domain.entity.post.tag.PostTagOrderType
+import com.chobolevel.api.dto.tag.CreateTagRequestDto
+import com.chobolevel.api.dto.tag.UpdateTagRequestDto
+import com.chobolevel.api.service.tag.TagService
+import com.chobolevel.api.service.tag.query.TagQueryCreator
+import com.chobolevel.domain.entity.tag.TagOrderType
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -21,29 +21,29 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
-@Tag(name = "PostTag (게시글 태그)", description = "게시글 태그 관리 API")
+@Tag(name = "Tag (게시글 태그)", description = "게시글 태그 관리 API")
 @RestController
 @RequestMapping("/api/v1")
 class PostTagController(
-    private val service: PostTagService,
-    private val queryCreator: PostTagQueryCreator
+    private val service: TagService,
+    private val queryCreator: TagQueryCreator
 ) {
 
     @Operation(summary = "게시글 태그 등록 API")
     @HasAuthorityAdmin
-    @PostMapping("/posts/tags")
-    fun createPostTag(@Valid @RequestBody request: CreatePostTagRequestDto): ResponseEntity<ResultResponse> {
+    @PostMapping("/tags")
+    fun createPostTag(@Valid @RequestBody request: CreateTagRequestDto): ResponseEntity<ResultResponse> {
         val result = service.createPostTag(request)
         return ResponseEntity.ok(ResultResponse(result))
     }
 
     @Operation(summary = "게시글 태그 목록 조회 API")
-    @GetMapping("/posts/tags")
+    @GetMapping("/tags")
     fun searchPostTags(
         @RequestParam(required = false) name: String?,
         @RequestParam(required = false) skipCount: Long?,
         @RequestParam(required = false) limitCount: Long?,
-        @RequestParam(required = false) orderTypes: List<PostTagOrderType>?
+        @RequestParam(required = false) orderTypes: List<TagOrderType>?
     ): ResponseEntity<ResultResponse> {
         val queryFilter = queryCreator.createQueryFilter(
             name = name
@@ -58,10 +58,10 @@ class PostTagController(
 
     @Operation(summary = "게시글 태그 정보 수정 API")
     @HasAuthorityAdmin
-    @PutMapping("/posts/tags/{id}")
+    @PutMapping("/tags/{id}")
     fun updatePostTag(
         @PathVariable id: Long,
-        @Valid @RequestBody request: UpdatePostTagRequestDto
+        @Valid @RequestBody request: UpdateTagRequestDto
     ): ResponseEntity<ResultResponse> {
         val result = service.updatePostTag(
             postTagId = id,
@@ -72,7 +72,7 @@ class PostTagController(
 
     @Operation(summary = "게시글 태그 삭제 API")
     @HasAuthorityAdmin
-    @DeleteMapping("/posts/tags/{id}")
+    @DeleteMapping("/tags/{id}")
     fun deletePostTag(@PathVariable id: Long): ResponseEntity<ResultResponse> {
         val result = service.deletePostTag(
             postTagId = id

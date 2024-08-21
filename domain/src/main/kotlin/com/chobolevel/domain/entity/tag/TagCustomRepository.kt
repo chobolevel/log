@@ -1,21 +1,21 @@
-package com.chobolevel.domain.entity.post.tag
+package com.chobolevel.domain.entity.tag
 
 import com.chobolevel.domain.Pagination
-import com.chobolevel.domain.entity.post.tag.QPostTag.postTag
+import com.chobolevel.domain.entity.tag.QTag.tag
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.core.types.dsl.BooleanExpression
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import org.springframework.stereotype.Repository
 
 @Repository
-class PostTagCustomRepository : QuerydslRepositorySupport(PostTag::class.java) {
+class TagCustomRepository : QuerydslRepositorySupport(Tag::class.java) {
 
     fun searchByPredicates(
         predicates: Array<BooleanExpression>,
         pagination: Pagination,
         orderSpecifiers: Array<OrderSpecifier<*>>
-    ): List<PostTag> {
-        return from(postTag)
+    ): List<Tag> {
+        return from(tag)
             .where(*predicates)
             .orderBy(*orderSpecifiers)
             .offset(pagination.skip)
@@ -24,7 +24,7 @@ class PostTagCustomRepository : QuerydslRepositorySupport(PostTag::class.java) {
     }
 
     fun countByPredicates(predicates: Array<BooleanExpression>): Long {
-        return from(postTag)
+        return from(tag)
             .where(*predicates)
             .fetchCount()
     }
