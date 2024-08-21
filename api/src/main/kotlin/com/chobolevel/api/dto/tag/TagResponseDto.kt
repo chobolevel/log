@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
 data class TagResponseDto(
     val id: Long,
     val name: String,
+    val postsCount: Int,
     val createdAt: Long,
     val updatedAt: Long
 )
