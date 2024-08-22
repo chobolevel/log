@@ -43,7 +43,7 @@ class UploadService(
         val now = LocalDate.now()
         val datePath = now.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"))
         val uuid = UUID.randomUUID().toString()
-        return "${prefix}/${datePath}/${uuid}.${extension}"
+        return "$prefix/$datePath/$uuid.$extension"
     }
 
     private fun createPresignedRequest(savedPath: String): GeneratePresignedUrlRequest {

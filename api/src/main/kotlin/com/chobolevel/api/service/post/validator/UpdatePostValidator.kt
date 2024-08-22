@@ -4,7 +4,6 @@ import com.chobolevel.api.dto.post.UpdatePostRequestDto
 import com.chobolevel.domain.entity.post.PostUpdateMask
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
-import jakarta.persistence.PostUpdate
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 

@@ -11,7 +11,6 @@ class PostQueryFilter(
 ) {
 
     fun toPredicates(): Array<BooleanExpression> {
-
         return listOfNotNull(
             PostTagQueryFilter(tagId).toSubQuery(),
             title?.let { post.title.contains(it) },

@@ -29,7 +29,8 @@ class UserImageController(
     @PostMapping("/users/images")
     fun createUserImage(
         principal: Principal,
-        @Valid @RequestBody request: CreateUserImageRequestDto
+        @Valid @RequestBody
+        request: CreateUserImageRequestDto
     ): ResponseEntity<ResultResponse> {
         val result = service.createUserImage(principal.getUserId(), request)
         return ResponseEntity.ok(ResultResponse(result))
@@ -42,5 +43,4 @@ class UserImageController(
         val result = service.deleteUserImage(principal.getUserId(), userImageId)
         return ResponseEntity.ok(ResultResponse(result))
     }
-
 }
