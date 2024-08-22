@@ -36,7 +36,8 @@ class PostController(
     @PostMapping("/posts")
     fun createPost(
         principal: Principal,
-        @Valid @RequestBody request: CreatePostRequestDto
+        @Valid @RequestBody
+        request: CreatePostRequestDto
     ): ResponseEntity<ResultResponse> {
         val result = service.createPost(
             userId = principal.getUserId(),
@@ -87,7 +88,8 @@ class PostController(
     fun updatePost(
         principal: Principal,
         @PathVariable id: Long,
-        @Valid @RequestBody request: UpdatePostRequestDto
+        @Valid @RequestBody
+        request: UpdatePostRequestDto
     ): ResponseEntity<ResultResponse> {
         val result = service.updatePost(
             userId = principal.getUserId(),
