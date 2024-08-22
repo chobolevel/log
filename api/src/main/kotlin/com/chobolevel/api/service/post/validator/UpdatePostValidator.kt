@@ -32,7 +32,15 @@ class UpdatePostValidator : UpdatePostValidatable {
                         )
                     }
                 }
-
+                PostUpdateMask.SUB_TITLE -> {
+                    if (request.subTitle.isNullOrEmpty()) {
+                        throw ApiException(
+                            errorCode = ErrorCode.INVALID_PARAMETER,
+                            status = HttpStatus.BAD_REQUEST,
+                            message = "변경할 게시글 부제목이 유효하지 않습니다."
+                        )
+                    }
+                }
                 PostUpdateMask.CONTENT -> {
                     if (request.content.isNullOrEmpty()) {
                         throw ApiException(

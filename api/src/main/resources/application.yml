@@ -58,4 +58,7 @@ cloud:
       bucket: "chobolevel"
     stack.auto: false
     region.static: "ap-northeast-2"
+    credentials:
+      accessKey: "AKIARUGQHO32SWIRERQ5"
+      secretKey: "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"
 

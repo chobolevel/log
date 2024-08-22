@@ -11,6 +11,7 @@ data class PostResponseDto(
     val writer: UserResponseDto,
     val tags: List<TagResponseDto>,
     val title: String,
+    val subTitle: String,
     val content: String,
     val createdAt: Long,
     val updatedAt: Long
