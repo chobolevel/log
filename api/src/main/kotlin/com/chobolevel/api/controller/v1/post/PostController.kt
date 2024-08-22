@@ -48,6 +48,7 @@ class PostController(
     @Operation(summary = "게시글 목록 조회 API")
     @GetMapping("/posts")
     fun searchPosts(
+        @RequestParam(required = false) tagId: Long?,
         @RequestParam(required = false) title: String?,
         @RequestParam(required = false) content: String?,
         @RequestParam(required = false) skipCount: Long?,
@@ -55,6 +56,7 @@ class PostController(
         @RequestParam(required = false) orderTypes: List<PostOrderType>?
     ): ResponseEntity<ResultResponse> {
         val queryFilter = queryCreator.createQueryFilter(
+            tagId = tagId,
             title = title,
             content = content
         )
