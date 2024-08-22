@@ -3,7 +3,6 @@ package com.chobolevel.domain.entity.post.tag
 import com.chobolevel.domain.entity.Audit
 import com.chobolevel.domain.entity.post.Post
 import com.chobolevel.domain.entity.tag.Tag
-import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.EntityListeners
 import jakarta.persistence.FetchType

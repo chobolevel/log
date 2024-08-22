@@ -14,7 +14,6 @@ import jakarta.persistence.Id
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.SQLDelete
-import org.hibernate.annotations.Where
 import org.hibernate.envers.Audited
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
 

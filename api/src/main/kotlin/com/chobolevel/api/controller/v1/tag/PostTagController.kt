@@ -32,7 +32,10 @@ class PostTagController(
     @Operation(summary = "게시글 태그 등록 API")
     @HasAuthorityAdmin
     @PostMapping("/tags")
-    fun createPostTag(@Valid @RequestBody request: CreateTagRequestDto): ResponseEntity<ResultResponse> {
+    fun createPostTag(
+        @Valid @RequestBody
+        request: CreateTagRequestDto
+    ): ResponseEntity<ResultResponse> {
         val result = service.createPostTag(request)
         return ResponseEntity.ok(ResultResponse(result))
     }
@@ -61,7 +64,8 @@ class PostTagController(
     @PutMapping("/tags/{id}")
     fun updatePostTag(
         @PathVariable id: Long,
-        @Valid @RequestBody request: UpdateTagRequestDto
+        @Valid @RequestBody
+        request: UpdateTagRequestDto
     ): ResponseEntity<ResultResponse> {
         val result = service.updatePostTag(
             postTagId = id,
