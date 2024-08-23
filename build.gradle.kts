@@ -78,6 +78,7 @@ subprojects {
                 "-Dfile.encoding=UTF8",
                 "-Dsun.net.inetaddr.ttl=0",
                 "-Dtag=$imageTag",
+                "-Djasypt.encryptor.password=chobolevel"
             )
         })
         set("dockerEnv", { stage: String?, port: String, applicationUser: String ->
