@@ -18,7 +18,7 @@ class ExceptionHandler {
     @ExceptionHandler(org.springframework.security.access.AccessDeniedException::class)
     fun handleAccessDeniedException(e: org.springframework.security.access.AccessDeniedException): ResponseEntity<ErrorResponse> {
         val errorResponse = ErrorResponse(
-            errorCode = ErrorCode.INVALID_PARAMETER,
+            errorCode = ErrorCode.ACCESS_DENIED,
             errorMessage = e.message ?: "접근 권한이 없습니다."
         )
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse)

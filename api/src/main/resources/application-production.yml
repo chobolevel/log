@@ -30,10 +30,10 @@ spring:
     hibernate:
       ddl-auto: validate
   datasource:
-    url: jdbc:mysql://localhost:3306/log
+    url: ENC(vKVfK5vhmsY3HkBjD3bCtRhpQuYIQgGWG254ospQERuV21QYR3g9GlzD+qNrGvO4hRyf81Y7J7Lx0SyXtO3GoPpvFom7dEkIyp72ZAV+HyhjPsggU5d8bFCZCu4Z6H4XVZz5ESNW1kOiUaMtZoszQg==)
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: 1234
+    username: ENC(X5TwXzAoqYRK2lA0rJm8o4Zn+/3vhXunaejrAPXb9xSvy6LOYn3p8R2QvYkYz6Uh)
+    password: ENC(d53owQb+sOmtsZT6jXiANrjNT8qZNIiks8eZTirjebQnEJxyUX9ZhMsvDDmzquDp)
   flyway:
     enabled: true
     baseline-version: 0
