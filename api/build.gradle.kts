@@ -52,9 +52,9 @@ jib {
     }
     container {
         val memory = when (stage) {
-            "production" -> "2g"
-            "alpha" -> "2g"
-            else -> "2g"
+            "production" -> "1g"
+            "alpha" -> "1g"
+            else -> "1g"
         }
         jvmFlags = baseJvmFlags(memory, imageTag, stage)
 
