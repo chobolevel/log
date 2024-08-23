@@ -25,6 +25,7 @@ plugins {
     id("org.flywaydb.flyway") version "7.13.0" apply false
     id("org.jlleitschuh.gradle.ktlint") version "11.3.1" apply false
     id("org.jlleitschuh.gradle.ktlint-idea") version "11.3.1"
+    id("com.google.cloud.tools.jib") version "3.1.2" apply false
 }
 
 // 프로젝트에 있는 모든 모듈 관리
@@ -58,6 +59,31 @@ subprojects {
 
     ext {
         set("springBootVersion", "3.1.0")
+
+        set("baseJvmFlags", { memory: String, imageTag: String?, stage: String? ->
+            listOf(
+                "-server",
+                "-Xms$memory",
+                "-Xmx$memory",
+                "-XX:+UseContainerSupport",
+                "-Dspring.profiles.active=$stage",
+                "-XX:+UseStringDeduplication",
+                "-Dfile.encoding=UTF8",
+                "-Dsun.net.inetaddr.ttl=0",
+                "-Dtag=$imageTag",
+            )
+        })
+        set("dockerEnv", { stage: String?, port: String, applicationUser: String ->
+            mapOf(
+                "SPRING_PROFILES_ACTIVE" to stage,
+                "TZ" to "Asia/Seoul",
+                "PORT" to port,
+                "APPLICATION_USER" to applicationUser
+            )
+        })
+        set("dockerUser", "nobody")
+        set("containerCreationTime", "USE_CURRENT_TIMESTAMP")
+        set("dockerBaseImage", "eclipse-temurin:17.0.6_10-jdk-alpine")
     }
 
     dependencies {
