@@ -53,6 +53,12 @@ subprojects {
     apply(plugin = "org.springframework.boot")
     apply(plugin = "io.spring.dependency-management")
 
+    dependencyManagement {
+        imports {
+            mavenBom(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
+        }
+    }
+
     val kotestVersion = "5.5.5"
     val jacksonVersion = "2.14.2"
 
