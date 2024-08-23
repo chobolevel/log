@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Component
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -21,7 +22,8 @@ import java.util.concurrent.TimeUnit
 @Component
 class TokenProvider(
     private val jwtProperties: JwtProperties,
-    private val userFinder: UserFinder
+    private val userFinder: UserFinder,
+    private val userDetailService: UserDetailsService
 ) {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
@@ -75,9 +77,8 @@ class TokenProvider(
                 .setSigningKey(jwtProperties.secret)
                 .parseClaimsJws(token)
                 .body
-            val foundUser = userFinder.findById(claims.subject.toLong())
-            val userDetails = UserDetailsImpl(foundUser)
-            return UsernamePasswordAuthenticationToken(userDetails, token, userDetails.authorities)
+            val userDetails = userDetailService.loadUserByUsername(claims.subject)
+            UsernamePasswordAuthenticationToken(userDetails, token, userDetails.authorities)
         } catch (e: Exception) {
             logger.warn("Token is invalid", e)
             null
