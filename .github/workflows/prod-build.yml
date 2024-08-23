@@ -42,7 +42,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: 17.0.6
+          java-version: 17.0.11
           cache: 'gradle'
       - name: Gradle cache
         uses: actions/cache@v3
@@ -60,4 +60,6 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
       - name: API Build, tag, and push image to EC2
         id: build-image-api
-        run: make ec2_push_production_api
+        run: |
+          chmod +x ./gradlew
+          make ec2_push_production_api
