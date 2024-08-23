@@ -22,6 +22,7 @@ plugins {
     kotlin("plugin.jpa") version kotlinVersion apply false
     id("org.springframework.boot") version "3.1.0" apply false
     id("io.spring.dependency-management") version "1.1.0"
+    id("com.avast.gradle.docker-compose") version "0.16.11"
     id("org.flywaydb.flyway") version "7.13.0" apply false
     id("org.jlleitschuh.gradle.ktlint") version "11.3.1" apply false
     id("org.jlleitschuh.gradle.ktlint-idea") version "11.3.1"

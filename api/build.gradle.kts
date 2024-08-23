@@ -1,4 +1,4 @@
-val mainClassPath = "com.chobolevel.api.ApiApplication.kt"
+val mainClassPath = "com.chobolevel.api.ApiApplicationKt"
 
 tasks.withType<org.springframework.boot.gradle.tasks.bundling.BootJar> {
     mainClass.set(mainClassPath)
