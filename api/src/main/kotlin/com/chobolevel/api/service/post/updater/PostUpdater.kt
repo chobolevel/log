@@ -28,6 +28,7 @@ class PostUpdater(
                 }
 
                 PostUpdateMask.TITLE -> entity.title = request.title!!
+                PostUpdateMask.SUB_TITLE -> entity.subTitle = request.subTitle!!
                 PostUpdateMask.CONTENT -> entity.content = request.content!!
             }
         }

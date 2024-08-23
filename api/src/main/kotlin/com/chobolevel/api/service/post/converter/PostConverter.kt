@@ -16,6 +16,7 @@ class PostConverter(
     fun convert(request: CreatePostRequestDto): Post {
         return Post(
             title = request.title,
+            subTitle = request.subTitle,
             content = request.content
         )
     }
@@ -26,6 +27,7 @@ class PostConverter(
             writer = userConverter.convert(entity.user!!),
             tags = entity.postTags.map { tagConverter.convert(it.tag!!) },
             title = entity.title,
+            subTitle = entity.subTitle,
             content = entity.content,
             createdAt = entity.createdAt!!.toInstant().toEpochMilli(),
             updatedAt = entity.updatedAt!!.toInstant().toEpochMilli()

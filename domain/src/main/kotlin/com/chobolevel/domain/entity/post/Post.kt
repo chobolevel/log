@@ -28,6 +28,8 @@ class Post(
     @Column(nullable = false)
     var title: String,
     @Column(nullable = false)
+    var subTitle: String,
+    @Column(nullable = false)
     var content: String
 ) : Audit() {
 
@@ -68,5 +70,6 @@ enum class PostOrderType {
 enum class PostUpdateMask {
     TAGS,
     TITLE,
+    SUB_TITLE,
     CONTENT
 }
