@@ -8,7 +8,7 @@ on:
 
 env:
   PHASE: 'production'
-  SERVICE: 'chobolevel-log'
+  SERVICE: 'log'
 
 jobs:
   init:
