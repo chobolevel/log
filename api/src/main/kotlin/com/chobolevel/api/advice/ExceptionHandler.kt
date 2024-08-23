@@ -15,6 +15,15 @@ class ExceptionHandler {
 
     private val logger = LoggerFactory.getLogger(ExceptionHandler::class.java)
 
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException::class)
+    fun handleAccessDeniedException(e: org.springframework.security.access.AccessDeniedException): ResponseEntity<ErrorResponse> {
+        val errorResponse = ErrorResponse(
+            errorCode = ErrorCode.INVALID_PARAMETER,
+            errorMessage = e.message ?: "접근 권한이 없습니다."
+        )
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse)
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun methodArgumentNotValidExceptionHandler(e: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
         logger.info("why not working....")

@@ -7,6 +7,7 @@ enum class ErrorCode {
     // AUTH
     EXPIRED_TOKEN,
     INVALID_TOKEN,
+    ACCESS_DENIED,
 
     // UNKNOWN ERROR CODE
     UNKNOWN_ERROR,
