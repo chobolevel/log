@@ -78,4 +78,4 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Check lint error
-        run: ./gradlew ktlintCheck
+        run: sudo ./gradlew ktlintCheck
