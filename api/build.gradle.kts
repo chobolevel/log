@@ -5,7 +5,7 @@ tasks.withType<org.springframework.boot.gradle.tasks.bundling.BootJar> {
 }
 
 plugins {
-
+    id("com.google.cloud.tools.jib")
 }
 
 dependencies {
@@ -21,8 +21,47 @@ dependencies {
     // spring doc(register of doc)
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
 
+    // jasypt
+    implementation("com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5")
+
     // Java JWT 라이브러리
     implementation("io.jsonwebtoken:jjwt:0.9.1")
     // XML 문서의 Java 객체 간 매핑 자동화
     implementation("javax.xml.bind:jaxb-api:2.3.1")
+}
+
+val baseJvmFlags: (memory: String, imageTag: String?, stage: String?) -> List<String> by ext
+val dockerEnv: (stage: String?, port: String, applicationUser: String) -> Map<String, String> by ext
+val dockerUser: String? by ext
+val containerCreationTime: String? by ext
+val dockerBaseImage: String? by ext
+val stage: String? by project
+val imageTag: String? by project
+val containerImage: String? by project
+val port: String = "9565"
+val serviceName: String = "chobolevel-log-api"
+
+jib {
+    from {
+        image = dockerBaseImage
+    }
+
+    to {
+        image = "$containerImage"
+        tags = setOf(imageTag, "latest")
+    }
+    container {
+        val memory = when (stage) {
+            "production" -> "2g"
+            "alpha" -> "2g"
+            else -> "2g"
+        }
+        jvmFlags = baseJvmFlags(memory, imageTag, stage)
+
+        environment = dockerEnv(stage, port, serviceName)
+        mainClass = mainClassPath
+        user = dockerUser
+        ports = listOf(port)
+        creationTime = containerCreationTime
+    }
 }
