@@ -24,7 +24,7 @@ services:
     networks:
       - network
     ports:
-      - "9142:9142"
+      - "9565:9565"
     restart: always
 
   nginx:
