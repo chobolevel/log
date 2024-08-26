@@ -3,6 +3,7 @@ package com.chobolevel.api.controller.v1.user
 import com.chobolevel.api.annotation.HasAuthorityAdmin
 import com.chobolevel.api.annotation.HasAuthorityUser
 import com.chobolevel.api.dto.common.ResultResponse
+import com.chobolevel.api.dto.user.ChangeUserPasswordRequest
 import com.chobolevel.api.dto.user.CreateUserRequestDto
 import com.chobolevel.api.dto.user.UpdateUserRequestDto
 import com.chobolevel.api.getUserId
@@ -100,6 +101,17 @@ class UserController(
         request: UpdateUserRequestDto
     ): ResponseEntity<ResultResponse> {
         val result = service.updateUser(principal.getUserId(), request)
+        return ResponseEntity.ok(ResultResponse(result))
+    }
+
+    @Operation(summary = "회원 비밀번호 변경 API")
+    @HasAuthorityUser
+    @PutMapping("/users/change-password")
+    fun changePassword(
+        principal: Principal,
+        @RequestBody request: ChangeUserPasswordRequest
+    ): ResponseEntity<ResultResponse> {
+        val result = service.changePassword(principal.getUserId(), request)
         return ResponseEntity.ok(ResultResponse(result))
     }
 

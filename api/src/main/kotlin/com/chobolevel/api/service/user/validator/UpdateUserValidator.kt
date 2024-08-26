@@ -26,7 +26,7 @@ class UpdateUserValidator : UpdateUserValidatable {
                 message = "변경할 전화번호가 유효하지 않습니다."
             )
         }
-        if (phoneRegexp.matches(request.phone)) {
+        if (!phoneRegexp.matches(request.phone)) {
             throw ApiException(
                 errorCode = ErrorCode.INVALID_PARAMETER,
                 status = HttpStatus.BAD_REQUEST,

@@ -1,6 +1,7 @@
 package com.chobolevel.api.service.user
 
 import com.chobolevel.api.dto.common.PaginationResponseDto
+import com.chobolevel.api.dto.user.ChangeUserPasswordRequest
 import com.chobolevel.api.dto.user.CreateUserRequestDto
 import com.chobolevel.api.dto.user.UpdateUserRequestDto
 import com.chobolevel.api.dto.user.UserResponseDto
@@ -13,6 +14,10 @@ import com.chobolevel.domain.entity.user.UserFinder
 import com.chobolevel.domain.entity.user.UserOrderType
 import com.chobolevel.domain.entity.user.UserQueryFilter
 import com.chobolevel.domain.entity.user.UserRepository
+import com.chobolevel.domain.exception.ApiException
+import com.chobolevel.domain.exception.ErrorCode
+import org.springframework.http.HttpStatus
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -23,7 +28,8 @@ class UserService(
     private val converter: UserConverter,
     private val createValidators: List<CreateUserValidatable>,
     private val updateValidators: List<UpdateUserValidatable>,
-    private val updaters: List<UserUpdatable>
+    private val updaters: List<UserUpdatable>,
+    private val passwordEncoder: BCryptPasswordEncoder
 ) {
 
     @Transactional
@@ -60,6 +66,27 @@ class UserService(
         updateValidators.forEach { it.validate(request) }
         val user = finder.findById(id)
         updaters.sortedBy { it.order() }.forEach { it.markAsUpdate(request, user) }
+        return user.id!!
+    }
+
+    @Transactional
+    fun changePassword(id: Long, request: ChangeUserPasswordRequest): Long {
+        val user = finder.findById(id)
+        if (!passwordEncoder.matches(request.curPassword, user.password)) {
+            throw ApiException(
+                errorCode = ErrorCode.INVALID_PARAMETER,
+                status = HttpStatus.BAD_REQUEST,
+                message = "현재 비밀번호가 일치하지 않습니다."
+            )
+        }
+        if (request.curPassword == request.newPassword) {
+            throw ApiException(
+                errorCode = ErrorCode.INVALID_PARAMETER,
+                status = HttpStatus.BAD_REQUEST,
+                message = "현재 비밀번호와 같은 비밀번호로 변경할 수 없습니다."
+            )
+        }
+        user.password = passwordEncoder.encode(request.newPassword)
         return user.id!!
     }
 
