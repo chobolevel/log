@@ -31,3 +31,9 @@ data class UpdateUserRequestDto(
     @field:Size(min = 1, message = "update_mask는 필수 값입니다.")
     val updateMask: List<UserUpdateMask>
 )
+
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
+data class ChangeUserPasswordRequest(
+    val curPassword: String,
+    val newPassword: String,
+)
