@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Pattern
+import jakarta.validation.constraints.Size
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class CreateUserRequestDto(
@@ -28,6 +29,6 @@ data class CreateUserRequestDto(
 data class UpdateUserRequestDto(
     val nickname: String?,
     val phone: String?,
-    @field:Min(value = 1, message = "update_mask는 필수 값입니다.")
+    @field:Size(min = 1, message = "update_mask는 필수 값입니다.")
     val updateMask: List<UserUpdateMask>
 )
