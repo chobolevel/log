@@ -6,6 +6,7 @@ import com.chobolevel.domain.exception.ErrorCode
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -20,6 +21,15 @@ class ExceptionHandler {
         val errorResponse = ErrorResponse(
             errorCode = ErrorCode.ACCESS_DENIED,
             errorMessage = e.message ?: "접근 권한이 없습니다."
+        )
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse)
+    }
+
+    @ExceptionHandler(BadCredentialsException::class)
+    fun handleBadCredentialException(e: BadCredentialsException): ResponseEntity<ErrorResponse> {
+        val errorResponse = ErrorResponse(
+            errorCode = ErrorCode.BAD_CREDENTIALS,
+            errorMessage = e.message ?: "유효하지 않은 접근입니다."
         )
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse)
     }
