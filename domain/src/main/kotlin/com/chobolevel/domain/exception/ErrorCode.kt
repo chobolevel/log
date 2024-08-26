@@ -8,6 +8,7 @@ enum class ErrorCode {
     EXPIRED_TOKEN,
     INVALID_TOKEN,
     ACCESS_DENIED,
+    BAD_CREDENTIALS,
 
     // UNKNOWN ERROR CODE
     UNKNOWN_ERROR,
