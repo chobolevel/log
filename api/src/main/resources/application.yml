@@ -40,13 +40,9 @@ spring:
     out-of-order: true
 
 redis:
-  lettuce:
-    pool:
-      max-active: 10
-      max-idle: 10
-      min-idle: 2
-  host: localhost
-  port: 6379
+  chobolevel:
+    host: localhost
+    port: 6379
 
 jwt:
   issuer: ENC(cyIVjl7PIGwR3/yDARIOB56e0tUfQa5QQRIvwaYCma61C8I+Zzh8IuooBrQ/eq7t)
