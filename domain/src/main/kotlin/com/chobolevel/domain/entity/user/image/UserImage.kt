@@ -15,6 +15,7 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.SQLDelete
+import org.hibernate.annotations.Where
 import org.hibernate.envers.Audited
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
 
@@ -23,6 +24,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener
 @Table(name = "users_images")
 @Audited
 @SQLDelete(sql = "UPDATE users_images SET deleted = true WHERE id = ?")
+@Where(clause = "deleted = false")
 class UserImage(
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
