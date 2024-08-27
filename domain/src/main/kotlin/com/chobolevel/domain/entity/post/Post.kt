@@ -58,6 +58,10 @@ class Post(
             this.postTags.add(postTag)
         }
     }
+
+    fun delete() {
+        this.deleted = true
+    }
 }
 
 enum class PostOrderType {

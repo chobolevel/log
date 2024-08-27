@@ -24,7 +24,7 @@ class UserImageController(
     private val service: UserImageService
 ) {
 
-    @Operation(summary = "회원 포로필 이미지 변경 API")
+    @Operation(summary = "회원 프로필 이미지 변경 API")
     @HasAuthorityUser
     @PostMapping("/users/images")
     fun createUserImage(

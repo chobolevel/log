@@ -15,6 +15,7 @@ class PostQueryFilter(
             PostTagQueryFilter(tagId).toSubQuery(),
             title?.let { post.title.contains(it) },
             content?.let { post.content.contains(it) },
+            post.deleted.isFalse
         ).toTypedArray()
     }
 }

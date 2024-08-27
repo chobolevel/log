@@ -87,7 +87,7 @@ class PostService(
             id = postId,
             userId = userId
         )
-        repository.delete(post)
+        post.delete()
         return true
     }
 }
