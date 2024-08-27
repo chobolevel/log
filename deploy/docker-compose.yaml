@@ -4,7 +4,7 @@ networks:
   network:
 
 volumes:
-  chobolevel-redis:
+  chobolevel-log-redis:
 
 services:
   redis:
@@ -15,7 +15,7 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - chobolevel-redis:/data
+      - chobolevel-log-redis:/data
     restart: always
 
   backend:
