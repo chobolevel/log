@@ -43,6 +43,7 @@ redis:
   chobolevel:
     host: chobolevel-log-redis
     port: 6379
+    password: chobolevel
 
 jwt:
   issuer: ENC(cyIVjl7PIGwR3/yDARIOB56e0tUfQa5QQRIvwaYCma61C8I+Zzh8IuooBrQ/eq7t)
