@@ -17,15 +17,14 @@ import org.springframework.data.redis.serializer.StringRedisSerializer
 class RedisConfiguration(
     @Value("\${redis.chobolevel.host}") private val redisHost: String,
     @Value("\${redis.chobolevel.port}") private val redisPort: Int,
+    @Value("\${redis.chobolevel.password}") private val password: String,
 ) : CachingConfigurer {
-    private val logger = LoggerFactory.getLogger(this::class.java)
 
     @Primary
     @Bean
     fun redisConnectionFactory(): RedisConnectionFactory {
-        logger.info("host: {}", redisHost)
-        logger.info("port: {}", redisPort)
         val config = RedisStandaloneConfiguration(redisHost, redisPort)
+        config.setPassword(password)
         return LettuceConnectionFactory(config)
     }
 
