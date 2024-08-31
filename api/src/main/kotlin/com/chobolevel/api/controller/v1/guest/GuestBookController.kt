@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
 
 @Tag(name = "GuestBook (방명록)", description = "방명록 관리 API")
@@ -30,7 +29,10 @@ class GuestBookController(
 
     @Operation(summary = "방명록 등록 API")
     @PostMapping("/guest-books")
-    fun createGuestBook(@Valid @RequestBody request: CreateGuestBookRequestDto): ResponseEntity<ResultResponse> {
+    fun createGuestBook(
+        @Valid @RequestBody
+        request: CreateGuestBookRequestDto
+    ): ResponseEntity<ResultResponse> {
         val result = service.createGuestBook(request)
         return ResponseEntity.ok(ResultResponse(result))
     }
@@ -69,7 +71,8 @@ class GuestBookController(
     @PutMapping("/guest-books/{id}")
     fun updateGuestBook(
         @PathVariable id: Long,
-        @Valid @RequestBody request: UpdateGuestBookRequestDto
+        @Valid @RequestBody
+        request: UpdateGuestBookRequestDto
     ): ResponseEntity<ResultResponse> {
         val result = service.updateGuestBook(
             id = id,
