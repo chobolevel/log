@@ -43,6 +43,24 @@ class UserFinder(
         )
     }
 
+    fun existsByEmail(email: String): Boolean {
+        return repository.existsByEmailAndResignedFalse(
+            email = email,
+        )
+    }
+
+    fun existsByNickname(nickname: String): Boolean {
+        return repository.existsByNicknameAndResignedFalse(
+            nickname = nickname
+        )
+    }
+
+    fun existsByPhone(phone: String): Boolean {
+        return repository.existsByPhoneAndResignedFalse(
+            phone = phone
+        )
+    }
+
     fun search(queryFilter: UserQueryFilter, pagination: Pagination, orderTypes: List<UserOrderType>?): List<User> {
         val orderSpecifiers = orderSpecifiers(orderTypes ?: emptyList())
         return customRepository.searchByPredicates(queryFilter.toPredicates(), pagination, orderSpecifiers)
