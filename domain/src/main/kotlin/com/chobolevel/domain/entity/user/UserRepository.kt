@@ -7,4 +7,10 @@ interface UserRepository : JpaRepository<User, Long> {
     fun findByEmailAndLoginTypeAndResignedFalse(email: String, loginType: UserLoginType): User?
 
     fun findBySocialIdAndLoginTypeAndResignedFalse(socialId: String, loginType: UserLoginType): User?
+
+    fun existsByEmailAndResignedFalse(email: String): Boolean
+
+    fun existsByNicknameAndResignedFalse(nickname: String): Boolean
+
+    fun existsByPhoneAndResignedFalse(phone: String): Boolean
 }

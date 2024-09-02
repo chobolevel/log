@@ -35,6 +35,27 @@ class UserService(
     @Transactional
     fun createUser(request: CreateUserRequestDto): Long {
         createValidators.forEach { it.validate(request) }
+        if (finder.existsByEmail(request.email)) {
+            throw ApiException(
+                errorCode = ErrorCode.INVALID_PARAMETER,
+                status = HttpStatus.BAD_REQUEST,
+                message = "이미 존재하는 이메일입니다."
+            )
+        }
+        if (finder.existsByNickname(request.nickname)) {
+            throw ApiException(
+                errorCode = ErrorCode.INVALID_PARAMETER,
+                status = HttpStatus.BAD_REQUEST,
+                message = "이미 존재하는 닉네임입니다."
+            )
+        }
+        if (finder.existsByPhone(request.phone)) {
+            throw ApiException(
+                errorCode = ErrorCode.INVALID_PARAMETER,
+                status = HttpStatus.BAD_REQUEST,
+                message = "이미 존재하는 전화번호입니다."
+            )
+        }
         val user = converter.convert(request)
         return repository.save(user).id!!
     }
