@@ -16,7 +16,6 @@ services:
       - "6379:6379"
     volumes:
       - chobolevel-log-redis:/data
-    command: config set requirepass chobolevel
     restart: always
 
   backend:

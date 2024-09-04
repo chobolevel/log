@@ -37,4 +37,5 @@
 
 ## 초기 화면
 
-> ![www chobolevel site_](https://github.com/user-attachments/assets/0f2aefe4-3287-4b98-9c3b-f007f38943d3)
+> ![www chobolevel site_ (1)](https://github.com/user-attachments/assets/8597a1e3-e6b3-4349-b7ea-ba9c4ceac74e)
+
