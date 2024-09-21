@@ -1,6 +1,7 @@
 package com.chobolevel.api.service.post.updater
 
 import com.chobolevel.api.dto.post.UpdatePostRequestDto
+import com.chobolevel.api.service.post.converter.PostImageConverter
 import com.chobolevel.domain.entity.post.Post
 import com.chobolevel.domain.entity.post.PostUpdateMask
 import com.chobolevel.domain.entity.post.tag.PostTag
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component
 class PostUpdater(
     private val postTagRepository: PostTagRepository,
     private val tagFinder: TagFinder,
+    private val postImageConverter: PostImageConverter,
 ) : PostUpdatable {
 
     override fun markAsUpdate(request: UpdatePostRequestDto, entity: Post): Post {
@@ -30,6 +32,14 @@ class PostUpdater(
                 PostUpdateMask.TITLE -> entity.title = request.title!!
                 PostUpdateMask.SUB_TITLE -> entity.subTitle = request.subTitle!!
                 PostUpdateMask.CONTENT -> entity.content = request.content!!
+                PostUpdateMask.THUMB_NAIL_IMAGE -> {
+                    entity.deleteThumbNailImage()
+                    if (request.thumbNailImage != null) {
+                        postImageConverter.convert(request.thumbNailImage).also { postImage ->
+                            postImage.setBy(entity)
+                        }
+                    }
+                }
             }
         }
         return entity
