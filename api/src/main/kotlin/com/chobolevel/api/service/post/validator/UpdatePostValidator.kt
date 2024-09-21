@@ -50,6 +50,7 @@ class UpdatePostValidator : UpdatePostValidatable {
                         )
                     }
                 }
+                else -> Unit
             }
         }
     }
