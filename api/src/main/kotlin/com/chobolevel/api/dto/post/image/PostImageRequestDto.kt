@@ -1,6 +1,5 @@
 package com.chobolevel.api.dto.post.image
 
-import com.chobolevel.domain.entity.post.image.PostImage
 import com.chobolevel.domain.entity.post.image.PostImageType
 import com.chobolevel.domain.entity.post.image.PostImageUpdateMask
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
