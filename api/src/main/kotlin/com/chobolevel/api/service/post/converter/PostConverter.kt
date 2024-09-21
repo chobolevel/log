@@ -10,7 +10,8 @@ import org.springframework.stereotype.Component
 @Component
 class PostConverter(
     private val userConverter: UserConverter,
-    private val tagConverter: TagConverter
+    private val tagConverter: TagConverter,
+    private val postImageConverter: PostImageConverter,
 ) {
 
     fun convert(request: CreatePostRequestDto): Post {
@@ -22,6 +23,11 @@ class PostConverter(
     }
 
     fun convert(entity: Post): PostResponseDto {
+        val convertedThumbNailImage = if (entity.getThumbNailImage() != null) {
+            postImageConverter.convert(entity.getThumbNailImage()!!)
+        } else {
+            null
+        }
         return PostResponseDto(
             id = entity.id!!,
             writer = userConverter.convert(entity.user!!),
@@ -29,6 +35,7 @@ class PostConverter(
             title = entity.title,
             subTitle = entity.subTitle,
             content = entity.content,
+            thumbNailImage = convertedThumbNailImage,
             createdAt = entity.createdAt!!.toInstant().toEpochMilli(),
             updatedAt = entity.updatedAt!!.toInstant().toEpochMilli()
         )

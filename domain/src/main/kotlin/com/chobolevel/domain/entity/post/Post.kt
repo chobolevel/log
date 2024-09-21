@@ -1,6 +1,8 @@
 package com.chobolevel.domain.entity.post
 
 import com.chobolevel.domain.entity.Audit
+import com.chobolevel.domain.entity.post.image.PostImage
+import com.chobolevel.domain.entity.post.image.PostImageType
 import com.chobolevel.domain.entity.post.tag.PostTag
 import com.chobolevel.domain.entity.user.User
 import jakarta.persistence.CascadeType
@@ -47,6 +49,9 @@ class Post(
     @OneToMany(mappedBy = "post", cascade = [CascadeType.ALL], orphanRemoval = true)
     var postTags = mutableListOf<PostTag>()
 
+    @OneToMany(mappedBy = "post", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var images = mutableListOf<PostImage>()
+
     fun setBy(user: User) {
         if (this.user != user) {
             this.user = user
@@ -59,8 +64,22 @@ class Post(
         }
     }
 
+    fun addImage(image: PostImage) {
+        if (!this.images.contains(image)) {
+            this.images.add(image)
+        }
+    }
+
+    fun getThumbNailImage(): PostImage? {
+        return this.images.find { it.type === PostImageType.THUMB_NAIL && !it.deleted }
+    }
+
     fun delete() {
         this.deleted = true
+    }
+
+    fun deleteThumbNailImage() {
+        this.images.filter { it.type === PostImageType.THUMB_NAIL }.forEach { it.delete() }
     }
 }
 
@@ -75,5 +94,6 @@ enum class PostUpdateMask {
     TAGS,
     TITLE,
     SUB_TITLE,
-    CONTENT
+    CONTENT,
+    THUMB_NAIL_IMAGE
 }

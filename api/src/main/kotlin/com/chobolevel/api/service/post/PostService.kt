@@ -5,6 +5,7 @@ import com.chobolevel.api.dto.post.CreatePostRequestDto
 import com.chobolevel.api.dto.post.PostResponseDto
 import com.chobolevel.api.dto.post.UpdatePostRequestDto
 import com.chobolevel.api.service.post.converter.PostConverter
+import com.chobolevel.api.service.post.converter.PostImageConverter
 import com.chobolevel.api.service.post.updater.PostUpdatable
 import com.chobolevel.api.service.post.validator.UpdatePostValidatable
 import com.chobolevel.domain.Pagination
@@ -25,6 +26,7 @@ class PostService(
     private val userFinder: UserFinder,
     private val tagFinder: TagFinder,
     private val converter: PostConverter,
+    private val postImageConverter: PostImageConverter,
     private val updateValidators: List<UpdatePostValidatable>,
     private val updaters: List<PostUpdatable>
 ) {
@@ -32,13 +34,18 @@ class PostService(
     @Transactional
     fun createPost(userId: Long, request: CreatePostRequestDto): Long {
         val foundUser = userFinder.findById(userId)
-        val post = converter.convert(request).also {
-            it.setBy(foundUser)
+        val post = converter.convert(request).also { post ->
+            post.setBy(foundUser)
             request.tagIds.forEach { tagId ->
                 val postTag = PostTag()
                 val tag = tagFinder.findById(tagId)
-                postTag.setBy(it)
+                postTag.setBy(post)
                 postTag.setBy(tag)
+            }
+            if (request.thumbNailIMage != null) {
+                postImageConverter.convert(request.thumbNailIMage).also {
+                    it.setBy(post)
+                }
             }
         }
         return repository.save(post).id!!
