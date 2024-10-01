@@ -30,7 +30,8 @@ class PostCommentController(
     @Operation(summary = "게시글 댓글 등록 API")
     @PostMapping("/posts/comments")
     fun createPostComment(
-        @Valid @RequestBody request: CreatePostCommentRequestDto
+        @Valid @RequestBody
+        request: CreatePostCommentRequestDto
     ): ResponseEntity<ResultResponse> {
         val result = service.createPostComment(
             request = request
@@ -65,7 +66,8 @@ class PostCommentController(
     @PutMapping("/posts/comments/{id}")
     fun updatePostComment(
         @PathVariable id: Long,
-        @Valid @RequestBody request: UpdatePostCommentRequestDto
+        @Valid @RequestBody
+        request: UpdatePostCommentRequestDto
     ): ResponseEntity<ResultResponse> {
         val result = service.updatePostComment(
             postCommentId = id,

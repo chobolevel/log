@@ -1,7 +1,6 @@
 package com.chobolevel.api.service.post.query
 
 import com.chobolevel.domain.Pagination
-import com.chobolevel.domain.entity.post.PostQueryFilter
 import com.chobolevel.domain.entity.post.comment.PostCommentQueryFilter
 import org.springframework.stereotype.Component
 
