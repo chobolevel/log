@@ -20,7 +20,7 @@ class JwtAuthorizationFilter(
         // session 사용하지 않기 때문에 context holder 인증 객체 있다면 넣어 주는 작업 수행
         // 토큰 없는 경우 다음 필터 수행
         val header = request.getHeader("Authorization")
-        if (header == null || !header.startsWith("Bearer ")) {
+        if (header == null || !header.startsWith(PREFIX)) {
             chain.doFilter(request, response)
             return
         }
