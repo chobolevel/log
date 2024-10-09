@@ -81,7 +81,8 @@ class PostCommentController(
     @PutMapping("/posts/comments/{id}/delete")
     fun deletePostComment(
         @PathVariable("id") postCommentId: Long,
-        @Valid @RequestBody request: DeletePostCommentRequestDto
+        @Valid @RequestBody
+        request: DeletePostCommentRequestDto
     ): ResponseEntity<ResultResponse> {
         val result = service.deletePostComment(
             postCommentId = postCommentId,
