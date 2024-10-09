@@ -27,3 +27,9 @@ data class UpdatePostCommentRequestDto(
     @Size(min = 1, message = "update_mask는 필수 값입니다.")
     val updateMask: List<PostCommentUpdateMask>
 )
+
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
+data class DeletePostCommentRequestDto(
+    @field:NotEmpty(message = "삭제를 위해 비밀번호는 필수 값입니다.")
+    val password: String
+)

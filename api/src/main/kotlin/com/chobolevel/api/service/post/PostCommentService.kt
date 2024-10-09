@@ -2,6 +2,7 @@ package com.chobolevel.api.service.post
 
 import com.chobolevel.api.dto.common.PaginationResponseDto
 import com.chobolevel.api.dto.post.comment.CreatePostCommentRequestDto
+import com.chobolevel.api.dto.post.comment.DeletePostCommentRequestDto
 import com.chobolevel.api.dto.post.comment.UpdatePostCommentRequestDto
 import com.chobolevel.api.service.post.converter.PostCommentConverter
 import com.chobolevel.api.service.post.updater.PostCommentUpdatable
@@ -65,10 +66,23 @@ class PostCommentService(
         if (!passwordEncoder.matches(request.password, postComment.password)) {
             throw ApiException(
                 errorCode = ErrorCode.INVALID_PARAMETER,
-                message = "비밀번호가 올바르지 않습니다."
+                message = "비밀번호가 일치하지 않습니다."
             )
         }
         updaters.sortedBy { it.order() }.forEach { it.markAsUpdate(request = request, entity = postComment) }
         return postComment.id!!
+    }
+
+    @Transactional
+    fun deletePostComment(postCommentId: Long, request: DeletePostCommentRequestDto): Boolean {
+        val postComment = finder.findById(postCommentId)
+        if (!passwordEncoder.matches(request.password, postComment.password)) {
+            throw ApiException(
+                errorCode = ErrorCode.INVALID_PARAMETER,
+                message = "비밀번호가 일치하지 않습니다."
+            )
+        }
+        repository.delete(postComment)
+        return true
     }
 }

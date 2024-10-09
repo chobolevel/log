@@ -2,6 +2,7 @@ package com.chobolevel.api.controller.v1.post
 
 import com.chobolevel.api.dto.common.ResultResponse
 import com.chobolevel.api.dto.post.comment.CreatePostCommentRequestDto
+import com.chobolevel.api.dto.post.comment.DeletePostCommentRequestDto
 import com.chobolevel.api.dto.post.comment.UpdatePostCommentRequestDto
 import com.chobolevel.api.service.post.PostCommentService
 import com.chobolevel.api.service.post.query.PostCommentQueryCreator
@@ -71,6 +72,20 @@ class PostCommentController(
     ): ResponseEntity<ResultResponse> {
         val result = service.updatePostComment(
             postCommentId = id,
+            request = request
+        )
+        return ResponseEntity.ok(ResultResponse(result))
+    }
+
+    @Operation(summary = "게시글 댓글 삭제 API")
+    @PutMapping("/posts/comments/{id}/delete")
+    fun deletePostComment(
+        @PathVariable("id") postCommentId: Long,
+        @Valid @RequestBody
+        request: DeletePostCommentRequestDto
+    ): ResponseEntity<ResultResponse> {
+        val result = service.deletePostComment(
+            postCommentId = postCommentId,
             request = request
         )
         return ResponseEntity.ok(ResultResponse(result))
