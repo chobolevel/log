@@ -32,7 +32,7 @@
 
 ## DB 테이블 스키마
 
-> ![image](https://github.com/user-attachments/assets/77952455-e154-4b8a-b52f-6e1945ecabdc)
+> ![log-table-scheme](https://github.com/user-attachments/assets/c06d3419-039f-461b-b4b1-b47774605619)
 >
 > 각 테이블은 스프링의 envers 통해 수정/삭제 시 히스토리를 관리하도록 했습니다.
 
