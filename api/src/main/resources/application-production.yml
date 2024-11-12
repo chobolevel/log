@@ -5,6 +5,9 @@ logging:
   level:
     root: info
     org.hibernate.envers.boot: OFF
+  discord:
+    webhook-uri: "https://discord.com/api/webhooks/1305772290893676545/LBDgAD-Xf9wREY2C5bStzkQOqo7KYDGePWXRcnSKfe9u8MJ7vSkr8KsBRswN16-QhlJH"
+  config: classpath:logback.xml
 
 spring:
   jpa:
