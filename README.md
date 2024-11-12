@@ -21,13 +21,20 @@
 > + Kotlin
 >+ SpringBoot 3.1.0
 >+ spring-boot-data-jpa, query dsl
+>+ spring-data-envers
 >+ MySQL 8.0(AWS RDS)
 >+ Redis
 >+ Nginx, Certbot
 
+## CI/CD
+> github action, Jib 라이브러리 그리고 Makefile 커맨드 등을 이용해 브랜치의 푸시 이벤트를 감지하여 도커 허브 레포에 도커 이미지를 빌드하여 푸시하도록 하였습니다.
+> 이후 해당 이미지를 서버에서 다운로드 받아서 도커 컨테이너로 실행하도록 구성하였습니다.
+
 ## DB 테이블 스키마
 
 > ![image](https://github.com/user-attachments/assets/77952455-e154-4b8a-b52f-6e1945ecabdc)
+>
+> 각 테이블은 스프링의 envers 통해 수정/삭제 시 히스토리를 관리하도록 했습니다.
 
 ## SWAGGER UI
 
