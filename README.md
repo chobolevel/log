@@ -6,28 +6,35 @@
 
 ## [프로젝트 서비스 링크](https://chobolevel.site)
 
-> + AWS EC2 인스턴스에 도커를 이용하여 배포하였습니다.
+> + 카페24 호스팅 서비스에 도커를 이용하여 배포하였습니다.
 > + 프론트엔드 프로젝트는 VERCEL 서비스를 이용하였습니다.
 > + Jar, Nginx, Redis, Certbot 등 총 4개의 도커 컨테이너가 실행 중인 상태입니다.
-> + DB는 AWS의 RDS 서비스를 이용해서 사용할 수 있도록 하였습니다.
+> + DB는 AWS의 RDS 서비스를 사용하였습니다.
 
 ## 프로젝트를 진행한 이유
 
-> 여러 블로그를 참고하면서 능력있는 개발자들의 블로그는 보통 직접 개발한 경우가 많다고 보아서 따라해보게 되었으며
+> 여러 블로그를 참고하면서 능력있는 개발자들의 블로그는 보통 직접 개발한 경우가 많다고 보아서 따라해보게 되었습니다.<br />
 > 이전까지 배운 내용들을 활용해보고 중간중간 새로운 부분도 익히기 위해 진행하였습니다.
 
 ## 백엔드 프로젝트 사용기술
 
-> + Java 17
+> + Kotlin
 >+ SpringBoot 3.1.0
 >+ spring-boot-data-jpa, query dsl
->+ MySQL 8.0
+>+ spring-data-envers
+>+ MySQL 8.0(AWS RDS)
 >+ Redis
->+ AWS EC2, Nginx, Certbot
+>+ Nginx, Certbot
+
+## CI/CD
+> github action, Jib 라이브러리 그리고 Makefile 커맨드 등을 이용해 브랜치의 푸시 이벤트를 감지하여 도커 허브 레포에 도커 이미지를 빌드하여 푸시하도록 하였습니다.<br />
+> 이후 해당 이미지를 서버에서 다운로드 받아서 도커 컨테이너로 실행하도록 구성하였습니다.
 
 ## DB 테이블 스키마
 
-> ![image](https://github.com/user-attachments/assets/44cb0342-4a24-43b3-9910-20b2f80f7cfd)
+> ![log-table-scheme](https://github.com/user-attachments/assets/c06d3419-039f-461b-b4b1-b47774605619)
+>
+> 각 테이블은 스프링의 envers 통해 수정/삭제 시 히스토리를 관리하도록 했습니다.
 
 ## SWAGGER UI
 
@@ -37,5 +44,5 @@
 
 ## 초기 화면
 
-> ![www chobolevel site_ (1)](https://github.com/user-attachments/assets/8597a1e3-e6b3-4349-b7ea-ba9c4ceac74e)
+> ![www chobolevel site_ (1)](https://github.com/user-attachments/assets/a1183088-a089-4834-b685-458a6c8c34cf)
 
