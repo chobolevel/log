@@ -17,6 +17,7 @@ services:
     volumes:
       - chobolevel-log-redis:/data
     restart: always
+    command: redis-server --requirepass chobolevel
 
   backend:
     image: rodaka123/log:latest
