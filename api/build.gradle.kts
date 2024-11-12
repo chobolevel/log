@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.ir.backend.js.compile
+
 val mainClassPath = "com.chobolevel.api.ApiApplicationKt"
 
 tasks.withType<org.springframework.boot.gradle.tasks.bundling.BootJar> {
@@ -26,8 +28,12 @@ dependencies {
 
     // Java JWT 라이브러리
     implementation("io.jsonwebtoken:jjwt:0.9.1")
+
     // XML 문서의 Java 객체 간 매핑 자동화
     implementation("javax.xml.bind:jaxb-api:2.3.1")
+
+    // logger
+    implementation("com.github.napstr:logback-discord-appender:1.0.0")
 }
 
 val baseJvmFlags: (memory: String, imageTag: String?, stage: String?) -> List<String> by ext

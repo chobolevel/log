@@ -60,4 +60,11 @@ class ExceptionHandler {
             )
         )
     }
+
+    @ExceptionHandler(Exception::class)
+    fun handleException(e: Exception): ResponseEntity<ErrorResponse> {
+        val error = ErrorResponse(errorCode = ErrorCode.UNKNOWN_ERROR, errorMessage = e.message ?: "알 수 없는 에러입니다.")
+        logger.error("Internal server error: ${e.message}", e)
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error)
+    }
 }
