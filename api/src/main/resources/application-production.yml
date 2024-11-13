@@ -6,7 +6,7 @@ logging:
     root: info
     org.hibernate.envers.boot: OFF
   discord:
-    webhook-uri: ENC(SnL5EkEEi5ENvSILx2PRQfdcHlrdH67WloXOnqruL3SdC/cnuUiAu9uQ8ME1DpGvl+xokZrn0zKbzdDm44CJ+dRTziogqVYI7/n1wuST+YVNBvvzgY+fMkWR54Vq8MTGMhGpgOY7KBZHufvSZmBpjjWwKl76dPCZ7pO8FHXvBpQaKj21V8688P9CnQng97jwBuSFY/UMKlQy2x22DuiLOg==)
+    webhook-uri: https://discord.com/api/webhooks/1305772290893676545/LBDgAD-Xf9wREY2C5bStzkQOqo7KYDGePWXRcnSKfe9u8MJ7vSkr8KsBRswN16-QhlJH
   config: classpath:logback.xml
 
 spring:
