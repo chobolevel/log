@@ -3,6 +3,7 @@ package com.chobolevel.api.advice
 import com.chobolevel.api.dto.common.ErrorResponse
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
+import jakarta.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -62,9 +63,9 @@ class ExceptionHandler {
     }
 
     @ExceptionHandler(Exception::class)
-    fun handleException(e: Exception): ResponseEntity<ErrorResponse> {
+    fun handleException(e: Exception, request: HttpServletRequest): ResponseEntity<ErrorResponse> {
         val error = ErrorResponse(errorCode = ErrorCode.UNKNOWN_ERROR, errorMessage = e.message ?: "알 수 없는 에러입니다.")
-        logger.error("Internal server error: ${e.message}", e)
+        logger.error("[(${request.method}) ${request.requestURL} ] Internal server error: ${e.message}", e)
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error)
     }
 }
