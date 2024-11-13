@@ -37,7 +37,6 @@ class ExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun methodArgumentNotValidExceptionHandler(e: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
-        logger.info("why not working....")
         val errorCode = ErrorCode.INVALID_PARAMETER
         val status = HttpStatus.BAD_REQUEST
         val message = e.message
