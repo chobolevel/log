@@ -40,6 +40,9 @@ dependencies {
     // devtools
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
+    // rest template(okhttp)
+    implementation("com.squareup.okhttp3:okhttp:4.11.0")
+
     // kapt(java annotation -> kotlin annotation)
     kapt("com.querydsl:querydsl-apt:${queryDslVersion}:jakarta")
     kapt("jakarta.annotation:jakarta.annotation-api")

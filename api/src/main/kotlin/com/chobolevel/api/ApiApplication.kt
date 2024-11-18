@@ -6,10 +6,12 @@ import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Import
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
+import org.springframework.scheduling.annotation.EnableAsync
 
 @EntityScan(basePackages = ["com.chobolevel.domain"])
 @EnableJpaRepositories(basePackages = ["com.chobolevel.domain"])
 @Import(DomainConfigurationLoader::class)
+@EnableAsync
 @SpringBootApplication
 class ApiApplication
 
