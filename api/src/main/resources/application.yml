@@ -6,7 +6,9 @@ logging:
     root: debug
     org.hibernate.envers.boot: OFF
   discord:
-    webhook-uri: https://discord.com/api/webhooks/1305759962022150204/fsUotdCkmDGRzUMF4O8wKUNZOeHPQvnzeAAIyPKTB-SREypN_FAL8R3272r9jf4v00QS
+    webhook-url: https://discord.com/api/webhooks/1305759962022150204/fsUotdCkmDGRzUMF4O8wKUNZOeHPQvnzeAAIyPKTB-SREypN_FAL8R3272r9jf4v00QS
+    username: LoggerBot
+    avatar-url: https://phinf.pstatic.net/contact/20240821_205/1724202038449ujiun_JPEG/image.jpg
   config: classpath:logback.xml
 
 spring:

@@ -3,6 +3,7 @@ package com.chobolevel.api.controller.v1.guest
 import com.chobolevel.api.dto.common.ResultResponse
 import com.chobolevel.api.dto.guest.CreateGuestBookRequestDto
 import com.chobolevel.api.dto.guest.UpdateGuestBookRequestDto
+import com.chobolevel.api.posttask.CreateGuestBookPostTask
 import com.chobolevel.api.service.guest.GuestBookService
 import com.chobolevel.api.service.guest.query.GuestBookQueryCreator
 import com.chobolevel.domain.entity.guest.GuestBookOrderType
@@ -24,7 +25,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/v1")
 class GuestBookController(
     private val service: GuestBookService,
-    private val queryCreator: GuestBookQueryCreator
+    private val queryCreator: GuestBookQueryCreator,
+    private val createPostTask: CreateGuestBookPostTask
 ) {
 
     @Operation(summary = "방명록 등록 API")
@@ -34,6 +36,7 @@ class GuestBookController(
         request: CreateGuestBookRequestDto
     ): ResponseEntity<ResultResponse> {
         val result = service.createGuestBook(request)
+        createPostTask.invoke()
         return ResponseEntity.ok(ResultResponse(result))
     }
 
