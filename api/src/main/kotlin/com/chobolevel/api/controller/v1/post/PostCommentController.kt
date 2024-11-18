@@ -4,6 +4,7 @@ import com.chobolevel.api.dto.common.ResultResponse
 import com.chobolevel.api.dto.post.comment.CreatePostCommentRequestDto
 import com.chobolevel.api.dto.post.comment.DeletePostCommentRequestDto
 import com.chobolevel.api.dto.post.comment.UpdatePostCommentRequestDto
+import com.chobolevel.api.posttask.CreatePostCommentPostTask
 import com.chobolevel.api.service.post.PostCommentService
 import com.chobolevel.api.service.post.query.PostCommentQueryCreator
 import com.chobolevel.domain.entity.post.comment.PostCommentOrderType
@@ -25,7 +26,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/v1")
 class PostCommentController(
     private val service: PostCommentService,
-    private val queryCreator: PostCommentQueryCreator
+    private val queryCreator: PostCommentQueryCreator,
+    private val createPostTask: CreatePostCommentPostTask,
 ) {
 
     @Operation(summary = "게시글 댓글 등록 API")
@@ -37,6 +39,7 @@ class PostCommentController(
         val result = service.createPostComment(
             request = request
         )
+        createPostTask.invoke()
         return ResponseEntity.ok(ResultResponse(result))
     }
 
