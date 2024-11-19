@@ -1,17 +1,17 @@
-//package com.chobolevel.api.warmer
+// package com.chobolevel.api.warmer
 //
-//import com.chobolevel.api.service.post.PostService
-//import com.chobolevel.domain.Pagination
-//import com.chobolevel.domain.entity.post.PostQueryFilter
-//import kotlinx.coroutines.Dispatchers
-//import kotlinx.coroutines.withContext
-//import org.slf4j.LoggerFactory
-//import org.springframework.stereotype.Component
+// import com.chobolevel.api.service.post.PostService
+// import com.chobolevel.domain.Pagination
+// import com.chobolevel.domain.entity.post.PostQueryFilter
+// import kotlinx.coroutines.Dispatchers
+// import kotlinx.coroutines.withContext
+// import org.slf4j.LoggerFactory
+// import org.springframework.stereotype.Component
 //
-//@Component
-//class PostExactlyOnceRunWarmer(
+// @Component
+// class PostExactlyOnceRunWarmer(
 //    private val postService: PostService,
-//) : ExactlyOnceRunWarmer() {
+// ) : ExactlyOnceRunWarmer() {
 //
 //    private val logger = LoggerFactory.getLogger(PostExactlyOnceRunWarmer::class.java)
 //
@@ -26,4 +26,4 @@
 //        }
 //        logger.info("==================================== warm up ended ====================================")
 //    }
-//}
+// }
