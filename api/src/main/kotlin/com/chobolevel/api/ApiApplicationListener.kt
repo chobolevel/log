@@ -10,13 +10,9 @@ import org.springframework.web.client.getForEntity
 @Component
 class ApiApplicationListener(
     private val restTemplate: RestTemplate,
-    @Value("\${server.protocol}")
-    private val serverProtocol: String,
-    @Value("\${server.host}")
-    private val serverHost: String,
 ) : ApplicationListener<ApplicationReadyEvent> {
 
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
-        restTemplate.getForEntity<String>("$serverProtocol://$serverHost/api/v1/posts")
+        restTemplate.getForEntity<String>("http://localhost:9565/api/v1/posts")
     }
 }
