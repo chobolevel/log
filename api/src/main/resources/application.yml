@@ -1,4 +1,6 @@
 server:
+  protocol: "http"
+  host: "localhost:9565"
   port: 9565
 
 logging:
