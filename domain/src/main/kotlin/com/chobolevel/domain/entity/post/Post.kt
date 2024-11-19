@@ -47,10 +47,10 @@ class Post(
     var deleted: Boolean = false
 
     @OneToMany(mappedBy = "post", cascade = [CascadeType.ALL], orphanRemoval = true)
-    var postTags = mutableListOf<PostTag>()
+    var postTags = mutableSetOf<PostTag>()
 
     @OneToMany(mappedBy = "post", cascade = [CascadeType.ALL], orphanRemoval = true)
-    var images = mutableListOf<PostImage>()
+    var images = mutableSetOf<PostImage>()
 
     fun setBy(user: User) {
         if (this.user != user) {
