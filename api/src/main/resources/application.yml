@@ -79,5 +79,5 @@ management:
           show-components: always
         liveness:
           show-components: always
-          exclude:
-            - warmup
+#          exclude:
+#            - warmup
