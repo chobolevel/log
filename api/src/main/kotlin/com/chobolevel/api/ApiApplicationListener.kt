@@ -20,7 +20,6 @@ class ApiApplicationListener(
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
         logger.info("===== warm up started with $host ====")
         restTemplate.getForEntity<String>("$host/api/v1/posts")
-        restTemplate.getForEntity<String>("$host/api/v1/posts/1")
         logger.info("===== warm up ended with $host ======")
     }
 }
