@@ -14,7 +14,7 @@ class RestTemplateConfiguration {
 
     @Bean
     fun restTemplate(): RestTemplate {
-        val factory = createRequestFactory(500, 3000)
+        val factory = createRequestFactory(3000, 5000)
         return RestTemplate(factory)
     }
 
