@@ -1,17 +1,17 @@
-//package com.chobolevel.api.warmer
+// package com.chobolevel.api.warmer
 //
-//import org.slf4j.LoggerFactory
-//import org.springframework.beans.factory.annotation.Value
-//import org.springframework.stereotype.Component
-//import org.springframework.web.client.RestTemplate
-//import org.springframework.web.client.getForEntity
+// import org.slf4j.LoggerFactory
+// import org.springframework.beans.factory.annotation.Value
+// import org.springframework.stereotype.Component
+// import org.springframework.web.client.RestTemplate
+// import org.springframework.web.client.getForEntity
 //
-//@Component
-//class PostExactlyOnceRunWarmer(
+// @Component
+// class PostExactlyOnceRunWarmer(
 //    private val restTemplate: RestTemplate,
 //    @Value("\${server.host}")
 //    private val host: String
-//) : ExactlyOnceRunWarmer() {
+// ) : ExactlyOnceRunWarmer() {
 //
 //    private val logger = LoggerFactory.getLogger(PostExactlyOnceRunWarmer::class.java)
 //
@@ -21,4 +21,4 @@
 //        restTemplate.getForEntity<String>("$host/api/v1/posts/1")
 //        logger.info("===== warm up ended with $host ======")
 //    }
-//}
+// }
