@@ -1,12 +1,12 @@
 package com.chobolevel.api.dto.guest
 
 import com.chobolevel.domain.entity.guest.GuestBookUpdateMask
-import com.fasterxml.jackson.databind.PropertyNamingStrategy
+import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.Size
 
-@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy::class)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class CreateGuestBookRequestDto(
     @field:NotEmpty(message = "방문록 작성자 이름은 필수 값입니다.")
     val guestName: String,
@@ -16,7 +16,7 @@ data class CreateGuestBookRequestDto(
     val content: String
 )
 
-@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy::class)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class UpdateGuestBookRequestDto(
     @field:NotEmpty(message = "방문록 수정 시 비밀번호는 필수 값입니다.")
     val password: String,
