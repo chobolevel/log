@@ -5,7 +5,6 @@ import com.chobolevel.domain.entity.user.image.UserImage
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
-import jakarta.persistence.EntityListeners
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
@@ -15,7 +14,6 @@ import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.SQLDelete
 import org.hibernate.envers.Audited
-import org.springframework.data.jpa.domain.support.AuditingEntityListener
 
 @Entity
 @Table(name = "users")

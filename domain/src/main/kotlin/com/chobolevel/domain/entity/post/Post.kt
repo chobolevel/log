@@ -8,7 +8,6 @@ import com.chobolevel.domain.entity.user.User
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
-import jakarta.persistence.EntityListeners
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -19,7 +18,6 @@ import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import org.hibernate.annotations.SQLDelete
 import org.hibernate.envers.Audited
-import org.springframework.data.jpa.domain.support.AuditingEntityListener
 
 @Entity
 @Table(name = "posts")

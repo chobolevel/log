@@ -4,7 +4,6 @@ import com.chobolevel.domain.entity.Audit
 import com.chobolevel.domain.entity.post.Post
 import com.chobolevel.domain.entity.tag.Tag
 import jakarta.persistence.Entity
-import jakarta.persistence.EntityListeners
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -13,7 +12,6 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import org.hibernate.envers.Audited
-import org.springframework.data.jpa.domain.support.AuditingEntityListener
 
 @Entity
 @Table(name = "post_tags")
