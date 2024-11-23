@@ -9,7 +9,7 @@ import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.time.OffsetDateTime
 
-// 어노테이션을 통해 해당 클래스에 auditing 기능 포함
+// 공유 엔티티에서 EntityListener 설정 시 상속 클래스에서는 EntityListener 정의하지 않아도 됨
 @EntityListeners(value = [AuditingEntityListener::class])
 @MappedSuperclass
 @Audited
