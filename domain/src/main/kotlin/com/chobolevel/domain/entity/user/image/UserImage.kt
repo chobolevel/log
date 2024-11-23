@@ -4,7 +4,6 @@ import com.chobolevel.domain.entity.Audit
 import com.chobolevel.domain.entity.user.User
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
-import jakarta.persistence.EntityListeners
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
@@ -17,9 +16,7 @@ import jakarta.persistence.Table
 import org.hibernate.annotations.SQLDelete
 import org.hibernate.annotations.Where
 import org.hibernate.envers.Audited
-import org.springframework.data.jpa.domain.support.AuditingEntityListener
 
-@EntityListeners(value = [AuditingEntityListener::class])
 @Entity
 @Table(name = "users_images")
 @Audited

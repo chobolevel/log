@@ -5,7 +5,6 @@ import com.chobolevel.domain.entity.post.tag.PostTag
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
-import jakarta.persistence.EntityListeners
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -13,9 +12,7 @@ import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import org.hibernate.annotations.SQLDelete
 import org.hibernate.envers.Audited
-import org.springframework.data.jpa.domain.support.AuditingEntityListener
 
-@EntityListeners(value = [AuditingEntityListener::class])
 @Entity
 @Table(name = "tags")
 @Audited
