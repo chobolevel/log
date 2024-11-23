@@ -12,7 +12,6 @@ import org.hibernate.annotations.SQLDelete
 import org.hibernate.envers.Audited
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
 
-@EntityListeners(value = [AuditingEntityListener::class])
 @Entity
 @Table(name = "guest_books")
 @Audited
