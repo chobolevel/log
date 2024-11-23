@@ -18,7 +18,7 @@ class WarmScheduler(
     private val logger = LoggerFactory.getLogger(WarmScheduler::class.java)
 
     @Async
-    @Scheduled(cron = "0 */30 * * * *")
+    @Scheduled(cron = "0 */10 * * * *")
     fun postControllerWarmer() {
         logger.info("===== warm up scheduler started with $host ====")
         restTemplate.getForEntity<String>("$host/api/v1/posts")
