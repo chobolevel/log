@@ -1,7 +1,6 @@
 package com.chobolevel.api.scheduler
 
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Async
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
@@ -12,8 +11,6 @@ import java.net.InetAddress
 @Component
 class WarmScheduler(
     private val restTemplate: RestTemplate,
-    @Value("\${server.protocol}")
-    private val protocol: String
 ) {
 
     private val logger = LoggerFactory.getLogger(WarmScheduler::class.java)
@@ -21,7 +18,7 @@ class WarmScheduler(
     @Async
     @Scheduled(cron = "0 */10 * * * *")
     fun postControllerWarmer() {
-        val url = "$protocol://${InetAddress.getLocalHost().hostAddress}:9565"
+        val url = "http://${InetAddress.getLocalHost().hostAddress}:9565"
         logger.info("===== warm up started with $url ====")
         restTemplate.getForEntity<String>("$url/api/v1/posts")
         restTemplate.getForEntity<String>("$url/api/v1/posts/1")
