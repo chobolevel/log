@@ -7,21 +7,22 @@ import org.springframework.context.ApplicationListener
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForEntity
-import java.time.OffsetDateTime
+import java.net.InetAddress
 
 @Component
 class ApiApplicationListener(
     private val restTemplate: RestTemplate,
-    @Value("\${server.host}")
-    private val host: String
+    @Value("\${server.protocol}")
+    private val protocol: String
 ) : ApplicationListener<ApplicationReadyEvent> {
 
     private val logger = LoggerFactory.getLogger(ApiApplication::class.java)
 
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
-        logger.info("===== [${OffsetDateTime.now()}]warm up started with $host ====")
-        restTemplate.getForEntity<String>("$host/api/v1/posts")
-        restTemplate.getForEntity<String>("$host/api/v1/posts/1")
-        logger.info("===== [${OffsetDateTime.now()}]warm up ended with $host ======")
+        val url = "${protocol}://${InetAddress.getLocalHost().hostAddress}:9565"
+        logger.info("===== warm up started with $url ====")
+        restTemplate.getForEntity<String>("$url/api/v1/posts")
+        restTemplate.getForEntity<String>("$url/api/v1/posts/1")
+        logger.info("===== warm up ended with $url ======")
     }
 }
