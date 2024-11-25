@@ -36,7 +36,6 @@ class PostController(
     private val queryCreator: PostQueryCreator
 ) {
 
-    @CacheEvict(key = "'all'")
     @Operation(summary = "게시글 등록 API")
     @HasAuthorityUser
     @PostMapping("/posts")
@@ -52,7 +51,6 @@ class PostController(
         return ResponseEntity.ok(ResultResponse(result))
     }
 
-    @Cacheable(key = "'all'")
     @Operation(summary = "게시글 목록 조회 API")
     @GetMapping("/posts")
     fun searchPosts(
@@ -90,7 +88,7 @@ class PostController(
         return ResponseEntity.ok(ResultResponse(result))
     }
 
-    @Caching(evict = [CacheEvict(key = "'all'"), CacheEvict(key = "#id")])
+    @CacheEvict(key = "#id")
     @Operation(summary = "게시글 수정 API")
     @HasAuthorityUser
     @PutMapping("/posts/{id}")
@@ -108,7 +106,7 @@ class PostController(
         return ResponseEntity.ok(ResultResponse(result))
     }
 
-    @Caching(evict = [CacheEvict(key = "'all'"), CacheEvict(key = "#id")])
+    @CacheEvict(key = "#id")
     @Operation(summary = "게시글 삭제 API")
     @HasAuthorityUser
     @DeleteMapping("/posts/{id}")
