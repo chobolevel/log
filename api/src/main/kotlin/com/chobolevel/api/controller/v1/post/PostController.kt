@@ -11,9 +11,6 @@ import com.chobolevel.domain.entity.post.PostOrderType
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
-import org.springframework.cache.annotation.CacheConfig
-import org.springframework.cache.annotation.CacheEvict
-import org.springframework.cache.annotation.Cacheable
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -29,7 +26,6 @@ import java.security.Principal
 @Tag(name = "Post (게시글)", description = "게시글 관리 API")
 @RestController
 @RequestMapping("/api/v1")
-@CacheConfig(cacheNames = ["posts"])
 class PostController(
     private val service: PostService,
     private val queryCreator: PostQueryCreator
@@ -77,7 +73,6 @@ class PostController(
         return ResponseEntity.ok(ResultResponse(result))
     }
 
-    @Cacheable(key = "#id")
     @Operation(summary = "게시글 단건 조회 API")
     @GetMapping("/posts/{id}")
     fun fetchPost(@PathVariable id: Long): ResponseEntity<ResultResponse> {
@@ -87,7 +82,6 @@ class PostController(
         return ResponseEntity.ok(ResultResponse(result))
     }
 
-    @CacheEvict(key = "#id")
     @Operation(summary = "게시글 수정 API")
     @HasAuthorityUser
     @PutMapping("/posts/{id}")
@@ -105,7 +99,6 @@ class PostController(
         return ResponseEntity.ok(ResultResponse(result))
     }
 
-    @CacheEvict(key = "#id")
     @Operation(summary = "게시글 삭제 API")
     @HasAuthorityUser
     @DeleteMapping("/posts/{id}")
