@@ -1,6 +1,6 @@
 server:
   port: 9565
-  host: https://api.chobolevel.site
+  protocol: https
 
 logging:
   level:
