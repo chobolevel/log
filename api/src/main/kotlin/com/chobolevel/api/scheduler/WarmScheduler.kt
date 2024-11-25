@@ -9,11 +9,10 @@ import org.springframework.web.client.getForEntity
 import java.net.InetAddress
 
 @Component
-class WarmScheduler(
-    private val restTemplate: RestTemplate,
-) {
+class WarmScheduler {
 
     private val logger = LoggerFactory.getLogger(WarmScheduler::class.java)
+    private val restTemplate = RestTemplate()
 
     @Async
     @Scheduled(cron = "0 */10 * * * *")
