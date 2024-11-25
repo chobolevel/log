@@ -1,6 +1,6 @@
 server:
   port: 9565
-  host: http://localhost:9565
+  protocol: http
 
 logging:
   level:
