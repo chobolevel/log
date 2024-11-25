@@ -1,6 +1,5 @@
 server:
   port: 9565
-  protocol: http
 
 logging:
   level:
