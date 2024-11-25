@@ -9,11 +9,10 @@ import org.springframework.web.client.getForEntity
 import java.net.InetAddress
 
 @Component
-class ApiApplicationListener(
-    private val restTemplate: RestTemplate,
-) : ApplicationListener<ApplicationReadyEvent> {
+class ApiApplicationListener : ApplicationListener<ApplicationReadyEvent> {
 
     private val logger = LoggerFactory.getLogger(ApiApplication::class.java)
+    private val restTemplate = RestTemplate()
 
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
         val url = "http://${InetAddress.getLocalHost().hostAddress}:9565"
