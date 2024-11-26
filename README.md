@@ -40,8 +40,7 @@
 
 ## CI/CD
 
-> **github actions, Jib 라이브러리, 도커 허브 그리고 Makefile 커맨드와 docker-compose** 등을 이용해 브랜치의 푸시 이벤트를 감지하여 도커 허브 레포에 도커 이미지를 빌드하여
-> 푸시하도록 하였습니다.<br />
+> **github actions, Jib 라이브러리, 도커 허브 그리고 Makefile 커맨드와 docker-compose** 등을 이용해 브랜치의 푸시 이벤트를 감지하여 도커 허브 레포에 도커 이미지를 빌드하여 푸시하도록 하였습니다.<br />
 > 이후 해당 이미지를 서버에서 다운로드 받아서 도커 컨테이너로 실행하도록 구성하였습니다.
 
 ## DB 테이블 스키마
@@ -58,9 +57,8 @@
 
 ## 모니터링 대시보드
 
-> [**DASHBOARD LINK
-**](http://210.114.22.52:3000/d/spring_boot_21/f82469d?orgId=1&from=now-1h&to=now&var-application=&var-instance=210.114.22.52:9565&var-hikaricp=HikariPool-1&var-memory_pool_heap=$__all&var-memory_pool_nonheap=$__all&refresh=5s)
->
+> [**DASHBOARD LINK**](http://210.114.22.52:3000/d/spring_boot_21/f82469d?orgId=1&from=now-1h&to=now&var-application=&var-instance=210.114.22.52:9565&var-hikaricp=HikariPool-1&var-memory_pool_heap=$__all&var-memory_pool_nonheap=$__all&refresh=5s)
+> 
 > actuator + prometheus + grafana 조합을 통해 모니터링 대시보드를 구성하였습니다.
 
 ## 초기 화면
