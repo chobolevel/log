@@ -1,21 +1,17 @@
 version: "3.9"
 
 networks:
-  network:
-
-volumes:
-  chobolevel-log-redis:
+  chobolevel:
+    driver: bridge
 
 services:
   redis:
-    image: redis:4-alpine
+    image: redis:latest
     container_name: chobolevel-log-redis
     networks:
-      - network
+      - chobolevel
     ports:
       - "6379:6379"
-    volumes:
-      - chobolevel-log-redis:/data
     restart: always
     command: redis-server --requirepass chobolevel
 
@@ -23,7 +19,7 @@ services:
     image: rodaka123/log:latest
     container_name: chobolevel-log-backend
     networks:
-      - network
+      - chobolevel
     ports:
       - "9565:9565"
     restart: always
@@ -32,7 +28,7 @@ services:
     image: nginx:latest
     container_name: chobolevel-log-nginx
     networks:
-      - network
+      - chobolevel
     ports:
       - "80:80"
       - "443:443"
