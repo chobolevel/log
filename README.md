@@ -24,7 +24,7 @@
 
 ## 배포 환경
 
-> ![image](https://github.com/chobolevel/ikea/assets/104749958/dc31569c-bcca-4797-9fc4-9e17bccec390)
+> ![spring-docker](https://github.com/user-attachments/assets/7b26f824-e916-4685-9d45-759455d7170f)
 
 ## [프로젝트 서비스 링크](https://chobolevel.site)
 
