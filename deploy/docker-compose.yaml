@@ -54,6 +54,10 @@ services:
 
   prometheus:
     image: prom/prometheus
+    container_name: chobolevel-prometheus
+    networks:
+      - chobolevel
+    restart: always
     ports:
       - "9090:9090"
     volumes:
@@ -63,5 +67,11 @@ services:
 
   grafana:
     image: grafana/grafana
+    container_name: chobolevel-grafana
+    networks:
+      - chobolevel
+    restart: always
+    depends_on:
+      - prometheus
     ports:
       - "3000:3000"
