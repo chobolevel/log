@@ -34,6 +34,12 @@ dependencies {
 
     // logger
     implementation("com.github.napstr:logback-discord-appender:1.0.0")
+
+    // actuator + micrometer
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+
+    // prometheus
+    implementation("io.micrometer:micrometer-registry-prometheus")
 }
 
 val baseJvmFlags: (memory: String, imageTag: String?, stage: String?) -> List<String> by ext

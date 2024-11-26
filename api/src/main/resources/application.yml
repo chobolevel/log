@@ -66,17 +66,20 @@ cloud:
 
 
 management:
-  server:
-    port: 9575
-  endpoints:
-    web:
-      base-path: "/monitor-state"
+  info:
+    java:
+      enabled: true
+    os:
+      enabled: true
   endpoint:
     health:
-      group:
-        readiness:
-          show-components: always
-        liveness:
-          show-components: always
-#          exclude:
-#            - warmup
+      show-components: always
+    loggers:
+      enabled: true
+    httpexchanges:
+      enabled: true
+  endpoints:
+    web:
+      base-path: "/monitors"
+      exposure:
+        include: "*"

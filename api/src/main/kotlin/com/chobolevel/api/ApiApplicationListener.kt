@@ -12,9 +12,9 @@ import java.net.InetAddress
 class ApiApplicationListener : ApplicationListener<ApplicationReadyEvent> {
 
     private val logger = LoggerFactory.getLogger(ApiApplication::class.java)
-    private val restTemplate = RestTemplate()
 
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
+        val restTemplate = RestTemplate()
         val url = "http://${InetAddress.getLocalHost().hostAddress}:9565"
         logger.info("===== warm up started with $url ====")
         restTemplate.getForEntity<String>("$url/api/v1/posts")
