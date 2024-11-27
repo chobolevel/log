@@ -71,5 +71,5 @@
 
 ## 초기 화면
 
-> ![www chobolevel site_ (3)](https://github.com/user-attachments/assets/ea6ff19e-4458-4903-83cb-645fdeab9203)
+> ![www chobolevel site_ (4)](https://github.com/user-attachments/assets/57851fd1-089b-49c8-b6cd-44bb6358e381)
 
