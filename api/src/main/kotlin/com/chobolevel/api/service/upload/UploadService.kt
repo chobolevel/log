@@ -7,7 +7,7 @@ import com.amazonaws.services.s3.model.CannedAccessControlList
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest
 import com.chobolevel.api.dto.upload.UploadRequestDto
 import com.chobolevel.api.dto.upload.UploadResponseDto
-import com.chobolevel.api.service.user.validator.UploadValidatable
+import com.chobolevel.api.service.upload.validator.UploadValidator
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -21,11 +21,11 @@ class UploadService(
     @Value("\${cloud.aws.s3.bucket}")
     private val bucket: String,
     private val amazonS3: AmazonS3,
-    private val validators: List<UploadValidatable>
+    private val validator: UploadValidator,
 ) {
 
     fun getPresignedUrl(request: UploadRequestDto): UploadResponseDto {
-        validators.forEach { it.validate(request) }
+        validator.validate(request)
         val savedPath = createSavedPath(
             prefix = request.prefix,
             extension = request.extension

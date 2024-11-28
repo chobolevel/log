@@ -1,4 +1,4 @@
-package com.chobolevel.api.service.user.validator
+package com.chobolevel.api.service.upload.validator
 
 import com.chobolevel.api.dto.upload.UploadRequestDto
 import com.chobolevel.domain.exception.ApiException
@@ -7,12 +7,12 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 
 @Component
-class UpdateValidator : UploadValidatable {
+class UploadValidator {
 
-    private val availablePrefixList = listOf("image")
-    private val availableExtensionList = listOf("jpg", "jpeg", "png", "gif")
+    private final val availablePrefixList = listOf("image")
+    private final val availableExtensionList = listOf("jpg", "jpeg", "png", "gif")
 
-    override fun validate(request: UploadRequestDto) {
+    fun validate(request: UploadRequestDto) {
         if (!availablePrefixList.contains(request.prefix)) {
             throw ApiException(
                 errorCode = ErrorCode.INVALID_PARAMETER,
