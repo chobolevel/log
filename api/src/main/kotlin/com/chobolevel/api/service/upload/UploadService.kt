@@ -7,7 +7,7 @@ import com.amazonaws.services.s3.model.CannedAccessControlList
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest
 import com.chobolevel.api.dto.upload.UploadRequestDto
 import com.chobolevel.api.dto.upload.UploadResponseDto
-import com.chobolevel.api.service.user.validator.UploadValidatable
+import com.chobolevel.api.service.upload.validator.UploadValidatable
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.time.LocalDate

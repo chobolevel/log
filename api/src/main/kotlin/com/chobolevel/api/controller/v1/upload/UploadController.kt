@@ -1,5 +1,6 @@
 package com.chobolevel.api.controller.v1.upload
 
+import com.chobolevel.api.annotation.HasAuthorityAny
 import com.chobolevel.api.annotation.HasAuthorityUser
 import com.chobolevel.api.dto.common.ResultResponse
 import com.chobolevel.api.dto.upload.UploadRequestDto
@@ -20,7 +21,7 @@ class UploadController(
 ) {
 
     @Operation(summary = "파일 업로드용 경로 발급 API")
-    @HasAuthorityUser
+    @HasAuthorityAny
     @PostMapping("/upload/presigned-url")
     fun issuePresignedUrl(@RequestBody request: UploadRequestDto): ResponseEntity<ResultResponse> {
         val result = service.getPresignedUrl(request)

@@ -1,4 +1,4 @@
-package com.chobolevel.api.service.user.validator
+package com.chobolevel.api.service.upload.validator
 
 import com.chobolevel.api.dto.upload.UploadRequestDto
 
