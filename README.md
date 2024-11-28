@@ -1,14 +1,16 @@
 # [✍개인 블로그 프로젝트✍](https://www.chobolevel.site/)(2024.08.08 ~)
 
 ## 목차
-> + [백엔드 프로젝트 사용기술](#백엔드-프로젝트-사용기술)
-> + [배포 환경](#배포-환경)
-> + [프로젝트를 진행한 이유](#프로젝트를-진행한-이유)
-> + [CI/CD](#cicd)
-> + [DB 테이블 스키마](#db-테이블-스키마)
-> + [SWAGGER UI(API DOCS)](#swagger-ui)
-> + [모니터링](#모니터링-대시보드)
-> + [초기 화면](#초기-화면)
+
+> 1. [백엔드 프로젝트 사용기술](#백엔드-프로젝트-사용기술)
+> 2. [배포 환경](#배포-환경)
+> 3. [프로젝트를 진행한 이유](#프로젝트를-진행한-이유)
+> 4. [CI/CD](#cicd)
+> 5. [DB 테이블 스키마](#db-테이블-스키마)
+> 6. [SWAGGER UI(API DOCS)](#swagger-ui)
+> 7. [모니터링](#모니터링-대시보드)
+> 8. [초기 화면](#초기-화면)
+> 9. [주요 기능](#주요-기능)
 
 ## 프로젝트 사용기술
 
@@ -72,3 +74,35 @@
 
 > ![www chobolevel site_ (4)](https://github.com/user-attachments/assets/57851fd1-089b-49c8-b6cd-44bb6358e381)
 
+## 주요 기능
+
+> ### 인증 및 인가
+>   + **인증** (일반/소셜 로그인에 따라 로직을 수행하고 access_token, refresh_token 발급하여 프론트엔드 서버의 인증을 위해 사용하고 있습니다.)
+      > ![image](https://github.com/user-attachments/assets/48579312-1f37-4190-9c63-7246af36a664)
+>   + **인가** (인증이 완료된 요청의 인증 정보를 security context holder 보관하여 요청의 ROLE에 따라 인가처리 위해 사용하였습니다.)
+      > ![image](https://github.com/user-attachments/assets/ffd75317-2052-40c6-b02d-5e02d275aab4)
+
+> ### 웜 업
+> ![image](https://github.com/user-attachments/assets/b2a30f7b-0e8c-44ce-9791-ba19c619a7cf)
+> ![image](https://github.com/user-attachments/assets/da9f86e9-1b54-4df7-8286-ea96a501e3c8)
+> + 애플리케이션 재시작했을 떄 JVM 특성상 최소한의 클래스만 로드해서 시작하는데 이로 인해 첫 API 호출 시 클래스 로드를 수행해야 하므로 지연이 발생하였습니다.
+> + 이를 방지하기 위해 시작할 때 자주 사용되는 API 호출하여 클래스를 로드해두는 로직을 작성하였습니다.
+> + 사용자가 많지 않은 서비스의 경우 오래동안 사용되지 않은 클래스는 메모리에서 제거되기 때문에 지속적으로 웜 업하도록 스케줄러를 추가하였습니다.
+
+> ### Github Actions
+> ![image](https://github.com/user-attachments/assets/13fc15a2-2d8a-4163-8799-373a6b6e392c)
+> + main 브랜치의 푸시 이벤트에 트리거하여 Makefile에 정의된 커맨드를 통해 Jib로 도커 이미지로 빌드하고 Docker Hub Repo에 푸시까지 수행하도록 하였습니다.
+> + 이후 서버에서도 Makefile에 정의된 커맨드를 통해 Docker Hub Repo에서 이미지를 받아 실행하여 코드 수정 후 재배포를 간단히 하였습니다.
+
+> ### Amazon S3 Presigned
+> ![image](https://github.com/user-attachments/assets/a0282646-d5d9-4a7b-8593-42a0413c97e9)
+> + 파일을 업로드할 때 해당 파일을 서버에서 전달하고 서버에서 저장소로 저장하는 것은 비효율 적이며 성능 저하를 초해할 수 있습니다.(특히 대용량 파일의 경우 큰 성능 저하 초래 가능성)
+> + 하지만 인가받은 사용자만 파일을 저장소에 저장해야 하기 때문에 서버를 받드시 거쳐야 하긴 했습니다.
+> + 이러한 상황을 해소하기 위해 **S3 Presigned URL**을 사용하여 인가받은 사용자만 저장소에 파일을 올릴 수 있는 URL을 부여받고 서버에서는 파일에 접근할 수 있는 URL만 저장하여 파일 전송으로
+    인한 성능 저하를 방지하였습니다.
+
+> ### 로깅
+> ![image](https://github.com/user-attachments/assets/0c38a2b5-a9d1-48f8-98e4-af72b4655203)
+> ![image](https://github.com/user-attachments/assets/4be56dfa-3aa9-4cc3-bed9-c3f2175afa0e)
+> + 로컬에서는 로그 발생 시 바로 확인할 수 있지만 운영 서버에서 발생하는 로그는 서버에 직접 접속하지 않는 이상 확인이 어려웠습니다.
+> + 이를 위해 Webhook을 사용해 로그를 받을 수 있는 서비스(Discord, Slack 등)가 있다는 것을 알게되었고 Discord 채널에서 로그를 받도록 설정하였습니다.
