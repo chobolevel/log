@@ -10,7 +10,7 @@
 > + [모니터링](#모니터링-대시보드)
 > + [초기 화면](#초기-화면)
 
-## 백엔드 프로젝트 사용기술
+## 프로젝트 사용기술
 
 > <img src="https://img.shields.io/badge/kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white">
 > <img src="https://img.shields.io/badge/spring boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">
@@ -37,7 +37,6 @@
 > ![spring-docker](https://github.com/user-attachments/assets/7b26f824-e916-4685-9d45-759455d7170f)
 > 
 > + **카페24 호스팅 서비스**에 도커를 이용하여 배포하였습니다.
-> + 프론트엔드 프로젝트는 **VERCEL 서비스**를 이용하였습니다.
 > + **SpringBoot, Nginx, Redis, Certbot, prometheus, grafana** 등 총 6개의 도커 컨테이너가 실행 중인 상태입니다.
 > + DB는 **AWS의 RDS 서비스**를 사용하였습니다.
 
