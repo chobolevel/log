@@ -18,5 +18,8 @@ enum class ErrorCode {
     U001,
 
     // USER IMAGE
-    UI001
+    UI001,
+
+    // channel
+    CHANNEL_OWNER_DOES_NOT_MATCH
 }
