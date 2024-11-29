@@ -40,6 +40,8 @@ dependencies {
 
     // prometheus
     implementation("io.micrometer:micrometer-registry-prometheus")
+
+    implementation("org.springframework.boot:spring-boot-starter-websocket")
 }
 
 val baseJvmFlags: (memory: String, imageTag: String?, stage: String?) -> List<String> by ext
