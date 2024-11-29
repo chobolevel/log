@@ -36,7 +36,8 @@ class ChannelController(
     @PostMapping("/channels")
     fun createChannel(
         principal: Principal,
-        @Valid @RequestBody request: CreateChannelRequestDto
+        @Valid @RequestBody
+        request: CreateChannelRequestDto
     ): ResponseEntity<ResultResponse> {
         val result = service.create(
             ownerId = principal.getUserId(),
@@ -83,7 +84,8 @@ class ChannelController(
     fun updateChannel(
         principal: Principal,
         @PathVariable("id") channelId: Long,
-        @Valid @RequestBody request: UpdateChannelRequestDto
+        @Valid @RequestBody
+        request: UpdateChannelRequestDto
     ): ResponseEntity<ResultResponse> {
         val result = service.update(
             workerId = principal.getUserId(),

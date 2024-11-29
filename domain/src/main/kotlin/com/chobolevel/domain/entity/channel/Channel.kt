@@ -41,7 +41,6 @@ class Channel(
     fun delete() {
         this.deleted = true
     }
-
 }
 
 enum class ChannelUpdateMask {
