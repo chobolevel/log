@@ -7,9 +7,9 @@ import org.springframework.stereotype.Component
 @Component
 class ChannelQueryCreator {
 
-    fun createQueryFilter(ownerId: Long?): ChannelQueryFilter {
+    fun createQueryFilter(userId: Long?): ChannelQueryFilter {
         return ChannelQueryFilter(
-            ownerId = ownerId,
+            userId = userId
         )
     }
 
