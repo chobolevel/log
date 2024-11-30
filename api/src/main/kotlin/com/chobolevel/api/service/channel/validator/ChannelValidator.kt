@@ -22,6 +22,15 @@ class ChannelValidator {
                         )
                     }
                 }
+                ChannelUpdateMask.USERS -> {
+                    if (request.userIds == null) {
+                        throw ApiException(
+                            errorCode = ErrorCode.INVALID_PARAMETER,
+                            status = HttpStatus.BAD_REQUEST,
+                            message = "변경할 채널 참여자가 유효하지 않습니다."
+                        )
+                    }
+                }
             }
         }
     }

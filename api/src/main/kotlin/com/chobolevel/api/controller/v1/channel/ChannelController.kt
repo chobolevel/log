@@ -56,7 +56,7 @@ class ChannelController(
         @RequestParam(required = false) orderTypes: List<ChannelOrderType>?
     ): ResponseEntity<ResultResponse> {
         val queryFilter = queryCreator.createQueryFilter(
-            ownerId = principal.getUserId(),
+            userId = principal.getUserId(),
         )
         val pagination = queryCreator.createPaginationFilter(
             skipCount = skipCount,

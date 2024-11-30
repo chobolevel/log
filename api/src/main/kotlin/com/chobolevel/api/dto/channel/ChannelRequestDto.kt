@@ -9,12 +9,15 @@ import jakarta.validation.constraints.Size
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class CreateChannelRequestDto(
     @field:NotEmpty(message = "채널 이름은 필수입니다.")
-    val name: String
+    val name: String,
+    @field:Size(min = 1, message = "최소 한 명이상 초대해야합니다.")
+    var userIds: List<Long>
 )
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class UpdateChannelRequestDto(
     val name: String?,
+    val userIds: List<Long>?,
     @field:Size(min = 1, message = "update_mask는 필수입니다.")
     val updateMask: List<ChannelUpdateMask>
 )

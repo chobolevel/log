@@ -1,15 +1,15 @@
 package com.chobolevel.api.service.channel.query
 
 import com.chobolevel.domain.Pagination
-import com.chobolevel.domain.entity.channel.ChannelQueryFilter
+import com.chobolevel.domain.entity.channel.message.ChannelMessageQueryFilter
 import org.springframework.stereotype.Component
 
 @Component
-class ChannelQueryCreator {
+class ChannelMessageQueryCreator {
 
-    fun createQueryFilter(userId: Long?): ChannelQueryFilter {
-        return ChannelQueryFilter(
-            userId = userId
+    fun createQueryFilter(channelId: Long?): ChannelMessageQueryFilter {
+        return ChannelMessageQueryFilter(
+            channelId = channelId,
         )
     }
 

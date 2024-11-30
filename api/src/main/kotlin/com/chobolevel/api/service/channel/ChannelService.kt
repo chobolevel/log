@@ -13,6 +13,7 @@ import com.chobolevel.domain.entity.channel.ChannelFinder
 import com.chobolevel.domain.entity.channel.ChannelOrderType
 import com.chobolevel.domain.entity.channel.ChannelQueryFilter
 import com.chobolevel.domain.entity.channel.ChannelRepository
+import com.chobolevel.domain.entity.channel.user.ChannelUser
 import com.chobolevel.domain.entity.user.User
 import com.chobolevel.domain.entity.user.UserFinder
 import com.chobolevel.domain.exception.ApiException
@@ -33,8 +34,22 @@ class ChannelService(
 
     @Transactional
     fun create(ownerId: Long, request: CreateChannelRequestDto): Long {
-        val channel = converter.convert(request).also {
-            it.setBy(userFinder.findById(ownerId))
+        val owner = userFinder.findById(ownerId)
+        val channel = converter.convert(request).also { channel ->
+            channel.setBy(owner)
+            // 채널 생성자를 참여자로
+            ChannelUser().also { channelUser ->
+                channelUser.setBy(channel)
+                channelUser.setBy(owner)
+            }
+            // 참여자 생성
+            request.userIds.map { userId ->
+                val user = userFinder.findById(userId)
+                ChannelUser().also { channelUser ->
+                    channelUser.setBy(channel)
+                    channelUser.setBy(user)
+                }
+            }
         }
         return repository.save(channel).id!!
     }
