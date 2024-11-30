@@ -28,5 +28,4 @@ class ChannelMessageConverter(
             updatedAt = entity.updatedAt!!.toInstant().toEpochMilli()
         )
     }
-
 }

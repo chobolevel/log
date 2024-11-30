@@ -37,14 +37,15 @@ class ChannelMessageController(
     fun createChannelMessage(
         principal: Principal,
         @PathVariable("id") channelId: Long,
-        @Valid @RequestBody request: CreateChannelMessageRequest
+        @Valid @RequestBody
+        request: CreateChannelMessageRequest
     ): ResponseEntity<ResultResponse> {
         val result = service.create(
             userId = principal.getUserId(),
             channelId = channelId,
             request = request
         )
-        template.convertAndSend("/sub/channels/${channelId}", request)
+        template.convertAndSend("/sub/channels/$channelId", request)
         return ResponseEntity.ok(ResultResponse(result))
     }
 

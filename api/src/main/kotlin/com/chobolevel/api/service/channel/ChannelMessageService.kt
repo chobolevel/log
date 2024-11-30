@@ -15,8 +15,8 @@ import com.chobolevel.domain.entity.user.UserFinder
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
 import org.springframework.http.HttpStatus
-import org.springframework.transaction.annotation.Transactional
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class ChannelMessageService(
@@ -79,5 +79,4 @@ class ChannelMessageService(
             )
         }
     }
-
 }
