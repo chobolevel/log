@@ -21,5 +21,8 @@ enum class ErrorCode {
     UI001,
 
     // channel
-    CHANNEL_OWNER_DOES_NOT_MATCH
+    CHANNEL_OWNER_DOES_NOT_MATCH,
+
+    // channel message
+    CHANNEL_MESSAGE_WRITER_DOES_NOT_MATCH,
 }
