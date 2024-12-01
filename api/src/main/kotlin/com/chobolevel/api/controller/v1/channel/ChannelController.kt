@@ -113,7 +113,8 @@ class ChannelController(
     fun inviteChannel(
         principal: Principal,
         @PathVariable("id") channelId: Long,
-        @Valid @RequestBody request: InviteChannelRequestDto
+        @Valid @RequestBody
+        request: InviteChannelRequestDto
     ): ResponseEntity<ResultResponse> {
         val result = service.invite(
             userId = principal.getUserId(),

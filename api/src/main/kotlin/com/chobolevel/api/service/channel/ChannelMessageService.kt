@@ -2,9 +2,7 @@ package com.chobolevel.api.service.channel
 
 import com.chobolevel.api.dto.channel.message.CreateChannelMessageRequest
 import com.chobolevel.api.dto.common.PaginationResponseDto
-import com.chobolevel.api.getUserId
 import com.chobolevel.api.service.channel.converter.ChannelMessageConverter
-import com.chobolevel.api.service.user.converter.UserConverter
 import com.chobolevel.domain.Pagination
 import com.chobolevel.domain.entity.channel.ChannelFinder
 import com.chobolevel.domain.entity.channel.message.ChannelMessage
@@ -41,7 +39,8 @@ class ChannelMessageService(
         }
         val savedChannelMessage = repository.save(channelMessage)
         template.convertAndSend(
-            "/sub/channels/$channelId", converter.convert(savedChannelMessage)
+            "/sub/channels/$channelId",
+            converter.convert(savedChannelMessage)
         )
         return savedChannelMessage.id!!
     }
