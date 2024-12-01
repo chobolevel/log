@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
-import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -27,8 +26,7 @@ import java.security.Principal
 @RequestMapping("/api/v1")
 class ChannelMessageController(
     private val service: ChannelMessageService,
-    private val queryCreator: ChannelMessageQueryCreator,
-    private val template: SimpMessagingTemplate
+    private val queryCreator: ChannelMessageQueryCreator
 ) {
 
     @Operation(summary = "채널 메세지 생성 API")
@@ -45,7 +43,6 @@ class ChannelMessageController(
             channelId = channelId,
             request = request
         )
-        template.convertAndSend("/sub/channels/$channelId", request)
         return ResponseEntity.ok(ResultResponse(result))
     }
 

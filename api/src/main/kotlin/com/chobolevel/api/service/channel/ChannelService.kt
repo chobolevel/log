@@ -2,6 +2,7 @@ package com.chobolevel.api.service.channel
 
 import com.chobolevel.api.dto.channel.ChannelResponseDto
 import com.chobolevel.api.dto.channel.CreateChannelRequestDto
+import com.chobolevel.api.dto.channel.InviteChannelRequestDto
 import com.chobolevel.api.dto.channel.UpdateChannelRequestDto
 import com.chobolevel.api.dto.common.PaginationResponseDto
 import com.chobolevel.api.service.channel.converter.ChannelConverter
@@ -93,6 +94,37 @@ class ChannelService(
             request = request,
             entity = channel
         )
+        return channel.id!!
+    }
+
+    @Transactional
+    fun exit(userId: Long, channelId: Long): Long {
+        val channel = finder.findById(channelId)
+        channel.channelUsers.find { it.user!!.id == userId }.takeIf { it != null }?.delete() ?: throw ApiException(
+            errorCode = ErrorCode.ALREADY_EXITED_CHANNEL,
+            status = HttpStatus.BAD_REQUEST,
+            message = "이미 떠난 채널입니다."
+        )
+        return channel.id!!
+    }
+
+    @Transactional
+    fun invite(userId: Long, channelId: Long, request: InviteChannelRequestDto): Long {
+        val channel = finder.findById(channelId)
+        channel.channelUsers.filter { request.userIds.contains(it.user!!.id) }.takeIf { it.isNotEmpty() }?.let {
+            throw ApiException(
+                errorCode = ErrorCode.CHANNEL_MESSAGE_WRITER_DOES_NOT_MATCH,
+                status = HttpStatus.BAD_REQUEST,
+                message = "이미 채널에 초대되어있습니다."
+            )
+        }
+        request.userIds.map { userId ->
+            val user = userFinder.findById(userId)
+            ChannelUser().also { channelUser ->
+                channelUser.setBy(channel)
+                channelUser.setBy(user)
+            }
+        }
         return channel.id!!
     }
 

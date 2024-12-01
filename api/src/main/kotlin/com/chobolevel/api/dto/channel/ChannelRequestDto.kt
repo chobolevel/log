@@ -21,3 +21,9 @@ data class UpdateChannelRequestDto(
     @field:Size(min = 1, message = "update_mask는 필수입니다.")
     val updateMask: List<ChannelUpdateMask>
 )
+
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
+data class InviteChannelRequestDto(
+    @field:Size(min = 1, message = "최소 한 명이상 초대해야합니다.")
+    val userIds: List<Long>
+)

@@ -22,6 +22,8 @@ enum class ErrorCode {
 
     // channel
     CHANNEL_OWNER_DOES_NOT_MATCH,
+    ALREADY_EXITED_CHANNEL,
+    ALREADY_INVITED_THIS_CHANNEL,
 
     // channel message
     CHANNEL_MESSAGE_WRITER_DOES_NOT_MATCH,
