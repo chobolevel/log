@@ -18,6 +18,7 @@ class ChannelConverter {
         return ChannelResponseDto(
             id = entity.id!!,
             name = entity.name,
+            participantsCount = entity.channelUsers.size,
             createdAt = entity.createdAt!!.toInstant().toEpochMilli(),
             updatedAt = entity.updatedAt!!.toInstant().toEpochMilli()
         )

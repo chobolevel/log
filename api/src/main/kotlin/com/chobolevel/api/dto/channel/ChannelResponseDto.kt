@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
 data class ChannelResponseDto(
     val id: Long,
     val name: String,
+    val participantsCount: Int,
     val createdAt: Long,
     val updatedAt: Long
 )
