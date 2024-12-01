@@ -9,9 +9,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 @Configuration
 @EnableWebSocketMessageBroker
-class WebSocketConfiguration(
-    private val stompHandler: StompHandler
-) : WebSocketMessageBrokerConfigurer {
+class WebSocketConfiguration : WebSocketMessageBrokerConfigurer {
 
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
         registry.addEndpoint("/ws").setAllowedOriginPatterns("*")
@@ -20,9 +18,5 @@ class WebSocketConfiguration(
     override fun configureMessageBroker(registry: MessageBrokerRegistry) {
         registry.enableSimpleBroker("/sub")
         registry.setApplicationDestinationPrefixes("/pub")
-    }
-
-    override fun configureClientInboundChannel(registration: ChannelRegistration) {
-        registration.interceptors(stompHandler)
     }
 }
