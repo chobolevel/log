@@ -2,7 +2,9 @@ package com.chobolevel.api.service.channel
 
 import com.chobolevel.api.dto.channel.message.CreateChannelMessageRequest
 import com.chobolevel.api.dto.common.PaginationResponseDto
+import com.chobolevel.api.getUserId
 import com.chobolevel.api.service.channel.converter.ChannelMessageConverter
+import com.chobolevel.api.service.user.converter.UserConverter
 import com.chobolevel.domain.Pagination
 import com.chobolevel.domain.entity.channel.ChannelFinder
 import com.chobolevel.domain.entity.channel.message.ChannelMessage
@@ -15,6 +17,7 @@ import com.chobolevel.domain.entity.user.UserFinder
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
 import org.springframework.http.HttpStatus
+import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -24,7 +27,8 @@ class ChannelMessageService(
     private val finder: ChannelMessageFinder,
     private val channelFinder: ChannelFinder,
     private val userFinder: UserFinder,
-    private val converter: ChannelMessageConverter
+    private val converter: ChannelMessageConverter,
+    private val template: SimpMessagingTemplate
 ) {
 
     @Transactional
@@ -35,7 +39,11 @@ class ChannelMessageService(
             it.setBy(channel)
             it.setBy(user)
         }
-        return repository.save(channelMessage).id!!
+        val savedChannelMessage = repository.save(channelMessage)
+        template.convertAndSend(
+            "/sub/channels/$channelId", converter.convert(savedChannelMessage)
+        )
+        return savedChannelMessage.id!!
     }
 
     @Transactional(readOnly = true)
