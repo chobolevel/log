@@ -2,6 +2,7 @@ package com.chobolevel.api.controller.v1.channel
 
 import com.chobolevel.api.annotation.HasAuthorityUser
 import com.chobolevel.api.dto.channel.CreateChannelRequestDto
+import com.chobolevel.api.dto.channel.InviteChannelRequestDto
 import com.chobolevel.api.dto.channel.UpdateChannelRequestDto
 import com.chobolevel.api.dto.common.ResultResponse
 import com.chobolevel.api.getUserId
@@ -89,6 +90,33 @@ class ChannelController(
     ): ResponseEntity<ResultResponse> {
         val result = service.update(
             workerId = principal.getUserId(),
+            channelId = channelId,
+            request = request
+        )
+        return ResponseEntity.ok(ResultResponse(result))
+    }
+
+    @Operation(summary = "채널 떠나기 API")
+    @HasAuthorityUser
+    @PutMapping("/channels/{id}/exit")
+    fun exitChannel(principal: Principal, @PathVariable("id") channelId: Long): ResponseEntity<ResultResponse> {
+        val result = service.exit(
+            userId = principal.getUserId(),
+            channelId = channelId
+        )
+        return ResponseEntity.ok(ResultResponse(result))
+    }
+
+    @Operation(summary = "채널에 유저 초대 API")
+    @HasAuthorityUser
+    @PutMapping("/channels/{id}/invite")
+    fun inviteChannel(
+        principal: Principal,
+        @PathVariable("id") channelId: Long,
+        @Valid @RequestBody request: InviteChannelRequestDto
+    ): ResponseEntity<ResultResponse> {
+        val result = service.invite(
+            userId = principal.getUserId(),
             channelId = channelId,
             request = request
         )
