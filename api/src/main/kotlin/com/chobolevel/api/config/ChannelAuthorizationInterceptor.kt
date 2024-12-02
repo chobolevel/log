@@ -3,7 +3,6 @@ package com.chobolevel.api.config
 import com.chobolevel.api.security.TokenProvider
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
-import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Primary
 import org.springframework.http.HttpStatus
 import org.springframework.messaging.Message
