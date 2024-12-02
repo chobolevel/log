@@ -20,7 +20,7 @@ class ChannelMessageCustomRepository : QuerydslRepositorySupport(ChannelMessage:
             .orderBy(*orderSpecifiers)
             .offset(pagination.skip)
             .limit(pagination.limit)
-            .fetch()
+            .fetch().reversed()
     }
 
     fun countByPredicates(predicates: Array<BooleanExpression>): Long {
