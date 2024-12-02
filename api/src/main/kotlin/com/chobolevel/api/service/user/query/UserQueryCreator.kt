@@ -16,6 +16,7 @@ class UserQueryCreator {
         phone: String?,
         role: UserRoleType?,
         resigned: Boolean?,
+        excludeUserIds: List<Long>?,
     ): UserQueryFilter {
         return UserQueryFilter(
             email = email,
@@ -23,7 +24,8 @@ class UserQueryCreator {
             nickname = nickname,
             phone = phone,
             role = role,
-            resigned = resigned
+            resigned = resigned,
+            excludeUserIds = excludeUserIds
         )
     }
 

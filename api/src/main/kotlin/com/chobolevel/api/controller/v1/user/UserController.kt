@@ -46,9 +46,9 @@ class UserController(
     }
 
     @Operation(summary = "회원 목록 조회 API")
-    @HasAuthorityAdmin
     @GetMapping("/users")
     fun searchUsers(
+        principal: Principal?,
         @RequestParam(required = false) email: String?,
         @RequestParam(required = false) loginType: UserLoginType?,
         @RequestParam(required = false) nickname: String?,
@@ -65,7 +65,8 @@ class UserController(
             nickname = nickname,
             phone = phone,
             role = role,
-            resigned = resigned
+            resigned = resigned,
+            excludeUserIds = principal?.let { listOfNotNull(it.getUserId()) } ?: emptyList()
         )
         val pagination = queryCreator.createPaginationFilter(
             skipCount = skipCount,
