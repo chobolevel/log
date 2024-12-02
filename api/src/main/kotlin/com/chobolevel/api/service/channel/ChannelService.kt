@@ -4,8 +4,10 @@ import com.chobolevel.api.dto.channel.ChannelResponseDto
 import com.chobolevel.api.dto.channel.CreateChannelRequestDto
 import com.chobolevel.api.dto.channel.InviteChannelRequestDto
 import com.chobolevel.api.dto.channel.UpdateChannelRequestDto
+import com.chobolevel.api.dto.channel.message.CreateChannelMessageRequest
 import com.chobolevel.api.dto.common.PaginationResponseDto
 import com.chobolevel.api.service.channel.converter.ChannelConverter
+import com.chobolevel.api.service.channel.converter.ChannelMessageConverter
 import com.chobolevel.api.service.channel.updater.ChannelUpdater
 import com.chobolevel.api.service.channel.validator.ChannelValidator
 import com.chobolevel.domain.Pagination
@@ -14,23 +16,29 @@ import com.chobolevel.domain.entity.channel.ChannelFinder
 import com.chobolevel.domain.entity.channel.ChannelOrderType
 import com.chobolevel.domain.entity.channel.ChannelQueryFilter
 import com.chobolevel.domain.entity.channel.ChannelRepository
+import com.chobolevel.domain.entity.channel.message.ChannelMessageRepository
+import com.chobolevel.domain.entity.channel.message.ChannelMessageType
 import com.chobolevel.domain.entity.channel.user.ChannelUser
 import com.chobolevel.domain.entity.user.User
 import com.chobolevel.domain.entity.user.UserFinder
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
 import org.springframework.http.HttpStatus
+import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
 class ChannelService(
     private val repository: ChannelRepository,
+    private val channelMessageRepository: ChannelMessageRepository,
     private val finder: ChannelFinder,
     private val userFinder: UserFinder,
     private val converter: ChannelConverter,
+    private val channelMessageConverter: ChannelMessageConverter,
     private val validator: ChannelValidator,
-    private val updater: ChannelUpdater
+    private val updater: ChannelUpdater,
+    private val template: SimpMessagingTemplate
 ) {
 
     @Transactional
@@ -100,11 +108,34 @@ class ChannelService(
     @Transactional
     fun exit(userId: Long, channelId: Long): Long {
         val channel = finder.findById(channelId)
-        channel.channelUsers.find { it.user!!.id == userId }.takeIf { it != null }?.delete() ?: throw ApiException(
-            errorCode = ErrorCode.ALREADY_EXITED_CHANNEL,
-            status = HttpStatus.BAD_REQUEST,
-            message = "이미 떠난 채널입니다."
-        )
+        val channelUser = channel.channelUsers.find { it.user!!.id == userId }
+        when (channelUser) {
+            null -> {
+                throw ApiException(
+                    errorCode = ErrorCode.ALREADY_EXITED_CHANNEL,
+                    status = HttpStatus.BAD_REQUEST,
+                    message = "이미 떠난 채널입니다."
+                )
+            }
+
+            else -> {
+                channelUser.delete()
+                val channelMessage = channelMessageConverter.convert(
+                    CreateChannelMessageRequest(
+                        type = ChannelMessageType.EXIT,
+                        content = "${channelUser.user!!.nickname}님이 채널을 떠났습니다."
+                    )
+                ).also {
+                    it.setBy(channelUser.user!!)
+                    it.setBy(channel)
+                }
+                val savedChannelMessage = channelMessageRepository.save(channelMessage)
+                template.convertAndSend(
+                    "/sub/channels/${channel.id}",
+                    channelMessageConverter.convert(savedChannelMessage)
+                )
+            }
+        }
         return channel.id!!
     }
 
@@ -123,6 +154,20 @@ class ChannelService(
             ChannelUser().also { channelUser ->
                 channelUser.setBy(channel)
                 channelUser.setBy(user)
+                val channelMessage = channelMessageConverter.convert(
+                    CreateChannelMessageRequest(
+                        type = ChannelMessageType.ENTER,
+                        content = "${channelUser.user!!.nickname}님이 채널에 참가하였습니다."
+                    )
+                ).also {
+                    it.setBy(channelUser.user!!)
+                    it.setBy(channel)
+                }
+                val savedChannelMessage = channelMessageRepository.save(channelMessage)
+                template.convertAndSend(
+                    "/sub/channels/${channel.id}",
+                    channelMessageConverter.convert(savedChannelMessage)
+                )
             }
         }
         return channel.id!!
