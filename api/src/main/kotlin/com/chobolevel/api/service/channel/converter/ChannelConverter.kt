@@ -2,11 +2,14 @@ package com.chobolevel.api.service.channel.converter
 
 import com.chobolevel.api.dto.channel.ChannelResponseDto
 import com.chobolevel.api.dto.channel.CreateChannelRequestDto
+import com.chobolevel.api.service.user.converter.UserConverter
 import com.chobolevel.domain.entity.channel.Channel
 import org.springframework.stereotype.Component
 
 @Component
-class ChannelConverter {
+class ChannelConverter(
+    private val userConverter: UserConverter
+) {
 
     fun convert(request: CreateChannelRequestDto): Channel {
         return Channel(
@@ -18,7 +21,7 @@ class ChannelConverter {
         return ChannelResponseDto(
             id = entity.id!!,
             name = entity.name,
-            participantsCount = entity.channelUsers.size,
+            participants = entity.channelUsers.map { userConverter.convert(it.user!!) },
             createdAt = entity.createdAt!!.toInstant().toEpochMilli(),
             updatedAt = entity.updatedAt!!.toInstant().toEpochMilli()
         )

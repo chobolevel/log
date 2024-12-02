@@ -75,8 +75,10 @@ class UserFinder(
             when (it) {
                 UserOrderType.CREATED_AT_ASC -> user.createdAt.asc()
                 UserOrderType.CREATED_AT_DESC -> user.createdAt.desc()
-                UserOrderType.UPDATED_AT_ASC -> user.updatedAt.asc()
-                UserOrderType.UPDATED_AT_DESC -> user.updatedAt.desc()
+                UserOrderType.EMAIL_ASC -> user.email.asc()
+                UserOrderType.EMAIL_DESC -> user.email.desc()
+                UserOrderType.NICKNAME_ASC -> user.nickname.asc()
+                UserOrderType.NICKNAME_DESC -> user.nickname.desc()
             }
         }.toTypedArray()
     }

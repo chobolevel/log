@@ -46,7 +46,6 @@ class UserController(
     }
 
     @Operation(summary = "회원 목록 조회 API")
-    @HasAuthorityAdmin
     @GetMapping("/users")
     fun searchUsers(
         @RequestParam(required = false) email: String?,
@@ -55,6 +54,7 @@ class UserController(
         @RequestParam(required = false) phone: String?,
         @RequestParam(required = false) role: UserRoleType?,
         @RequestParam(required = false) resigned: Boolean?,
+        @RequestParam(required = false) excludeUserIds: List<Long>?,
         @RequestParam(required = false) skipCount: Long?,
         @RequestParam(required = false) limitCount: Long?,
         @RequestParam(required = false) orderTypes: List<UserOrderType>?
@@ -65,7 +65,8 @@ class UserController(
             nickname = nickname,
             phone = phone,
             role = role,
-            resigned = resigned
+            resigned = resigned,
+            excludeUserIds = excludeUserIds
         )
         val pagination = queryCreator.createPaginationFilter(
             skipCount = skipCount,

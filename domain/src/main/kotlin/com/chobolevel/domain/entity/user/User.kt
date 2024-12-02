@@ -77,8 +77,10 @@ enum class UserRoleType {
 enum class UserOrderType {
     CREATED_AT_ASC,
     CREATED_AT_DESC,
-    UPDATED_AT_ASC,
-    UPDATED_AT_DESC
+    EMAIL_ASC,
+    EMAIL_DESC,
+    NICKNAME_ASC,
+    NICKNAME_DESC
 }
 
 enum class UserUpdateMask {

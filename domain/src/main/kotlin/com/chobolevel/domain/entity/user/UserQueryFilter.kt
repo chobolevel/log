@@ -10,6 +10,7 @@ class UserQueryFilter(
     private val phone: String?,
     private val role: UserRoleType?,
     private val resigned: Boolean?,
+    private val excludeUserIds: List<Long>?
 ) {
 
     fun toPredicates(): Array<BooleanExpression> {
@@ -19,7 +20,8 @@ class UserQueryFilter(
             nickname?.let { user.nickname.eq(it) },
             phone?.let { user.phone.eq(it) },
             role?.let { user.role.eq(it) },
-            resigned?.let { user.resigned.eq(it) }
+            resigned?.let { user.resigned.eq(it) },
+            excludeUserIds?.let { user.id.notIn(it) }
         ).toTypedArray()
     }
 }
