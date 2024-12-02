@@ -48,13 +48,13 @@ class UserController(
     @Operation(summary = "회원 목록 조회 API")
     @GetMapping("/users")
     fun searchUsers(
-        principal: Principal?,
         @RequestParam(required = false) email: String?,
         @RequestParam(required = false) loginType: UserLoginType?,
         @RequestParam(required = false) nickname: String?,
         @RequestParam(required = false) phone: String?,
         @RequestParam(required = false) role: UserRoleType?,
         @RequestParam(required = false) resigned: Boolean?,
+        @RequestParam(required = false) excludeUserIds: List<Long>?,
         @RequestParam(required = false) skipCount: Long?,
         @RequestParam(required = false) limitCount: Long?,
         @RequestParam(required = false) orderTypes: List<UserOrderType>?
@@ -66,7 +66,7 @@ class UserController(
             phone = phone,
             role = role,
             resigned = resigned,
-            excludeUserIds = principal?.let { listOfNotNull(it.getUserId()) } ?: emptyList()
+            excludeUserIds = excludeUserIds
         )
         val pagination = queryCreator.createPaginationFilter(
             skipCount = skipCount,
