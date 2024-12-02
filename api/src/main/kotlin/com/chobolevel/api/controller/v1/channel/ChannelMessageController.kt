@@ -65,7 +65,7 @@ class ChannelMessageController(
         val result = service.getChannelMessages(
             queryFilter = queryFilter,
             pagination = pagination,
-            orderTypes = orderTypes
+            orderTypes = listOfNotNull(ChannelMessageOrderType.CREATED_AT_DESC)
         )
         return ResponseEntity.ok(ResultResponse(result))
     }
