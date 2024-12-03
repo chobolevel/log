@@ -1,9 +1,11 @@
 package com.chobolevel.api.config
 
+import com.chobolevel.api.getUserId
 import com.chobolevel.api.security.TokenProvider
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
-import org.springframework.context.annotation.Primary
+import org.springframework.core.Ordered
+import org.springframework.core.annotation.Order
 import org.springframework.http.HttpStatus
 import org.springframework.messaging.Message
 import org.springframework.messaging.MessageChannel
@@ -12,29 +14,28 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor
 import org.springframework.messaging.support.ChannelInterceptor
 import org.springframework.stereotype.Component
 
-@Primary
+@Order(Ordered.HIGHEST_PRECEDENCE + 99)
 @Component
-class ChannelAuthorizationInterceptor(
+class CustomChannelInterceptor(
     private val tokenProvider: TokenProvider
 ) : ChannelInterceptor {
 
-    private final val PREFIX = "Bearer "
+    private final val prefix = "Bearer "
 
-    override fun preSend(message: Message<*>, channel: MessageChannel): Message<*>? {
+    override fun preSend(message: Message<*>, channel: MessageChannel): Message<*> {
         val accessor = StompHeaderAccessor.wrap(message)
-        if (accessor.command == StompCommand.CONNECT) {
+        if (accessor.command == StompCommand.CONNECT || accessor.command == StompCommand.SEND || accessor.command == StompCommand.SUBSCRIBE) {
             val accessToken = accessor.getFirstNativeHeader("Authorization")
-            if (accessToken == null || !accessToken.startsWith(PREFIX)) {
-                // TODO Authentication exception
+            if (accessToken != null && accessToken.startsWith(prefix)) {
+                tokenProvider.getAuthentication(accessToken.substring(prefix.length)).also {
+                    accessor.sessionAttributes?.put("userId", it?.getUserId())
+                }
+            } else {
                 throw ApiException(
-                    errorCode = ErrorCode.ALREADY_EXITED_CHANNEL,
+                    errorCode = ErrorCode.INVALID_TOKEN,
                     status = HttpStatus.UNAUTHORIZED,
-                    message = "사용 금지"
+                    message = "유효하지 않은 토큰입니다."
                 )
-            }
-            val authentication = tokenProvider.getAuthentication(accessToken.substring(PREFIX.length))
-            if (authentication == null) {
-                // TODO Authentication exception
             }
         }
         return message
