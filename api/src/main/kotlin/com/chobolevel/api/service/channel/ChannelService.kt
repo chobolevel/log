@@ -84,8 +84,13 @@ class ChannelService(
     }
 
     @Transactional(readOnly = true)
-    fun getChannel(channelId: Long): ChannelResponseDto {
+    fun getChannel(userId: Long, channelId: Long): ChannelResponseDto {
         val channel = finder.findById(channelId)
+        channel.channelUsers.find { it.user?.id == userId } ?: throw ApiException(
+            errorCode = ErrorCode.NOT_INVITED_CHANNEL,
+            status = HttpStatus.BAD_REQUEST,
+            message = "초대받지 않은 채널입니다."
+        )
         return converter.convert(channel)
     }
 

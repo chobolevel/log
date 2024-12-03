@@ -74,8 +74,11 @@ class ChannelController(
     @Operation(summary = "채널 단건 조회 API")
     @HasAuthorityUser
     @GetMapping("/channels/{id}")
-    fun getChannel(@PathVariable("id") channelId: Long): ResponseEntity<ResultResponse> {
-        val result = service.getChannel(channelId)
+    fun getChannel(principal: Principal, @PathVariable("id") channelId: Long): ResponseEntity<ResultResponse> {
+        val result = service.getChannel(
+            userId = principal.getUserId(),
+            channelId = channelId
+        )
         return ResponseEntity.ok(ResultResponse(result))
     }
 
