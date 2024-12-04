@@ -4,7 +4,7 @@ import com.chobolevel.api.dto.channel.ChannelResponseDto
 import com.chobolevel.api.dto.channel.CreateChannelRequestDto
 import com.chobolevel.api.dto.channel.InviteChannelRequestDto
 import com.chobolevel.api.dto.channel.UpdateChannelRequestDto
-import com.chobolevel.api.dto.channel.message.CreateChannelMessageRequest
+import com.chobolevel.api.dto.channel.message.CreateChannelMessageRequestDto
 import com.chobolevel.api.dto.common.PaginationResponseDto
 import com.chobolevel.api.service.channel.converter.ChannelConverter
 import com.chobolevel.api.service.channel.converter.ChannelMessageConverter
@@ -126,7 +126,7 @@ class ChannelService(
             else -> {
                 channelUser.delete()
                 val channelMessage = channelMessageConverter.convert(
-                    CreateChannelMessageRequest(
+                    CreateChannelMessageRequestDto(
                         type = ChannelMessageType.EXIT,
                         content = "${channelUser.user!!.nickname}님이 채널을 떠났습니다."
                     )
@@ -160,7 +160,7 @@ class ChannelService(
                 channelUser.setBy(channel)
                 channelUser.setBy(user)
                 val channelMessage = channelMessageConverter.convert(
-                    CreateChannelMessageRequest(
+                    CreateChannelMessageRequestDto(
                         type = ChannelMessageType.ENTER,
                         content = "${channelUser.user!!.nickname}님이 채널에 참가하였습니다."
                     )
