@@ -17,6 +17,12 @@ group = "com.chobolevel"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
+
 // gradle tasks 사용 목록
 plugins {
     val kotlinVersion = "1.8.21"
