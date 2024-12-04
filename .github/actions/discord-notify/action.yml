@@ -35,6 +35,6 @@ runs:
           EMOTICON="⛔"
         fi
 
-        MSG="{ \"content\":\">${EMOTICON} workflow (<https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}|${GITHUB_WORKFLOW}>) in <https://github.com/${GITHUB_REPOSITORY}|${GITHUB_REPOSITORY}>\n><https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}/checks|${GITHUB_JOB}> job ${{ inputs.status }}, branch=\`${GITHUB_REF#refs/heads/}\`\", "username": "LoggerBox", "avatarUrl": "https://phinf.pstatic.net/contact/20240821_205/1724202038449ujiun_JPEG/image.jpg", "tts": "false" }"
+        MSG="{ "content": "github actions is good", "username": "LoggerBot", "avatarUrl": "https://phinf.pstatic.net/contact/20240821_205/1724202038449ujiun_JPEG/image.jpg", "tts": false}"
 
         curl -X POST -H 'Content-type: application/json' --data "${MSG}" "${{ inputs.discord_webhook_url }}"
