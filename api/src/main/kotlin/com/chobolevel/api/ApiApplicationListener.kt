@@ -1,15 +1,17 @@
 package com.chobolevel.api
 
+import com.chobolevel.api.warmer.Warmer
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.ApplicationListener
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
-import org.springframework.web.client.getForEntity
 import java.net.InetAddress
 
 @Component
-class ApiApplicationListener : ApplicationListener<ApplicationReadyEvent> {
+class ApiApplicationListener(
+    private val warmers: List<Warmer>
+) : ApplicationListener<ApplicationReadyEvent> {
 
     private val logger = LoggerFactory.getLogger(ApiApplication::class.java)
 
@@ -17,8 +19,7 @@ class ApiApplicationListener : ApplicationListener<ApplicationReadyEvent> {
         val restTemplate = RestTemplate()
         val url = "http://${InetAddress.getLocalHost().hostAddress}:9565"
         logger.info("===== warm up started with $url ====")
-        restTemplate.getForEntity<String>("$url/api/v1/posts")
-        restTemplate.getForEntity<String>("$url/api/v1/posts/1")
+        warmers.forEach { it.warm(url = url, restTemplate = restTemplate) }
         logger.info("===== warm up ended with $url ======")
     }
 }
