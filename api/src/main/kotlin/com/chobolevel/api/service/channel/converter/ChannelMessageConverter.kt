@@ -1,7 +1,7 @@
 package com.chobolevel.api.service.channel.converter
 
 import com.chobolevel.api.dto.channel.message.ChannelMessageResponseDto
-import com.chobolevel.api.dto.channel.message.CreateChannelMessageRequest
+import com.chobolevel.api.dto.channel.message.CreateChannelMessageRequestDto
 import com.chobolevel.api.service.user.converter.UserConverter
 import com.chobolevel.domain.entity.channel.message.ChannelMessage
 import org.springframework.stereotype.Component
@@ -11,7 +11,7 @@ class ChannelMessageConverter(
     private val userConverter: UserConverter
 ) {
 
-    fun convert(request: CreateChannelMessageRequest): ChannelMessage {
+    fun convert(request: CreateChannelMessageRequestDto): ChannelMessage {
         return ChannelMessage(
             type = request.type,
             content = request.content,
