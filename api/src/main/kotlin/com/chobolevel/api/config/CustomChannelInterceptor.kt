@@ -4,6 +4,7 @@ import com.chobolevel.api.getUserId
 import com.chobolevel.api.security.TokenProvider
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
+import org.springframework.context.annotation.Primary
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.http.HttpStatus
@@ -14,7 +15,7 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor
 import org.springframework.messaging.support.ChannelInterceptor
 import org.springframework.stereotype.Component
 
-@Order(Ordered.HIGHEST_PRECEDENCE + 99)
+@Primary
 @Component
 class CustomChannelInterceptor(
     private val tokenProvider: TokenProvider
