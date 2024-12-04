@@ -9,10 +9,6 @@ buildscript {
     }
 }
 
-dockerCompose {
-    executable = "/usr/local/bin/docker-compose"
-}
-
 group = "com.chobolevel"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_17
