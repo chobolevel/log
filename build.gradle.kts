@@ -10,7 +10,7 @@ buildscript {
 }
 
 dockerCompose {
-    executable = "/usr/local/bin/docker-compose"
+    executable = "./deploy/docker-compose"
 }
 
 group = "com.chobolevel"
