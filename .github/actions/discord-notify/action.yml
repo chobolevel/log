@@ -35,4 +35,4 @@ runs:
           CONTENT="\"⛔ workflow process failure ⛔"\"
         fi
 
-        curl -X POST -H 'Content-type: application/json' --data '{"content": "${CONTENT}", "username": "LoggerBot", "avatarUrl": "https://phinf.pstatic.net/contact/20240821_205/1724202038449ujiun_JPEG/image.jpg","tts": "false"}' "${{ inputs.discord_webhook_url }}"
+        curl -X POST -H 'Content-type: application/json' --data '{"content": ${CONTENT}, "username": "LoggerBot", "avatarUrl": "https://phinf.pstatic.net/contact/20240821_205/1724202038449ujiun_JPEG/image.jpg","tts": "false"}' "${{ inputs.discord_webhook_url }}"
