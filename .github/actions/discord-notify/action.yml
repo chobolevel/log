@@ -35,4 +35,4 @@ runs:
           EMOTICON="⛔"
         fi
 
-        curl -X POST -H 'Content-type: application/json' --data '{"content": "테스트","username": "LoggerBot","avatarUrl": "https://phinf.pstatic.net/contact/20240821_205/1724202038449ujiun_JPEG/image.jpg","tts": "false"}' "${{ inputs.discord_webhook_url }}"
+        curl -X POST -H 'Content-type: application/json' --data '{"content": ">${EMOTICON} workflow (<https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}|${GITHUB_WORKFLOW}>) in <https://github.com/${GITHUB_REPOSITORY}|${GITHUB_REPOSITORY}>\n><https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}/checks|${GITHUB_JOB}> job ${{ inputs.status }}, branch=\`${GITHUB_REF#refs/heads/}\`\","username": "LoggerBot","avatarUrl": "https://phinf.pstatic.net/contact/20240821_205/1724202038449ujiun_JPEG/image.jpg","tts": "false"}' "${{ inputs.discord_webhook_url }}"
