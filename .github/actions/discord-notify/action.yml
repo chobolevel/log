@@ -39,4 +39,4 @@ runs:
 
         echo "${MSG}"
 
-        curl -X POST -H 'Content-type: application/json' --data '${MSG}' "${{ inputs.discord_webhook_url }}"
+        curl -X POST -H 'Content-type: application/json' --data \'${MSG}\' "${{ inputs.discord_webhook_url }}"
