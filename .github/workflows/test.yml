@@ -45,7 +45,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Run infra
-        run: sudo ./gradlew composeUp
+        run: sudo ./gradlew -s composeUp
 
       - name: Check running containers
         run: docker ps -a
