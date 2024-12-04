@@ -108,3 +108,12 @@
 > ![image](https://github.com/user-attachments/assets/4be56dfa-3aa9-4cc3-bed9-c3f2175afa0e)
 > + 로컬에서는 로그 발생 시 바로 확인할 수 있지만 운영 서버에서 발생하는 로그는 서버에 직접 접속하지 않는 이상 확인이 어려웠습니다.
 > + 이를 위해 Webhook을 사용해 로그를 받을 수 있는 서비스(Discord, Slack 등)가 있다는 것을 알게되었고 Discord 채널에서 로그를 받도록 설정하였습니다.
+
+> ### 채팅 기능
+> ![image](https://github.com/user-attachments/assets/11514145-c1b9-4c19-83ad-8b8fdd16f1d3)
+> ![image](https://github.com/user-attachments/assets/4555736e-c4da-4091-a23e-8855222b1479)
+> ![image](https://github.com/user-attachments/assets/2e2a27b9-7a3c-4a99-80aa-69d1a43d5843)
+> + Spring에서 제공되는 WebSocket(Stomp)을 통해 채팅 기능을 제공하였습니다.
+> + 설정 파일을 통해 WebSocket 연결을 위한 엔트포인트와 메세지 구독/발행을 위한 엔드포인트를 설정해주었습니다.
+> + 커스텀 인터셉터를 구성하여 WebSocket 연결, 메세지 구독/발행 요청을 인증하여 인증된 사용자만 접근할 수 있도록 하였습니다.
+> + 메세지 발행 시 메세지를 저장하고 이후 구독중인 클라이언트에 메세지를 발송하는 로직을 통해 채팅 내용을 보관하고 즉시 확인할 수 있도록 하였습니다.
