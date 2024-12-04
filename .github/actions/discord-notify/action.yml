@@ -30,9 +30,11 @@ runs:
       # run: 뒤에 '|'을 붙여서 스크립트를 여러 줄로 사용할 수 있어요.
       run: |
         if [ "${{ inputs.status }}" = "success" ]; then
-          CONTENT="\"✅ workflow process success ✅"\"
+          CONTENT="✅ workflow process success ✅"
         else
-          CONTENT="\"⛔ workflow process failure ⛔"\"
+          CONTENT="⛔ workflow process failure ⛔"
         fi
 
-        curl -X POST -H 'Content-type: application/json' --data '{"content": ${CONTENT}, "username": "LoggerBot", "avatarUrl": "https://phinf.pstatic.net/contact/20240821_205/1724202038449ujiun_JPEG/image.jpg","tts": "false"}' "${{ inputs.discord_webhook_url }}"
+        DATA="{\"content\": \"${CONTENT}\",\"username\": \"LoggerBot\",\"avatarUrl\": \"https://phinf.pstatic.net/contact/20240821_205/1724202038449ujiun_JPEG/image.jpg\",\"tts\": \"false\"}"
+
+        curl -X POST -H 'Content-type: application/json' --d "${DATA}" "${{ inputs.discord_webhook_url }}"
