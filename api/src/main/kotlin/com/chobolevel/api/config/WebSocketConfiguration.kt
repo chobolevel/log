@@ -13,10 +13,6 @@ class WebSocketConfiguration(
     private val customInterceptor: CustomChannelInterceptor
 ) : WebSocketMessageBrokerConfigurer {
 
-    /**
-     * 해당 엔드포인트로 요청 시 소켓 연결
-     * @param registry
-     */
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
         // WebSocket 연결을 위한 엔드포인트 설정
         registry.addEndpoint("/ws").setAllowedOriginPatterns("*")
@@ -24,12 +20,6 @@ class WebSocketConfiguration(
         registry.addEndpoint("/ws").setAllowedOriginPatterns("*").withSockJS()
     }
 
-    /**
-     * 메시지 브로커 설정을 위한 메소드
-     * /sub/channels/{channelId} -> 메세지 구독(수신)
-     * /pub/channel-messages -> 메세지 발행(송신)
-     * @param registry
-     */
     override fun configureMessageBroker(registry: MessageBrokerRegistry) {
         // 메세지를 구독하는 요청 엔드포인트
         registry.enableSimpleBroker("/sub")

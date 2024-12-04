@@ -41,7 +41,10 @@ dependencies {
     // prometheus
     implementation("io.micrometer:micrometer-registry-prometheus")
 
+    // websocket(stomp)
     implementation("org.springframework.boot:spring-boot-starter-websocket")
+
+    // websocket security
     implementation("org.springframework.security:spring-security-messaging")
 }
 
