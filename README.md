@@ -85,11 +85,14 @@
     ![image](https://github.com/user-attachments/assets/ffd75317-2052-40c6-b02d-5e02d275aab4)
 
 > ### 웜 업
-> ![image](https://github.com/user-attachments/assets/b2a30f7b-0e8c-44ce-9791-ba19c619a7cf)
-> ![image](https://github.com/user-attachments/assets/da9f86e9-1b54-4df7-8286-ea96a501e3c8)
+> ![image](https://github.com/user-attachments/assets/04429651-0bb2-4141-8d20-6a2af7e0ecf4)
+> ![image](https://github.com/user-attachments/assets/bbb76c66-e717-4f25-a279-f20a2df039de)
+> ![image](https://github.com/user-attachments/assets/5ee72a3b-5ad7-479e-9245-9aca7e95cfea)
+> ![image](https://github.com/user-attachments/assets/49a897e9-d24a-4c69-be83-ed9c09da20a9)
 > + 애플리케이션 재시작했을 떄 JVM 특성상 최소한의 클래스만 로드해서 시작하는데 이로 인해 첫 API 호출 시 클래스 로드를 수행해야 하므로 지연이 발생하였습니다.
 > + 이를 방지하기 위해 시작할 때 자주 사용되는 API 호출하여 클래스를 로드해두는 로직을 작성하였습니다.
-> + 사용자가 많지 않은 서비스의 경우 오래동안 사용되지 않은 클래스는 메모리에서 제거되기 때문에 지속적으로 웜 업하도록 스케줄러를 추가하였습니다.
+> + Warmer 추상화를 통해 Warmer 인터페이스 구현한 클래스를 빈으로 등록하면 웜 업 로직에 포함되도록 하였습니다.
+> + 사용자가 많지 않은 서비스의 경우 오래동안 사용되지 않은 클래스는 메모리에서 제거되기 때문에 지속적으로 웜 업하도록 스케줄러를 이용하는 로직도 추가하였습니다.
 
 > ### Github Actions
 > ![image](https://github.com/user-attachments/assets/13fc15a2-2d8a-4163-8799-373a6b6e392c)
