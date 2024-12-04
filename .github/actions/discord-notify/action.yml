@@ -35,8 +35,4 @@ runs:
           EMOTICON="⛔"
         fi
 
-        MSG="{"content": "테스트","username": "LoggerBot","avatarUrl": "https://phinf.pstatic.net/contact/20240821_205/1724202038449ujiun_JPEG/image.jpg","tts": "false"}"
-
-        echo "${MSG}"
-
-        curl -X POST -H 'Content-type: application/json' --data \'${MSG}\' "${{ inputs.discord_webhook_url }}"
+        curl -X POST -H 'Content-type: application/json' --data '{"content": "테스트","username": "LoggerBot","avatarUrl": "https://phinf.pstatic.net/contact/20240821_205/1724202038449ujiun_JPEG/image.jpg","tts": "false"}' "${{ inputs.discord_webhook_url }}"
