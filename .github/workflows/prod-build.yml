@@ -66,13 +66,26 @@ jobs:
 
       - name: Send Discord if failed
         if: ${{ failure() }}
-        uses: .github/actions/discord-notify
+        uses: ./.github/actions/discord-notify
         with:
           discord_webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
 
       - name: Send Discord if completed
         if: ${{ success() }}
-        uses: .github/actions/discord-notify
+        uses: ./.github/actions/discord-notify
+        with:
+          status: success
+          discord_webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+      - name: Send discord message if failed
+        if: ${{ failure() }}
+        uses: ./.github/actions/discord-notify
+        with:
+          discord_webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+      - name: Send discord message if succeed
+        if: ${{ success() }}
+        uses: ./.github/actions/discord-notify
         with:
           status: success
           discord_webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}

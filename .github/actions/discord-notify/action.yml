@@ -1,0 +1,40 @@
+# slack-notify.yml
+
+# 마찬가지로 이름을 정해줍니다.
+name: 'discord-notify'
+
+# 아까 `actions/setup-node@v2`를 사용할 때 with로 node-version을 넘겼던 거 기억나시나요?
+# 그 내부는 이렇게 생겼답니다. 저희도 input을 받아야될 거 같아요.
+# job의 실패 or 성공에 대한 값, 슬랙 알림을 보낼 값인
+# status와 slack_incoming_url을 받아볼게요.
+inputs:
+  status:
+    # 필수 값을 정해줄 수 있어요.
+    # status는 required가 아니므로 status라는 값이 input으로 들어오지 않으면
+    # default로 `failure`를 사용합니다.
+    required: false
+    default: 'failure'
+  discord_webhook_url:
+    required: true
+
+# using: 'composite' 라는 값을 필수로 지정해줘야해요. 직접 Action을 만든다는 의미거든요.
+runs:
+  using: 'composite'
+
+  # 마찬가지로 step을 가지게 됩니다.
+  steps:
+    - name: Send Discord
+      # 저는 shell script를 사용할 예정이라
+      # shell이라는 키워드에 bash라는 값을 입력해줄게요.
+      shell: bash
+      # run: 뒤에 '|'을 붙여서 스크립트를 여러 줄로 사용할 수 있어요.
+      run: |
+        if [ "${{ inputs.status }}" = "success" ]; then
+          CONTENT="✅ workflow process success ✅"
+        else
+          CONTENT="⛔ workflow process failure ⛔"
+        fi
+
+        DATA="{\"content\": \"${CONTENT}\",\"username\": \"LoggerBot\",\"avatarUrl\": \"https://phinf.pstatic.net/contact/20240821_205/1724202038449ujiun_JPEG/image.jpg\",\"tts\": \"false\"}"
+
+        curl -X POST -H 'Content-type: application/json' -d "${DATA}" "${{ inputs.discord_webhook_url }}"
