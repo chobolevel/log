@@ -63,3 +63,16 @@ jobs:
       - name: API Build, tag, and push image to EC2
         id: build-image-api
         run: make ec2_push_production_api
+
+      - name: Send Discord if failed
+        if: ${{ failure() }}
+        uses: .github/actions/discord-notify
+        with:
+          discord_webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+      - name: Send Discord if completed
+        if: ${{ success() }}
+        uses: .github/actions/discord-notify
+        with:
+          status: success
+          discord_webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
