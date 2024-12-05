@@ -1,7 +1,6 @@
 package com.chobolevel.domain.entity.channel.message
 
 import com.chobolevel.domain.Pagination
-import com.chobolevel.domain.entity.channel.Channel
 import com.chobolevel.domain.entity.channel.message.QChannelMessage.channelMessage
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.core.types.dsl.BooleanExpression

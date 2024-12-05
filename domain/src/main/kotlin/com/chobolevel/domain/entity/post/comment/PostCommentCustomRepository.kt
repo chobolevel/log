@@ -1,7 +1,6 @@
 package com.chobolevel.domain.entity.post.comment
 
 import com.chobolevel.domain.Pagination
-import com.chobolevel.domain.entity.post.Post
 import com.chobolevel.domain.entity.post.comment.QPostComment.postComment
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.core.types.dsl.BooleanExpression

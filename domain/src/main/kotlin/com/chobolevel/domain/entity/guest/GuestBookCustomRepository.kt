@@ -2,7 +2,6 @@ package com.chobolevel.domain.entity.guest
 
 import com.chobolevel.domain.Pagination
 import com.chobolevel.domain.entity.guest.QGuestBook.guestBook
-import com.chobolevel.domain.entity.post.Post
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.core.types.dsl.BooleanExpression
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
