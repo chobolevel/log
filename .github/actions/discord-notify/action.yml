@@ -35,6 +35,6 @@ runs:
           CONTENT="⛔ workflow process failure ⛔"
         fi
 
-        DATA="{\"username\": \"Github\", \"avatar_url\": \"https://cdn.iconscout.com/icon/free/png-256/free-github-170-1175028.png?f=webp\", \"tts\": \"false\", \"embeds\": [{ \"title\": \"${GITHUB_WORKFLOW}\", \"type\": \"rich\", \"description\": \"${CONTENT}\", \"url\": \"https://github.com/chobolevel/log/actions/runs/${GITHUB_RUN_ID}\", \"author\": { \"name\": \"${GITHUB_ACTOR}\", \"icon_url\": \"https://avatars.githubusercontent.com/u/${GITHUB_ACTOR_ID}?v=4\" }}]}"
+        DATA="{\"username\": \"Github\", \"avatar_url\": \"https://cdn.iconscout.com/icon/free/png-256/free-github-170-1175028.png?f=webp\", \"tts\": \"false\", \"embeds\": [{ \"title\": \"${GITHUB_WORKFLOW}\", \"type\": \"rich\", \"description\": \"${CONTENT}\", \"url\": \"https://github.com/chobolevel/log/actions/runs/${GITHUB_RUN_ID}\", \"author\": { \"name\": \"${GITHUB_ACTOR}\", \"url\": \"https://github.com/${GITHUB_ACTOR}\" \"icon_url\": \"https://avatars.githubusercontent.com/u/${GITHUB_ACTOR_ID}?v=4\" }}]}"
 
         curl -X POST -H 'Content-type: application/json' -d "${DATA}" "${{ inputs.discord_webhook_url }}"
