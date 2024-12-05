@@ -33,13 +33,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Cache Docker
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
+      #      - name: Cache Docker
+      #        uses: actions/cache@v3
+      #        with:
+      #          path: /tmp/.buildx-cache
+      #          key: ${{ runner.os }}-buildx-${{ github.sha }}
+      #          restore-keys: |
+      #            ${{ runner.os }}-buildx-
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
