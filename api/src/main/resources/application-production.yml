@@ -68,3 +68,6 @@ management:
   endpoints:
     web:
       base-path: "/monitors"
+      exposure:
+        include: "*"
+        exclude: "env, beans"
