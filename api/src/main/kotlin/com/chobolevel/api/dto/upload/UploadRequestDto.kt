@@ -12,6 +12,7 @@ data class UploadRequestDto(
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class UploadResponseDto(
+    val presignedUrl: String,
     val url: String,
     val filenameWithExtension: String
 )
