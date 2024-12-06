@@ -46,6 +46,9 @@ dependencies {
 
     // websocket security
     implementation("org.springframework.security:spring-security-messaging")
+
+    // aop
+    implementation("org.springframework.boot:spring-boot-starter-aop")
 }
 
 val baseJvmFlags: (memory: String, imageTag: String?, stage: String?) -> List<String> by ext
