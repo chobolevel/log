@@ -22,5 +22,4 @@ class MetricsAspect(
             timer.stop(meterRegistry.timer("controller.execution.time", "method", pjp.signature.name))
         }
     }
-
 }
