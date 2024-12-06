@@ -4,6 +4,10 @@ networks:
   chobolevel:
     driver: bridge
 
+volumes:
+  grafana-storage:
+    driver: local
+
 services:
   redis:
     image: redis:latest
@@ -70,6 +74,11 @@ services:
   grafana:
     image: grafana/grafana
     container_name: chobolevel-grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-storage:/var/lib/grafana
     networks:
       - chobolevel
     restart: always
