@@ -7,11 +7,15 @@ networks:
 volumes:
   grafana-storage:
     driver: local
+  chobolevel-redis:
+    driver: local
 
 services:
   redis:
     image: redis:latest
     container_name: chobolevel-log-redis
+    volumes:
+      - chobolevel-redis:/data
     networks:
       - chobolevel
     ports:
