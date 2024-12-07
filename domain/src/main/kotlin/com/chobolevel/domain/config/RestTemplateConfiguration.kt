@@ -3,6 +3,7 @@ package com.chobolevel.domain.config
 import okhttp3.ConnectionPool
 import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.client.OkHttp3ClientHttpRequestFactory
@@ -16,6 +17,12 @@ class RestTemplateConfiguration {
     fun restTemplate(): RestTemplate {
         val factory = createRequestFactory(5000, 5000)
         return RestTemplate(factory)
+    }
+
+    @Bean
+    @Qualifier("baseRestTemplate")
+    fun baseRestTemplate(): RestTemplate {
+        return RestTemplate()
     }
 
     private fun createRequestFactory(
