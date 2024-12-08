@@ -46,7 +46,6 @@ spring:
 
 jasypt:
   encryptor:
-    password: chobolevel
     algorithm: PBEWITHHMACSHA512ANDAES_256
     key-obtention-iterations: 1000
     pool-size: 1
