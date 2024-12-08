@@ -2,7 +2,6 @@ package com.chobolevel.api
 
 import com.chobolevel.api.warmer.Warmer
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.ApplicationListener
 import org.springframework.stereotype.Component
@@ -17,6 +16,7 @@ class ApiApplicationListener(
     private val logger = LoggerFactory.getLogger(ApiApplication::class.java)
 
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
+        val restTemplate = RestTemplate()
         val url = "http://${InetAddress.getLocalHost().hostAddress}:9565"
         logger.info("===== warm up started with $url ====")
         warmers.forEach { it.warm(url = url, restTemplate = restTemplate) }
