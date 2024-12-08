@@ -44,16 +44,6 @@ spring:
     baseline-version: 0
     out-of-order: true
 
-jasypt:
-  encryptor:
-    algorithm: PBEWITHHMACSHA512ANDAES_256
-    key-obtention-iterations: 1000
-    pool-size: 1
-    provider-name: SunJCE
-    salt-generator-classname: org.jasypt.salt.RandomSaltGenerator
-    iv-generator-classname: org.jasypt.iv.RandomIvGenerator
-    string-output-type: base64
-
 redis:
   chobolevel:
     host: localhost
