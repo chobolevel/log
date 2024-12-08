@@ -12,8 +12,6 @@ import java.net.InetAddress
 @Component
 class WarmScheduler(
     private val warmers: List<Warmer>,
-    @Qualifier("baseRestTemplate")
-    private val restTemplate: RestTemplate
 ) {
 
     private val logger = LoggerFactory.getLogger(WarmScheduler::class.java)
@@ -21,6 +19,7 @@ class WarmScheduler(
     @Async
     @Scheduled(cron = "0 */10 * * * *")
     fun postControllerWarmer() {
+        val restTemplate = RestTemplate()
         val url = "http://${InetAddress.getLocalHost().hostAddress}:9565"
         logger.info("===== warm up started with $url ====")
         warmers.forEach { it.warm(url = url, restTemplate = restTemplate) }

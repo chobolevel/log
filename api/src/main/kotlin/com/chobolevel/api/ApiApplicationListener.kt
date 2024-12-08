@@ -12,13 +12,12 @@ import java.net.InetAddress
 @Component
 class ApiApplicationListener(
     private val warmers: List<Warmer>,
-    @Qualifier("baseRestTemplate")
-    private val restTemplate: RestTemplate
 ) : ApplicationListener<ApplicationReadyEvent> {
 
     private val logger = LoggerFactory.getLogger(ApiApplication::class.java)
 
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
+        val restTemplate = RestTemplate()
         val url = "http://${InetAddress.getLocalHost().hostAddress}:9565"
         logger.info("===== warm up started with $url ====")
         warmers.forEach { it.warm(url = url, restTemplate = restTemplate) }
