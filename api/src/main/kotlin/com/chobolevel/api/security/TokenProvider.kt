@@ -32,12 +32,12 @@ class TokenProvider(
         val refreshTokenExpiredAt = Date(now.time + TimeUnit.DAYS.toMillis(30))
         val accessToken = issueAccessToken(
             issuedAt = now,
-            expiration = Date(now.time + TimeUnit.HOURS.toMillis(1)),
+            expiration = accessTokenExpiredAt,
             authentication = authentication
         )
         val refreshToken = issueRefreshToken(
             issuedAt = now,
-            expiration = Date(now.time + TimeUnit.DAYS.toMillis(30)),
+            expiration = refreshTokenExpiredAt,
             authentication = authentication
         )
         return JwtResponse(
