@@ -8,13 +8,11 @@ import com.chobolevel.api.service.client.converter.ClientConverter
 import com.chobolevel.api.service.client.updater.ClientUpdater
 import com.chobolevel.api.service.client.validator.ClientValidator
 import com.chobolevel.domain.Pagination
-import com.chobolevel.domain.entity.client.Client
 import com.chobolevel.domain.entity.client.ClientFinder
 import com.chobolevel.domain.entity.client.ClientOrderType
 import com.chobolevel.domain.entity.client.ClientQueryFilter
 import com.chobolevel.domain.entity.client.ClientRepository
 import com.chobolevel.domain.entity.user.UserFinder
-import io.hypersistence.tsid.TSID
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*

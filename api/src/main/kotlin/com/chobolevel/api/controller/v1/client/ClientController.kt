@@ -36,7 +36,8 @@ class ClientController(
     @PostMapping("/clients")
     fun createClient(
         principal: Principal,
-        @Valid @RequestBody request: CreateClientRequestDto
+        @Valid @RequestBody
+        request: CreateClientRequestDto
     ): ResponseEntity<ResultResponse> {
         val result = service.create(
             userId = principal.getUserId(),
@@ -86,7 +87,8 @@ class ClientController(
     fun updateClient(
         principal: Principal,
         @PathVariable("id") clientId: String,
-        @Valid @RequestBody request: UpdateClientRequestDto
+        @Valid @RequestBody
+        request: UpdateClientRequestDto
     ): ResponseEntity<ResultResponse> {
         val result = service.update(
             userId = principal.getUserId(),
