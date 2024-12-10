@@ -1,5 +1,6 @@
 package com.chobolevel.api.security
 
+import com.chobolevel.api.properties.SecurityProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -16,7 +17,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @EnableMethodSecurity(prePostEnabled = true)
 class WebConfiguration(
     private val authManager: CustomAuthenticationManager,
-    private val tokenProvider: TokenProvider
+    private val tokenProvider: TokenProvider,
+    private val securityProperties: SecurityProperties
 ) {
 
     @Bean
@@ -25,7 +27,7 @@ class WebConfiguration(
             config.configurationSource(
                 UrlBasedCorsConfigurationSource().also { cors ->
                     CorsConfiguration().apply {
-                        allowedOrigins = listOf("*")
+                        allowedOrigins = securityProperties.allowOrigins
                         allowedMethods = listOf("POST", "PUT", "DELETE", "GET", "OPTIONS", "HEAD")
                         allowedHeaders = listOf(
                             "Authorization",
@@ -46,6 +48,7 @@ class WebConfiguration(
                             "Set-Cookie"
                         )
                         maxAge = 3600
+                        allowCredentials = true
                         cors.registerCorsConfiguration("/**", this)
                     }
                 }

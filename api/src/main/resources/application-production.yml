@@ -64,6 +64,9 @@ jwt:
   issuer: ENC(cyIVjl7PIGwR3/yDARIOB56e0tUfQa5QQRIvwaYCma61C8I+Zzh8IuooBrQ/eq7t)
   secret: ENC(nS9O3l5DBtxsRuoT79sUDIU4KqjKfS0FsxmFUFuS6c1mS5PS1DbQfzltXbqzaqzF)
 
+security:
+  allow-origins: ENC(aupPvUO/rdMe69Fd65lzs53porJBjgqtDL9t2bvyqvjBCeGTLsKUPYAIdPzxDOn5CiwMFHXK5FMSfR+x2BTqmQ==)
+
 cloud:
   aws:
     s3:
