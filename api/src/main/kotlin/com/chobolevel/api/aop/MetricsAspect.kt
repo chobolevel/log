@@ -13,7 +13,7 @@ class MetricsAspect(
     private val meterRegistry: MeterRegistry
 ) {
 
-    @Around("execution(* com.chobolevel.api.controller.v1.*.*.*(..))")
+    @Around("execution(org.springframework.http.ResponseEntity com.chobolevel.api.controller.v1.*.*.*(..))")
     fun methodExecution(pjp: ProceedingJoinPoint): Any {
         val timer = Timer.start(meterRegistry)
         try {
