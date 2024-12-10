@@ -49,6 +49,12 @@ dependencies {
 
     // aop
     implementation("org.springframework.boot:spring-boot-starter-aop")
+
+    // tsid
+    implementation("io.hypersistence:hypersistence-utils-hibernate-60:3.7.3")
+
+    // thymeleaf
+    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 }
 
 val baseJvmFlags: (memory: String, imageTag: String?, stage: String?) -> List<String> by ext
