@@ -2,7 +2,6 @@ package com.chobolevel.api.security
 
 import com.chobolevel.api.dto.jwt.JwtResponse
 import com.chobolevel.api.properties.JwtProperties
-import com.chobolevel.domain.entity.user.UserFinder
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
 import io.jsonwebtoken.ExpiredJwtException
@@ -22,7 +21,6 @@ import java.util.concurrent.TimeUnit
 @Component
 class TokenProvider(
     private val jwtProperties: JwtProperties,
-    private val userFinder: UserFinder,
     private val userDetailService: UserDetailsService
 ) {
 
@@ -30,19 +28,24 @@ class TokenProvider(
 
     fun generateToken(authentication: Authentication): JwtResponse {
         val now = Date()
+        val accessTokenExpiredAt = Date(now.time + TimeUnit.HOURS.toMillis(1))
+        val refreshTokenExpiredAt = Date(now.time + TimeUnit.DAYS.toMillis(30))
         val accessToken = issueAccessToken(
             issuedAt = now,
-            expiration = Date(now.time + TimeUnit.HOURS.toMillis(1)),
+            expiration = accessTokenExpiredAt,
             authentication = authentication
         )
         val refreshToken = issueRefreshToken(
             issuedAt = now,
-            expiration = Date(now.time + TimeUnit.DAYS.toMillis(30)),
+            expiration = refreshTokenExpiredAt,
             authentication = authentication
         )
         return JwtResponse(
+            tokenType = "Bearer",
             accessToken = accessToken,
-            refreshToken = refreshToken
+            accessTokenExpiredAt = accessTokenExpiredAt.toInstant().toEpochMilli(),
+            refreshToken = refreshToken,
+            refreshTokenExpiredAt = refreshTokenExpiredAt.toInstant().toEpochMilli(),
         )
     }
 

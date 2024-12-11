@@ -1,5 +1,14 @@
 server:
   port: 9565
+  reactive:
+    session:
+      cookie:
+        path: "/"
+        max-age: 31536000
+        domain: localhost
+        secure: true
+        http-only: true
+        same-site: none
 
 logging:
   level:
@@ -63,6 +72,9 @@ redis:
 jwt:
   issuer: ENC(cyIVjl7PIGwR3/yDARIOB56e0tUfQa5QQRIvwaYCma61C8I+Zzh8IuooBrQ/eq7t)
   secret: ENC(nS9O3l5DBtxsRuoT79sUDIU4KqjKfS0FsxmFUFuS6c1mS5PS1DbQfzltXbqzaqzF)
+
+security:
+  allow-origins: ENC(4K87xBn8UQLVcVfztebCtC+/jt2xtURHMjwbd3jE0X2Tns96uhZFlTX/E9sFEmlPvjyXxGLUVSrWkEg0GXvPFA==)
 
 cloud:
   aws:
