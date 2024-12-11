@@ -55,10 +55,11 @@ class AuthController(
     @PostMapping("/logout")
     fun logout(res: HttpServletResponse): ResponseEntity<ResultResponse> {
         val cookie = Cookie("_crt", "").also {
-            it.maxAge = 0
             it.path = serverProperties.reactive.session.cookie.path
-            it.isHttpOnly = serverProperties.reactive.session.cookie.httpOnly
+            it.maxAge = 0
+            it.domain = serverProperties.reactive.session.cookie.domain
             it.secure = serverProperties.reactive.session.cookie.secure
+            it.isHttpOnly = serverProperties.reactive.session.cookie.httpOnly
         }
         res.addCookie(cookie)
         return ResponseEntity.ok(ResultResponse(true))
