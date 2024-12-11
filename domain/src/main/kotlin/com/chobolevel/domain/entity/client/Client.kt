@@ -18,10 +18,12 @@ class Client(
     @Id
     @Column(nullable = false, updatable = false)
     var id: String,
+    @Column(nullable = false, updatable = false)
+    var secret: String,
     @Column(nullable = false)
     var name: String,
-    @Column(nullable = false, updatable = false)
-    var secret: String
+    @Column(nullable = false)
+    var redirectUrl: String,
 ) : Audit() {
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
@@ -43,7 +45,8 @@ class Client(
 }
 
 enum class ClientUpdateMask {
-    NAME
+    NAME,
+    REDIRECT_URL
 }
 
 enum class ClientOrderType {

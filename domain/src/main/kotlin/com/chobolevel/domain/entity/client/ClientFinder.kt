@@ -16,6 +16,15 @@ class ClientFinder(
 ) {
 
     @Throws(ApiException::class)
+    fun findById(id: String): Client {
+        return repository.findByIdAndDeletedFalse(id) ?: throw ApiException(
+            errorCode = ErrorCode.INVALID_PARAMETER,
+            status = HttpStatus.BAD_REQUEST,
+            message = "해당 클라이언트를 찾을 수 없습니다."
+        )
+    }
+
+    @Throws(ApiException::class)
     fun findByIdAndUserId(id: String, userId: Long): Client {
         return repository.findByIdAndUserIdAndDeletedFalse(id = id, userId = userId) ?: throw ApiException(
             errorCode = ErrorCode.INVALID_PARAMETER,

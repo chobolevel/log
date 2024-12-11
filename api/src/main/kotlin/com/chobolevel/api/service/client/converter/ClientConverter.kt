@@ -13,16 +13,18 @@ class ClientConverter {
     fun convert(request: CreateClientRequestDto): Client {
         return Client(
             id = TSID.fast().toString(),
-            name = request.name,
             secret = UUID.randomUUID().toString(),
+            name = request.name,
+            redirectUrl = request.redirectUrl
         )
     }
 
     fun convert(entity: Client): ClientResponseDto {
         return ClientResponseDto(
             clientId = entity.id,
-            name = entity.name,
             clientSecret = entity.secret,
+            name = entity.name,
+            redirectUrl = entity.redirectUrl,
             createdAt = entity.createdAt!!.toInstant().toEpochMilli(),
             updatedAt = entity.updatedAt!!.toInstant().toEpochMilli(),
         )

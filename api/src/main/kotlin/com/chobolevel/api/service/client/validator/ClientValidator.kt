@@ -22,6 +22,15 @@ class ClientValidator {
                         )
                     }
                 }
+                ClientUpdateMask.REDIRECT_URL -> {
+                    if (request.redirectUrl.isNullOrEmpty()) {
+                        throw ApiException(
+                            errorCode = ErrorCode.INVALID_PARAMETER,
+                            status = HttpStatus.BAD_REQUEST,
+                            message = "변경할 redirect_url이 유효하지 않습니다."
+                        )
+                    }
+                }
             }
         }
     }

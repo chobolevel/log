@@ -1,7 +1,6 @@
 package com.chobolevel.api.service.auth
 
 import com.chobolevel.api.dto.auth.LoginRequestDto
-import com.chobolevel.api.dto.auth.ReissueRequestDto
 import com.chobolevel.api.dto.jwt.JwtResponse
 import com.chobolevel.api.security.CustomAuthenticationManager
 import com.chobolevel.api.security.TokenProvider
@@ -46,9 +45,9 @@ class AuthService(
     }
 
     @Transactional(readOnly = true)
-    fun reissue(request: ReissueRequestDto): JwtResponse {
-        tokenProvider.validateToken(request.refreshToken)
-        val authentication = tokenProvider.getAuthentication(request.refreshToken) ?: throw ApiException(
+    fun reissue(refreshToken: String): JwtResponse {
+        tokenProvider.validateToken(refreshToken)
+        val authentication = tokenProvider.getAuthentication(refreshToken) ?: throw ApiException(
             errorCode = ErrorCode.INVALID_TOKEN,
             status = HttpStatus.UNAUTHORIZED,
             message = "토큰이 만료되었습니다. 재로그인 해주세요."

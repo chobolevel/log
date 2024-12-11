@@ -1,5 +1,14 @@
 server:
   port: 9565
+  reactive:
+    session:
+      cookie:
+        path: /
+        max-age: 31536000
+        domain: chobolevel.site
+        secure: true
+        http-only: true
+        same-site: none
 
 logging:
   level:

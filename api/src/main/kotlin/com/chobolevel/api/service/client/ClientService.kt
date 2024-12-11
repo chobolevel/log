@@ -57,6 +57,12 @@ class ClientService(
     }
 
     @Transactional(readOnly = true)
+    fun getClient(clientId: String): ClientResponseDto {
+        val client = finder.findById(clientId)
+        return converter.convert(client)
+    }
+
+    @Transactional(readOnly = true)
     fun getClient(userId: Long, clientId: String): ClientResponseDto {
         val client = finder.findByIdAndUserId(
             id = clientId,

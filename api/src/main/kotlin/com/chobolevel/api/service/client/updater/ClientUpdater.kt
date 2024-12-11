@@ -12,6 +12,7 @@ class ClientUpdater {
         request.updateMask.forEach {
             when (it) {
                 ClientUpdateMask.NAME -> entity.name = request.name!!
+                ClientUpdateMask.REDIRECT_URL -> entity.redirectUrl = request.redirectUrl!!
             }
         }
         return entity

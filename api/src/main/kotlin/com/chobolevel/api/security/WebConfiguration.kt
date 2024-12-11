@@ -39,6 +39,7 @@ class WebConfiguration(
                             "Access-Control-Request-Headers",
                             "Access-Control-Allow-Origin",
                             "Access-Control-Allow-Credentials",
+                            "Cookie"
                         )
                         exposedHeaders = listOf(
                             "Access-Control-Allow-Origin",
