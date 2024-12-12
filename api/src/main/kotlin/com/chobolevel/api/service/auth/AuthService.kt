@@ -9,7 +9,6 @@ import com.chobolevel.domain.entity.user.UserFinder
 import com.chobolevel.domain.entity.user.UserLoginType
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
-import org.slf4j.LoggerFactory
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
