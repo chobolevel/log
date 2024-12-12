@@ -9,6 +9,7 @@ import com.chobolevel.domain.entity.user.UserFinder
 import com.chobolevel.domain.entity.user.UserLoginType
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
+import org.slf4j.LoggerFactory
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -53,9 +54,15 @@ class AuthService(
             message = "토큰이 만료되었습니다. 재로그인 해주세요."
         )
         val user = userFinder.findById(authentication.name.toLong())
-        val result = tokenProvider.generateToken(authentication).also {
-            setRefreshToken(user.id.toString(), it.refreshToken)
+        val cachedRefreshToken = opsForHash.get("refresh-token:v1", user.id!!.toString())
+        if (cachedRefreshToken == null || cachedRefreshToken != refreshToken) {
+            throw ApiException(
+                errorCode = ErrorCode.INVALID_TOKEN,
+                status = HttpStatus.UNAUTHORIZED,
+                message = "유효하지 않은 갱신 토큰입니다. 재로그인 해주세요."
+            )
         }
+        val result = tokenProvider.generateToken(authentication)
         return result
     }
 
