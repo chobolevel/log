@@ -51,6 +51,7 @@ class PostService(
                 }
             }
         }
+        // write caching pattern(write around)
         return repository.save(post).id!!
     }
 
@@ -78,6 +79,7 @@ class PostService(
     fun fetchPost(postId: Long): PostResponseDto {
         val cachingKey = generateCachingKey(postId)
         val cachedPost = redisTemplate.opsForValue().get(cachingKey)
+        // read caching pattern(cache(look) aside)
         when (cachedPost) {
             // cache miss
             null -> {
