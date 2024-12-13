@@ -16,8 +16,10 @@ import com.chobolevel.domain.entity.post.PostRepository
 import com.chobolevel.domain.entity.post.tag.PostTag
 import com.chobolevel.domain.entity.tag.TagFinder
 import com.chobolevel.domain.entity.user.UserFinder
+import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.concurrent.TimeUnit
 
 @Service
 class PostService(
@@ -28,7 +30,8 @@ class PostService(
     private val converter: PostConverter,
     private val postImageConverter: PostImageConverter,
     private val updateValidators: List<UpdatePostValidatable>,
-    private val updaters: List<PostUpdatable>
+    private val updaters: List<PostUpdatable>,
+    private val redisTemplate: RedisTemplate<String, PostResponseDto>
 ) {
 
     @Transactional
@@ -73,8 +76,19 @@ class PostService(
 
     @Transactional(readOnly = true)
     fun fetchPost(postId: Long): PostResponseDto {
-        val post = finder.findById(postId)
-        return converter.convert(post)
+        val cachingKey = generateCachingKey(postId)
+        val cachedPost = redisTemplate.opsForValue().get(cachingKey)
+        when (cachedPost) {
+            // cache miss
+            null -> {
+                val post = finder.findById(postId)
+                val convertedPost = converter.convert(post)
+                redisTemplate.opsForValue().set(cachingKey, convertedPost, 10, TimeUnit.MINUTES)
+                return convertedPost
+            }
+            // cache hit
+            else -> return cachedPost
+        }
     }
 
     @Transactional
@@ -85,6 +99,7 @@ class PostService(
             userId = userId
         )
         updaters.sortedBy { it.order() }.forEach { it.markAsUpdate(request, post) }
+        redisTemplate.delete(generateCachingKey(postId))
         return post.id!!
     }
 
@@ -95,6 +110,11 @@ class PostService(
             userId = userId
         )
         post.delete()
+        redisTemplate.delete(generateCachingKey(postId))
         return true
+    }
+
+    private fun generateCachingKey(postId: Long): String {
+        return "post:$postId"
     }
 }

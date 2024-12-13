@@ -7,11 +7,11 @@ import org.springframework.stereotype.Component
 @Component
 class PostQueryCreator {
 
-    fun createQueryFilter(tagId: Long?, title: String?, content: String?): PostQueryFilter {
+    fun createQueryFilter(tagId: Long?, title: String?, subTitle: String?): PostQueryFilter {
         return PostQueryFilter(
             tagId = tagId,
             title = title,
-            content = content
+            subTitle = subTitle
         )
     }
 
