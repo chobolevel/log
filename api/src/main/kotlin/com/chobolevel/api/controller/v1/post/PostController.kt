@@ -51,7 +51,7 @@ class PostController(
     fun searchPosts(
         @RequestParam(required = false) tagId: Long?,
         @RequestParam(required = false) title: String?,
-        @RequestParam(required = false) content: String?,
+        @RequestParam(required = false) subTitle: String?,
         @RequestParam(required = false) skipCount: Long?,
         @RequestParam(required = false) limitCount: Long?,
         @RequestParam(required = false) orderTypes: List<PostOrderType>?
@@ -59,7 +59,7 @@ class PostController(
         val queryFilter = queryCreator.createQueryFilter(
             tagId = tagId,
             title = title,
-            content = content
+            subTitle = subTitle
         )
         val pagination = queryCreator.createPaginationFilter(
             skipCount = skipCount,
