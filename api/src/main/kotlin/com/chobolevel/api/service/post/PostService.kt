@@ -9,6 +9,7 @@ import com.chobolevel.api.service.post.converter.PostImageConverter
 import com.chobolevel.api.service.post.updater.PostUpdatable
 import com.chobolevel.api.service.post.validator.UpdatePostValidatable
 import com.chobolevel.domain.Pagination
+import com.chobolevel.domain.entity.post.Post
 import com.chobolevel.domain.entity.post.PostFinder
 import com.chobolevel.domain.entity.post.PostOrderType
 import com.chobolevel.domain.entity.post.PostQueryFilter
@@ -16,8 +17,10 @@ import com.chobolevel.domain.entity.post.PostRepository
 import com.chobolevel.domain.entity.post.tag.PostTag
 import com.chobolevel.domain.entity.tag.TagFinder
 import com.chobolevel.domain.entity.user.UserFinder
+import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.concurrent.TimeUnit
 
 @Service
 class PostService(
@@ -28,7 +31,8 @@ class PostService(
     private val converter: PostConverter,
     private val postImageConverter: PostImageConverter,
     private val updateValidators: List<UpdatePostValidatable>,
-    private val updaters: List<PostUpdatable>
+    private val updaters: List<PostUpdatable>,
+    private val redisTemplate: RedisTemplate<String, PostResponseDto>
 ) {
 
     @Transactional
@@ -73,8 +77,15 @@ class PostService(
 
     @Transactional(readOnly = true)
     fun fetchPost(postId: Long): PostResponseDto {
+        val cachingKey = generateCachingKey(postId)
+        val cachedPost = redisTemplate.opsForValue().get(cachingKey)
+        if (cachedPost != null) {
+            return cachedPost
+        }
         val post = finder.findById(postId)
-        return converter.convert(post)
+        val convertedPost = converter.convert(post)
+        redisTemplate.opsForValue().set(cachingKey, convertedPost, 10, TimeUnit.MINUTES)
+        return convertedPost
     }
 
     @Transactional
@@ -85,6 +96,7 @@ class PostService(
             userId = userId
         )
         updaters.sortedBy { it.order() }.forEach { it.markAsUpdate(request, post) }
+        redisTemplate.delete(generateCachingKey(postId))
         return post.id!!
     }
 
@@ -95,6 +107,11 @@ class PostService(
             userId = userId
         )
         post.delete()
+        redisTemplate.delete(generateCachingKey(postId))
         return true
+    }
+
+    private fun generateCachingKey(postId: Long): String {
+        return "post:${postId}"
     }
 }

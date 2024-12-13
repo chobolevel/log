@@ -8,13 +8,13 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class PostResponseDto(
-    val id: Long,
-    val writer: UserResponseDto,
-    val tags: List<TagResponseDto>,
-    val title: String,
-    val subTitle: String,
-    val content: String,
-    val thumbNailImage: PostImageResponseDto?,
-    val createdAt: Long,
-    val updatedAt: Long
+    val id: Long = 0,
+    val writer: UserResponseDto? = null,
+    val tags: List<TagResponseDto>? = null,
+    val title: String = "",
+    val subTitle: String = "",
+    val content: String = "",
+    val thumbNailImage: PostImageResponseDto? = null,
+    val createdAt: Long = 0,
+    val updatedAt: Long = 0
 )

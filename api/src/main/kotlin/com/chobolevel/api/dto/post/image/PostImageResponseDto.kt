@@ -6,12 +6,12 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class PostImageResponseDto(
-    val id: Long,
-    val type: PostImageType,
-    val name: String,
-    val url: String,
-    val width: Int,
-    val height: Int,
-    val createdAt: Long,
-    val updatedAt: Long
+    val id: Long = 0,
+    val type: PostImageType = PostImageType.THUMB_NAIL,
+    val name: String = "",
+    val url: String = "",
+    val width: Int = 0,
+    val height: Int = 0,
+    val createdAt: Long = 0,
+    val updatedAt: Long = 0
 )
