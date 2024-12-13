@@ -78,13 +78,17 @@ class PostService(
     fun fetchPost(postId: Long): PostResponseDto {
         val cachingKey = generateCachingKey(postId)
         val cachedPost = redisTemplate.opsForValue().get(cachingKey)
-        if (cachedPost != null) {
-            return cachedPost
+        when (cachedPost) {
+            // cache miss
+            null -> {
+                val post = finder.findById(postId)
+                val convertedPost = converter.convert(post)
+                redisTemplate.opsForValue().set(cachingKey, convertedPost, 10, TimeUnit.MINUTES)
+                return convertedPost
+            }
+            // cache hit
+            else -> return cachedPost
         }
-        val post = finder.findById(postId)
-        val convertedPost = converter.convert(post)
-        redisTemplate.opsForValue().set(cachingKey, convertedPost, 10, TimeUnit.MINUTES)
-        return convertedPost
     }
 
     @Transactional
