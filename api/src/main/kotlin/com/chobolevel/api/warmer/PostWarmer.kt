@@ -8,6 +8,6 @@ import org.springframework.web.client.getForEntity
 class PostWarmer : Warmer {
 
     override fun warm(url: String, restTemplate: RestTemplate) {
-        restTemplate.getForEntity<String>("$url/api/v1/posts")
+        restTemplate.getForEntity<String>("$url/api/v1/posts?skipCount=0&limitCount=8&orderTypes=CREATED_AT_DESC")
     }
 }
