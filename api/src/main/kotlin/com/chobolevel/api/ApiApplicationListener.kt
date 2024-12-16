@@ -20,12 +20,14 @@ class ApiApplicationListener(
 
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
         val url = "http://${InetAddress.getLocalHost().hostAddress}:9565"
-        try {
-            warmers.forEach { 
-                warmers.forEach { it.warm(url = url, restTemplate = restTemplate) }
+        logger.info("===== warm up started with $url =====")
+        warmers.forEach {
+            try {
+                it.warm(url = url, restTemplate = restTemplate)
+            } catch (e: Exception) {
+                logger.error("error caused by ${it.javaClass.name} during warm up", e)
             }
-        } catch (e: Exception) {
-            logger.error("===== error during warmup =====")
         }
+        logger.info("===== warm up ended with $url =====")
     }
 }
