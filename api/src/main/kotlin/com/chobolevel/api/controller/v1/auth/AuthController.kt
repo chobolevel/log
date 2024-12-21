@@ -12,7 +12,6 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
 import org.springframework.boot.autoconfigure.web.ServerProperties
-import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
@@ -36,32 +35,34 @@ class AuthController(
         request: LoginRequestDto
     ): ResponseEntity<ResultResponse> {
         val result = service.login(request)
-        // set access token
-        res.setHeader(HttpHeaders.AUTHORIZATION, "${result.tokenType} ${result.accessToken}")
-        // set refresh token
-        val cookie = Cookie("_crt", result.refreshToken).also {
-            it.path = serverProperties.reactive.session.cookie.path
-            it.maxAge = serverProperties.reactive.session.cookie.maxAge.toSeconds().toInt()
-            it.domain = serverProperties.reactive.session.cookie.domain
-            it.secure = serverProperties.reactive.session.cookie.secure
-            it.isHttpOnly = serverProperties.reactive.session.cookie.httpOnly
-            it.setAttribute("SameSite", serverProperties.reactive.session.cookie.sameSite.attributeValue())
-        }
-        res.addCookie(cookie)
+        val accessTokenCookie = generateCookie(
+            key = "_cat",
+            value = result.accessToken
+        )
+        val refreshTokenCookie = generateCookie(
+            key = "_crt",
+            value = result.refreshToken
+        )
+        res.addCookie(accessTokenCookie)
+        res.addCookie(refreshTokenCookie)
         return ResponseEntity.ok(ResultResponse(true))
     }
 
     @Operation(summary = "로그아웃 API")
     @PostMapping("/logout")
     fun logout(res: HttpServletResponse): ResponseEntity<ResultResponse> {
-        val cookie = Cookie("_crt", "").also {
-            it.path = serverProperties.reactive.session.cookie.path
-            it.maxAge = 0
-            it.domain = serverProperties.reactive.session.cookie.domain
-            it.secure = serverProperties.reactive.session.cookie.secure
-            it.isHttpOnly = serverProperties.reactive.session.cookie.httpOnly
-        }
-        res.addCookie(cookie)
+        val expiredAccessTokenCookie = generateCookie(
+            key = "_cat",
+            value = "",
+            maxAge = 0
+        )
+        val expiredRefreshTokenCookie = generateCookie(
+            key = "_crt",
+            value = "",
+            maxAge = 0
+        )
+        res.addCookie(expiredAccessTokenCookie)
+        res.addCookie(expiredRefreshTokenCookie)
         return ResponseEntity.ok(ResultResponse(true))
     }
 
@@ -80,7 +81,26 @@ class AuthController(
         }
         val refreshToken = req.cookies.first { it.name.equals("_crt") }.value
         val result = service.reissue(refreshToken)
-        res.setHeader(HttpHeaders.AUTHORIZATION, "${result.tokenType} ${result.accessToken}")
+        val newAccessTokenCookie = generateCookie(
+            key = "_cat",
+            value = result.accessToken
+        )
+        res.addCookie(newAccessTokenCookie)
         return ResponseEntity.ok(ResultResponse(true))
+    }
+
+    private fun generateCookie(
+        key: String,
+        value: String,
+        maxAge: Int = serverProperties.reactive.session.cookie.maxAge.toSeconds().toInt()
+    ): Cookie {
+        return Cookie(key, value).also {
+            it.path = serverProperties.reactive.session.cookie.path
+            it.maxAge = maxAge
+            it.domain = serverProperties.reactive.session.cookie.domain
+            it.secure = serverProperties.reactive.session.cookie.secure
+            it.isHttpOnly = serverProperties.reactive.session.cookie.httpOnly
+            it.setAttribute("SameSite", serverProperties.reactive.session.cookie.sameSite.attributeValue())
+        }
     }
 }
