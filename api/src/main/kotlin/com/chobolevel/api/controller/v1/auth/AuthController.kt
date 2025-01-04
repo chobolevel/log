@@ -50,7 +50,10 @@ class AuthController(
 
     @Operation(summary = "로그아웃 API")
     @PostMapping("/logout")
-    fun logout(res: HttpServletResponse): ResponseEntity<ResultResponse> {
+    fun logout(req: HttpServletRequest, res: HttpServletResponse): ResponseEntity<ResultResponse> {
+        if (!req.cookies.isNullOrEmpty() && req.cookies.find { it.name == "_crt" } != null) {
+            service.logout(req.cookies.find { it.name == "_crt" }!!.value)
+        }
         val expiredAccessTokenCookie = generateCookie(
             key = "_cat",
             value = "",
