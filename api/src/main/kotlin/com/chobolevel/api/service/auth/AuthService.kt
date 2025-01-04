@@ -52,9 +52,8 @@ class AuthService(
             status = HttpStatus.UNAUTHORIZED,
             message = "토큰이 만료되었습니다. 재로그인 해주세요."
         )
-        val user = userFinder.findById(authentication.name.toLong())
-        val cachedRefreshToken = opsForHash.get("refresh-token:v1", user.id!!.toString())
-        if (cachedRefreshToken == null || cachedRefreshToken != refreshToken) {
+        val cachedUserId = getUserIdByRefreshToken(refreshToken)
+        if (cachedUserId == null || cachedUserId != authentication.name) {
             throw ApiException(
                 errorCode = ErrorCode.INVALID_TOKEN,
                 status = HttpStatus.UNAUTHORIZED,
@@ -65,7 +64,20 @@ class AuthService(
         return result
     }
 
+    fun logout(refreshToken: String) {
+        tokenProvider.validateToken(refreshToken)
+        removeRefreshToken(refreshToken)
+    }
+
     private fun setRefreshToken(userId: String, refreshToken: String) {
-        opsForHash.put("refresh-token:v1", userId, refreshToken)
+        opsForHash.put("refresh-token:v1", refreshToken, userId)
+    }
+
+    private fun getUserIdByRefreshToken(refreshToken: String): String? {
+        return opsForHash.get("refresh-token:v1", refreshToken)
+    }
+
+    private fun removeRefreshToken(refreshToken: String) {
+        opsForHash.delete("refresh-token:v1", refreshToken)
     }
 }
