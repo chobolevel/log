@@ -17,7 +17,7 @@ logging:
   discord:
     webhook-url: ENC(p29AFSo5PYQq6qVbXU6z/Ug8eolFUtPEY8VDrwxC4SnrCQXZ1x4WADgNo7Fw3rK4XRRwwhnvu77WLipJV6FMjl89U/XuCrs4eDjbJYtv/PnAM9EzXhQBkjWIJWmGWhKcqSFrn6E3+/sGdsvxmbxy3wqPmfmhac9AJFNMb7cV9OjLUWg2ayQIRDlvVxiv+xZmWyYogLadVsZt4ToE1D1ySg==)
     username: LoggerBot
-    avatar-url: ENC(ujmNJ20F/ExCM2Tgvsebn4t/20aqQkxt93ulrFOcbLnEElKHHUoIVabtc7OB5r6W3XMk8mONx9+wEsXXT2VorXWFdyDsGjdunKFBm5bi7aTPsDyoMuXyMMfU97Rv6R9IG4CQWujnTuh3Zg6pItpp/KVGRd8W27pkq95SLwaYtmI=j)
+    avatar-url: ENC(BqZdraqPXRzbHMEcemXTdh44LCYfilN5zUkng7xCUTIrgpAN+LWEoxrfoGjImm6xjG2O3glrUDD97SXluGwaZDDUK4Yy2z7423fX0cumWAHkbj5g8bQv1HpfaJ7lbL6U4HpuQsWrVpF2419ZRfaFdJOHFs0vZ6SxTsTymuv+ONU=)
   config: classpath:logback-spring.xml
 
 spring:
