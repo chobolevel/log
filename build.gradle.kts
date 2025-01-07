@@ -26,7 +26,7 @@ plugins {
     id("org.flywaydb.flyway") version "7.13.0" apply false
     id("org.jlleitschuh.gradle.ktlint") version "11.3.1" apply false
     id("org.jlleitschuh.gradle.ktlint-idea") version "11.3.1"
-    id("com.google.cloud.tools.jib") version "3.1.2" apply false
+    id("com.google.cloud.tools.jib") version "3.4.4" apply false
 }
 
 // 프로젝트에 있는 모든 모듈 관리
