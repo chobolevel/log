@@ -1,5 +1,5 @@
-DOCKER_USERNAME ?= ${shell echo $$DOCKER_USERNAME}
-DOCKER_PASSWORD ?= ${shell echo $$DOCKER_PASSWORD}
+DOCKER_USERNAME := $(shell echo $$DOCKER_USERNAME)
+DOCKER_PASSWORD := $(shell echo $$DOCKER_PASSWORD)
 DOCKER_REPOSITORY := rodaka123/log
 
 ec2_push_production_api:
