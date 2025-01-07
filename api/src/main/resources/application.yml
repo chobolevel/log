@@ -15,10 +15,10 @@ logging:
     root: info
     org.hibernate.envers.boot: OFF
   discord:
-    webhook-url: https://discord.com/api/webhooks/1305759962022150204/fsUotdCkmDGRzUMF4O8wKUNZOeHPQvnzeAAIyPKTB-SREypN_FAL8R3272r9jf4v00QS
+    webhook-url: ENC(p29AFSo5PYQq6qVbXU6z/Ug8eolFUtPEY8VDrwxC4SnrCQXZ1x4WADgNo7Fw3rK4XRRwwhnvu77WLipJV6FMjl89U/XuCrs4eDjbJYtv/PnAM9EzXhQBkjWIJWmGWhKcqSFrn6E3+/sGdsvxmbxy3wqPmfmhac9AJFNMb7cV9OjLUWg2ayQIRDlvVxiv+xZmWyYogLadVsZt4ToE1D1ySg==)
     username: LoggerBot
-    avatar-url: https://phinf.pstatic.net/contact/20240821_205/1724202038449ujiun_JPEG/image.jpg
-  config: classpath:logback.xml
+    avatar-url: ENC(ujmNJ20F/ExCM2Tgvsebn4t/20aqQkxt93ulrFOcbLnEElKHHUoIVabtc7OB5r6W3XMk8mONx9+wEsXXT2VorXWFdyDsGjdunKFBm5bi7aTPsDyoMuXyMMfU97Rv6R9IG4CQWujnTuh3Zg6pItpp/KVGRd8W27pkq95SLwaYtmI=j)
+  config: classpath:logback-spring.xml
 
 spring:
   jpa:
