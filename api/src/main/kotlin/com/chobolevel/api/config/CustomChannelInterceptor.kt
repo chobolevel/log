@@ -1,7 +1,6 @@
 package com.chobolevel.api.config
 
 import com.chobolevel.api.getUserId
-import com.chobolevel.api.security.TokenProvider
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
 import org.springframework.context.annotation.Primary
@@ -15,20 +14,14 @@ import org.springframework.stereotype.Component
 
 @Primary
 @Component
-class CustomChannelInterceptor(
-    private val tokenProvider: TokenProvider
-) : ChannelInterceptor {
-
-    private final val prefix = "Bearer "
+class CustomChannelInterceptor : ChannelInterceptor {
 
     override fun preSend(message: Message<*>, channel: MessageChannel): Message<*> {
         val accessor = StompHeaderAccessor.wrap(message)
         if (accessor.command == StompCommand.CONNECT || accessor.command == StompCommand.SEND || accessor.command == StompCommand.SUBSCRIBE) {
-            val accessToken = accessor.getFirstNativeHeader("Authorization")
-            if (accessToken != null && accessToken.startsWith(prefix)) {
-                tokenProvider.getAuthentication(accessToken.substring(prefix.length)).also {
-                    accessor.sessionAttributes?.put("userId", it?.getUserId())
-                }
+            val user = accessor.user
+            if (user != null) {
+                accessor.sessionAttributes?.put("userId", user.getUserId())
             } else {
                 throw ApiException(
                     errorCode = ErrorCode.INVALID_TOKEN,
