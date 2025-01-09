@@ -28,4 +28,7 @@ enum class ErrorCode {
 
     // channel message
     CHANNEL_MESSAGE_WRITER_DOES_NOT_MATCH,
+
+    // LOG
+    L001,
 }
