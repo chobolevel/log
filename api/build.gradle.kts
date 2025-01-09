@@ -55,6 +55,9 @@ dependencies {
 
     // thymeleaf
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+
+    // loki
+    implementation("com.github.loki4j:loki-logback-appender:1.4.2")
 }
 
 val baseJvmFlags: (memory: String, imageTag: String?, stage: String?) -> List<String> by ext
