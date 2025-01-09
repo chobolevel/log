@@ -69,6 +69,9 @@ redis:
     port: 6379
     password: ENC(Z4V+Gur8ARB5jrDAV7JgSuUuNugrAJwwcLgVdfDdnnX7tmLGGQeR0P6li/TJzKdv)
 
+nginx:
+  log-path: ENC(YhQ/gy5ba3uRhSCft5Gs0aKazj/K2quBPURhBsNon9yPpHjlbPMc4TxSZe0a39slwxQETNHtFPGrjiRvsQHiQfdLBdI52x2cpAqHV3muPfI8S27ojXdO4tgueODsM/Kx)
+
 jwt:
   issuer: ENC(cyIVjl7PIGwR3/yDARIOB56e0tUfQa5QQRIvwaYCma61C8I+Zzh8IuooBrQ/eq7t)
   secret: ENC(nS9O3l5DBtxsRuoT79sUDIU4KqjKfS0FsxmFUFuS6c1mS5PS1DbQfzltXbqzaqzF)
