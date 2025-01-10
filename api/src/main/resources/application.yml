@@ -21,6 +21,8 @@ logging:
   config: classpath:logback-spring.xml
 
 spring:
+  application:
+    name: chobolevel-log
   jpa:
     database: mysql
     open-in-view: false

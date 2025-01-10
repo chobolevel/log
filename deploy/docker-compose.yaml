@@ -11,6 +11,8 @@ volumes:
     driver: local
   chobolevel-nginx:
     driver: local
+  loki-storage:
+    driver: local
 
 services:
   redis:
@@ -63,6 +65,22 @@ services:
     depends_on:
       - nginx
 
+  loki:
+    image: grafana/loki:latest
+    container_name: chobolevel-log-loki
+    networks:
+      - chobolevel
+    restart: always
+    ports:
+      - "3100:3100"
+    volumes:
+      - loki-storage
+      - ./loki/loki-config.yaml:/etc/loki/loki-config.yaml
+    depends_on:
+      - backend
+    command:
+      - "-config.file=/etc/loki/loki-config.yaml"
+
   prometheus:
     image: prom/prometheus
     container_name: chobolevel-prometheus
@@ -91,5 +109,6 @@ services:
     restart: always
     depends_on:
       - prometheus
+      - loki
     ports:
       - "3000:3000"

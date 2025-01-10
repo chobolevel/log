@@ -23,7 +23,13 @@ class WarmScheduler(
     fun postControllerWarmer() {
         val url = "http://${InetAddress.getLocalHost().hostAddress}:9565"
         logger.info("===== warm up started with $url ====")
-        warmers.forEach { it.warm(url = url, restTemplate = restTemplate) }
+        warmers.forEach {
+            try {
+                it.warm(url = url, restTemplate = restTemplate)
+            } catch (e: Exception) {
+                logger.error("error caused by ${it.javaClass.name} during warm up", e)
+            }
+        }
         logger.info("===== warm up ended with $url ======")
     }
 }
