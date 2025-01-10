@@ -74,7 +74,7 @@ services:
     ports:
       - "3100:3100"
     volumes:
-      - loki-storage
+      - loki-storage:/tmp/loki
       - ./loki/loki-config.yaml:/etc/loki/loki-config.yaml
     depends_on:
       - backend
