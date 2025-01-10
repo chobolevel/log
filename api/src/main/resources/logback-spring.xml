@@ -5,6 +5,7 @@
   <springProperty scope="context" name="APP" source="spring.application.name"/>
   <springProperty name="DISCORD_USERNAME" source="logging.discord.username"/>
   <springProperty name="DISCORD_AVATAR_URL" source="logging.discord.avatar-url"/>
+  <springProperty name="LOKI_URL" source="logging.loki.url"/>
 
   <appender name="DISCORD" class="com.github.napstr.logback.DiscordAppender">
     <webhookUri>${DISCORD_WEBHOOK_URL}</webhookUri>
@@ -25,7 +26,7 @@
 
   <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
     <http>
-      <url>http://localhost:3100/loki/api/v1/push</url>
+      <url>${LOKI_URL}</url>
     </http>
     <format>
       <label>
