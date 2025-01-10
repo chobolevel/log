@@ -2,6 +2,7 @@
   <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
   <springProperty scope="context" name="DISCORD_WEBHOOK_URL" source="logging.discord.webhook-url"/>
+  <springProperty scope="context" name="APP" source="spring.application.name"/>
   <springProperty name="DISCORD_USERNAME" source="logging.discord.username"/>
   <springProperty name="DISCORD_AVATAR_URL" source="logging.discord.avatar-url"/>
 
@@ -15,13 +16,6 @@
     <tts>false</tts>
   </appender>
 
-  <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder>
-      <Pattern>${CONSOLE_LOG_PATTERN}</Pattern>
-      <charset>utf8</charset>
-    </encoder>
-  </appender>
-
   <appender name="ASYNC_DISCORD" class="ch.qos.logback.classic.AsyncAppender">
     <appender-ref ref="DISCORD"/>
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
@@ -29,8 +23,32 @@
     </filter>
   </appender>
 
+  <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+    <http>
+      <url>http://localhost:3100/loki/api/v1/push</url>
+    </http>
+    <format>
+      <label>
+        <pattern>app=${APP}, host=${HOSTNAME}, traceID=%X{traceId:-NONE}, level=%level</pattern>
+      </label>
+      <message>
+        <pattern>%d{HH:mm:ss} [%thread] [%-5level] %logger{36} - %msg%n```%ex{full}```</pattern>
+      </message>
+      <sortByTime>true</sortByTime>
+    </format>
+  </appender>
+
+  <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <Pattern>${CONSOLE_LOG_PATTERN}</Pattern>
+      <charset>utf8</charset>
+    </encoder>
+  </appender>
+
   <root level="INFO">
     <appender-ref ref="ASYNC_DISCORD"/>
     <appender-ref ref="Console"/>
+    <appender-ref ref="LOKI"/>
   </root>
+
 </configuration>
