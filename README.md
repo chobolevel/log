@@ -68,9 +68,9 @@
 
 ## 모니터링 대시보드
 
-> [**DASHBOARD LINK**](http://210.114.22.52:3000/d/spring_boot_21/f82469d?orgId=1&from=now-1h&to=now&var-application=&var-instance=210.114.22.52:9565&var-hikaricp=HikariPool-1&var-memory_pool_heap=$__all&var-memory_pool_nonheap=$__all&refresh=5s)
-> 
-> + actuator + prometheus + grafana 조합을 통해 모니터링 대시보드를 구성하였습니다.
+> ![image](https://github.com/user-attachments/assets/8479489a-26fc-4ad6-b492-d16f79d0f3c3)
+>
+> + actuator + prometheus + loki + grafana 조합을 통해 상태 및 로깅 모니터링 대시보드를 구성하였습니다.
 
 ## 초기 화면
 
@@ -109,8 +109,8 @@
 > ### 로깅
 > ![image](https://github.com/user-attachments/assets/0c38a2b5-a9d1-48f8-98e4-af72b4655203)
 > ![image](https://github.com/user-attachments/assets/4be56dfa-3aa9-4cc3-bed9-c3f2175afa0e)
-> + 로컬에서는 로그 발생 시 바로 확인할 수 있지만 운영 서버에서 발생하는 로그는 서버에 직접 접속하지 않는 이상 확인이 어려웠습니다.
-> + 이를 위해 Webhook을 사용해 로그를 받을 수 있는 서비스(Discord, Slack 등)가 있다는 것을 알게되었고 Discord 채널에서 로그를 받도록 설정하였습니다.
+> + 로컬에서 발생하는 에러 로그 발생 시 바로 확인할 수 있지만 운영 서버에서 발생하는 에러 로그는 서버에 즉각적인 확인이 어려웠습니다.
+> + 이를 위해 Webhook을 사용해 로그를 받을 수 있는 서비스(Discord, Slack 등)가 있다는 것을 알게되었고 Discord 채널에서 에러 로그를 받도록 설정하였습니다.
 
 > ### 채팅 기능
 > ![image](https://github.com/user-attachments/assets/11514145-c1b9-4c19-83ad-8b8fdd16f1d3)
