@@ -5,7 +5,7 @@ server:
       cookie:
         path: /
         max-age: 31536000
-        domain: chobolevel.site
+        domain: chobolevel.co.kr
         secure: true
         http-only: true
         same-site: none
