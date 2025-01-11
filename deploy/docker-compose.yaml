@@ -5,13 +5,13 @@ networks:
     driver: bridge
 
 volumes:
-  grafana-storage:
+  chobolevel-grafana:
     driver: local
   chobolevel-redis:
     driver: local
   chobolevel-nginx:
     driver: local
-  loki-storage:
+  chobolevel-loki:
     driver: local
 
 services:
@@ -74,12 +74,13 @@ services:
     ports:
       - "3100:3100"
     volumes:
-      - loki-storage:/tmp/loki
+      - chobolevel-loki:/loki
       - ./loki/loki-config.yaml:/etc/loki/loki-config.yaml
     depends_on:
       - backend
     command:
       - "-config.file=/etc/loki/loki-config.yaml"
+      - "-config.expand-env=true"
 
   prometheus:
     image: prom/prometheus
@@ -103,7 +104,7 @@ services:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
-      - grafana-storage:/var/lib/grafana
+      - chobolevel-grafana:/var/lib/grafana
     networks:
       - chobolevel
     restart: always
