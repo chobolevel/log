@@ -1,4 +1,4 @@
-# [✍개인 블로그 프로젝트✍](https://www.chobolevel.site/)(2024.08.08 ~)
+# [✍개인 블로그 프로젝트✍](https://www.chobolevel.co.kr/)(2024.08.08 ~)
 
 ## [프론트엔드 프로젝트 레포로 이동](https://github.com/chobolevel/log-fe)
 
