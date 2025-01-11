@@ -78,7 +78,7 @@ jwt:
   secret: ENC(nS9O3l5DBtxsRuoT79sUDIU4KqjKfS0FsxmFUFuS6c1mS5PS1DbQfzltXbqzaqzF)
 
 security:
-  allow-origins: ENC(aupPvUO/rdMe69Fd65lzs53porJBjgqtDL9t2bvyqvjBCeGTLsKUPYAIdPzxDOn5CiwMFHXK5FMSfR+x2BTqmQ==)
+  allow-origins: ENC(dky71ZJgcztIQJcEcHSfDXvQQCW7SJumNxDq5yAbo3/io37UF1pV1F3jVMpp9mvhTW7HSz3pIhuA9xm/eSX6Hw==)
 
 cloud:
   aws:
