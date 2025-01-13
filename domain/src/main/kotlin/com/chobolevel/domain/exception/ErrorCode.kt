@@ -13,6 +13,10 @@ enum class ErrorCode {
     // UNKNOWN ERROR CODE
     UNKNOWN_ERROR,
 
+    // AUTH
+    A001, // email verification code not exists
+    A002, // email verification code not match
+
     // USER
     // NOT FOUND
     U001,

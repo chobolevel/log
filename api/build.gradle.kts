@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.ir.backend.js.compile
-
 val mainClassPath = "com.chobolevel.api.ApiApplicationKt"
 
 tasks.withType<org.springframework.boot.gradle.tasks.bundling.BootJar> {
@@ -12,6 +10,8 @@ plugins {
 
 dependencies {
     api(project(":domain"))
+
+    // web
     implementation("org.springframework.boot:spring-boot-starter-web")
 
     // security

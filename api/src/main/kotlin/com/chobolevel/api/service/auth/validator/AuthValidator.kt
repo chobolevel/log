@@ -1,6 +1,8 @@
 package com.chobolevel.api.service.auth.validator
 
+import com.chobolevel.api.dto.auth.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.dto.auth.LoginRequestDto
+import com.chobolevel.api.dto.auth.SendEmailVerificationCodeRequest
 import com.chobolevel.domain.entity.user.UserLoginType
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
@@ -8,9 +10,11 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 
 @Component
-class LoginValidator : LoginValidatable {
+class AuthValidator {
 
-    override fun validate(request: LoginRequestDto) {
+    private final val emailRegexp = "^[a-zA-Z0-9+-\\_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+\$".toRegex()
+
+    fun validate(request: LoginRequestDto) {
         when (request.loginType) {
             UserLoginType.GENERAL -> {
                 if (request.password.isNullOrEmpty()) {
@@ -31,6 +35,30 @@ class LoginValidator : LoginValidatable {
                     )
                 }
             }
+        }
+    }
+
+    fun validate(request: SendEmailVerificationCodeRequest) {
+        if (!request.email.matches(emailRegexp)) {
+            throw ApiException(
+                errorCode = ErrorCode.INVALID_PARAMETER,
+                message = "이메일 형식이 올바르지 않습니다."
+            )
+        }
+    }
+
+    fun validate(request: CheckEmailVerificationCodeRequest) {
+        if (!request.email.matches(emailRegexp)) {
+            throw ApiException(
+                errorCode = ErrorCode.INVALID_PARAMETER,
+                message = "이메일 형식이 올바르지 않습니다."
+            )
+        }
+        if (request.verificationCode.length != 13) {
+            throw ApiException(
+                errorCode = ErrorCode.INVALID_PARAMETER,
+                message = "인증 코드는 13자리입니다."
+            )
         }
     }
 }
