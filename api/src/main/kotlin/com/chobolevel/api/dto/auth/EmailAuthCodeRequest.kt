@@ -7,5 +7,3 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
 data class EmailAuthCodeRequest(
     val email: String
 )
-
-
