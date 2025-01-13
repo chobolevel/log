@@ -35,7 +35,7 @@ class AuthService(
                 request.password
             )
 
-            else -> UsernamePasswordAuthenticationToken("${request.socialId}/${request.loginType}", request.socialId)
+            else -> UsernamePasswordAuthenticationToken("${request.email}/${request.loginType}", request.socialId)
         }
         val authentication = authenticationManager.authenticate(authenticationToken)
         val result = tokenProvider.generateToken(authentication).also {
