@@ -7,13 +7,13 @@ import com.chobolevel.api.dto.guest.UpdateGuestBookRequestDto
 import com.chobolevel.api.service.guest.converter.GuestBookConverter
 import com.chobolevel.api.service.guest.updater.GuestBookUpdatable
 import com.chobolevel.api.service.guest.validator.UpdateGuestBookValidatable
-import com.chobolevel.domain.Pagination
 import com.chobolevel.domain.entity.guest.GuestBookFinder
 import com.chobolevel.domain.entity.guest.GuestBookOrderType
 import com.chobolevel.domain.entity.guest.GuestBookQueryFilter
 import com.chobolevel.domain.entity.guest.GuestBookRepository
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
+import com.scrimmers.domain.dto.common.Pagination
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
@@ -48,7 +48,7 @@ class GuestBookService(
         )
         val totalCount = finder.searchCount(queryFilter)
         return PaginationResponseDto(
-            skipCount = pagination.skip,
+            skipCount = pagination.offset,
             limitCount = pagination.limit,
             data = guestBookList.map { converter.convert(it) },
             totalCount = totalCount

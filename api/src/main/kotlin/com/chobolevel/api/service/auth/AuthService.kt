@@ -5,7 +5,6 @@ import com.chobolevel.api.dto.jwt.JwtResponse
 import com.chobolevel.api.security.CustomAuthenticationManager
 import com.chobolevel.api.security.TokenProvider
 import com.chobolevel.api.service.auth.validator.LoginValidatable
-import com.chobolevel.domain.entity.user.UserFinder
 import com.chobolevel.domain.entity.user.UserLoginType
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
@@ -21,7 +20,6 @@ class AuthService(
     private val authenticationManager: CustomAuthenticationManager,
     private val redisTemplate: RedisTemplate<String, String>,
     private val loginValidators: List<LoginValidatable>,
-    private val userFinder: UserFinder
 ) {
 
     private val opsForHash = redisTemplate.opsForHash<String, String>()

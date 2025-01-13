@@ -27,6 +27,9 @@ dependencies {
     // web
     implementation("org.springframework.boot:spring-boot-starter-web")
 
+    // email
+    implementation("org.springframework.boot:spring-boot-starter-mail")
+
     // envers
     implementation("org.springframework.data:spring-data-envers")
 

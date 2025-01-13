@@ -1,9 +1,9 @@
 package com.chobolevel.domain.entity.channel
 
-import com.chobolevel.domain.Pagination
 import com.chobolevel.domain.entity.channel.QChannel.channel
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.core.types.dsl.BooleanExpression
+import com.scrimmers.domain.dto.common.Pagination
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import org.springframework.stereotype.Repository
 
@@ -29,7 +29,7 @@ class ChannelCustomRepository : QuerydslRepositorySupport(Channel::class.java) {
         return from(channel)
             .where(*predicates)
             .orderBy(*orderSpecifiers)
-            .offset(pagination.skip)
+            .offset(pagination.offset)
             .limit(pagination.limit)
             .fetch()
     }

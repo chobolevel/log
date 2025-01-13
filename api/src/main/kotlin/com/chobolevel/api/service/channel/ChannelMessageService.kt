@@ -3,7 +3,6 @@ package com.chobolevel.api.service.channel
 import com.chobolevel.api.dto.channel.message.CreateChannelMessageRequestDto
 import com.chobolevel.api.dto.common.PaginationResponseDto
 import com.chobolevel.api.service.channel.converter.ChannelMessageConverter
-import com.chobolevel.domain.Pagination
 import com.chobolevel.domain.entity.channel.ChannelFinder
 import com.chobolevel.domain.entity.channel.message.ChannelMessage
 import com.chobolevel.domain.entity.channel.message.ChannelMessageFinder
@@ -14,6 +13,7 @@ import com.chobolevel.domain.entity.user.User
 import com.chobolevel.domain.entity.user.UserFinder
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
+import com.scrimmers.domain.dto.common.Pagination
 import org.springframework.http.HttpStatus
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Service
@@ -58,7 +58,7 @@ class ChannelMessageService(
         )
         val totalCount = finder.searchCount(queryFilter)
         return PaginationResponseDto(
-            skipCount = pagination.skip,
+            skipCount = pagination.offset,
             limitCount = pagination.limit,
             data = channelMessage.map { converter.convert(it) },
             totalCount = totalCount

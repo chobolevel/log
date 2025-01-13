@@ -7,7 +7,6 @@ import com.chobolevel.api.dto.post.comment.UpdatePostCommentRequestDto
 import com.chobolevel.api.service.post.converter.PostCommentConverter
 import com.chobolevel.api.service.post.updater.PostCommentUpdatable
 import com.chobolevel.api.service.post.validator.UpdatePostCommentValidatable
-import com.chobolevel.domain.Pagination
 import com.chobolevel.domain.entity.post.PostFinder
 import com.chobolevel.domain.entity.post.comment.PostCommentFinder
 import com.chobolevel.domain.entity.post.comment.PostCommentOrderType
@@ -15,6 +14,7 @@ import com.chobolevel.domain.entity.post.comment.PostCommentQueryFilter
 import com.chobolevel.domain.entity.post.comment.PostCommentRepository
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
+import com.scrimmers.domain.dto.common.Pagination
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -52,7 +52,7 @@ class PostCommentService(
         )
         val totalCount = finder.searchCount(queryFilter)
         return PaginationResponseDto(
-            skipCount = pagination.skip,
+            skipCount = pagination.offset,
             limitCount = pagination.limit,
             data = postComments.map { converter.convert(it) },
             totalCount = totalCount,

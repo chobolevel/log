@@ -8,7 +8,6 @@ import com.chobolevel.api.service.post.converter.PostConverter
 import com.chobolevel.api.service.post.converter.PostImageConverter
 import com.chobolevel.api.service.post.updater.PostUpdatable
 import com.chobolevel.api.service.post.validator.UpdatePostValidatable
-import com.chobolevel.domain.Pagination
 import com.chobolevel.domain.entity.post.PostFinder
 import com.chobolevel.domain.entity.post.PostOrderType
 import com.chobolevel.domain.entity.post.PostQueryFilter
@@ -16,6 +15,7 @@ import com.chobolevel.domain.entity.post.PostRepository
 import com.chobolevel.domain.entity.post.tag.PostTag
 import com.chobolevel.domain.entity.tag.TagFinder
 import com.chobolevel.domain.entity.user.UserFinder
+import com.scrimmers.domain.dto.common.Pagination
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -68,7 +68,7 @@ class PostService(
         )
         val totalCount = finder.searchCount(queryFilter)
         return PaginationResponseDto(
-            skipCount = pagination.skip,
+            skipCount = pagination.offset,
             limitCount = pagination.limit,
             data = posts.map { converter.convert(it) },
             totalCount = totalCount
