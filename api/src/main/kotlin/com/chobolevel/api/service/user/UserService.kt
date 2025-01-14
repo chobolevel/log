@@ -7,8 +7,7 @@ import com.chobolevel.api.dto.user.UpdateUserRequestDto
 import com.chobolevel.api.dto.user.UserResponseDto
 import com.chobolevel.api.service.user.converter.UserConverter
 import com.chobolevel.api.service.user.updater.UserUpdatable
-import com.chobolevel.api.service.user.validator.CreateUserValidatable
-import com.chobolevel.api.service.user.validator.UpdateUserValidatable
+import com.chobolevel.api.service.user.validator.UserValidator
 import com.chobolevel.domain.entity.user.UserFinder
 import com.chobolevel.domain.entity.user.UserOrderType
 import com.chobolevel.domain.entity.user.UserQueryFilter
@@ -26,15 +25,14 @@ class UserService(
     private val repository: UserRepository,
     private val finder: UserFinder,
     private val converter: UserConverter,
-    private val createValidators: List<CreateUserValidatable>,
-    private val updateValidators: List<UpdateUserValidatable>,
+    private val validator: UserValidator,
     private val updaters: List<UserUpdatable>,
     private val passwordEncoder: BCryptPasswordEncoder
 ) {
 
     @Transactional
     fun createUser(request: CreateUserRequestDto): Long {
-        createValidators.forEach { it.validate(request) }
+        validator.validate(request)
         if (finder.existsByEmail(request.email)) {
             throw ApiException(
                 errorCode = ErrorCode.INVALID_PARAMETER,
@@ -77,7 +75,7 @@ class UserService(
 
     @Transactional
     fun updateUser(id: Long, request: UpdateUserRequestDto): Long {
-        updateValidators.forEach { it.validate(request) }
+        validator.validate(request)
         val user = finder.findById(id)
         updaters.sortedBy { it.order() }.forEach { it.markAsUpdate(request, user) }
         return user.id!!
