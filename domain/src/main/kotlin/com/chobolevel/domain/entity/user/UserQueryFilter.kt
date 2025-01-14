@@ -7,7 +7,6 @@ class UserQueryFilter(
     private val email: String?,
     private val loginType: UserLoginType?,
     private val nickname: String?,
-    private val phone: String?,
     private val role: UserRoleType?,
     private val resigned: Boolean?,
     private val excludeUserIds: List<Long>?
@@ -18,7 +17,6 @@ class UserQueryFilter(
             email?.let { user.email.eq(it) },
             loginType?.let { user.loginType.eq(it) },
             nickname?.let { user.nickname.eq(it) },
-            phone?.let { user.phone.eq(it) },
             role?.let { user.role.eq(it) },
             resigned?.let { user.resigned.eq(it) },
             excludeUserIds?.let { user.id.notIn(it) }

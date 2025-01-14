@@ -49,13 +49,6 @@ class UserService(
                 message = "이미 존재하는 닉네임입니다."
             )
         }
-        if (finder.existsByPhone(request.phone)) {
-            throw ApiException(
-                errorCode = ErrorCode.INVALID_PARAMETER,
-                status = HttpStatus.BAD_REQUEST,
-                message = "이미 존재하는 전화번호입니다."
-            )
-        }
         val user = converter.convert(request)
         return repository.save(user).id!!
     }

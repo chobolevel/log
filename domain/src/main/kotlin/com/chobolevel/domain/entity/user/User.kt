@@ -31,8 +31,6 @@ class User(
     var loginType: UserLoginType,
     @Column(nullable = false)
     var nickname: String,
-    @Column(nullable = false)
-    var phone: String,
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     var role: UserRoleType
@@ -85,5 +83,4 @@ enum class UserOrderType {
 
 enum class UserUpdateMask {
     NICKNAME,
-    PHONE
 }

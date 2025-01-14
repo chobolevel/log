@@ -13,7 +13,6 @@ class UserQueryCreator {
         email: String?,
         loginType: UserLoginType?,
         nickname: String?,
-        phone: String?,
         role: UserRoleType?,
         resigned: Boolean?,
         excludeUserIds: List<Long>?,
@@ -22,7 +21,6 @@ class UserQueryCreator {
             email = email,
             loginType = loginType,
             nickname = nickname,
-            phone = phone,
             role = role,
             resigned = resigned,
             excludeUserIds = excludeUserIds

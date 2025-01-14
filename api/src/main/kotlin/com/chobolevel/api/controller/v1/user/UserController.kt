@@ -51,7 +51,6 @@ class UserController(
         @RequestParam(required = false) email: String?,
         @RequestParam(required = false) loginType: UserLoginType?,
         @RequestParam(required = false) nickname: String?,
-        @RequestParam(required = false) phone: String?,
         @RequestParam(required = false) role: UserRoleType?,
         @RequestParam(required = false) resigned: Boolean?,
         @RequestParam(required = false) excludeUserIds: List<Long>?,
@@ -63,7 +62,6 @@ class UserController(
             email = email,
             loginType = loginType,
             nickname = nickname,
-            phone = phone,
             role = role,
             resigned = resigned,
             excludeUserIds = excludeUserIds

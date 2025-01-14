@@ -55,12 +55,6 @@ class UserFinder(
         )
     }
 
-    fun existsByPhone(phone: String): Boolean {
-        return repository.existsByPhoneAndResignedFalse(
-            phone = phone
-        )
-    }
-
     fun search(queryFilter: UserQueryFilter, pagination: Pagination, orderTypes: List<UserOrderType>?): List<User> {
         val orderSpecifiers = orderSpecifiers(orderTypes ?: emptyList())
         return customRepository.searchByPredicates(queryFilter.toPredicates(), pagination, orderSpecifiers)
