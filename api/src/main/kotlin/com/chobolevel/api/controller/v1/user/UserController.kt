@@ -1,6 +1,5 @@
 package com.chobolevel.api.controller.v1.user
 
-import com.chobolevel.api.annotation.HasAuthorityAdmin
 import com.chobolevel.api.annotation.HasAuthorityUser
 import com.chobolevel.api.dto.common.ResultResponse
 import com.chobolevel.api.dto.user.ChangeUserPasswordRequest
@@ -75,7 +74,6 @@ class UserController(
     }
 
     @Operation(summary = "회원 단건 조회 API")
-    @HasAuthorityAdmin
     @GetMapping("/users/{id}")
     fun fetchUser(@PathVariable id: Long): ResponseEntity<ResultResponse> {
         val result = service.fetchUser(id)
