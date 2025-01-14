@@ -6,11 +6,11 @@ import com.chobolevel.api.dto.tag.UpdateTagRequestDto
 import com.chobolevel.api.service.tag.converter.TagConverter
 import com.chobolevel.api.service.tag.updater.TagUpdatable
 import com.chobolevel.api.service.tag.validator.UpdateTagValidatable
-import com.chobolevel.domain.Pagination
 import com.chobolevel.domain.entity.tag.TagFinder
 import com.chobolevel.domain.entity.tag.TagOrderType
 import com.chobolevel.domain.entity.tag.TagQueryFilter
 import com.chobolevel.domain.entity.tag.TagRepository
+import com.scrimmers.domain.dto.common.Pagination
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -42,7 +42,7 @@ class TagService(
         )
         val totalCount = finder.searchCount(queryFilter)
         return PaginationResponseDto(
-            skipCount = pagination.skip,
+            skipCount = pagination.offset,
             limitCount = pagination.limit,
             data = postTags.map { converter.convert(it) },
             totalCount = totalCount

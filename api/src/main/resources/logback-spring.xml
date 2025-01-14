@@ -46,10 +46,13 @@
     </encoder>
   </appender>
 
+
   <root level="INFO">
     <appender-ref ref="ASYNC_DISCORD"/>
     <appender-ref ref="Console"/>
-    <appender-ref ref="LOKI"/>
+    <springProfile name="production">
+      <appender-ref ref="LOKI"/>
+    </springProfile>
   </root>
 
 </configuration>

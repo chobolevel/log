@@ -1,6 +1,8 @@
 package com.chobolevel.api.controller.v1.auth
 
+import com.chobolevel.api.dto.auth.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.dto.auth.LoginRequestDto
+import com.chobolevel.api.dto.auth.SendEmailVerificationCodeRequest
 import com.chobolevel.api.dto.common.ResultResponse
 import com.chobolevel.api.service.auth.AuthService
 import com.chobolevel.domain.exception.ApiException
@@ -90,6 +92,26 @@ class AuthController(
         )
         res.addCookie(newAccessTokenCookie)
         return ResponseEntity.ok(ResultResponse(true))
+    }
+
+    @Operation(summary = "이메일 인증 코드 전송 API")
+    @PostMapping("/send-verification-code/email")
+    fun sendEmailVerificationCode(
+        @Valid @RequestBody
+        request: SendEmailVerificationCodeRequest
+    ): ResponseEntity<ResultResponse> {
+        service.asyncSendEmailVerificationCode(request)
+        return ResponseEntity.ok(ResultResponse(true))
+    }
+
+    @Operation(summary = "이메일 인증 코드 확인 API")
+    @PostMapping("/check-verification-code/email")
+    fun checkEmailVerificationCode(
+        @Valid @RequestBody
+        request: CheckEmailVerificationCodeRequest
+    ): ResponseEntity<ResultResponse> {
+        val result = service.checkEmailVerificationCode(request)
+        return ResponseEntity.ok(ResultResponse(result))
     }
 
     private fun generateCookie(

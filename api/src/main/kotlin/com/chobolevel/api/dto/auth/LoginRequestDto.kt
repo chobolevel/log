@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class LoginRequestDto(
-    val email: String?,
+    val email: String,
     val password: String?,
     val socialId: String?,
     @field:NotNull(message = "회원 로그인 타입은 필수 값입니다.")

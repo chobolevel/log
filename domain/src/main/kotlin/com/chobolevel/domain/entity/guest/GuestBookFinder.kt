@@ -1,10 +1,10 @@
 package com.chobolevel.domain.entity.guest
 
-import com.chobolevel.domain.Pagination
 import com.chobolevel.domain.entity.guest.QGuestBook.guestBook
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
 import com.querydsl.core.types.OrderSpecifier
+import com.scrimmers.domain.dto.common.Pagination
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 

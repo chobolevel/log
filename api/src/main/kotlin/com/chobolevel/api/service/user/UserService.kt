@@ -9,13 +9,13 @@ import com.chobolevel.api.service.user.converter.UserConverter
 import com.chobolevel.api.service.user.updater.UserUpdatable
 import com.chobolevel.api.service.user.validator.CreateUserValidatable
 import com.chobolevel.api.service.user.validator.UpdateUserValidatable
-import com.chobolevel.domain.Pagination
 import com.chobolevel.domain.entity.user.UserFinder
 import com.chobolevel.domain.entity.user.UserOrderType
 import com.chobolevel.domain.entity.user.UserQueryFilter
 import com.chobolevel.domain.entity.user.UserRepository
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
+import com.scrimmers.domain.dto.common.Pagination
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
@@ -49,13 +49,6 @@ class UserService(
                 message = "이미 존재하는 닉네임입니다."
             )
         }
-        if (finder.existsByPhone(request.phone)) {
-            throw ApiException(
-                errorCode = ErrorCode.INVALID_PARAMETER,
-                status = HttpStatus.BAD_REQUEST,
-                message = "이미 존재하는 전화번호입니다."
-            )
-        }
         val user = converter.convert(request)
         return repository.save(user).id!!
     }
@@ -69,7 +62,7 @@ class UserService(
         val userList = finder.search(queryFilter, pagination, orderTypes)
         val totalCount = finder.searchCount(queryFilter)
         return PaginationResponseDto(
-            skipCount = pagination.skip,
+            skipCount = pagination.offset,
             limitCount = pagination.limit,
             data = userList.map { converter.convert(it) },
             totalCount = totalCount

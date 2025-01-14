@@ -1,7 +1,7 @@
 package com.chobolevel.api.service.guest.query
 
-import com.chobolevel.domain.Pagination
 import com.chobolevel.domain.entity.guest.GuestBookQueryFilter
+import com.scrimmers.domain.dto.common.Pagination
 import org.springframework.stereotype.Component
 
 @Component
@@ -14,10 +14,10 @@ class GuestBookQueryCreator {
     }
 
     fun createPaginationFilter(skipCount: Long?, limitCount: Long?): Pagination {
-        val skip = skipCount ?: 0
+        val offset = skipCount ?: 0
         val limit = limitCount ?: 10
         return Pagination(
-            skip = skip,
+            offset = offset,
             limit = limit
         )
     }

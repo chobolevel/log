@@ -12,7 +12,6 @@ class UserUpdater : UserUpdatable {
         request.updateMask.forEach {
             when (it) {
                 UserUpdateMask.NICKNAME -> user.nickname = request.nickname!!
-                UserUpdateMask.PHONE -> user.phone = request.phone!!
             }
         }
         return user

@@ -25,7 +25,6 @@ class UserConverter(
             socialId = request.socialId,
             loginType = request.loginType,
             nickname = request.nickname,
-            phone = request.phone,
             role = UserRoleType.ROLE_USER
         )
     }
@@ -36,9 +35,8 @@ class UserConverter(
             email = entity.email,
             loginType = entity.loginType,
             nickname = entity.nickname,
-            phone = entity.phone,
             role = entity.role,
-            profileImage = if (entity.profileImage != null) userImageConverter.convert(entity.profileImage!!) else null,
+            profileImage = entity.profileImage?.let { userImageConverter.convert(it) },
             createdAt = entity.createdAt!!.toInstant().toEpochMilli(),
             updatedAt = entity.updatedAt!!.toInstant().toEpochMilli()
         )

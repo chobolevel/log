@@ -1,7 +1,7 @@
 package com.chobolevel.api.service.tag.query
 
-import com.chobolevel.domain.Pagination
 import com.chobolevel.domain.entity.tag.TagQueryFilter
+import com.scrimmers.domain.dto.common.Pagination
 import org.springframework.stereotype.Component
 
 @Component
@@ -14,10 +14,10 @@ class TagQueryCreator {
     }
 
     fun createPaginationFilter(skipCount: Long?, limitCount: Long?): Pagination {
-        val skip = skipCount ?: 0
+        val offset = skipCount ?: 0
         val limit = limitCount ?: 100
         return Pagination(
-            skip = skip,
+            offset = offset,
             limit = limit
         )
     }

@@ -1,10 +1,10 @@
 package com.chobolevel.domain.entity.user
 
-import com.chobolevel.domain.Pagination
 import com.chobolevel.domain.entity.user.QUser.user
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
 import com.querydsl.core.types.OrderSpecifier
+import com.scrimmers.domain.dto.common.Pagination
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
@@ -52,12 +52,6 @@ class UserFinder(
     fun existsByNickname(nickname: String): Boolean {
         return repository.existsByNicknameAndResignedFalse(
             nickname = nickname
-        )
-    }
-
-    fun existsByPhone(phone: String): Boolean {
-        return repository.existsByPhoneAndResignedFalse(
-            phone = phone
         )
     }
 

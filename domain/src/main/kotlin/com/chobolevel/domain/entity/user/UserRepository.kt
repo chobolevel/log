@@ -11,6 +11,4 @@ interface UserRepository : JpaRepository<User, Long> {
     fun existsByEmailAndResignedFalse(email: String): Boolean
 
     fun existsByNicknameAndResignedFalse(nickname: String): Boolean
-
-    fun existsByPhoneAndResignedFalse(phone: String): Boolean
 }

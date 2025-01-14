@@ -1,18 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath(kotlin("gradle-plugin", version = "1.8.10"))
-    }
-}
-
-group = "com.chobolevel"
-version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_17
-
 // gradle tasks 사용 목록
 plugins {
     val kotlinVersion = "1.8.21"
@@ -22,16 +9,19 @@ plugins {
     kotlin("plugin.jpa") version kotlinVersion apply false
     id("org.springframework.boot") version "3.1.0" apply false
     id("io.spring.dependency-management") version "1.1.0"
-    id("com.avast.gradle.docker-compose") version "0.16.11"
     id("org.flywaydb.flyway") version "7.13.0" apply false
-    id("org.jlleitschuh.gradle.ktlint") version "11.3.1" apply false
-    id("org.jlleitschuh.gradle.ktlint-idea") version "11.3.1"
+    id("org.jlleitschuh.gradle.ktlint") version "11.3.1"
     id("com.google.cloud.tools.jib") version "3.4.4" apply false
 }
 
 // 프로젝트에 있는 모든 모듈 관리
 allprojects {
-    apply(plugin = "org.jlleitschuh.gradle.ktlint")
+    group = "com.chobolevel"
+    version = "0.0.1-SNAPSHOT"
+
+    apply {
+        plugin("org.jlleitschuh.gradle.ktlint")
+    }
 
     repositories {
         mavenCentral()
@@ -48,22 +38,21 @@ allprojects {
 
 // 프로젝트 하위에 있는 모듈 관리(settings.gradle 파일 내 include 모듈)
 subprojects {
-    apply(plugin = "kotlin")
-    apply(plugin = "jacoco")
-    apply(plugin = "org.jetbrains.kotlin.plugin.spring")
-    apply(plugin = "org.springframework.boot")
-    apply(plugin = "io.spring.dependency-management")
+    val kotestVersion = "5.5.5"
+    val jacksonVersion = "2.14.2"
+
+    apply {
+        plugin("kotlin")
+        plugin("org.springframework.boot")
+        plugin("io.spring.dependency-management")
+        plugin("org.jetbrains.kotlin.plugin.spring")
+    }
 
     dependencyManagement {
         imports {
             mavenBom(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
         }
     }
-
-    val kotestVersion = "5.5.5"
-    val jacksonVersion = "2.14.2"
-
-    java.sourceCompatibility = JavaVersion.VERSION_17
 
     ext {
         set("springBootVersion", "3.1.0")
@@ -130,8 +119,4 @@ subprojects {
     tasks.withType<Test> {
         useJUnitPlatform()
     }
-}
-
-dependencies {
-    implementation(kotlin("stdlib"))
 }

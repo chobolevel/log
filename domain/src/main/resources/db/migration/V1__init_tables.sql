@@ -16,9 +16,9 @@ create table log.users
         primary key,
   email      varchar(255) not null,
   password   varchar(255) not null,
+  social_id varchar(255) null,
   login_type varchar(100) not null,
   nickname   varchar(100) not null,
-  phone      varchar(100) not null,
   role       varchar(100) not null,
   resigned   bit          not null,
   created_at datetime     not null,
@@ -27,6 +27,9 @@ create table log.users
 
 create index users_email_login_type_index
   on log.users (email, login_type);
+
+create index users_social_id_login_type_index
+  on log.users (social_id, login_type);
 
 DROP TABLE IF EXISTS log.users_histories;
 
@@ -37,13 +40,15 @@ create table log.users_histories
   revtype    tinyint      not null,
   email      varchar(255) not null,
   password   varchar(255) not null,
+  social_id varchar(255) null,
   login_type varchar(100) not null,
   nickname   varchar(100) not null,
-  phone      varchar(100) not null,
   role       varchar(100) not null,
   resigned   bit          not null,
   created_at datetime     not null,
   updated_at datetime     not null,
   primary key (id, rev_id)
 );
+
+
 

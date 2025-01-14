@@ -1,16 +1,20 @@
 package com.chobolevel.api.service.auth
 
+import com.chobolevel.api.dto.auth.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.dto.auth.LoginRequestDto
+import com.chobolevel.api.dto.auth.SendEmailVerificationCodeRequest
 import com.chobolevel.api.dto.jwt.JwtResponse
 import com.chobolevel.api.security.CustomAuthenticationManager
 import com.chobolevel.api.security.TokenProvider
-import com.chobolevel.api.service.auth.validator.LoginValidatable
-import com.chobolevel.domain.entity.user.UserFinder
+import com.chobolevel.api.service.auth.validator.AuthValidator
 import com.chobolevel.domain.entity.user.UserLoginType
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
+import com.chobolevel.domain.utils.EmailUtils
+import io.hypersistence.tsid.TSID
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.http.HttpStatus
+import org.springframework.scheduling.annotation.Async
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -20,22 +24,22 @@ class AuthService(
     private val tokenProvider: TokenProvider,
     private val authenticationManager: CustomAuthenticationManager,
     private val redisTemplate: RedisTemplate<String, String>,
-    private val loginValidators: List<LoginValidatable>,
-    private val userFinder: UserFinder
+    private val authValidator: AuthValidator,
+    private val emailUtils: EmailUtils
 ) {
 
     private val opsForHash = redisTemplate.opsForHash<String, String>()
 
     @Transactional(readOnly = true)
     fun login(request: LoginRequestDto): JwtResponse {
-        loginValidators.forEach { it.validate(request) }
+        authValidator.validate(request)
         val authenticationToken = when (request.loginType) {
             UserLoginType.GENERAL -> UsernamePasswordAuthenticationToken(
                 "${request.email}/${request.loginType}",
                 request.password
             )
 
-            else -> UsernamePasswordAuthenticationToken("${request.socialId}/${request.loginType}", request.socialId)
+            else -> UsernamePasswordAuthenticationToken("${request.email}/${request.loginType}", request.socialId)
         }
         val authentication = authenticationManager.authenticate(authenticationToken)
         val result = tokenProvider.generateToken(authentication).also {
@@ -62,6 +66,34 @@ class AuthService(
         }
         val result = tokenProvider.generateToken(authentication)
         return result
+    }
+
+    @Async
+    fun asyncSendEmailVerificationCode(request: SendEmailVerificationCodeRequest) {
+        authValidator.validate(request)
+        val authCode = TSID.fast().toString()
+        opsForHash.put("email", request.email, authCode)
+        emailUtils.sendEmail(
+            email = request.email,
+            subject = "[초로 - 이메일 인증 코드]",
+            content = "초보 개발자의 로그 이메일 인증코드를 전송해드립니다.\n인증코드: [$authCode]"
+        )
+    }
+
+    fun checkEmailVerificationCode(request: CheckEmailVerificationCodeRequest): String {
+        authValidator.validate(request)
+        val cachedVerificationCode = opsForHash.get("email", request.email) ?: throw ApiException(
+            errorCode = ErrorCode.A001,
+            message = "이메일 인증 코드 전송 후 시도해 주세요."
+        )
+        if (request.verificationCode != cachedVerificationCode) {
+            throw ApiException(
+                errorCode = ErrorCode.A002,
+                message = "인증 코드가 일치하지 않습니다."
+            )
+        }
+        opsForHash.delete("email", request.email)
+        return request.email
     }
 
     fun logout(refreshToken: String) {

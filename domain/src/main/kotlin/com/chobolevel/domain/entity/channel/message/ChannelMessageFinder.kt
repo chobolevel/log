@@ -1,10 +1,10 @@
 package com.chobolevel.domain.entity.channel.message
 
-import com.chobolevel.domain.Pagination
 import com.chobolevel.domain.entity.channel.message.QChannelMessage.channelMessage
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
 import com.querydsl.core.types.OrderSpecifier
+import com.scrimmers.domain.dto.common.Pagination
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 
