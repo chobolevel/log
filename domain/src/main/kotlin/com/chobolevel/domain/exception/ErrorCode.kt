@@ -3,6 +3,7 @@ package com.chobolevel.domain.exception
 enum class ErrorCode {
     // common
     INVALID_PARAMETER,
+    INVALID_FORMAT,
 
     // AUTH
     EXPIRED_TOKEN,

@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -38,9 +39,20 @@ class ExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun methodArgumentNotValidExceptionHandler(e: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
         val errorCode = ErrorCode.INVALID_PARAMETER
-        val status = HttpStatus.BAD_REQUEST
-        val message = e.message
-        return ResponseEntity.status(status).body(
+        val message = e.bindingResult.allErrors[0].defaultMessage ?: "유효하지 않은 파라미터가 있습니다."
+        return ResponseEntity.badRequest().body(
+            ErrorResponse(
+                errorCode = errorCode,
+                errorMessage = message
+            )
+        )
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException::class)
+    fun httpMessageNotReadableExceptionHandler(e: HttpMessageNotReadableException): ResponseEntity<ErrorResponse> {
+        val errorCode = ErrorCode.INVALID_FORMAT
+        val message = "요청 데이터 형식이 유효하지 않습니다."
+        return ResponseEntity.badRequest().body(
             ErrorResponse(
                 errorCode = errorCode,
                 errorMessage = message
