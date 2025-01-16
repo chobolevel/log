@@ -4,6 +4,7 @@ import com.chobolevel.api.dto.auth.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.dto.auth.LoginRequestDto
 import com.chobolevel.api.dto.auth.SendEmailVerificationCodeRequest
 import com.chobolevel.api.dto.common.ResultResponse
+import com.chobolevel.api.getCookie
 import com.chobolevel.api.service.auth.AuthService
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
@@ -13,6 +14,7 @@ import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.web.ServerProperties
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -25,6 +27,10 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/v1")
 class AuthController(
+    @Value("\${server.reactive.session.cookie.access-token-key}")
+    private val accessTokenKey: String,
+    @Value("\${server.reactive.session.cookie.refresh-token-key}")
+    private val refreshTokenKey: String,
     private val service: AuthService,
     private val serverProperties: ServerProperties
 ) {
@@ -38,11 +44,11 @@ class AuthController(
     ): ResponseEntity<ResultResponse> {
         val result = service.login(request)
         val accessTokenCookie = generateCookie(
-            key = "_cat",
+            key = accessTokenKey,
             value = result.accessToken
         )
         val refreshTokenCookie = generateCookie(
-            key = "_crt",
+            key = refreshTokenKey,
             value = result.refreshToken
         )
         res.addCookie(accessTokenCookie)
@@ -53,8 +59,9 @@ class AuthController(
     @Operation(summary = "로그아웃 API")
     @PostMapping("/logout")
     fun logout(req: HttpServletRequest, res: HttpServletResponse): ResponseEntity<ResultResponse> {
-        if (!req.cookies.isNullOrEmpty() && req.cookies.find { it.name == "_crt" } != null) {
-            service.logout(req.cookies.find { it.name == "_crt" }!!.value)
+        val refreshToken = req.getCookie(refreshTokenKey)
+        if (refreshToken != null) {
+            service.logout(refreshToken)
         }
         val expiredAccessTokenCookie = generateCookie(
             key = "_cat",
@@ -77,17 +84,14 @@ class AuthController(
         req: HttpServletRequest,
         res: HttpServletResponse,
     ): ResponseEntity<ResultResponse> {
-        if (req.cookies.isNullOrEmpty() || req.cookies.find { it.name == "_crt" } == null) {
-            throw ApiException(
-                errorCode = ErrorCode.INVALID_TOKEN,
-                status = HttpStatus.UNAUTHORIZED,
-                message = "토큰이 만료되었습니다. 재로그인 해주세요."
-            )
-        }
-        val refreshToken = req.cookies.first { it.name.equals("_crt") }.value
+        val refreshToken = req.getCookie(refreshTokenKey) ?: throw ApiException(
+            errorCode = ErrorCode.INVALID_TOKEN,
+            status = HttpStatus.UNAUTHORIZED,
+            message = "토큰이 만료되었습니다. 재로그인 해주세요."
+        )
         val result = service.reissue(refreshToken)
         val newAccessTokenCookie = generateCookie(
-            key = "_cat",
+            key = accessTokenKey,
             value = result.accessToken
         )
         res.addCookie(newAccessTokenCookie)

@@ -1,6 +1,7 @@
 package com.chobolevel.api.security
 
 import com.chobolevel.api.properties.SecurityProperties
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -9,6 +10,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
@@ -16,7 +18,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 class WebConfiguration(
-    private val authManager: CustomAuthenticationManager,
+    @Value("\${server.reactive.session.cookie.access-token-key}")
+    private val accessTokenKey: String,
     private val tokenProvider: TokenProvider,
     private val securityProperties: SecurityProperties
 ) {
@@ -69,11 +72,9 @@ class WebConfiguration(
                     .requestMatchers("/api/**").permitAll()
                     .anyRequest().permitAll()
             }
-            .addFilter(
-                JwtAuthorizationFilter(
-                    authManager = authManager,
-                    tokenProvider = tokenProvider
-                )
+            .addFilterBefore(
+                OnceJwtAuthorizationFilter(accessTokenKey = accessTokenKey, tokenProvider = tokenProvider),
+                UsernamePasswordAuthenticationFilter::class.java
             )
             .build()
     }

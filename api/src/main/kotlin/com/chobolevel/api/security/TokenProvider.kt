@@ -41,11 +41,8 @@ class TokenProvider(
             authentication = authentication
         )
         return JwtResponse(
-            tokenType = "Bearer",
             accessToken = accessToken,
-            accessTokenExpiredAt = accessTokenExpiredAt.toInstant().toEpochMilli(),
             refreshToken = refreshToken,
-            refreshTokenExpiredAt = refreshTokenExpiredAt.toInstant().toEpochMilli(),
         )
     }
 
