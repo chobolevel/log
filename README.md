@@ -89,8 +89,8 @@
 > ### 웜 업
 > ![image](https://github.com/user-attachments/assets/04429651-0bb2-4141-8d20-6a2af7e0ecf4)
 > ![image](https://github.com/user-attachments/assets/bbb76c66-e717-4f25-a279-f20a2df039de)
-> ![image](https://github.com/user-attachments/assets/5ee72a3b-5ad7-479e-9245-9aca7e95cfea)
-> ![image](https://github.com/user-attachments/assets/49a897e9-d24a-4c69-be83-ed9c09da20a9)
+> ![image](https://github.com/user-attachments/assets/60c85522-8b15-45c7-8078-813bde0765b5)
+> ![image](https://github.com/user-attachments/assets/2ab98ec5-19fe-47da-85dc-5ada974fea8a)
 > + 애플리케이션 재시작했을 떄 JVM 특성상 최소한의 클래스만 로드해서 시작하는데 이로 인해 첫 API 호출 시 클래스 로드를 수행해야 하므로 지연이 발생하였습니다.
 > + 이를 방지하기 위해 시작할 때 자주 사용되는 API 호출하여 클래스를 로드해두는 로직을 작성하였습니다.
 > + Warmer 추상화를 통해 Warmer 인터페이스 구현한 클래스를 빈으로 등록하면 웜 업 로직에 포함되도록 하였습니다.
@@ -116,7 +116,7 @@
 
 > ### 채팅 기능
 > ![image](https://github.com/user-attachments/assets/11514145-c1b9-4c19-83ad-8b8fdd16f1d3)
-> ![image](https://github.com/user-attachments/assets/4555736e-c4da-4091-a23e-8855222b1479)
+> ![image](https://github.com/user-attachments/assets/82c57f0e-5701-46bf-92f1-97a2a26da2b2)
 > ![image](https://github.com/user-attachments/assets/2e2a27b9-7a3c-4a99-80aa-69d1a43d5843)
 > + Spring에서 제공되는 WebSocket(Stomp)을 통해 채팅 기능을 제공하였습니다.
 > + 설정 파일을 통해 WebSocket 연결을 위한 엔트포인트와 메세지 구독/발행을 위한 엔드포인트를 설정해주었습니다.
