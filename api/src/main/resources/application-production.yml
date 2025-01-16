@@ -9,6 +9,8 @@ server:
         secure: true
         http-only: true
         same-site: none
+        access-token-key: ENC(oBy2Wa/IBM6DbwxwFMQrCWYfl5oZ2BdLVsiurv3C3wBrnGMI701R3xoZScHDOJMv)
+        refresh-token-key: ENC(w3oBitWqxVPoN7pIawiKQF4BOkeLLrJeti8LH35UfyX87eAnHGl0n/i7q2oYKDSC)
 
 logging:
   level:
