@@ -39,25 +39,24 @@ class AuthValidator {
     }
 
     fun validate(request: SendEmailVerificationCodeRequest) {
-        if (!request.email.matches(emailRegexp)) {
-            throw ApiException(
-                errorCode = ErrorCode.INVALID_PARAMETER,
-                message = "이메일 형식이 올바르지 않습니다."
-            )
-        }
+        validateEmail(request.email)
     }
 
     fun validate(request: CheckEmailVerificationCodeRequest) {
-        if (!request.email.matches(emailRegexp)) {
-            throw ApiException(
-                errorCode = ErrorCode.INVALID_PARAMETER,
-                message = "이메일 형식이 올바르지 않습니다."
-            )
-        }
+        validateEmail(request.email)
         if (request.verificationCode.length != 13) {
             throw ApiException(
                 errorCode = ErrorCode.INVALID_PARAMETER,
                 message = "인증 코드는 13자리입니다."
+            )
+        }
+    }
+
+    private fun validateEmail(email: String) {
+        if (!email.matches(emailRegexp)) {
+            throw ApiException(
+                errorCode = ErrorCode.INVALID_PARAMETER,
+                message = "이메일 형식이 올바르지 않습니다."
             )
         }
     }
