@@ -84,7 +84,7 @@
 > + **인증** (일반/소셜 로그인에 따라 로직을 수행하고 access_token, refresh_token 발급하여 프론트엔드 서버의 인증을 위해 사용하고 있습니다.)
     ![image](https://github.com/user-attachments/assets/48579312-1f37-4190-9c63-7246af36a664)
 > + **인가** (인증이 완료된 요청의 인증 정보를 security context holder 보관하여 요청의 ROLE에 따라 인가처리 위해 사용하였습니다.)
-    ![image](https://github.com/user-attachments/assets/ffd75317-2052-40c6-b02d-5e02d275aab4)
+    ![image](https://github.com/user-attachments/assets/424350a0-d578-46a1-bfa2-298e4be797f1)
 
 > ### 웜 업
 > ![image](https://github.com/user-attachments/assets/04429651-0bb2-4141-8d20-6a2af7e0ecf4)
