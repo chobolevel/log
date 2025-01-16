@@ -62,7 +62,7 @@
 
 ## SWAGGER UI
 
-> [**SWAGGER UI LINK**](https://api.chobolevel.site/swagger-ui/index.html)
+> [**SWAGGER UI LINK**](https://api.chobolevel.co.kr/swagger-ui/index.html)
 >
 > + 작성한 API들을 문서 형식으로 확인 가능하도록 작성해봤습니다.
 
