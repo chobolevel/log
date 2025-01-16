@@ -41,7 +41,7 @@
 > ![spring-docker](https://github.com/user-attachments/assets/7b26f824-e916-4685-9d45-759455d7170f)
 > 
 > + **카페24 호스팅 서비스**에 도커를 이용하여 배포하였습니다.
-> + **SpringBoot, Nginx, Redis, Certbot, prometheus, grafana** 등 총 6개의 도커 컨테이너가 실행 중인 상태입니다.
+> + **SpringBoot, Nginx, Redis, Certbot, prometheus, loki, grafana** 등 총 6개의 도커 컨테이너가 실행 중인 상태입니다.
 > + DB는 **AWS의 RDS 서비스**를 사용하였습니다.
 
 ## 프로젝트를 진행한 이유
@@ -52,13 +52,13 @@
 ## CI/CD
 
 > + **github actions, Jib 라이브러리, 도커 허브 그리고 Makefile 커맨드와 docker-compose** 등을 이용해 브랜치의 푸시 이벤트를 감지하여 도커 허브 레포에 도커 이미지를 빌드하여 푸시하도록 하였습니다.
-> + 이후 해당 이미지를 서버에서 다운로드 받아서 도커 컨테이너로 실행하도록 구성하였습니다.
+> + 이후 해당 이미지를 도커 허브에서 다운로드 받아 도커 컨테이너 혀태로 실행하도록 구성하였습니다.
 
 ## DB 테이블 스키마
 
-> ![log-table-scheme](https://github.com/user-attachments/assets/c06d3419-039f-461b-b4b1-b47774605619)
+> ![image](https://github.com/user-attachments/assets/e16d114f-0677-4c6f-b910-363deafb54d4)
 >
-> + 각 테이블은 스프링의 envers 통해 **등록/수정/삭제 시 히스토리를 관리**하도록 했습니다.
+> + 각 테이블은 스프링의 envers 통해 **등록/수정/삭제 시 히스토리를 관리**하도록 했습니다(히스토리 테이블은 스키마에서 제외하였습니다.).
 
 ## SWAGGER UI
 
@@ -70,6 +70,8 @@
 
 > ![image](https://github.com/user-attachments/assets/8479489a-26fc-4ad6-b492-d16f79d0f3c3)
 >
+> [**GRAFANA LINK**](http://210.114.22.52:3000/d/dLsDQIUnzb/chobolevel-log-monitors?orgId=1&from=now-5m&to=now&timezone=browser&var-app_name=&var-log_keyword=&refresh=5s)
+> 
 > + actuator + prometheus + loki + grafana 조합을 통해 상태 및 로깅 모니터링 대시보드를 구성하였습니다.
 
 ## 초기 화면
