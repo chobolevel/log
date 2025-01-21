@@ -93,7 +93,7 @@ class PostCommentController(
 
     @Operation(summary = "게시글 댓글 삭제 API")
     @HasAuthorityUser
-    @DeleteMapping("/posts/comments/{id}/delete")
+    @DeleteMapping("/posts/comments/{id}")
     fun deletePostComment(
         principal: Principal,
         @PathVariable("id") postCommentId: Long,
