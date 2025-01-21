@@ -25,6 +25,12 @@ enum class ErrorCode {
     // USER IMAGE
     UI001,
 
+    // POST
+    POST_ONLY_ACCESS_WRITER,
+
+    // POST COMMENT
+    POST_COMMENT_ONLY_ACCESS_WRITER,
+
     // channel
     CHANNEL_OWNER_DOES_NOT_MATCH,
     ALREADY_EXITED_CHANNEL,

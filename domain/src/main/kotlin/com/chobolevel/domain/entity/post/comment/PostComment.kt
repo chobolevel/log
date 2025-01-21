@@ -2,6 +2,7 @@ package com.chobolevel.domain.entity.post.comment
 
 import com.chobolevel.domain.entity.Audit
 import com.chobolevel.domain.entity.post.Post
+import com.chobolevel.domain.entity.user.User
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
@@ -20,10 +21,6 @@ import org.hibernate.envers.Audited
 @SQLDelete(sql = "UPDATE post_comments SET deleted = true WHERE id = ?")
 class PostComment(
     @Column(nullable = false)
-    var writerName: String,
-    @Column(nullable = false)
-    var password: String,
-    @Column(nullable = false)
     var content: String
 ) : Audit() {
 
@@ -35,12 +32,22 @@ class PostComment(
     @JoinColumn(name = "post_id")
     var post: Post? = null
 
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "writer_id")
+    var writer: User? = null
+
     @Column(nullable = false)
     var deleted: Boolean = false
 
     fun setBy(post: Post) {
         if (this.post != post) {
             this.post = post
+        }
+    }
+
+    fun setBy(user: User) {
+        if (this.writer != user) {
+            this.writer = user
         }
     }
 }
@@ -52,5 +59,4 @@ enum class PostCommentOrderType {
 
 enum class PostCommentUpdateMask {
     CONTENT,
-    DELETE
 }

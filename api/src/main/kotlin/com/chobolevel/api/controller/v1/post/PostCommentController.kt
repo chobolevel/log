@@ -1,9 +1,10 @@
 package com.chobolevel.api.controller.v1.post
 
+import com.chobolevel.api.annotation.HasAuthorityUser
 import com.chobolevel.api.dto.common.ResultResponse
 import com.chobolevel.api.dto.post.comment.CreatePostCommentRequestDto
-import com.chobolevel.api.dto.post.comment.DeletePostCommentRequestDto
 import com.chobolevel.api.dto.post.comment.UpdatePostCommentRequestDto
+import com.chobolevel.api.getUserId
 import com.chobolevel.api.posttask.CreatePostCommentPostTask
 import com.chobolevel.api.service.post.PostCommentService
 import com.chobolevel.api.service.post.query.PostCommentQueryCreator
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.security.Principal
 
 @Tag(name = "PostComment (게시글 댓글)", description = "게시글 댓글 관리 API")
 @RestController
@@ -31,12 +33,15 @@ class PostCommentController(
 ) {
 
     @Operation(summary = "게시글 댓글 등록 API")
+    @HasAuthorityUser
     @PostMapping("/posts/comments")
     fun createPostComment(
+        principal: Principal,
         @Valid @RequestBody
         request: CreatePostCommentRequestDto
     ): ResponseEntity<ResultResponse> {
         val result = service.createPostComment(
+            userId = principal.getUserId(),
             request = request
         )
         createPostTask.invoke()
@@ -47,12 +52,14 @@ class PostCommentController(
     @GetMapping("/posts/comments")
     fun searchPostComments(
         @RequestParam(required = false) postId: Long?,
+        @RequestParam(required = false) writerId: Long?,
         @RequestParam(required = false) skipCount: Long?,
         @RequestParam(required = false) limitCount: Long?,
         @RequestParam(required = false) orderTypes: List<PostCommentOrderType>?
     ): ResponseEntity<ResultResponse> {
         val queryFilter = queryCreator.createQueryFilter(
-            postId = postId
+            postId = postId,
+            writerId = writerId
         )
         val pagination = queryCreator.createPaginationFilter(
             skipCount = skipCount,
@@ -67,13 +74,16 @@ class PostCommentController(
     }
 
     @Operation(summary = "게시글 댓글 수정 API")
+    @HasAuthorityUser
     @PutMapping("/posts/comments/{id}")
     fun updatePostComment(
+        principal: Principal,
         @PathVariable id: Long,
         @Valid @RequestBody
         request: UpdatePostCommentRequestDto
     ): ResponseEntity<ResultResponse> {
         val result = service.updatePostComment(
+            userId = principal.getUserId(),
             postCommentId = id,
             request = request
         )
@@ -81,15 +91,15 @@ class PostCommentController(
     }
 
     @Operation(summary = "게시글 댓글 삭제 API")
+    @HasAuthorityUser
     @PutMapping("/posts/comments/{id}/delete")
     fun deletePostComment(
+        principal: Principal,
         @PathVariable("id") postCommentId: Long,
-        @Valid @RequestBody
-        request: DeletePostCommentRequestDto
     ): ResponseEntity<ResultResponse> {
         val result = service.deletePostComment(
+            userId = principal.getUserId(),
             postCommentId = postCommentId,
-            request = request
         )
         return ResponseEntity.ok(ResultResponse(result))
     }

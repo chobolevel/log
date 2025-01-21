@@ -8,6 +8,7 @@ import com.chobolevel.api.service.post.converter.PostConverter
 import com.chobolevel.api.service.post.converter.PostImageConverter
 import com.chobolevel.api.service.post.updater.PostUpdatable
 import com.chobolevel.api.service.post.validator.UpdatePostValidatable
+import com.chobolevel.domain.entity.post.Post
 import com.chobolevel.domain.entity.post.PostFinder
 import com.chobolevel.domain.entity.post.PostOrderType
 import com.chobolevel.domain.entity.post.PostQueryFilter
@@ -15,6 +16,8 @@ import com.chobolevel.domain.entity.post.PostRepository
 import com.chobolevel.domain.entity.post.tag.PostTag
 import com.chobolevel.domain.entity.tag.TagFinder
 import com.chobolevel.domain.entity.user.UserFinder
+import com.chobolevel.domain.exception.ApiException
+import com.chobolevel.domain.exception.ErrorCode
 import com.scrimmers.domain.dto.common.Pagination
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Service
@@ -96,9 +99,10 @@ class PostService(
     @Transactional
     fun updatePost(userId: Long, postId: Long, request: UpdatePostRequestDto): Long {
         updateValidators.forEach { it.validate(request) }
-        val post = finder.findByIdAndUserId(
-            id = postId,
-            userId = userId
+        val post = finder.findById(postId)
+        validateWriter(
+            userId = userId,
+            post = post
         )
         updaters.sortedBy { it.order() }.forEach { it.markAsUpdate(request, post) }
         redisTemplate.delete(generateCachingKey(postId))
@@ -107,9 +111,10 @@ class PostService(
 
     @Transactional
     fun deletePost(userId: Long, postId: Long): Boolean {
-        val post = finder.findByIdAndUserId(
-            id = postId,
-            userId = userId
+        val post = finder.findById(postId)
+        validateWriter(
+            userId = userId,
+            post = post
         )
         post.delete()
         redisTemplate.delete(generateCachingKey(postId))
@@ -118,5 +123,14 @@ class PostService(
 
     private fun generateCachingKey(postId: Long): String {
         return "post:$postId"
+    }
+
+    private fun validateWriter(userId: Long, post: Post) {
+        if (post.user!!.id != userId) {
+            throw ApiException(
+                errorCode = ErrorCode.POST_ONLY_ACCESS_WRITER,
+                message = "작성자만 접근할 수 있습니다."
+            )
+        }
     }
 }

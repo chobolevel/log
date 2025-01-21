@@ -2,16 +2,17 @@ package com.chobolevel.api.service.post
 
 import com.chobolevel.api.dto.common.PaginationResponseDto
 import com.chobolevel.api.dto.post.comment.CreatePostCommentRequestDto
-import com.chobolevel.api.dto.post.comment.DeletePostCommentRequestDto
 import com.chobolevel.api.dto.post.comment.UpdatePostCommentRequestDto
 import com.chobolevel.api.service.post.converter.PostCommentConverter
 import com.chobolevel.api.service.post.updater.PostCommentUpdatable
 import com.chobolevel.api.service.post.validator.UpdatePostCommentValidatable
 import com.chobolevel.domain.entity.post.PostFinder
+import com.chobolevel.domain.entity.post.comment.PostComment
 import com.chobolevel.domain.entity.post.comment.PostCommentFinder
 import com.chobolevel.domain.entity.post.comment.PostCommentOrderType
 import com.chobolevel.domain.entity.post.comment.PostCommentQueryFilter
 import com.chobolevel.domain.entity.post.comment.PostCommentRepository
+import com.chobolevel.domain.entity.user.UserFinder
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
 import com.scrimmers.domain.dto.common.Pagination
@@ -24,6 +25,7 @@ class PostCommentService(
     private val repository: PostCommentRepository,
     private val finder: PostCommentFinder,
     private val postFinder: PostFinder,
+    private val userFinder: UserFinder,
     private val converter: PostCommentConverter,
     private val updateValidators: List<UpdatePostCommentValidatable>,
     private val updaters: List<PostCommentUpdatable>,
@@ -31,10 +33,12 @@ class PostCommentService(
 ) {
 
     @Transactional
-    fun createPostComment(request: CreatePostCommentRequestDto): Long {
+    fun createPostComment(userId: Long, request: CreatePostCommentRequestDto): Long {
         val post = postFinder.findById(request.postId)
+        val user = userFinder.findById(userId)
         val postComment = converter.convert(request).also {
             it.setBy(post)
+            it.setBy(user)
         }
         return repository.save(postComment).id!!
     }
@@ -60,29 +64,34 @@ class PostCommentService(
     }
 
     @Transactional
-    fun updatePostComment(postCommentId: Long, request: UpdatePostCommentRequestDto): Long {
+    fun updatePostComment(userId: Long, postCommentId: Long, request: UpdatePostCommentRequestDto): Long {
         updateValidators.forEach { it.validate(request) }
         val postComment = finder.findById(postCommentId)
-        if (!passwordEncoder.matches(request.password, postComment.password)) {
-            throw ApiException(
-                errorCode = ErrorCode.INVALID_PARAMETER,
-                message = "비밀번호가 일치하지 않습니다."
-            )
-        }
+        validateWriter(
+            userId = userId,
+            postComment = postComment,
+        )
         updaters.sortedBy { it.order() }.forEach { it.markAsUpdate(request = request, entity = postComment) }
         return postComment.id!!
     }
 
     @Transactional
-    fun deletePostComment(postCommentId: Long, request: DeletePostCommentRequestDto): Boolean {
+    fun deletePostComment(userId: Long, postCommentId: Long): Boolean {
         val postComment = finder.findById(postCommentId)
-        if (!passwordEncoder.matches(request.password, postComment.password)) {
-            throw ApiException(
-                errorCode = ErrorCode.INVALID_PARAMETER,
-                message = "비밀번호가 일치하지 않습니다."
-            )
-        }
+        validateWriter(
+            userId = userId,
+            postComment = postComment,
+        )
         repository.delete(postComment)
         return true
+    }
+
+    private fun validateWriter(userId: Long, postComment: PostComment) {
+        if (postComment.writer!!.id != userId) {
+            throw ApiException(
+                errorCode = ErrorCode.POST_COMMENT_ONLY_ACCESS_WRITER,
+                message = "작성자만 접근할 수 있습니다."
+            )
+        }
     }
 }

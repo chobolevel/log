@@ -52,6 +52,7 @@ class PostController(
         @RequestParam(required = false) tagId: Long?,
         @RequestParam(required = false) title: String?,
         @RequestParam(required = false) subTitle: String?,
+        @RequestParam(required = false) userId: Long?,
         @RequestParam(required = false) skipCount: Long?,
         @RequestParam(required = false) limitCount: Long?,
         @RequestParam(required = false) orderTypes: List<PostOrderType>?
@@ -59,7 +60,8 @@ class PostController(
         val queryFilter = queryCreator.createQueryFilter(
             tagId = tagId,
             title = title,
-            subTitle = subTitle
+            subTitle = subTitle,
+            userId = userId
         )
         val pagination = queryCreator.createPaginationFilter(
             skipCount = skipCount,

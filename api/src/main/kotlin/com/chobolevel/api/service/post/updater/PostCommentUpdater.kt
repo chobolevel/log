@@ -12,7 +12,6 @@ class PostCommentUpdater : PostCommentUpdatable {
         request.updateMask.forEach {
             when (it) {
                 PostCommentUpdateMask.CONTENT -> entity.content = request.content!!
-                PostCommentUpdateMask.DELETE -> entity.deleted = true
             }
         }
         return entity
