@@ -20,8 +20,6 @@ class UpdatePostCommentValidator : UpdatePostCommentValidatable {
                         )
                     }
                 }
-
-                else -> Unit
             }
         }
     }

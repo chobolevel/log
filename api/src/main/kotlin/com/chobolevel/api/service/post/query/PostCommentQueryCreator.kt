@@ -7,9 +7,10 @@ import org.springframework.stereotype.Component
 @Component
 class PostCommentQueryCreator {
 
-    fun createQueryFilter(postId: Long?): PostCommentQueryFilter {
+    fun createQueryFilter(postId: Long?, writerId: Long?): PostCommentQueryFilter {
         return PostCommentQueryFilter(
-            postId = postId
+            postId = postId,
+            writerId = writerId
         )
     }
 
