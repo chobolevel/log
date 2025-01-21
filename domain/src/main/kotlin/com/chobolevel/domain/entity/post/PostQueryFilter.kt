@@ -8,6 +8,7 @@ class PostQueryFilter(
     private val tagId: Long?,
     private val title: String?,
     private val subTitle: String?,
+    private val userId: Long?,
 ) {
 
     fun toPredicates(): Array<BooleanExpression> {
@@ -15,6 +16,7 @@ class PostQueryFilter(
             PostTagQueryFilter(tagId).toSubQuery(),
             title?.let { post.title.contains(it) },
             subTitle?.let { post.subTitle.contains(it) },
+            userId?.let { post.user.id.eq(it) },
             post.deleted.isFalse
         ).toTypedArray()
     }
