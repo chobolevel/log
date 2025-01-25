@@ -224,7 +224,7 @@ create table log.post_comments
   id          bigint auto_increment
         primary key,
   post_id     bigint       not null,
-  write_id bigint not null,
+  writer_id bigint not null,
   content     text         not null,
   deleted     bit          not null,
   created_at  datetime     not null,
@@ -240,7 +240,7 @@ create table log.post_comments_histories
   rev_id      bigint       not null,
   revtype     tinyint      not null,
   post_id     bigint       not null,
-  write_id bigint not null,
+  writer_id bigint not null,
   content     text         not null,
   deleted     bit          not null,
   created_at  datetime     not null,
