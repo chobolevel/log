@@ -90,10 +90,9 @@ class UserController(
 
     @Operation(summary = "회원 정보 수정 API")
     @HasAuthorityUser
-    @PutMapping("/users/{id}")
+    @PutMapping("/users/me")
     fun updateUser(
         principal: Principal,
-        @PathVariable id: Long,
         @RequestBody @Valid
         request: UpdateUserRequestDto
     ): ResponseEntity<ResultResponse> {
