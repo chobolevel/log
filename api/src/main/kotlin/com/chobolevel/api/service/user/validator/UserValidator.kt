@@ -1,16 +1,23 @@
 package com.chobolevel.api.service.user.validator
 
+import com.chobolevel.api.dto.user.ChangeUserPasswordRequest
 import com.chobolevel.api.dto.user.CreateUserRequestDto
 import com.chobolevel.api.dto.user.UpdateUserRequestDto
+import com.chobolevel.domain.entity.user.User
+import com.chobolevel.domain.entity.user.UserFinder
 import com.chobolevel.domain.entity.user.UserLoginType
 import com.chobolevel.domain.entity.user.UserUpdateMask
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
 import org.springframework.http.HttpStatus
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component
 
 @Component
-class UserValidator {
+class UserValidator(
+    private val finder: UserFinder,
+    private val passwordEncoder: BCryptPasswordEncoder
+) {
 
     private final val emailRegexp = "^[a-zA-Z0-9+-\\_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+\$".toRegex()
     private final val passwordRegexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[!@#\$%^&*(),.?\":{}|<>]).{8,}\$".toRegex()
@@ -57,6 +64,20 @@ class UserValidator {
                 }
             }
         }
+        if (finder.existsByEmail(request.email)) {
+            throw ApiException(
+                errorCode = ErrorCode.INVALID_PARAMETER,
+                status = HttpStatus.BAD_REQUEST,
+                message = "이미 존재하는 이메일입니다."
+            )
+        }
+        if (finder.existsByNickname(request.nickname)) {
+            throw ApiException(
+                errorCode = ErrorCode.INVALID_PARAMETER,
+                status = HttpStatus.BAD_REQUEST,
+                message = "이미 존재하는 닉네임입니다."
+            )
+        }
     }
 
     fun validate(request: UpdateUserRequestDto) {
@@ -78,6 +99,23 @@ class UserValidator {
                     }
                 }
             }
+        }
+    }
+
+    fun validate(request: ChangeUserPasswordRequest, entity: User) {
+        if (!passwordEncoder.matches(request.curPassword, entity.password)) {
+            throw ApiException(
+                errorCode = ErrorCode.INVALID_PARAMETER,
+                status = HttpStatus.BAD_REQUEST,
+                message = "현재 비밀번호가 일치하지 않습니다."
+            )
+        }
+        if (request.curPassword == request.newPassword) {
+            throw ApiException(
+                errorCode = ErrorCode.INVALID_PARAMETER,
+                status = HttpStatus.BAD_REQUEST,
+                message = "현재 비밀번호와 같은 비밀번호로 변경할 수 없습니다."
+            )
         }
     }
 }

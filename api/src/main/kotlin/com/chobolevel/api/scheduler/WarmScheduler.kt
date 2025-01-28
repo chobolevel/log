@@ -3,12 +3,14 @@ package com.chobolevel.api.scheduler
 import com.chobolevel.api.warmer.Warmer
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.context.annotation.Profile
 import org.springframework.scheduling.annotation.Async
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 import java.net.InetAddress
 
+@Profile("production")
 @Component
 class WarmScheduler(
     private val warmers: List<Warmer>,

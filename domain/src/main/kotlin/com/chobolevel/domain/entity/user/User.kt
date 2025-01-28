@@ -51,6 +51,10 @@ class User(
             this.profileImage = userImage
         }
     }
+
+    fun resign() {
+        this.resigned = true
+    }
 }
 
 enum class UserLoginType {

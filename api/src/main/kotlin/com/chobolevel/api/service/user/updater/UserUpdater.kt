@@ -6,18 +6,14 @@ import com.chobolevel.domain.entity.user.UserUpdateMask
 import org.springframework.stereotype.Component
 
 @Component
-class UserUpdater : UserUpdatable {
+class UserUpdater {
 
-    override fun markAsUpdate(request: UpdateUserRequestDto, user: User): User {
+    fun markAsUpdate(request: UpdateUserRequestDto, user: User): User {
         request.updateMask.forEach {
             when (it) {
                 UserUpdateMask.NICKNAME -> user.nickname = request.nickname!!
             }
         }
         return user
-    }
-
-    override fun order(): Int {
-        return 0
     }
 }

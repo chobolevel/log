@@ -6,16 +6,13 @@ import com.chobolevel.api.dto.user.CreateUserRequestDto
 import com.chobolevel.api.dto.user.UpdateUserRequestDto
 import com.chobolevel.api.dto.user.UserResponseDto
 import com.chobolevel.api.service.user.converter.UserConverter
-import com.chobolevel.api.service.user.updater.UserUpdatable
+import com.chobolevel.api.service.user.updater.UserUpdater
 import com.chobolevel.api.service.user.validator.UserValidator
 import com.chobolevel.domain.entity.user.UserFinder
 import com.chobolevel.domain.entity.user.UserOrderType
 import com.chobolevel.domain.entity.user.UserQueryFilter
 import com.chobolevel.domain.entity.user.UserRepository
-import com.chobolevel.domain.exception.ApiException
-import com.chobolevel.domain.exception.ErrorCode
 import com.scrimmers.domain.dto.common.Pagination
-import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -26,27 +23,13 @@ class UserService(
     private val finder: UserFinder,
     private val converter: UserConverter,
     private val validator: UserValidator,
-    private val updaters: List<UserUpdatable>,
+    private val updater: UserUpdater,
     private val passwordEncoder: BCryptPasswordEncoder
 ) {
 
     @Transactional
     fun createUser(request: CreateUserRequestDto): Long {
         validator.validate(request)
-        if (finder.existsByEmail(request.email)) {
-            throw ApiException(
-                errorCode = ErrorCode.INVALID_PARAMETER,
-                status = HttpStatus.BAD_REQUEST,
-                message = "이미 존재하는 이메일입니다."
-            )
-        }
-        if (finder.existsByNickname(request.nickname)) {
-            throw ApiException(
-                errorCode = ErrorCode.INVALID_PARAMETER,
-                status = HttpStatus.BAD_REQUEST,
-                message = "이미 존재하는 닉네임입니다."
-            )
-        }
         val user = converter.convert(request)
         return repository.save(user).id!!
     }
@@ -77,27 +60,20 @@ class UserService(
     fun updateUser(id: Long, request: UpdateUserRequestDto): Long {
         validator.validate(request)
         val user = finder.findById(id)
-        updaters.sortedBy { it.order() }.forEach { it.markAsUpdate(request, user) }
+        updater.markAsUpdate(
+            request = request,
+            user = user
+        )
         return user.id!!
     }
 
     @Transactional
     fun changePassword(id: Long, request: ChangeUserPasswordRequest): Long {
         val user = finder.findById(id)
-        if (!passwordEncoder.matches(request.curPassword, user.password)) {
-            throw ApiException(
-                errorCode = ErrorCode.INVALID_PARAMETER,
-                status = HttpStatus.BAD_REQUEST,
-                message = "현재 비밀번호가 일치하지 않습니다."
-            )
-        }
-        if (request.curPassword == request.newPassword) {
-            throw ApiException(
-                errorCode = ErrorCode.INVALID_PARAMETER,
-                status = HttpStatus.BAD_REQUEST,
-                message = "현재 비밀번호와 같은 비밀번호로 변경할 수 없습니다."
-            )
-        }
+        validator.validate(
+            request = request,
+            entity = user,
+        )
         user.password = passwordEncoder.encode(request.newPassword)
         return user.id!!
     }
@@ -105,7 +81,7 @@ class UserService(
     @Transactional
     fun resignUser(id: Long): Boolean {
         val user = finder.findById(id)
-        repository.delete(user)
+        user.resign()
         return true
     }
 }
