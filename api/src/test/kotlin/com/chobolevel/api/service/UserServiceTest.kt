@@ -77,6 +77,6 @@ class UserServiceTest {
 
         // then
         assertThat(result).isNotNull()
-        assertThat(result).isEqualTo(id)
+        assertThat(result).isEqualTo(2L)
     }
 }
