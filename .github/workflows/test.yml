@@ -57,6 +57,8 @@ jobs:
       #      - name: Flyway Migrate
       #        run: |
       #          ./gradlew flywayMigrate
+      - name: api module test
+        run: ./gradlew api:test
 
       - name: Run test
         run: SPRING_PROFILES_ACTIVE=test ./gradlew test -x ktlintMainSourceSetCheck -x ktlintTestSourceSetCheck
