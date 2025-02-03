@@ -1,20 +1,14 @@
-package com.chobolevel.api.service
+package com.chobolevel.api.api.users.service
 
-import com.chobolevel.api.dto.user.CreateUserRequestDto
-import com.chobolevel.api.dto.user.UpdateUserRequestDto
-import com.chobolevel.api.dto.user.UserResponseDto
+import com.chobolevel.api.common.dummy.users.DummyUser
 import com.chobolevel.api.service.user.UserService
 import com.chobolevel.api.service.user.converter.UserConverter
 import com.chobolevel.api.service.user.updater.UserUpdater
 import com.chobolevel.api.service.user.validator.UserValidator
-import com.chobolevel.domain.entity.user.User
 import com.chobolevel.domain.entity.user.UserFinder
-import com.chobolevel.domain.entity.user.UserLoginType
 import com.chobolevel.domain.entity.user.UserOrderType
 import com.chobolevel.domain.entity.user.UserQueryFilter
 import com.chobolevel.domain.entity.user.UserRepository
-import com.chobolevel.domain.entity.user.UserRoleType
-import com.chobolevel.domain.entity.user.UserUpdateMask
 import com.scrimmers.domain.dto.common.Pagination
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -51,29 +45,28 @@ class UserServiceTest {
 
     @Test
     fun 회원가입() {
-        val request = CreateUserRequestDto(
-            email = mockUser.email,
-            password = mockUser.password,
-            socialId = mockUser.socialId,
-            loginType = mockUser.loginType,
-            nickname = mockUser.nickname,
-        )
-        `when`(userConverter.convert(request)).thenReturn(mockUser)
-        `when`(userRepository.save(mockUser)).thenReturn(mockUser)
+        // given
+        val request = DummyUser.toCreateRequestDto()
+        val dummyUser = DummyUser.toEntity()
+        `when`(userConverter.convert(request)).thenReturn(dummyUser)
+        `when`(userRepository.save(dummyUser)).thenReturn(dummyUser)
+
         // when
         val result = userService.createUser(request)
 
         // then
         assertThat(result).isNotNull()
-        assertThat(result).isEqualTo(mockUser.id)
+        assertThat(result).isEqualTo(DummyUser.toEntity().id)
     }
 
     @Test
     fun 회원목록조회() {
-        val users = listOfNotNull(
-            mockUser
-        )
         // given
+        val dummyUser = DummyUser.toEntity()
+        val dummyUserResponse = DummyUser.toResponseDto()
+        val users = listOfNotNull(
+            dummyUser
+        )
         val queryFilter = UserQueryFilter(
             email = null,
             loginType = null,
@@ -95,7 +88,7 @@ class UserServiceTest {
             )
         ).thenReturn(users)
         `when`(userFinder.searchCount(queryFilter)).thenReturn(users.size.toLong())
-        `when`(userConverter.convert(mockUser)).thenReturn(mockUserResponse)
+        `when`(userConverter.convert(dummyUser)).thenReturn(dummyUserResponse)
 
         // when
         val result = userService.searchUserList(
@@ -114,79 +107,48 @@ class UserServiceTest {
     @Test
     fun 회원단건조회() {
         // given
-        `when`(userFinder.findById(mockUser.id!!)).thenReturn(mockUser)
-        `when`(userConverter.convert(mockUser)).thenReturn(mockUserResponse)
+        val dummyUser = DummyUser.toEntity()
+        val dummyUserResponse = DummyUser.toResponseDto()
+        `when`(userFinder.findById(dummyUser.id!!)).thenReturn(dummyUser)
+        `when`(userConverter.convert(dummyUser)).thenReturn(dummyUserResponse)
 
         // when
-        val result = userService.fetchUser(mockUser.id!!)
+        val result = userService.fetchUser(dummyUser.id!!)
 
         // then
-        assertThat(result.id).isEqualTo(mockUserResponse.id)
-        assertThat(result.email).isEqualTo(mockUser.email)
-        assertThat(result.loginType).isEqualTo(mockUser.loginType)
-        assertThat(result.nickname).isEqualTo(mockUser.nickname)
-        assertThat(result.role).isEqualTo(mockUser.role)
+        assertThat(result.id).isEqualTo(dummyUserResponse.id)
+        assertThat(result.email).isEqualTo(dummyUserResponse.email)
+        assertThat(result.loginType).isEqualTo(dummyUserResponse.loginType)
+        assertThat(result.nickname).isEqualTo(dummyUserResponse.nickname)
+        assertThat(result.role).isEqualTo(dummyUserResponse.role)
         assertThat(result.profileImage).isNull()
     }
 
     @Test
     fun 회원정보수정() {
         // given
-        val request = UpdateUserRequestDto(
-            nickname = "왕감자",
-            updateMask = listOfNotNull(
-                UserUpdateMask.NICKNAME
-            )
-        )
+        val dummyUser = DummyUser.toEntity()
+        val request = DummyUser.toUpdateRequestDto()
         `when`(userValidator.validate(request)).thenCallRealMethod()
-        `when`(userFinder.findById(mockUser.id!!)).thenReturn(mockUser)
-        `when`(userUpdater.markAsUpdate(request, mockUser)).thenCallRealMethod()
+        `when`(userFinder.findById(dummyUser.id!!)).thenReturn(dummyUser)
+        `when`(userUpdater.markAsUpdate(request, dummyUser)).thenCallRealMethod()
 
         // when
-        val result = userService.updateUser(mockUser.id!!, request)
+        val result = userService.updateUser(dummyUser.id!!, request)
 
         // then
-        assertThat(result).isEqualTo(mockUser.id!!)
+        assertThat(result).isEqualTo(dummyUser.id)
     }
 
     @Test
     fun 회원탈퇴() {
         // given
-        `when`(userFinder.findById(mockUser.id!!)).thenReturn(mockUser)
+        val dummyUser = DummyUser.toEntity()
+        `when`(userFinder.findById(dummyUser.id!!)).thenReturn(dummyUser)
         // when
-        val result = userService.resignUser(mockUser.id!!)
+        val result = userService.resignUser(dummyUser.id!!)
 
         // then
         assertThat(result).isEqualTo(true)
-    }
-
-    companion object {
-        val id = 1L
-        val email = "rodaka123@naver.com"
-        val password = "rkddlswo218@"
-        val socialId = null
-        val loginType = UserLoginType.GENERAL
-        val nickname = "알감자"
-        val role = UserRoleType.ROLE_USER
-        val mockUser = User(
-            email = email,
-            password = password,
-            socialId = socialId,
-            loginType = loginType,
-            nickname = nickname,
-            role = role,
-        ).also {
-            it.id = id
-        }
-        val mockUserResponse = UserResponseDto(
-            id = id,
-            email = email,
-            loginType = loginType,
-            nickname = nickname,
-            role = role,
-            profileImage = null,
-            createdAt = 0L,
-            updatedAt = 0L
-        )
     }
 }
