@@ -146,7 +146,7 @@ class UserServiceTest {
         val result = userService.updateUser(mockUser.id!!, request)
 
         // then
-        assertThat(result).isNotNull()
+        assertThat(result).isEqualTo(mockUser.id!!)
     }
 
     companion object {
