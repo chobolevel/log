@@ -109,6 +109,24 @@ class UserServiceTest {
         assertThat(result.data.size).isEqualTo(users.size)
     }
 
+    @Test
+    fun 회원단건조회() {
+        // given
+        `when`(userFinder.findById(mockUser.id!!)).thenReturn(mockUser)
+        `when`(userConverter.convert(mockUser)).thenReturn(mockUserResponse)
+
+        // when
+        val result = userService.fetchUser(mockUser.id!!)
+
+        // then
+        assertThat(result.id).isEqualTo(mockUserResponse.id)
+        assertThat(result.email).isEqualTo(mockUser.email)
+        assertThat(result.loginType).isEqualTo(mockUser.loginType)
+        assertThat(result.nickname).isEqualTo(mockUser.nickname)
+        assertThat(result.role).isEqualTo(mockUser.role)
+        assertThat(result.profileImage).isNull()
+    }
+
     companion object {
         val id = 1L
         val email = "rodaka123@naver.com"
