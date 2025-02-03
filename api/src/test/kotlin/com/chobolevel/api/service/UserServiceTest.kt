@@ -1,6 +1,7 @@
 package com.chobolevel.api.service
 
 import com.chobolevel.api.dto.user.CreateUserRequestDto
+import com.chobolevel.api.dto.user.UpdateUserRequestDto
 import com.chobolevel.api.dto.user.UserResponseDto
 import com.chobolevel.api.service.user.UserService
 import com.chobolevel.api.service.user.converter.UserConverter
@@ -13,6 +14,7 @@ import com.chobolevel.domain.entity.user.UserOrderType
 import com.chobolevel.domain.entity.user.UserQueryFilter
 import com.chobolevel.domain.entity.user.UserRepository
 import com.chobolevel.domain.entity.user.UserRoleType
+import com.chobolevel.domain.entity.user.UserUpdateMask
 import com.scrimmers.domain.dto.common.Pagination
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -125,6 +127,26 @@ class UserServiceTest {
         assertThat(result.nickname).isEqualTo(mockUser.nickname)
         assertThat(result.role).isEqualTo(mockUser.role)
         assertThat(result.profileImage).isNull()
+    }
+
+    @Test
+    fun 회원정보수정() {
+        // given
+        val request = UpdateUserRequestDto(
+            nickname = "왕감자",
+            updateMask = listOfNotNull(
+                UserUpdateMask.NICKNAME
+            )
+        )
+        `when`(userValidator.validate(request)).thenCallRealMethod()
+        `when`(userFinder.findById(mockUser.id!!)).thenReturn(mockUser)
+        `when`(userUpdater.markAsUpdate(request, mockUser)).thenCallRealMethod()
+
+        // when
+        val result = userService.updateUser(mockUser.id!!, request)
+
+        // then
+        assertThat(result).isNotNull()
     }
 
     companion object {
