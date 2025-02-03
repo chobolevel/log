@@ -149,6 +149,17 @@ class UserServiceTest {
         assertThat(result).isEqualTo(mockUser.id!!)
     }
 
+    @Test
+    fun 회원탈퇴() {
+        // given
+        `when`(userFinder.findById(mockUser.id!!)).thenReturn(mockUser)
+        // when
+        val result = userService.resignUser(mockUser.id!!)
+
+        // then
+        assertThat(result).isEqualTo(true)
+    }
+
     companion object {
         val id = 1L
         val email = "rodaka123@naver.com"
