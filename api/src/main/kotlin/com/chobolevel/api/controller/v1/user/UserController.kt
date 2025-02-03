@@ -113,8 +113,8 @@ class UserController(
 
     @Operation(summary = "회원 탈퇴 API")
     @HasAuthorityUser
-    @DeleteMapping("/users/{id}")
-    fun resignUser(principal: Principal, @PathVariable id: Long): ResponseEntity<ResultResponse> {
+    @DeleteMapping("/users/me")
+    fun resignUser(principal: Principal): ResponseEntity<ResultResponse> {
         val result = service.resignUser(principal.getUserId())
         return ResponseEntity.ok(ResultResponse(result))
     }

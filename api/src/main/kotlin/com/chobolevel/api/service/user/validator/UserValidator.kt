@@ -19,12 +19,14 @@ class UserValidator(
     private val passwordEncoder: BCryptPasswordEncoder
 ) {
 
-    private final val emailRegexp = "^[a-zA-Z0-9+-\\_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+\$".toRegex()
-    private final val passwordRegexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[!@#\$%^&*(),.?\":{}|<>]).{8,}\$".toRegex()
-    private final val nicknameRegexp = "^[a-zA-Z가-힣]+\$".toRegex()
+    companion object {
+        private val emailRegexp = "^[a-zA-Z0-9+-\\_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+\$".toRegex()
+        private val passwordRegexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[!@#\$%^&*(),.?\":{}|<>]).{8,}\$".toRegex()
+        private val nicknameRegexp = "^[a-zA-Z가-힣]+\$".toRegex()
+    }
 
     fun validate(request: CreateUserRequestDto) {
-        if (!emailRegexp.matches(request.email)) {
+        if (!request.email.matches(emailRegexp)) {
             throw ApiException(
                 errorCode = ErrorCode.INVALID_PARAMETER,
                 status = HttpStatus.BAD_REQUEST,
