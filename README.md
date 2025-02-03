@@ -73,6 +73,7 @@
 > [**GRAFANA LINK**](http://210.114.22.52:3000/d/dLsDQIUnzb/chobolevel-log-monitors?orgId=1&from=now-5m&to=now&timezone=browser&var-app_name=&var-log_keyword=&refresh=5s)
 > 
 > + actuator + prometheus + loki + grafana 조합을 통해 상태 및 로깅 모니터링 대시보드를 구성하였습니다.
+> + 접속 정보(아이디 = admin / 비밀번호 = admin)
 
 ## 초기 화면
 
