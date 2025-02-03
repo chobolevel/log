@@ -11,6 +11,7 @@ import com.chobolevel.domain.entity.user.UserQueryFilter
 import com.chobolevel.domain.entity.user.UserRepository
 import com.scrimmers.domain.dto.common.Pagination
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
@@ -19,6 +20,7 @@ import org.mockito.Mockito.`when`
 import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 
+@DisplayName("회원 서비스 레이어 테스트")
 @ExtendWith(MockitoExtension::class)
 class UserServiceTest {
 
