@@ -49,13 +49,12 @@ class PostEntityTest {
         // given
         val dummyPost = DummyPost.toEntity()
         val dummyPostImage = DummyPostImage.toEntity()
-        dummyPostImage.setBy(dummyPost)
 
         // when
         dummyPost.addImage(dummyPostImage)
 
         // then
-        val postFirstImage = dummyPost.images.first()
-        assertThat(postFirstImage).isEqualTo(dummyPostImage)
+        assertThat(dummyPost.images).isNotEmpty()
+        assertThat(dummyPost.images.first()).isEqualTo(dummyPostImage)
     }
 }
