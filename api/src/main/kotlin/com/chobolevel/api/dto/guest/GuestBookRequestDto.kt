@@ -24,3 +24,9 @@ data class UpdateGuestBookRequestDto(
     @field:Size(min = 1, message = "update_mask는 필수 값입니다.")
     val updateMask: List<GuestBookUpdateMask>
 )
+
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
+data class DeleteGuestBookRequestDto(
+    @field:NotEmpty(message = "비밀번호는 필수 값입니다.")
+    val password: String
+)

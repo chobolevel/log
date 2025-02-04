@@ -2,6 +2,7 @@ package com.chobolevel.api.controller.v1.guest
 
 import com.chobolevel.api.dto.common.ResultResponse
 import com.chobolevel.api.dto.guest.CreateGuestBookRequestDto
+import com.chobolevel.api.dto.guest.DeleteGuestBookRequestDto
 import com.chobolevel.api.dto.guest.UpdateGuestBookRequestDto
 import com.chobolevel.api.posttask.CreateGuestBookPostTask
 import com.chobolevel.api.service.guest.GuestBookService
@@ -78,6 +79,20 @@ class GuestBookController(
         request: UpdateGuestBookRequestDto
     ): ResponseEntity<ResultResponse> {
         val result = service.updateGuestBook(
+            id = id,
+            request = request
+        )
+        return ResponseEntity.ok(ResultResponse(result))
+    }
+
+    @Operation(summary = "방명록 삭제")
+    @PutMapping("/guest-books/{id}/delete")
+    fun deleteGuestBook(
+        @PathVariable id: Long,
+        @Valid @RequestBody
+        request: DeleteGuestBookRequestDto
+    ): ResponseEntity<ResultResponse> {
+        val result = service.deleteGuestBook(
             id = id,
             request = request
         )
