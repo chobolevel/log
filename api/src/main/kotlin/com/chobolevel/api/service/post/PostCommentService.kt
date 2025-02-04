@@ -16,7 +16,6 @@ import com.chobolevel.domain.entity.user.UserFinder
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
 import com.scrimmers.domain.dto.common.Pagination
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -29,7 +28,6 @@ class PostCommentService(
     private val converter: PostCommentConverter,
     private val updateValidators: List<UpdatePostCommentValidatable>,
     private val updaters: List<PostCommentUpdatable>,
-    private val passwordEncoder: BCryptPasswordEncoder
 ) {
 
     @Transactional
@@ -82,7 +80,7 @@ class PostCommentService(
             userId = userId,
             postComment = postComment,
         )
-        repository.delete(postComment)
+        postComment.delete()
         return true
     }
 

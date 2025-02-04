@@ -12,13 +12,11 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
-import org.hibernate.annotations.SQLDelete
 import org.hibernate.envers.Audited
 
 @Entity
 @Table(name = "post_comments")
 @Audited
-@SQLDelete(sql = "UPDATE post_comments SET deleted = true WHERE id = ?")
 class PostComment(
     @Column(nullable = false)
     var content: String
@@ -49,6 +47,10 @@ class PostComment(
         if (this.writer != user) {
             this.writer = user
         }
+    }
+
+    fun delete() {
+        this.deleted = true
     }
 }
 
