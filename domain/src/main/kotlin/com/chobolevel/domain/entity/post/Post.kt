@@ -16,13 +16,12 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
-import org.hibernate.annotations.SQLDelete
+import org.hibernate.annotations.Where
 import org.hibernate.envers.Audited
 
 @Entity
 @Table(name = "posts")
 @Audited
-@SQLDelete(sql = "UPDATE posts SET deleted = true WHERE id = ?")
 class Post(
     @Column(nullable = false)
     var title: String,
@@ -46,6 +45,7 @@ class Post(
     @OneToMany(mappedBy = "post", cascade = [CascadeType.ALL], orphanRemoval = true)
     var postTags = mutableSetOf<PostTag>()
 
+    @Where(clause = "deleted = false")
     @OneToMany(mappedBy = "post", cascade = [CascadeType.ALL], orphanRemoval = true)
     var images = mutableSetOf<PostImage>()
 
@@ -68,7 +68,7 @@ class Post(
     }
 
     fun getThumbNailImage(): PostImage? {
-        return this.images.find { it.type === PostImageType.THUMB_NAIL && !it.deleted }
+        return this.images.find { it.type === PostImageType.THUMB_NAIL }
     }
 
     fun delete() {
