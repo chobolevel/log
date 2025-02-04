@@ -1,7 +1,5 @@
 package com.chobolevel.api.common.dummy.posts
 
-import com.chobolevel.api.common.dummy.users.DummyUser
-import com.chobolevel.api.dto.post.CreatePostRequestDto
 import com.chobolevel.domain.entity.post.Post
 
 object DummyPost {
