@@ -57,4 +57,44 @@ class PostEntityTest {
         assertThat(dummyPost.images).isNotEmpty()
         assertThat(dummyPost.images.first()).isEqualTo(dummyPostImage)
     }
+
+    @Test
+    fun 게시글_섬네일_이미지_조회() {
+        // given
+        val dummyPost = DummyPost.toEntity()
+        val dummyPostImage = DummyPostImage.toEntity()
+        dummyPostImage.setBy(dummyPost)
+
+        // when
+        val thumbNailImage = dummyPost.getThumbNailImage()
+
+        // then
+        assertThat(thumbNailImage).isEqualTo(dummyPostImage)
+    }
+
+    @Test
+    fun 게시글_섬네일_이미지_삭제() {
+        // given
+        val dummyPost = DummyPost.toEntity()
+        val dummyPostImage = DummyPostImage.toEntity()
+        dummyPostImage.setBy(dummyPost)
+
+        // when
+        dummyPost.deleteThumbNailImage()
+
+        // then
+        assertThat(dummyPost.images).isEmpty()
+    }
+
+    @Test
+    fun 게시글_삭제() {
+        // given
+        val dummyPost = DummyPost.toEntity()
+
+        // when
+        dummyPost.delete()
+
+        // then
+        assertThat(dummyPost.deleted).isTrue()
+    }
 }

@@ -76,7 +76,10 @@ class Post(
     }
 
     fun deleteThumbNailImage() {
-        this.images.filter { it.type === PostImageType.THUMB_NAIL }.forEach { it.delete() }
+        this.images.filter { it.type === PostImageType.THUMB_NAIL }.forEach {
+            it.delete()
+            this.images.remove(it)
+        }
     }
 }
 
