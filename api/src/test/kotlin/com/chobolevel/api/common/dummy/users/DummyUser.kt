@@ -8,6 +8,19 @@ import com.chobolevel.domain.entity.user.UserLoginType
 import com.chobolevel.domain.entity.user.UserRoleType
 import com.chobolevel.domain.entity.user.UserUpdateMask
 
+/**
+ *
+ * 회원 더미 클래스
+ *
+ * 테스트에 사용될 회원 더미 클래스입니다.
+ *
+ * 모든 객체는 싱글톤 패턴으로 관리되고 있습니다.
+ *
+ * @author chobolevel
+ * @created 2025-02-04
+ * @since 0.0.1
+ */
+
 // 공유되는 객체의 경우 싱글톤으로 관리하여 메모리 누수를 방지하는 것이 좋음
 // object = 자동으로 싱글톤 패턴으로 관리되어 동일한 인스턴스 재사용
 // class = 인스턴스를 여러번 생성할 수 있고 매번 새로운 객체 생성됨
