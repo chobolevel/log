@@ -7,13 +7,11 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import org.hibernate.annotations.SQLDelete
 import org.hibernate.envers.Audited
 
 @Entity
 @Table(name = "guest_books")
 @Audited
-@SQLDelete(sql = "UPDATE guest_books SET deleted = true WHERE id = ?")
 class GuestBook(
     @Column(nullable = false)
     var guestName: String,
@@ -29,6 +27,10 @@ class GuestBook(
 
     @Column(nullable = false)
     var deleted: Boolean = false
+
+    fun delete() {
+        this.deleted = true
+    }
 }
 
 enum class GuestBookOrderType {

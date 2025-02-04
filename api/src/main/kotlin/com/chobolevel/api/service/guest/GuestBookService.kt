@@ -2,6 +2,7 @@ package com.chobolevel.api.service.guest
 
 import com.chobolevel.api.dto.common.PaginationResponseDto
 import com.chobolevel.api.dto.guest.CreateGuestBookRequestDto
+import com.chobolevel.api.dto.guest.DeleteGuestBookRequestDto
 import com.chobolevel.api.dto.guest.GuestBookResponseDto
 import com.chobolevel.api.dto.guest.UpdateGuestBookRequestDto
 import com.chobolevel.api.service.guest.converter.GuestBookConverter
@@ -71,6 +72,17 @@ class GuestBookService(
         )
         updaters.sortedBy { it.order() }.forEach { it.maskAsUpdate(request = request, entity = guestBook) }
         return guestBook.id!!
+    }
+
+    @Transactional
+    fun deleteGuestBook(id: Long, request: DeleteGuestBookRequestDto): Boolean {
+        val guestBook = finder.findById(id)
+        validatePassword(
+            rawPassword = request.password,
+            encodedPassword = guestBook.password
+        )
+        guestBook.delete()
+        return true
     }
 
     private fun validatePassword(rawPassword: String, encodedPassword: String) {
