@@ -8,9 +8,9 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 
 @Component
-class UpdateGuestBookValidator : UpdateGuestBookValidatable {
+class GuestBookValidator {
 
-    override fun validate(request: UpdateGuestBookRequestDto) {
+    fun validate(request: UpdateGuestBookRequestDto) {
         request.updateMask.forEach {
             when (it) {
                 GuestBookUpdateMask.CONTENT -> {
