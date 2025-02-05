@@ -1,7 +1,11 @@
 package com.chobolevel.api.common.dummy.guest
 
 import com.chobolevel.api.dto.guest.CreateGuestBookRequestDto
+import com.chobolevel.api.dto.guest.DeleteGuestBookRequestDto
+import com.chobolevel.api.dto.guest.GuestBookResponseDto
+import com.chobolevel.api.dto.guest.UpdateGuestBookRequestDto
 import com.chobolevel.domain.entity.guest.GuestBook
+import com.chobolevel.domain.entity.guest.GuestBookUpdateMask
 
 /**
  *
@@ -28,6 +32,15 @@ object DummyGuestBook {
     fun toEntity(): GuestBook {
         return guestBook
     }
+    fun toResponseDto(): GuestBookResponseDto {
+        return guestBookResponse
+    }
+    fun toUpdateRequestDto(): UpdateGuestBookRequestDto {
+        return updateRequest
+    }
+    fun toDeleteRequestDto(): DeleteGuestBookRequestDto {
+        return deleteRequest
+    }
 
     private val createRequest: CreateGuestBookRequestDto by lazy {
         CreateGuestBookRequestDto(
@@ -44,5 +57,28 @@ object DummyGuestBook {
         ).also {
             it.id = id
         }
+    }
+    private val guestBookResponse: GuestBookResponseDto by lazy {
+        GuestBookResponseDto(
+            id = id,
+            guestName = guestName,
+            content = content,
+            createdAt = 0L,
+            updatedAt = 0L
+        )
+    }
+    private val updateRequest: UpdateGuestBookRequestDto by lazy {
+        UpdateGuestBookRequestDto(
+            password = "1234",
+            content = "방명록 수정",
+            updateMask = listOfNotNull(
+                GuestBookUpdateMask.CONTENT
+            )
+        )
+    }
+    private val deleteRequest: DeleteGuestBookRequestDto by lazy {
+        DeleteGuestBookRequestDto(
+            password = "1234"
+        )
     }
 }
