@@ -97,7 +97,6 @@ class AuthService(
     }
 
     fun logout(refreshToken: String) {
-        tokenProvider.validateToken(refreshToken)
         removeRefreshToken(refreshToken)
     }
 
