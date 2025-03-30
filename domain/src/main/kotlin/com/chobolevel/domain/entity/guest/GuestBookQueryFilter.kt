@@ -9,7 +9,8 @@ class GuestBookQueryFilter(
 
     fun toPredicates(): Array<BooleanExpression> {
         return listOfNotNull(
-            guestName?.let { guestBook.guestName.contains(it) }
+            guestName?.let { guestBook.guestName.contains(it) },
+            guestBook.deleted.isFalse
         ).toTypedArray()
     }
 }

@@ -1,7 +1,6 @@
 package com.chobolevel.domain.entity.post
 
 import com.chobolevel.domain.entity.post.QPost.post
-import com.chobolevel.domain.entity.post.tag.PostTagQueryFilter
 import com.querydsl.core.types.dsl.BooleanExpression
 
 class PostQueryFilter(
@@ -13,7 +12,7 @@ class PostQueryFilter(
 
     fun toPredicates(): Array<BooleanExpression> {
         return listOfNotNull(
-            PostTagQueryFilter(tagId).toSubQuery(),
+            tagId?.let { post.postTags.any().id.eq(it) },
             title?.let { post.title.contains(it) },
             subTitle?.let { post.subTitle.contains(it) },
             userId?.let { post.user.id.eq(it) },
