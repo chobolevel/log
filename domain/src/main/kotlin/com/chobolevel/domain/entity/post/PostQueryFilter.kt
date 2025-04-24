@@ -12,7 +12,7 @@ class PostQueryFilter(
 
     fun toPredicates(): Array<BooleanExpression> {
         return listOfNotNull(
-            tagId?.let { post.postTags.any().id.eq(it) },
+            tagId?.let { post.postTags.any().tag.id.eq(it) },
             title?.let { post.title.contains(it) },
             subTitle?.let { post.subTitle.contains(it) },
             userId?.let { post.user.id.eq(it) },
