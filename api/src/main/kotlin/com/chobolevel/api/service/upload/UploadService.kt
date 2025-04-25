@@ -51,7 +51,7 @@ class UploadService(
     private fun createPresignedRequest(savedPath: String): GeneratePresignedUrlRequest {
         val presignedRequest = GeneratePresignedUrlRequest(bucket, savedPath)
             .withMethod(HttpMethod.PUT)
-            .withExpiration(Date(Date().time + TimeUnit.MINUTES.toMillis(2)))
+            .withExpiration(Date(Date().time + TimeUnit.MINUTES.toMillis(10)))
         presignedRequest.addRequestParameter(
             Headers.S3_CANNED_ACL,
             CannedAccessControlList.PublicRead.toString()
