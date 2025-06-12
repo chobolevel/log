@@ -63,6 +63,9 @@ jobs:
       - name: API Build, tag, and push image to EC2
         id: build-image-api
         run: make ec2_push_production_api
+        env:
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
       - name: Send discord message if failed
         if: ${{ failure() }}
