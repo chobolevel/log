@@ -58,6 +58,9 @@ dependencies {
 
     // loki
     implementation("com.github.loki4j:loki-logback-appender:1.4.2")
+
+    // jsoup for crawling
+    implementation("org.jsoup:jsoup:1.16.1")
 }
 
 val baseJvmFlags: (memory: String, imageTag: String?, stage: String?) -> List<String> by ext
