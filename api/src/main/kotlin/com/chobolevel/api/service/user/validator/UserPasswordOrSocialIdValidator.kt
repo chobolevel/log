@@ -1,12 +1,12 @@
 package com.chobolevel.api.service.user.validator
 
-import com.chobolevel.api.annotation.ValidUserPassword
+import com.chobolevel.api.annotation.ValidUserPasswordOrSocialId
 import com.chobolevel.api.dto.user.CreateUserRequestDto
 import com.chobolevel.domain.entity.user.UserLoginType
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
 
-class UserPasswordValidator : ConstraintValidator<ValidUserPassword, CreateUserRequestDto> {
+class UserPasswordOrSocialIdValidator : ConstraintValidator<ValidUserPasswordOrSocialId, CreateUserRequestDto> {
 
     override fun isValid(
         request: CreateUserRequestDto,
