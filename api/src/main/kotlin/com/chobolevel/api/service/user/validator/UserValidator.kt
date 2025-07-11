@@ -41,14 +41,7 @@ class UserValidator(
         }
         when (request.loginType) {
             UserLoginType.GENERAL -> {
-                if (request.password.isNullOrBlank()) {
-                    throw ApiException(
-                        errorCode = ErrorCode.INVALID_PARAMETER,
-                        status = HttpStatus.BAD_REQUEST,
-                        message = "회원가입 시 비밀번호는 필수 값입니다."
-                    )
-                }
-                if (!request.password.matches(passwordRegexp)) {
+                if (!request.password!!.matches(passwordRegexp)) {
                     throw ApiException(
                         errorCode = ErrorCode.INVALID_PARAMETER,
                         message = "비밀번호는 영문 + 숫자 + 특수문자 조합으로 8자리 이상이어야 합니다."
@@ -56,15 +49,7 @@ class UserValidator(
                 }
             }
 
-            else -> {
-                if (request.socialId.isNullOrEmpty()) {
-                    throw ApiException(
-                        errorCode = ErrorCode.INVALID_PARAMETER,
-                        status = HttpStatus.BAD_REQUEST,
-                        message = "소셜회원가입 시 소셜 아이디는 필수 값입니다."
-                    )
-                }
-            }
+            else -> Unit
         }
         if (finder.existsByEmail(request.email)) {
             throw ApiException(
@@ -117,6 +102,12 @@ class UserValidator(
                 errorCode = ErrorCode.INVALID_PARAMETER,
                 status = HttpStatus.BAD_REQUEST,
                 message = "현재 비밀번호와 같은 비밀번호로 변경할 수 없습니다."
+            )
+        }
+        if (!request.newPassword.matches(passwordRegexp)) {
+            throw ApiException(
+                errorCode = ErrorCode.INVALID_PARAMETER,
+                message = "비밀번호는 영문 + 숫자 + 특수문자 조합으로 8자리 이상이어야 합니다."
             )
         }
     }

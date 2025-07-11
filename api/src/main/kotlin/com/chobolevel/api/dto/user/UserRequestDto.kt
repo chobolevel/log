@@ -1,5 +1,6 @@
 package com.chobolevel.api.dto.user
 
+import com.chobolevel.api.annotation.ValidUserPasswordOrSocialId
 import com.chobolevel.domain.entity.user.UserLoginType
 import com.chobolevel.domain.entity.user.UserUpdateMask
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
@@ -8,6 +9,7 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 
+@ValidUserPasswordOrSocialId
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class CreateUserRequestDto(
     @field:NotBlank(message = "이메일은 필수 값입니다.")
