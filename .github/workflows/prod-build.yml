@@ -1,81 +1,81 @@
-name: 운영 빌드 및 PR 생성
-
-on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
-
-env:
-  PHASE: 'production'
-  SERVICE: 'chobolevel-log'
-
-jobs:
-  init:
-    name: prepare build step
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set Vars
-        id: vars
-        shell: bash
-        env:
-          GIT_COMMIT_HASH: ${{ github.sha }}
-        run: |
-          echo "::set-output name=date::$(TZ=Asia/Seoul date +%Y%m%d-%H%M)"
-          echo "::set-output name=short_hash::${GIT_COMMIT_HASH:0:10}"
-    outputs:
-      image_tag: ${{ steps.vars.outputs.date }}-${{ steps.vars.outputs.short_hash }}
-      sha: ${{ github.sha }}
-
-  build:
-    needs: init
-    name: build docker image
-    runs-on: ubuntu-latest
-    env:
-      IMAGE_TAG: ${{ needs.init.outputs.image_tag }}
-    steps:
-      - name: Version Check
-        run: echo $IMAGE_TAG start!
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: 17.0.6
-          cache: 'gradle'
-      - name: Gradle cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
-#      - name: Login to Docker Hub
-#        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+#name: 운영 빌드 및 PR 생성
+#
+#on:
+#  push:
+#    branches:
+#      - main
+#  workflow_dispatch:
+#
+#env:
+#  PHASE: 'production'
+#  SERVICE: 'chobolevel-log'
+#
+#jobs:
+#  init:
+#    name: prepare build step
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Set Vars
+#        id: vars
+#        shell: bash
+#        env:
+#          GIT_COMMIT_HASH: ${{ github.sha }}
+#        run: |
+#          echo "::set-output name=date::$(TZ=Asia/Seoul date +%Y%m%d-%H%M)"
+#          echo "::set-output name=short_hash::${GIT_COMMIT_HASH:0:10}"
+#    outputs:
+#      image_tag: ${{ steps.vars.outputs.date }}-${{ steps.vars.outputs.short_hash }}
+#      sha: ${{ github.sha }}
+#
+#  build:
+#    needs: init
+#    name: build docker image
+#    runs-on: ubuntu-latest
+#    env:
+#      IMAGE_TAG: ${{ needs.init.outputs.image_tag }}
+#    steps:
+#      - name: Version Check
+#        run: echo $IMAGE_TAG start!
+#      - name: Checkout code
+#        uses: actions/checkout@v3
+#      - name: Set up JDK
+#        uses: actions/setup-java@v3
 #        with:
-#          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-#          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-      - name: API Build, tag, and push image to EC2
-        id: build-image-api
-        run: make ec2_push_production_api
-        env:
-          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
-
-      - name: Send discord message if failed
-        if: ${{ failure() }}
-        uses: ./.github/actions/discord-notify
-        with:
-          discord_webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-
-      - name: Send discord message if succeed
-        if: ${{ success() }}
-        uses: ./.github/actions/discord-notify
-        with:
-          status: success
-          discord_webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+#          distribution: 'temurin'
+#          java-version: 17.0.6
+#          cache: 'gradle'
+#      - name: Gradle cache
+#        uses: actions/cache@v3
+#        with:
+#          path: |
+#            ~/.gradle/caches
+#            ~/.gradle/wrapper
+#          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+#          restore-keys: |
+#            ${{ runner.os }}-gradle-
+#      - name: Grant execute permission for gradlew
+#        run: chmod +x ./gradlew
+##      - name: Login to Docker Hub
+##        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+##        with:
+##          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+##          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+#      - name: API Build, tag, and push image to EC2
+#        id: build-image-api
+#        run: make ec2_push_production_api
+#        env:
+#          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+#          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+#
+#      - name: Send discord message if failed
+#        if: ${{ failure() }}
+#        uses: ./.github/actions/discord-notify
+#        with:
+#          discord_webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+#
+#      - name: Send discord message if succeed
+#        if: ${{ success() }}
+#        uses: ./.github/actions/discord-notify
+#        with:
+#          status: success
+#          discord_webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
