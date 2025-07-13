@@ -61,6 +61,9 @@ dependencies {
 
     // jsoup for crawling
     implementation("org.jsoup:jsoup:1.16.1")
+
+    // batch
+    implementation("org.springframework.boot:spring-boot-starter-batch")
 }
 
 val baseJvmFlags: (memory: String, imageTag: String?, stage: String?) -> List<String> by ext
