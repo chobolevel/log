@@ -4,9 +4,8 @@ import org.springframework.batch.core.Job
 import org.springframework.batch.core.JobParametersBuilder
 import org.springframework.batch.core.launch.JobLauncher
 import org.springframework.scheduling.annotation.Scheduled
-import org.springframework.stereotype.Component
 
-@Component
+// @Component
 class BatchScheduler(
     private val jobLauncher: JobLauncher,
     private val job: Job
