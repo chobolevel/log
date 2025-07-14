@@ -5,21 +5,22 @@ import org.springframework.batch.core.JobParametersBuilder
 import org.springframework.batch.core.launch.JobLauncher
 import org.springframework.scheduling.annotation.Scheduled
 
-// @Component
-class BatchScheduler(
+//@Component
+class ChunkBatchScheduler(
     private val jobLauncher: JobLauncher,
-    private val job: Job
+    private val chunkJob: Job
 ) {
 
     @Scheduled(cron = "0/10 * * * * *")
-    fun runTaskletJob() {
+    fun runChunkJob() {
         val params = JobParametersBuilder()
             .addLong("run.id", System.currentTimeMillis())
             .toJobParameters()
         try {
-            jobLauncher.run(job, params)
+            jobLauncher.run(chunkJob, params)
         } catch (e: Exception) {
-            println("❌ Tasklet Job 실행 실패: ${e.message}")
+            println("❌ Chunk Job 실행 실패: ${e.message}")
         }
     }
+
 }
