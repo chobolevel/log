@@ -1,6 +1,5 @@
 package com.chobolevel.api.config
 
-import com.chobolevel.domain.entity.tag.TagRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.batch.core.Job

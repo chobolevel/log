@@ -5,7 +5,7 @@ import org.springframework.batch.core.JobParametersBuilder
 import org.springframework.batch.core.launch.JobLauncher
 import org.springframework.scheduling.annotation.Scheduled
 
-//@Component
+// @Component
 class TaskletBatchScheduler(
     private val jobLauncher: JobLauncher,
     private val taskletJob: Job

@@ -5,7 +5,7 @@ import org.springframework.batch.core.JobParametersBuilder
 import org.springframework.batch.core.launch.JobLauncher
 import org.springframework.scheduling.annotation.Scheduled
 
-//@Component
+// @Component
 class ChunkBatchScheduler(
     private val jobLauncher: JobLauncher,
     private val chunkJob: Job
@@ -22,5 +22,4 @@ class ChunkBatchScheduler(
             println("❌ Chunk Job 실행 실패: ${e.message}")
         }
     }
-
 }
