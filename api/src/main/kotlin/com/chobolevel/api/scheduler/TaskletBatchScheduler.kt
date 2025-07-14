@@ -6,9 +6,9 @@ import org.springframework.batch.core.launch.JobLauncher
 import org.springframework.scheduling.annotation.Scheduled
 
 // @Component
-class BatchScheduler(
+class TaskletBatchScheduler(
     private val jobLauncher: JobLauncher,
-    private val job: Job
+    private val taskletJob: Job
 ) {
 
     @Scheduled(cron = "0/10 * * * * *")
@@ -17,7 +17,7 @@ class BatchScheduler(
             .addLong("run.id", System.currentTimeMillis())
             .toJobParameters()
         try {
-            jobLauncher.run(job, params)
+            jobLauncher.run(taskletJob, params)
         } catch (e: Exception) {
             println("❌ Tasklet Job 실행 실패: ${e.message}")
         }
