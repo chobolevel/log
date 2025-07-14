@@ -54,6 +54,12 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: 1234
+  # spring-boot-starter-batch 의존성을 포함하는 경우 기본적으로 모든 Job을 애플리케이션 시작 시 자동 실행
+  # 이는 JobLauncherApplicationRunner 컴포넌트 때문
+  # 아래 설정으로 자동 실행을 막을 수 있음
+  batch:
+    job:
+      enabled: false
   flyway:
     enabled: true
     baseline-version: 0
