@@ -12,16 +12,6 @@ CREATE TABLE BATCH_JOB_INSTANCE  (
                                    JOB_KEY VARCHAR(32) NOT NULL
 );
 
-CREATE TABLE BATCH_JOB_EXECUTION_PARAMS  (
-                                           JOB_EXECUTION_ID BIGINT NOT NULL ,
-                                           PARAMETER_NAME VARCHAR(100) NOT NULL ,
-                                           PARAMETER_TYPE VARCHAR(100) NOT NULL ,
-                                           PARAMETER_VALUE VARCHAR(2500) ,
-                                           IDENTIFYING CHAR(1) NOT NULL ,
-                                           constraint JOB_EXEC_PARAMS_FK foreign key (JOB_EXECUTION_ID)
-                                             references BATCH_JOB_EXECUTION(JOB_EXECUTION_ID)
-);
-
 CREATE TABLE BATCH_JOB_EXECUTION  (
                                     JOB_EXECUTION_ID BIGINT  PRIMARY KEY ,
                                     VERSION BIGINT,
@@ -36,6 +26,16 @@ CREATE TABLE BATCH_JOB_EXECUTION  (
                                     constraint JOB_INSTANCE_EXECUTION_FK foreign key (JOB_INSTANCE_ID)
                                       references BATCH_JOB_INSTANCE(JOB_INSTANCE_ID)
 ) ;
+
+CREATE TABLE BATCH_JOB_EXECUTION_PARAMS  (
+                                           JOB_EXECUTION_ID BIGINT NOT NULL ,
+                                           PARAMETER_NAME VARCHAR(100) NOT NULL ,
+                                           PARAMETER_TYPE VARCHAR(100) NOT NULL ,
+                                           PARAMETER_VALUE VARCHAR(2500) ,
+                                           IDENTIFYING CHAR(1) NOT NULL ,
+                                           constraint JOB_EXEC_PARAMS_FK foreign key (JOB_EXECUTION_ID)
+                                             references BATCH_JOB_EXECUTION(JOB_EXECUTION_ID)
+);
 
 CREATE TABLE BATCH_STEP_EXECUTION  (
                                      STEP_EXECUTION_ID BIGINT NOT NULL PRIMARY KEY ,
@@ -64,7 +64,7 @@ CREATE TABLE BATCH_STEP_EXECUTION  (
 CREATE TABLE BATCH_JOB_EXECUTION_CONTEXT  (
                                             JOB_EXECUTION_ID BIGINT PRIMARY KEY,
                                             SHORT_CONTEXT VARCHAR(2500) NOT NULL,
-                                            SERIALIZED_CONTEXT CLOB,
+                                            SERIALIZED_CONTEXT TEXT,
                                             constraint JOB_EXEC_CTX_FK foreign key (JOB_EXECUTION_ID)
                                               references BATCH_JOB_EXECUTION(JOB_EXECUTION_ID)
 ) ;
@@ -72,7 +72,7 @@ CREATE TABLE BATCH_JOB_EXECUTION_CONTEXT  (
 CREATE TABLE BATCH_STEP_EXECUTION_CONTEXT  (
                                              STEP_EXECUTION_ID BIGINT PRIMARY KEY,
                                              SHORT_CONTEXT VARCHAR(2500) NOT NULL,
-                                             SERIALIZED_CONTEXT CLOB,
+                                             SERIALIZED_CONTEXT TEXT,
                                              constraint STEP_EXEC_CTX_FK foreign key (STEP_EXECUTION_ID)
                                                references BATCH_STEP_EXECUTION(STEP_EXECUTION_ID)
 ) ;
