@@ -12,10 +12,11 @@ import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
 import com.chobolevel.domain.utils.EmailUtils
 import io.hypersistence.tsid.TSID
-import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.data.redis.core.HashOperations
 import org.springframework.http.HttpStatus
 import org.springframework.scheduling.annotation.Async
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -23,17 +24,15 @@ import org.springframework.transaction.annotation.Transactional
 class AuthService(
     private val tokenProvider: TokenProvider,
     private val authenticationManager: CustomAuthenticationManager,
-    private val redisTemplate: RedisTemplate<String, String>,
+    private val opsForHash: HashOperations<String, String, String>,
     private val authValidator: AuthValidator,
     private val emailUtils: EmailUtils
 ) {
 
-    private val opsForHash = redisTemplate.opsForHash<String, String>()
-
     @Transactional(readOnly = true)
     fun login(request: LoginRequestDto): JwtResponse {
         authValidator.validate(request)
-        val authenticationToken = when (request.loginType) {
+        val authenticationToken: UsernamePasswordAuthenticationToken = when (request.loginType) {
             UserLoginType.GENERAL -> UsernamePasswordAuthenticationToken(
                 "${request.email}/${request.loginType}",
                 request.password
@@ -41,8 +40,8 @@ class AuthService(
 
             else -> UsernamePasswordAuthenticationToken("${request.email}/${request.loginType}", request.socialId)
         }
-        val authentication = authenticationManager.authenticate(authenticationToken)
-        val result = tokenProvider.generateToken(authentication).also {
+        val authentication: Authentication = authenticationManager.authenticate(authenticationToken)
+        val result: JwtResponse = tokenProvider.generateToken(authentication).also {
             setRefreshToken(authentication.name, it.refreshToken)
         }
         return result
@@ -51,12 +50,12 @@ class AuthService(
     @Transactional(readOnly = true)
     fun reissue(refreshToken: String): JwtResponse {
         tokenProvider.validateToken(refreshToken)
-        val authentication = tokenProvider.getAuthentication(refreshToken) ?: throw ApiException(
+        val authentication: Authentication = tokenProvider.getAuthentication(refreshToken) ?: throw ApiException(
             errorCode = ErrorCode.INVALID_TOKEN,
             status = HttpStatus.UNAUTHORIZED,
             message = "토큰이 만료되었습니다. 재로그인 해주세요."
         )
-        val cachedUserId = getUserIdByRefreshToken(refreshToken)
+        val cachedUserId: String? = getUserIdByRefreshToken(refreshToken)
         if (cachedUserId == null || cachedUserId != authentication.name) {
             throw ApiException(
                 errorCode = ErrorCode.INVALID_TOKEN,
@@ -64,14 +63,14 @@ class AuthService(
                 message = "유효하지 않은 갱신 토큰입니다. 재로그인 해주세요."
             )
         }
-        val result = tokenProvider.generateToken(authentication)
+        val result: JwtResponse = tokenProvider.generateToken(authentication)
         return result
     }
 
     @Async
     fun asyncSendEmailVerificationCode(request: SendEmailVerificationCodeRequest) {
         authValidator.validate(request)
-        val authCode = TSID.fast().toString()
+        val authCode: String = TSID.fast().toString()
         opsForHash.put("email", request.email, authCode)
         emailUtils.sendEmail(
             email = request.email,
@@ -82,7 +81,7 @@ class AuthService(
 
     fun checkEmailVerificationCode(request: CheckEmailVerificationCodeRequest): String {
         authValidator.validate(request)
-        val cachedVerificationCode = opsForHash.get("email", request.email) ?: throw ApiException(
+        val cachedVerificationCode: String = opsForHash.get("email", request.email) ?: throw ApiException(
             errorCode = ErrorCode.A001,
             message = "이메일 인증 코드 전송 후 시도해 주세요."
         )
