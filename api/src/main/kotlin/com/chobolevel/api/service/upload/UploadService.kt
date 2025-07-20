@@ -10,6 +10,7 @@ import com.chobolevel.api.dto.upload.UploadResponseDto
 import com.chobolevel.api.service.upload.validator.UploadValidator
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import java.net.URL
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Date
@@ -26,14 +27,14 @@ class UploadService(
 
     fun getPresignedUrl(request: UploadRequestDto): UploadResponseDto {
         validator.validate(request)
-        val savedPath = createSavedPath(
+        val savedPath: String = createSavedPath(
             prefix = request.prefix,
             extension = request.extension
         )
-        val presignedRequest = createPresignedRequest(
+        val presignedRequest: GeneratePresignedUrlRequest = createPresignedRequest(
             savedPath = savedPath
         )
-        val presignedResponse = amazonS3.generatePresignedUrl(presignedRequest)
+        val presignedResponse: URL = amazonS3.generatePresignedUrl(presignedRequest)
         return UploadResponseDto(
             presignedUrl = presignedResponse.toString(),
             url = "${presignedResponse.protocol}://${presignedResponse.host}${presignedResponse.path}",
@@ -42,14 +43,14 @@ class UploadService(
     }
 
     private fun createSavedPath(prefix: String, extension: String): String {
-        val now = LocalDate.now()
-        val datePath = now.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"))
-        val uuid = UUID.randomUUID().toString()
+        val now: LocalDate = LocalDate.now()
+        val datePath: String = now.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"))
+        val uuid: String = UUID.randomUUID().toString()
         return "$prefix/$datePath/$uuid.$extension"
     }
 
     private fun createPresignedRequest(savedPath: String): GeneratePresignedUrlRequest {
-        val presignedRequest = GeneratePresignedUrlRequest(bucket, savedPath)
+        val presignedRequest: GeneratePresignedUrlRequest = GeneratePresignedUrlRequest(bucket, savedPath)
             .withMethod(HttpMethod.PUT)
             .withExpiration(Date(Date().time + TimeUnit.MINUTES.toMillis(10)))
         presignedRequest.addRequestParameter(
