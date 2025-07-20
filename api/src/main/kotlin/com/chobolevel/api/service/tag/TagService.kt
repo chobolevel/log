@@ -6,6 +6,7 @@ import com.chobolevel.api.dto.tag.UpdateTagRequestDto
 import com.chobolevel.api.service.tag.converter.TagConverter
 import com.chobolevel.api.service.tag.updater.TagUpdatable
 import com.chobolevel.api.service.tag.validator.UpdateTagValidatable
+import com.chobolevel.domain.entity.tag.Tag
 import com.chobolevel.domain.entity.tag.TagFinder
 import com.chobolevel.domain.entity.tag.TagOrderType
 import com.chobolevel.domain.entity.tag.TagQueryFilter
@@ -25,7 +26,7 @@ class TagService(
 
     @Transactional
     fun createPostTag(request: CreateTagRequestDto): Long {
-        val postTag = converter.convert(request)
+        val postTag: Tag = converter.convert(request)
         return repository.save(postTag).id!!
     }
 
@@ -35,12 +36,12 @@ class TagService(
         pagination: Pagination,
         orderTypes: List<TagOrderType>?
     ): PaginationResponseDto {
-        val postTags = finder.search(
+        val postTags: List<Tag> = finder.search(
             queryFilter = queryFilter,
             pagination = pagination,
             orderTypes = orderTypes
         )
-        val totalCount = finder.searchCount(queryFilter)
+        val totalCount: Long = finder.searchCount(queryFilter)
         return PaginationResponseDto(
             skipCount = pagination.offset,
             limitCount = pagination.limit,
@@ -51,15 +52,15 @@ class TagService(
 
     @Transactional
     fun updatePostTag(postTagId: Long, request: UpdateTagRequestDto): Long {
-        val postTag = finder.findById(postTagId)
         updateValidators.forEach { it.validate(request) }
+        val postTag: Tag = finder.findById(postTagId)
         updaters.sortedBy { it.order() }.forEach { it.markAsUpdate(request, postTag) }
         return postTag.id!!
     }
 
     @Transactional
     fun deletePostTag(postTagId: Long): Boolean {
-        val postTag = finder.findById(postTagId)
+        val postTag: Tag = finder.findById(postTagId)
         repository.delete(postTag)
         return true
     }
