@@ -2,7 +2,9 @@ package com.chobolevel.api.service.user
 
 import com.chobolevel.api.dto.user.image.CreateUserImageRequestDto
 import com.chobolevel.api.service.user.converter.UserImageConverter
+import com.chobolevel.domain.entity.user.User
 import com.chobolevel.domain.entity.user.UserFinder
+import com.chobolevel.domain.entity.user.image.UserImage
 import com.chobolevel.domain.entity.user.image.UserImageFinder
 import com.chobolevel.domain.entity.user.image.UserImageRepository
 import org.springframework.stereotype.Service
@@ -18,7 +20,7 @@ class UserImageService(
 
     @Transactional
     fun createUserImage(userId: Long, request: CreateUserImageRequestDto): Long {
-        val foundUser = userFinder.findById(userId)
+        val foundUser: User = userFinder.findById(userId)
         if (foundUser.profileImage != null) {
             foundUser.profileImage!!.delete()
         }
@@ -30,8 +32,8 @@ class UserImageService(
 
     @Transactional
     fun deleteUserImage(userId: Long, userImageId: Long): Boolean {
-        val foundUser = userFinder.findById(userId)
-        val userImage = finder.findByIdAndUserId(userImageId, foundUser.id!!)
+        val foundUser: User = userFinder.findById(userId)
+        val userImage: UserImage = finder.findByIdAndUserId(userImageId, foundUser.id!!)
         userImage.delete()
         return true
     }
