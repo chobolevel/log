@@ -8,6 +8,7 @@ import com.chobolevel.api.dto.user.UserResponseDto
 import com.chobolevel.api.service.user.converter.UserConverter
 import com.chobolevel.api.service.user.updater.UserUpdater
 import com.chobolevel.api.service.user.validator.UserValidator
+import com.chobolevel.domain.entity.user.User
 import com.chobolevel.domain.entity.user.UserFinder
 import com.chobolevel.domain.entity.user.UserOrderType
 import com.chobolevel.domain.entity.user.UserQueryFilter
@@ -30,7 +31,7 @@ class UserService(
     @Transactional
     fun createUser(request: CreateUserRequestDto): Long {
         validator.validate(request)
-        val user = converter.convert(request)
+        val user: User = converter.convert(request)
         return repository.save(user).id!!
     }
 
@@ -40,8 +41,8 @@ class UserService(
         pagination: Pagination,
         orderTypes: List<UserOrderType>?
     ): PaginationResponseDto {
-        val userList = finder.search(queryFilter, pagination, orderTypes)
-        val totalCount = finder.searchCount(queryFilter)
+        val userList: List<User> = finder.search(queryFilter, pagination, orderTypes)
+        val totalCount: Long = finder.searchCount(queryFilter)
         return PaginationResponseDto(
             skipCount = pagination.offset,
             limitCount = pagination.limit,
@@ -52,14 +53,14 @@ class UserService(
 
     @Transactional(readOnly = true)
     fun fetchUser(id: Long): UserResponseDto {
-        val user = finder.findById(id)
+        val user: User = finder.findById(id)
         return converter.convert(user)
     }
 
     @Transactional
     fun updateUser(id: Long, request: UpdateUserRequestDto): Long {
         validator.validate(request)
-        val user = finder.findById(id)
+        val user: User = finder.findById(id)
         updater.markAsUpdate(
             request = request,
             user = user
@@ -69,7 +70,7 @@ class UserService(
 
     @Transactional
     fun changePassword(id: Long, request: ChangeUserPasswordRequest): Long {
-        val user = finder.findById(id)
+        val user: User = finder.findById(id)
         validator.validate(
             request = request,
             entity = user,
@@ -80,7 +81,7 @@ class UserService(
 
     @Transactional
     fun resignUser(id: Long): Boolean {
-        val user = finder.findById(id)
+        val user: User = finder.findById(id)
         user.resign()
         return true
     }
