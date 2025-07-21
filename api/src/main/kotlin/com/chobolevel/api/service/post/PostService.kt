@@ -14,7 +14,9 @@ import com.chobolevel.domain.entity.post.PostOrderType
 import com.chobolevel.domain.entity.post.PostQueryFilter
 import com.chobolevel.domain.entity.post.PostRepository
 import com.chobolevel.domain.entity.post.tag.PostTag
+import com.chobolevel.domain.entity.tag.Tag
 import com.chobolevel.domain.entity.tag.TagFinder
+import com.chobolevel.domain.entity.user.User
 import com.chobolevel.domain.entity.user.UserFinder
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
@@ -39,12 +41,12 @@ class PostService(
 
     @Transactional
     fun createPost(userId: Long, request: CreatePostRequestDto): Long {
-        val foundUser = userFinder.findById(userId)
-        val post = converter.convert(request).also { post ->
+        val foundUser: User = userFinder.findById(userId)
+        val post: Post = converter.convert(request).also { post ->
             post.setBy(foundUser)
             request.tagIds.forEach { tagId ->
                 val postTag = PostTag()
-                val tag = tagFinder.findById(tagId)
+                val tag: Tag = tagFinder.findById(tagId)
                 postTag.setBy(post)
                 postTag.setBy(tag)
             }
@@ -64,12 +66,12 @@ class PostService(
         pagination: Pagination,
         orderTypes: List<PostOrderType>?
     ): PaginationResponseDto {
-        val posts = finder.search(
+        val posts: List<Post> = finder.search(
             queryFilter = queryFilter,
             pagination = pagination,
             orderTypes = orderTypes
         )
-        val totalCount = finder.searchCount(queryFilter)
+        val totalCount: Long = finder.searchCount(queryFilter)
         return PaginationResponseDto(
             skipCount = pagination.offset,
             limitCount = pagination.limit,
@@ -80,14 +82,14 @@ class PostService(
 
     @Transactional(readOnly = true)
     fun fetchPost(postId: Long): PostResponseDto {
-        val cachingKey = generateCachingKey(postId)
-        val cachedPost = redisTemplate.opsForValue().get(cachingKey)
+        val cachingKey: String = generateCachingKey(postId)
+        val cachedPost: PostResponseDto? = redisTemplate.opsForValue().get(cachingKey)
         // read caching pattern(cache(look) aside)
         when (cachedPost) {
             // cache miss
             null -> {
-                val post = finder.findById(postId)
-                val convertedPost = converter.convert(post)
+                val post: Post = finder.findById(postId)
+                val convertedPost: PostResponseDto = converter.convert(post)
                 redisTemplate.opsForValue().set(cachingKey, convertedPost, 10, TimeUnit.MINUTES)
                 return convertedPost
             }
@@ -99,7 +101,7 @@ class PostService(
     @Transactional
     fun updatePost(userId: Long, postId: Long, request: UpdatePostRequestDto): Long {
         updateValidators.forEach { it.validate(request) }
-        val post = finder.findById(postId)
+        val post: Post = finder.findById(postId)
         validateWriter(
             userId = userId,
             post = post
@@ -111,7 +113,7 @@ class PostService(
 
     @Transactional
     fun deletePost(userId: Long, postId: Long): Boolean {
-        val post = finder.findById(postId)
+        val post: Post = finder.findById(postId)
         validateWriter(
             userId = userId,
             post = post
