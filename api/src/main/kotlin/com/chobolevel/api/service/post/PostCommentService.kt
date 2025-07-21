@@ -6,12 +6,14 @@ import com.chobolevel.api.dto.post.comment.UpdatePostCommentRequestDto
 import com.chobolevel.api.service.post.converter.PostCommentConverter
 import com.chobolevel.api.service.post.updater.PostCommentUpdatable
 import com.chobolevel.api.service.post.validator.UpdatePostCommentValidatable
+import com.chobolevel.domain.entity.post.Post
 import com.chobolevel.domain.entity.post.PostFinder
 import com.chobolevel.domain.entity.post.comment.PostComment
 import com.chobolevel.domain.entity.post.comment.PostCommentFinder
 import com.chobolevel.domain.entity.post.comment.PostCommentOrderType
 import com.chobolevel.domain.entity.post.comment.PostCommentQueryFilter
 import com.chobolevel.domain.entity.post.comment.PostCommentRepository
+import com.chobolevel.domain.entity.user.User
 import com.chobolevel.domain.entity.user.UserFinder
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
@@ -32,9 +34,9 @@ class PostCommentService(
 
     @Transactional
     fun createPostComment(userId: Long, request: CreatePostCommentRequestDto): Long {
-        val post = postFinder.findById(request.postId)
-        val user = userFinder.findById(userId)
-        val postComment = converter.convert(request).also {
+        val post: Post = postFinder.findById(request.postId)
+        val user: User = userFinder.findById(userId)
+        val postComment: PostComment = converter.convert(request).also {
             it.setBy(post)
             it.setBy(user)
         }
@@ -47,12 +49,12 @@ class PostCommentService(
         pagination: Pagination,
         orderTypes: List<PostCommentOrderType>?
     ): PaginationResponseDto {
-        val postComments = finder.search(
+        val postComments: List<PostComment> = finder.search(
             queryFilter = queryFilter,
             pagination = pagination,
             orderTypes = orderTypes
         )
-        val totalCount = finder.searchCount(queryFilter)
+        val totalCount: Long = finder.searchCount(queryFilter)
         return PaginationResponseDto(
             skipCount = pagination.offset,
             limitCount = pagination.limit,
@@ -64,7 +66,7 @@ class PostCommentService(
     @Transactional
     fun updatePostComment(userId: Long, postCommentId: Long, request: UpdatePostCommentRequestDto): Long {
         updateValidators.forEach { it.validate(request) }
-        val postComment = finder.findById(postCommentId)
+        val postComment: PostComment = finder.findById(postCommentId)
         validateWriter(
             userId = userId,
             postComment = postComment,
@@ -75,7 +77,7 @@ class PostCommentService(
 
     @Transactional
     fun deletePostComment(userId: Long, postCommentId: Long): Boolean {
-        val postComment = finder.findById(postCommentId)
+        val postComment: PostComment = finder.findById(postCommentId)
         validateWriter(
             userId = userId,
             postComment = postComment,
