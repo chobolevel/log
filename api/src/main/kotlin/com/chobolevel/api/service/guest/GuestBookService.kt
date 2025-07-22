@@ -8,6 +8,7 @@ import com.chobolevel.api.dto.guest.UpdateGuestBookRequestDto
 import com.chobolevel.api.service.guest.converter.GuestBookConverter
 import com.chobolevel.api.service.guest.updater.GuestBookUpdater
 import com.chobolevel.api.service.guest.validator.GuestBookValidator
+import com.chobolevel.domain.entity.guest.GuestBook
 import com.chobolevel.domain.entity.guest.GuestBookFinder
 import com.chobolevel.domain.entity.guest.GuestBookOrderType
 import com.chobolevel.domain.entity.guest.GuestBookQueryFilter
@@ -32,7 +33,7 @@ class GuestBookService(
 
     @Transactional
     fun createGuestBook(request: CreateGuestBookRequestDto): Long {
-        val guestBook = converter.convert(request)
+        val guestBook: GuestBook = converter.convert(request)
         return repository.save(guestBook).id!!
     }
 
@@ -42,12 +43,12 @@ class GuestBookService(
         pagination: Pagination,
         orderTypes: List<GuestBookOrderType>?
     ): PaginationResponseDto {
-        val guestBookList = finder.search(
+        val guestBookList: List<GuestBook> = finder.search(
             queryFilter = queryFilter,
             pagination = pagination,
             orderTypes = orderTypes
         )
-        val totalCount = finder.searchCount(queryFilter)
+        val totalCount: Long = finder.searchCount(queryFilter)
         return PaginationResponseDto(
             skipCount = pagination.offset,
             limitCount = pagination.limit,
@@ -58,14 +59,14 @@ class GuestBookService(
 
     @Transactional(readOnly = true)
     fun fetchGuestBook(id: Long): GuestBookResponseDto {
-        val guestBook = finder.findById(id)
+        val guestBook: GuestBook = finder.findById(id)
         return converter.convert(guestBook)
     }
 
     @Transactional
     fun updateGuestBook(id: Long, request: UpdateGuestBookRequestDto): Long {
         validator.validate(request)
-        val guestBook = finder.findById(id)
+        val guestBook: GuestBook = finder.findById(id)
         validatePassword(
             rawPassword = request.password,
             encodedPassword = guestBook.password
@@ -76,7 +77,7 @@ class GuestBookService(
 
     @Transactional
     fun deleteGuestBook(id: Long, request: DeleteGuestBookRequestDto): Boolean {
-        val guestBook = finder.findById(id)
+        val guestBook: GuestBook = finder.findById(id)
         validatePassword(
             rawPassword = request.password,
             encodedPassword = guestBook.password
