@@ -3,6 +3,7 @@ package com.chobolevel.api.service.channel
 import com.chobolevel.api.dto.channel.message.CreateChannelMessageRequestDto
 import com.chobolevel.api.dto.common.PaginationResponseDto
 import com.chobolevel.api.service.channel.converter.ChannelMessageConverter
+import com.chobolevel.domain.entity.channel.Channel
 import com.chobolevel.domain.entity.channel.ChannelFinder
 import com.chobolevel.domain.entity.channel.message.ChannelMessage
 import com.chobolevel.domain.entity.channel.message.ChannelMessageFinder
@@ -31,13 +32,13 @@ class ChannelMessageService(
 
     @Transactional
     fun create(userId: Long, channelId: Long, request: CreateChannelMessageRequestDto): Long {
-        val user = userFinder.findById(userId)
-        val channel = channelFinder.findById(channelId)
-        val channelMessage = converter.convert(request).also {
+        val user: User = userFinder.findById(userId)
+        val channel: Channel = channelFinder.findById(channelId)
+        val channelMessage: ChannelMessage = converter.convert(request).also {
             it.setBy(channel)
             it.setBy(user)
         }
-        val savedChannelMessage = repository.save(channelMessage)
+        val savedChannelMessage: ChannelMessage = repository.save(channelMessage)
         template.convertAndSend(
             "/sub/channels/$channelId",
             converter.convert(savedChannelMessage)
@@ -51,12 +52,12 @@ class ChannelMessageService(
         pagination: Pagination,
         orderTypes: List<ChannelMessageOrderType>?
     ): PaginationResponseDto {
-        val channelMessage = finder.search(
+        val channelMessage: List<ChannelMessage> = finder.search(
             queryFilter = queryFilter,
             pagination = pagination,
             orderTypes = orderTypes
         )
-        val totalCount = finder.searchCount(queryFilter)
+        val totalCount: Long = finder.searchCount(queryFilter)
         return PaginationResponseDto(
             skipCount = pagination.offset,
             limitCount = pagination.limit,
@@ -67,8 +68,8 @@ class ChannelMessageService(
 
     @Transactional
     fun delete(workerId: Long, channelMessageId: Long): Boolean {
-        val worker = userFinder.findById(workerId)
-        val channelMessage = finder.findById(channelMessageId)
+        val worker: User = userFinder.findById(workerId)
+        val channelMessage: ChannelMessage = finder.findById(channelMessageId)
         validateWorker(
             worker = worker,
             channelMessage = channelMessage,

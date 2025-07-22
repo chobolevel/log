@@ -15,6 +15,7 @@ import com.chobolevel.domain.entity.channel.ChannelFinder
 import com.chobolevel.domain.entity.channel.ChannelOrderType
 import com.chobolevel.domain.entity.channel.ChannelQueryFilter
 import com.chobolevel.domain.entity.channel.ChannelRepository
+import com.chobolevel.domain.entity.channel.message.ChannelMessage
 import com.chobolevel.domain.entity.channel.message.ChannelMessageRepository
 import com.chobolevel.domain.entity.channel.message.ChannelMessageType
 import com.chobolevel.domain.entity.channel.user.ChannelUser
@@ -43,8 +44,8 @@ class ChannelService(
 
     @Transactional
     fun create(ownerId: Long, request: CreateChannelRequestDto): Long {
-        val owner = userFinder.findById(ownerId)
-        val channel = converter.convert(request).also { channel ->
+        val owner: User = userFinder.findById(ownerId)
+        val channel: Channel = converter.convert(request).also { channel ->
             channel.setBy(owner)
             // 채널 생성자를 참여자로
             ChannelUser().also { channelUser ->
@@ -53,7 +54,7 @@ class ChannelService(
             }
             // 참여자 생성
             request.userIds.map { userId ->
-                val user = userFinder.findById(userId)
+                val user: User = userFinder.findById(userId)
                 ChannelUser().also { channelUser ->
                     channelUser.setBy(channel)
                     channelUser.setBy(user)
@@ -69,12 +70,12 @@ class ChannelService(
         pagination: Pagination,
         orderTypes: List<ChannelOrderType>?
     ): PaginationResponseDto {
-        val channels = finder.search(
+        val channels: List<Channel> = finder.search(
             queryFilter = queryFilter,
             pagination = pagination,
             orderTypes = orderTypes
         )
-        val totalCount = finder.searchCount(queryFilter)
+        val totalCount: Long = finder.searchCount(queryFilter)
         return PaginationResponseDto(
             skipCount = pagination.offset,
             limitCount = pagination.limit,
@@ -85,7 +86,7 @@ class ChannelService(
 
     @Transactional(readOnly = true)
     fun getChannel(userId: Long, channelId: Long): ChannelResponseDto {
-        val channel = finder.findById(channelId)
+        val channel: Channel = finder.findById(channelId)
         channel.channelUsers.find { it.user?.id == userId } ?: throw ApiException(
             errorCode = ErrorCode.NOT_INVITED_CHANNEL,
             status = HttpStatus.BAD_REQUEST,
@@ -97,8 +98,8 @@ class ChannelService(
     @Transactional
     fun update(workerId: Long, channelId: Long, request: UpdateChannelRequestDto): Long {
         validator.validateWhenUpdate(request)
-        val worker = userFinder.findById(workerId)
-        val channel = finder.findById(channelId)
+        val worker: User = userFinder.findById(workerId)
+        val channel: Channel = finder.findById(channelId)
         validateWorker(
             worker = worker,
             channel = channel
@@ -112,8 +113,8 @@ class ChannelService(
 
     @Transactional
     fun exit(userId: Long, channelId: Long): Long {
-        val channel = finder.findById(channelId)
-        val channelUser = channel.channelUsers.find { it.user!!.id == userId }
+        val channel: Channel = finder.findById(channelId)
+        val channelUser: ChannelUser? = channel.channelUsers.find { it.user!!.id == userId }
         when (channelUser) {
             null -> {
                 throw ApiException(
@@ -155,11 +156,11 @@ class ChannelService(
             )
         }
         request.userIds.map { userId ->
-            val user = userFinder.findById(userId)
+            val user: User = userFinder.findById(userId)
             ChannelUser().also { channelUser ->
                 channelUser.setBy(channel)
                 channelUser.setBy(user)
-                val channelMessage = channelMessageConverter.convert(
+                val channelMessage: ChannelMessage = channelMessageConverter.convert(
                     CreateChannelMessageRequestDto(
                         type = ChannelMessageType.ENTER,
                         content = "${channelUser.user!!.nickname}님이 채널에 참가하였습니다."
@@ -168,7 +169,7 @@ class ChannelService(
                     it.setBy(channelUser.user!!)
                     it.setBy(channel)
                 }
-                val savedChannelMessage = channelMessageRepository.save(channelMessage)
+                val savedChannelMessage: ChannelMessage = channelMessageRepository.save(channelMessage)
                 template.convertAndSend(
                     "/sub/channels/${channel.id}",
                     channelMessageConverter.convert(savedChannelMessage)
@@ -180,8 +181,8 @@ class ChannelService(
 
     @Transactional
     fun delete(workerId: Long, channelId: Long): Boolean {
-        val worker = userFinder.findById(workerId)
-        val channel = finder.findById(channelId)
+        val worker: User = userFinder.findById(workerId)
+        val channel: Channel = finder.findById(channelId)
         validateWorker(
             worker = worker,
             channel = channel
