@@ -1,16 +1,20 @@
 package com.chobolevel.api.controller.v1.user
 
 import com.chobolevel.api.annotation.HasAuthorityUser
+import com.chobolevel.api.dto.common.PaginationResponseDto
 import com.chobolevel.api.dto.common.ResultResponse
 import com.chobolevel.api.dto.user.ChangeUserPasswordRequest
 import com.chobolevel.api.dto.user.CreateUserRequestDto
 import com.chobolevel.api.dto.user.UpdateUserRequestDto
+import com.chobolevel.api.dto.user.UserResponseDto
 import com.chobolevel.api.getUserId
 import com.chobolevel.api.service.user.UserService
 import com.chobolevel.api.service.user.query.UserQueryCreator
 import com.chobolevel.domain.entity.user.UserLoginType
 import com.chobolevel.domain.entity.user.UserOrderType
+import com.chobolevel.domain.entity.user.UserQueryFilter
 import com.chobolevel.domain.entity.user.UserRoleType
+import com.scrimmers.domain.dto.common.Pagination
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -40,7 +44,7 @@ class UserController(
         @Valid @RequestBody
         request: CreateUserRequestDto
     ): ResponseEntity<ResultResponse> {
-        val result = service.createUser(request)
+        val result: Long = service.createUser(request)
         return ResponseEntity.ok(ResultResponse(result))
     }
 
@@ -57,7 +61,7 @@ class UserController(
         @RequestParam(required = false) limitCount: Long?,
         @RequestParam(required = false) orderTypes: List<UserOrderType>?
     ): ResponseEntity<ResultResponse> {
-        val queryFilter = queryCreator.createQueryFilter(
+        val queryFilter: UserQueryFilter = queryCreator.createQueryFilter(
             email = email,
             loginType = loginType,
             nickname = nickname,
@@ -65,18 +69,18 @@ class UserController(
             resigned = resigned,
             excludeUserIds = excludeUserIds
         )
-        val pagination = queryCreator.createPaginationFilter(
+        val pagination: Pagination = queryCreator.createPaginationFilter(
             skipCount = skipCount,
             limitCount = limitCount
         )
-        val result = service.searchUserList(queryFilter, pagination, orderTypes)
+        val result: PaginationResponseDto = service.searchUserList(queryFilter, pagination, orderTypes)
         return ResponseEntity.ok(ResultResponse(result))
     }
 
     @Operation(summary = "회원 단건 조회 API")
     @GetMapping("/users/{id}")
     fun fetchUser(@PathVariable id: Long): ResponseEntity<ResultResponse> {
-        val result = service.fetchUser(id)
+        val result: UserResponseDto = service.fetchUser(id)
         return ResponseEntity.ok(ResultResponse(result))
     }
 
@@ -84,7 +88,7 @@ class UserController(
     @HasAuthorityUser
     @GetMapping("/users/me")
     fun myUser(principal: Principal): ResponseEntity<ResultResponse> {
-        val result = service.fetchUser(principal.getUserId())
+        val result: UserResponseDto = service.fetchUser(principal.getUserId())
         return ResponseEntity.ok(ResultResponse(result))
     }
 
@@ -96,7 +100,7 @@ class UserController(
         @RequestBody @Valid
         request: UpdateUserRequestDto
     ): ResponseEntity<ResultResponse> {
-        val result = service.updateUser(principal.getUserId(), request)
+        val result: Long = service.updateUser(principal.getUserId(), request)
         return ResponseEntity.ok(ResultResponse(result))
     }
 
@@ -107,7 +111,7 @@ class UserController(
         principal: Principal,
         @RequestBody request: ChangeUserPasswordRequest
     ): ResponseEntity<ResultResponse> {
-        val result = service.changePassword(principal.getUserId(), request)
+        val result: Long = service.changePassword(principal.getUserId(), request)
         return ResponseEntity.ok(ResultResponse(result))
     }
 
@@ -115,7 +119,7 @@ class UserController(
     @HasAuthorityUser
     @DeleteMapping("/users/me")
     fun resignUser(principal: Principal): ResponseEntity<ResultResponse> {
-        val result = service.resignUser(principal.getUserId())
+        val result: Boolean = service.resignUser(principal.getUserId())
         return ResponseEntity.ok(ResultResponse(result))
     }
 }
