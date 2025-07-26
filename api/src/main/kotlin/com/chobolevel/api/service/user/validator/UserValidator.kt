@@ -39,17 +39,11 @@ class UserValidator(
                 message = "닉네임은 영어 또는 한글만 사용할 수 있습니다."
             )
         }
-        when (request.loginType) {
-            UserLoginType.GENERAL -> {
-                if (!request.password!!.matches(passwordRegexp)) {
-                    throw ApiException(
-                        errorCode = ErrorCode.INVALID_PARAMETER,
-                        message = "비밀번호는 영문 + 숫자 + 특수문자 조합으로 8자리 이상이어야 합니다."
-                    )
-                }
-            }
-
-            else -> Unit
+        if (request.loginType == UserLoginType.GENERAL && !request.password!!.matches(passwordRegexp)) {
+            throw ApiException(
+                errorCode = ErrorCode.INVALID_PARAMETER,
+                message = "비밀번호는 영문 + 숫자 + 특수문자 조합으로 8자리 이상이어야 합니다."
+            )
         }
         if (finder.existsByEmail(request.email)) {
             throw ApiException(
