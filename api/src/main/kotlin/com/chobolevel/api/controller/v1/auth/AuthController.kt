@@ -4,6 +4,7 @@ import com.chobolevel.api.dto.auth.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.dto.auth.LoginRequestDto
 import com.chobolevel.api.dto.auth.SendEmailVerificationCodeRequest
 import com.chobolevel.api.dto.common.ResultResponse
+import com.chobolevel.api.dto.jwt.JwtResponse
 import com.chobolevel.api.getCookie
 import com.chobolevel.api.service.auth.AuthService
 import com.chobolevel.domain.exception.ApiException
@@ -42,12 +43,12 @@ class AuthController(
         @Valid @RequestBody
         request: LoginRequestDto
     ): ResponseEntity<ResultResponse> {
-        val result = service.login(request)
-        val accessTokenCookie = generateCookie(
+        val result: JwtResponse = service.login(request)
+        val accessTokenCookie: Cookie = generateCookie(
             key = accessTokenKey,
             value = result.accessToken
         )
-        val refreshTokenCookie = generateCookie(
+        val refreshTokenCookie: Cookie = generateCookie(
             key = refreshTokenKey,
             value = result.refreshToken
         )
@@ -59,16 +60,16 @@ class AuthController(
     @Operation(summary = "로그아웃 API")
     @PostMapping("/logout")
     fun logout(req: HttpServletRequest, res: HttpServletResponse): ResponseEntity<ResultResponse> {
-        val refreshToken = req.getCookie(refreshTokenKey)
+        val refreshToken: String? = req.getCookie(refreshTokenKey)
         if (refreshToken != null) {
             service.logout(refreshToken)
         }
-        val expiredAccessTokenCookie = generateCookie(
+        val expiredAccessTokenCookie: Cookie = generateCookie(
             key = "_cat",
             value = "",
             maxAge = 0
         )
-        val expiredRefreshTokenCookie = generateCookie(
+        val expiredRefreshTokenCookie: Cookie = generateCookie(
             key = "_crt",
             value = "",
             maxAge = 0
@@ -84,13 +85,13 @@ class AuthController(
         req: HttpServletRequest,
         res: HttpServletResponse,
     ): ResponseEntity<ResultResponse> {
-        val refreshToken = req.getCookie(refreshTokenKey) ?: throw ApiException(
+        val refreshToken: String = req.getCookie(refreshTokenKey) ?: throw ApiException(
             errorCode = ErrorCode.INVALID_TOKEN,
             status = HttpStatus.UNAUTHORIZED,
             message = "토큰이 만료되었습니다. 재로그인 해주세요."
         )
-        val result = service.reissue(refreshToken)
-        val newAccessTokenCookie = generateCookie(
+        val result: JwtResponse = service.reissue(refreshToken)
+        val newAccessTokenCookie: Cookie = generateCookie(
             key = accessTokenKey,
             value = result.accessToken
         )
@@ -114,7 +115,7 @@ class AuthController(
         @Valid @RequestBody
         request: CheckEmailVerificationCodeRequest
     ): ResponseEntity<ResultResponse> {
-        val result = service.checkEmailVerificationCode(request)
+        val result: String = service.checkEmailVerificationCode(request)
         return ResponseEntity.ok(ResultResponse(result))
     }
 
