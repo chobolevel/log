@@ -1,14 +1,18 @@
 package com.chobolevel.api.controller.v1.channel
 
 import com.chobolevel.api.annotation.HasAuthorityUser
+import com.chobolevel.api.dto.channel.ChannelResponseDto
 import com.chobolevel.api.dto.channel.CreateChannelRequestDto
 import com.chobolevel.api.dto.channel.InviteChannelRequestDto
 import com.chobolevel.api.dto.channel.UpdateChannelRequestDto
+import com.chobolevel.api.dto.common.PaginationResponseDto
 import com.chobolevel.api.dto.common.ResultResponse
 import com.chobolevel.api.getUserId
 import com.chobolevel.api.service.channel.ChannelService
 import com.chobolevel.api.service.channel.query.ChannelQueryCreator
 import com.chobolevel.domain.entity.channel.ChannelOrderType
+import com.chobolevel.domain.entity.channel.ChannelQueryFilter
+import com.scrimmers.domain.dto.common.Pagination
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -40,7 +44,7 @@ class ChannelController(
         @Valid @RequestBody
         request: CreateChannelRequestDto
     ): ResponseEntity<ResultResponse> {
-        val result = service.create(
+        val result: Long = service.create(
             ownerId = principal.getUserId(),
             request = request
         )
@@ -56,14 +60,14 @@ class ChannelController(
         @RequestParam(required = false) limitCount: Long?,
         @RequestParam(required = false) orderTypes: List<ChannelOrderType>?
     ): ResponseEntity<ResultResponse> {
-        val queryFilter = queryCreator.createQueryFilter(
+        val queryFilter: ChannelQueryFilter = queryCreator.createQueryFilter(
             userId = principal.getUserId(),
         )
-        val pagination = queryCreator.createPaginationFilter(
+        val pagination: Pagination = queryCreator.createPaginationFilter(
             skipCount = skipCount,
             limitCount = limitCount
         )
-        val result = service.getChannels(
+        val result: PaginationResponseDto = service.getChannels(
             queryFilter = queryFilter,
             pagination = pagination,
             orderTypes = orderTypes
@@ -75,7 +79,7 @@ class ChannelController(
     @HasAuthorityUser
     @GetMapping("/channels/{id}")
     fun getChannel(principal: Principal, @PathVariable("id") channelId: Long): ResponseEntity<ResultResponse> {
-        val result = service.getChannel(
+        val result: ChannelResponseDto = service.getChannel(
             userId = principal.getUserId(),
             channelId = channelId
         )
@@ -91,7 +95,7 @@ class ChannelController(
         @Valid @RequestBody
         request: UpdateChannelRequestDto
     ): ResponseEntity<ResultResponse> {
-        val result = service.update(
+        val result: Long = service.update(
             workerId = principal.getUserId(),
             channelId = channelId,
             request = request
@@ -103,7 +107,7 @@ class ChannelController(
     @HasAuthorityUser
     @PutMapping("/channels/{id}/exit")
     fun exitChannel(principal: Principal, @PathVariable("id") channelId: Long): ResponseEntity<ResultResponse> {
-        val result = service.exit(
+        val result: Long = service.exit(
             userId = principal.getUserId(),
             channelId = channelId
         )
@@ -119,7 +123,7 @@ class ChannelController(
         @Valid @RequestBody
         request: InviteChannelRequestDto
     ): ResponseEntity<ResultResponse> {
-        val result = service.invite(
+        val result: Long = service.invite(
             userId = principal.getUserId(),
             channelId = channelId,
             request = request
@@ -131,7 +135,7 @@ class ChannelController(
     @HasAuthorityUser
     @DeleteMapping("/channels/{id}")
     fun deleteChannel(principal: Principal, @PathVariable("id") channelId: Long): ResponseEntity<ResultResponse> {
-        val result = service.delete(
+        val result: Boolean = service.delete(
             workerId = principal.getUserId(),
             channelId = channelId
         )
