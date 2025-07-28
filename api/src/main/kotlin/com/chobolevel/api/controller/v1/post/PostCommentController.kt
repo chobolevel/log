@@ -1,6 +1,7 @@
 package com.chobolevel.api.controller.v1.post
 
 import com.chobolevel.api.annotation.HasAuthorityUser
+import com.chobolevel.api.dto.common.PaginationResponseDto
 import com.chobolevel.api.dto.common.ResultResponse
 import com.chobolevel.api.dto.post.comment.CreatePostCommentRequestDto
 import com.chobolevel.api.dto.post.comment.UpdatePostCommentRequestDto
@@ -9,6 +10,8 @@ import com.chobolevel.api.posttask.CreatePostCommentPostTask
 import com.chobolevel.api.service.post.PostCommentService
 import com.chobolevel.api.service.post.query.PostCommentQueryCreator
 import com.chobolevel.domain.entity.post.comment.PostCommentOrderType
+import com.chobolevel.domain.entity.post.comment.PostCommentQueryFilter
+import com.scrimmers.domain.dto.common.Pagination
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -41,7 +44,7 @@ class PostCommentController(
         @Valid @RequestBody
         request: CreatePostCommentRequestDto
     ): ResponseEntity<ResultResponse> {
-        val result = service.createPostComment(
+        val result: Long = service.createPostComment(
             userId = principal.getUserId(),
             request = request
         )
@@ -58,15 +61,15 @@ class PostCommentController(
         @RequestParam(required = false) limitCount: Long?,
         @RequestParam(required = false) orderTypes: List<PostCommentOrderType>?
     ): ResponseEntity<ResultResponse> {
-        val queryFilter = queryCreator.createQueryFilter(
+        val queryFilter: PostCommentQueryFilter = queryCreator.createQueryFilter(
             postId = postId,
             writerId = writerId
         )
-        val pagination = queryCreator.createPaginationFilter(
+        val pagination: Pagination = queryCreator.createPaginationFilter(
             skipCount = skipCount,
             limitCount = limitCount
         )
-        val result = service.searchPostComments(
+        val result: PaginationResponseDto = service.searchPostComments(
             queryFilter = queryFilter,
             pagination = pagination,
             orderTypes = orderTypes
@@ -83,7 +86,7 @@ class PostCommentController(
         @Valid @RequestBody
         request: UpdatePostCommentRequestDto
     ): ResponseEntity<ResultResponse> {
-        val result = service.updatePostComment(
+        val result: Long = service.updatePostComment(
             userId = principal.getUserId(),
             postCommentId = id,
             request = request
@@ -98,7 +101,7 @@ class PostCommentController(
         principal: Principal,
         @PathVariable("id") postCommentId: Long,
     ): ResponseEntity<ResultResponse> {
-        val result = service.deletePostComment(
+        val result: Boolean = service.deletePostComment(
             userId = principal.getUserId(),
             postCommentId = postCommentId,
         )
