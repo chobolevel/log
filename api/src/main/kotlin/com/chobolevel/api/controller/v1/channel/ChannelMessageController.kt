@@ -1,11 +1,14 @@
 package com.chobolevel.api.controller.v1.channel
 
 import com.chobolevel.api.annotation.HasAuthorityUser
+import com.chobolevel.api.dto.common.PaginationResponseDto
 import com.chobolevel.api.dto.common.ResultResponse
 import com.chobolevel.api.getUserId
 import com.chobolevel.api.service.channel.ChannelMessageService
 import com.chobolevel.api.service.channel.query.ChannelMessageQueryCreator
 import com.chobolevel.domain.entity.channel.message.ChannelMessageOrderType
+import com.chobolevel.domain.entity.channel.message.ChannelMessageQueryFilter
+import com.scrimmers.domain.dto.common.Pagination
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
@@ -51,14 +54,14 @@ class ChannelMessageController(
         @RequestParam(required = false) limitCount: Long?,
         @RequestParam(required = false) orderTypes: List<ChannelMessageOrderType>?
     ): ResponseEntity<ResultResponse> {
-        val queryFilter = queryCreator.createQueryFilter(
+        val queryFilter: ChannelMessageQueryFilter = queryCreator.createQueryFilter(
             channelId = channelId
         )
-        val pagination = queryCreator.createPaginationFilter(
+        val pagination: Pagination = queryCreator.createPaginationFilter(
             skipCount = skipCount,
             limitCount = limitCount,
         )
-        val result = service.getChannelMessages(
+        val result: PaginationResponseDto = service.getChannelMessages(
             queryFilter = queryFilter,
             pagination = pagination,
             orderTypes = listOfNotNull(ChannelMessageOrderType.CREATED_AT_DESC)
@@ -74,7 +77,7 @@ class ChannelMessageController(
         @PathVariable channelId: Long,
         @PathVariable channelMessageId: Long,
     ): ResponseEntity<ResultResponse> {
-        val result = service.delete(
+        val result: Boolean = service.delete(
             workerId = principal.getUserId(),
             channelMessageId = channelMessageId,
         )
