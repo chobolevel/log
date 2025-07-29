@@ -1,13 +1,17 @@
 package com.chobolevel.api.controller.v1.post
 
 import com.chobolevel.api.annotation.HasAuthorityUser
+import com.chobolevel.api.dto.common.PaginationResponseDto
 import com.chobolevel.api.dto.common.ResultResponse
 import com.chobolevel.api.dto.post.CreatePostRequestDto
+import com.chobolevel.api.dto.post.PostResponseDto
 import com.chobolevel.api.dto.post.UpdatePostRequestDto
 import com.chobolevel.api.getUserId
 import com.chobolevel.api.service.post.PostService
 import com.chobolevel.api.service.post.query.PostQueryCreator
 import com.chobolevel.domain.entity.post.PostOrderType
+import com.chobolevel.domain.entity.post.PostQueryFilter
+import com.scrimmers.domain.dto.common.Pagination
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -39,7 +43,7 @@ class PostController(
         @Valid @RequestBody
         request: CreatePostRequestDto
     ): ResponseEntity<ResultResponse> {
-        val result = service.createPost(
+        val result: Long = service.createPost(
             userId = principal.getUserId(),
             request = request
         )
@@ -57,17 +61,17 @@ class PostController(
         @RequestParam(required = false) limitCount: Long?,
         @RequestParam(required = false) orderTypes: List<PostOrderType>?
     ): ResponseEntity<ResultResponse> {
-        val queryFilter = queryCreator.createQueryFilter(
+        val queryFilter: PostQueryFilter = queryCreator.createQueryFilter(
             tagId = tagId,
             title = title,
             subTitle = subTitle,
             userId = userId
         )
-        val pagination = queryCreator.createPaginationFilter(
+        val pagination: Pagination = queryCreator.createPaginationFilter(
             skipCount = skipCount,
             limitCount = limitCount
         )
-        val result = service.searchPosts(
+        val result: PaginationResponseDto = service.searchPosts(
             queryFilter = queryFilter,
             pagination = pagination,
             orderTypes = orderTypes
@@ -78,7 +82,7 @@ class PostController(
     @Operation(summary = "게시글 단건 조회 API")
     @GetMapping("/posts/{id}")
     fun fetchPost(@PathVariable id: Long): ResponseEntity<ResultResponse> {
-        val result = service.fetchPost(
+        val result: PostResponseDto = service.fetchPost(
             postId = id
         )
         return ResponseEntity.ok(ResultResponse(result))
@@ -93,7 +97,7 @@ class PostController(
         @Valid @RequestBody
         request: UpdatePostRequestDto
     ): ResponseEntity<ResultResponse> {
-        val result = service.updatePost(
+        val result: Long = service.updatePost(
             userId = principal.getUserId(),
             postId = id,
             request = request
@@ -105,7 +109,7 @@ class PostController(
     @HasAuthorityUser
     @DeleteMapping("/posts/{id}")
     fun deletePost(principal: Principal, @PathVariable id: Long): ResponseEntity<ResultResponse> {
-        val result = service.deletePost(
+        val result: Boolean = service.deletePost(
             userId = principal.getUserId(),
             postId = id
         )

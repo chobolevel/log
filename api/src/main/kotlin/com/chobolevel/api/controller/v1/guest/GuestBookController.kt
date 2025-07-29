@@ -1,13 +1,17 @@
 package com.chobolevel.api.controller.v1.guest
 
+import com.chobolevel.api.dto.common.PaginationResponseDto
 import com.chobolevel.api.dto.common.ResultResponse
 import com.chobolevel.api.dto.guest.CreateGuestBookRequestDto
 import com.chobolevel.api.dto.guest.DeleteGuestBookRequestDto
+import com.chobolevel.api.dto.guest.GuestBookResponseDto
 import com.chobolevel.api.dto.guest.UpdateGuestBookRequestDto
 import com.chobolevel.api.posttask.CreateGuestBookPostTask
 import com.chobolevel.api.service.guest.GuestBookService
 import com.chobolevel.api.service.guest.query.GuestBookQueryCreator
 import com.chobolevel.domain.entity.guest.GuestBookOrderType
+import com.chobolevel.domain.entity.guest.GuestBookQueryFilter
+import com.scrimmers.domain.dto.common.Pagination
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -36,7 +40,7 @@ class GuestBookController(
         @Valid @RequestBody
         request: CreateGuestBookRequestDto
     ): ResponseEntity<ResultResponse> {
-        val result = service.createGuestBook(request)
+        val result: Long = service.createGuestBook(request)
         createPostTask.invoke()
         return ResponseEntity.ok(ResultResponse(result))
     }
@@ -49,14 +53,14 @@ class GuestBookController(
         @RequestParam(required = false) limitCount: Long?,
         @RequestParam(required = false) orderTypes: List<GuestBookOrderType>?
     ): ResponseEntity<ResultResponse> {
-        val queryFilter = queryCreator.createQueryFilter(
+        val queryFilter: GuestBookQueryFilter = queryCreator.createQueryFilter(
             guestName = guestName
         )
-        val pagination = queryCreator.createPaginationFilter(
+        val pagination: Pagination = queryCreator.createPaginationFilter(
             skipCount = skipCount,
             limitCount = limitCount
         )
-        val result = service.searchGuestBooks(
+        val result: PaginationResponseDto = service.searchGuestBooks(
             queryFilter = queryFilter,
             pagination = pagination,
             orderTypes = orderTypes
@@ -67,7 +71,7 @@ class GuestBookController(
     @Operation(summary = "방명록 단건 조회 API")
     @GetMapping("/guest-books/{id}")
     fun fetchGuestBook(@PathVariable id: Long): ResponseEntity<ResultResponse> {
-        val result = service.fetchGuestBook(id)
+        val result: GuestBookResponseDto = service.fetchGuestBook(id)
         return ResponseEntity.ok(ResultResponse(result))
     }
 
@@ -78,7 +82,7 @@ class GuestBookController(
         @Valid @RequestBody
         request: UpdateGuestBookRequestDto
     ): ResponseEntity<ResultResponse> {
-        val result = service.updateGuestBook(
+        val result: Long = service.updateGuestBook(
             id = id,
             request = request
         )
@@ -92,7 +96,7 @@ class GuestBookController(
         @Valid @RequestBody
         request: DeleteGuestBookRequestDto
     ): ResponseEntity<ResultResponse> {
-        val result = service.deleteGuestBook(
+        val result: Boolean = service.deleteGuestBook(
             id = id,
             request = request
         )
