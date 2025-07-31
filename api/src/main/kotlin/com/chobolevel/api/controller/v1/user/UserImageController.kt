@@ -32,7 +32,7 @@ class UserImageController(
         @Valid @RequestBody
         request: CreateUserImageRequestDto
     ): ResponseEntity<ResultResponse> {
-        val result = service.createUserImage(principal.getUserId(), request)
+        val result: Long = service.createUserImage(principal.getUserId(), request)
         return ResponseEntity.ok(ResultResponse(result))
     }
 
@@ -40,7 +40,7 @@ class UserImageController(
     @HasAuthorityUser
     @DeleteMapping("/users/images/{userImageId}")
     fun deleteUserImage(principal: Principal, @PathVariable userImageId: Long): ResponseEntity<ResultResponse> {
-        val result = service.deleteUserImage(principal.getUserId(), userImageId)
+        val result: Boolean = service.deleteUserImage(principal.getUserId(), userImageId)
         return ResponseEntity.ok(ResultResponse(result))
     }
 }
