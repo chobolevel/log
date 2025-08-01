@@ -38,8 +38,8 @@ class ExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun methodArgumentNotValidExceptionHandler(e: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
-        val errorCode = ErrorCode.INVALID_PARAMETER
-        val message = e.bindingResult.allErrors[0].defaultMessage ?: "유효하지 않은 파라미터가 있습니다."
+        val errorCode: ErrorCode = ErrorCode.INVALID_PARAMETER
+        val message: String = e.bindingResult.allErrors[0].defaultMessage ?: "유효하지 않은 파라미터가 있습니다."
         return ResponseEntity.badRequest().body(
             ErrorResponse(
                 errorCode = errorCode,
@@ -50,7 +50,7 @@ class ExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
     fun httpMessageNotReadableExceptionHandler(e: HttpMessageNotReadableException): ResponseEntity<ErrorResponse> {
-        val errorCode = ErrorCode.INVALID_FORMAT
+        val errorCode: ErrorCode = ErrorCode.INVALID_FORMAT
         val message = "요청 데이터 형식이 유효하지 않습니다."
         return ResponseEntity.badRequest().body(
             ErrorResponse(
@@ -62,9 +62,9 @@ class ExceptionHandler {
 
     @ExceptionHandler(ApiException::class)
     fun apiExceptionHandler(e: ApiException): ResponseEntity<ErrorResponse> {
-        val errorCode = e.errorCode!!
-        val status = e.status!!
-        val errorMessage = e.message!!
+        val errorCode: ErrorCode = e.errorCode!!
+        val status: HttpStatus = e.status!!
+        val errorMessage: String = e.message!!
         return ResponseEntity.status(status).body(
             ErrorResponse(
                 errorCode = errorCode,
