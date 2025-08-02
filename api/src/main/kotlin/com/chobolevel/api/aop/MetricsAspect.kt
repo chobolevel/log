@@ -15,7 +15,7 @@ class MetricsAspect(
 
     @Around("execution(org.springframework.http.ResponseEntity com.chobolevel.api.controller.v1.*.*.*(..))")
     fun methodExecution(pjp: ProceedingJoinPoint): Any {
-        val timer = Timer.start(meterRegistry)
+        val timer: Timer.Sample = Timer.start(meterRegistry)
         try {
             return pjp.proceed()
         } finally {
