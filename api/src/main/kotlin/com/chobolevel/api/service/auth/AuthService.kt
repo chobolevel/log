@@ -34,7 +34,7 @@ class AuthService(
     @Transactional(readOnly = true)
     fun login(request: LoginRequestDto): JwtResponse {
         authValidator.validate(request)
-        val authenticationToken: Authentication = when (request.loginType) {
+        val authenticationToken: UsernamePasswordAuthenticationToken = when (request.loginType) {
             UserLoginType.GENERAL -> UsernamePasswordAuthenticationToken(
                 "${request.email}/${request.loginType}",
                 request.password
@@ -83,7 +83,7 @@ class AuthService(
 
     fun checkEmailVerificationCode(request: CheckEmailVerificationCodeRequest): String {
         authValidator.validate(request)
-        val cachedVerificationCode: String? = opsForHash.get("email", request.email) ?: throw ApiException(
+        val cachedVerificationCode: String = opsForHash.get("email", request.email) ?: throw ApiException(
             errorCode = ErrorCode.A001,
             message = "이메일 인증 코드 전송 후 시도해 주세요."
         )
