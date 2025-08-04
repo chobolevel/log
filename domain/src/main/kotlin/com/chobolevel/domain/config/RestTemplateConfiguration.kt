@@ -15,7 +15,7 @@ class RestTemplateConfiguration {
 
     @Bean
     fun restTemplate(): RestTemplate {
-        val factory = createRequestFactory(5000, 5000)
+        val factory: OkHttp3ClientHttpRequestFactory = createRequestFactory(5000, 5000)
         return RestTemplate(factory)
     }
 
@@ -31,7 +31,7 @@ class RestTemplateConfiguration {
         dispatcher: Dispatcher? = Dispatcher()
     ): OkHttp3ClientHttpRequestFactory {
         val connectionPool = ConnectionPool(20, 10, TimeUnit.SECONDS)
-        val client = OkHttpClient.Builder()
+        val client: OkHttpClient = OkHttpClient.Builder()
             .readTimeout(readTimeout, TimeUnit.MILLISECONDS)
             .connectTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
             .connectionPool(connectionPool)
