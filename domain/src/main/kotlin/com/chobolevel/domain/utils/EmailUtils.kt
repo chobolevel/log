@@ -1,5 +1,6 @@
 package com.chobolevel.domain.utils
 
+import jakarta.mail.internet.MimeMessage
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
@@ -13,7 +14,7 @@ class EmailUtils(
 ) {
 
     fun sendEmail(email: String, subject: String, content: String) {
-        val mimeMessage = mailSender.createMimeMessage()
+        val mimeMessage: MimeMessage = mailSender.createMimeMessage()
         val helper = MimeMessageHelper(mimeMessage, "utf-8")
         helper.setFrom(from)
         helper.setTo(email)
@@ -23,7 +24,7 @@ class EmailUtils(
     }
 
     fun sendEmailByHtml(email: String, subject: String, content: String) {
-        val mimeMessage = mailSender.createMimeMessage()
+        val mimeMessage: MimeMessage = mailSender.createMimeMessage()
         val helper = MimeMessageHelper(mimeMessage, true, "utf-8")
         helper.setFrom(from)
         helper.setTo(email)
