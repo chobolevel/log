@@ -14,8 +14,8 @@ class GuestBookQueryCreator {
     }
 
     fun createPaginationFilter(skipCount: Long?, limitCount: Long?): Pagination {
-        val offset = skipCount ?: 0
-        val limit = limitCount ?: 10
+        val offset: Long = skipCount ?: 0
+        val limit: Long = limitCount ?: 10
         return Pagination(
             offset = offset,
             limit = limit

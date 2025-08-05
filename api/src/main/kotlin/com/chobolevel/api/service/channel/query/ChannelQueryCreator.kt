@@ -14,8 +14,8 @@ class ChannelQueryCreator {
     }
 
     fun createPaginationFilter(skipCount: Long?, limitCount: Long?): Pagination {
-        val offset = skipCount ?: 0
-        val limit = limitCount ?: 50
+        val offset: Long = skipCount ?: 0
+        val limit: Long = limitCount ?: 50
         return Pagination(
             offset = offset,
             limit = limit
