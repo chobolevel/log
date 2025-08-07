@@ -19,7 +19,7 @@ class OnceJwtAuthorizationFilter(
     ) {
         // session 사용하지 않기 때문에 context holder 인증 객체 있다면 넣어 주는 작업 수행
         // 토큰 없는 경우 다음 필터 수행
-        val accessToken = request.getCookie(accessTokenKey)
+        val accessToken: String? = request.getCookie(accessTokenKey)
         if (accessToken == null) {
             filterChain.doFilter(request, response)
             return
