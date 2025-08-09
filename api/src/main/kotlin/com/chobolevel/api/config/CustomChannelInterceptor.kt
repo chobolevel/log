@@ -11,15 +11,16 @@ import org.springframework.messaging.simp.stomp.StompCommand
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor
 import org.springframework.messaging.support.ChannelInterceptor
 import org.springframework.stereotype.Component
+import java.security.Principal
 
 @Primary
 @Component
 class CustomChannelInterceptor : ChannelInterceptor {
 
     override fun preSend(message: Message<*>, channel: MessageChannel): Message<*> {
-        val accessor = StompHeaderAccessor.wrap(message)
+        val accessor: StompHeaderAccessor = StompHeaderAccessor.wrap(message)
         if (accessor.command == StompCommand.CONNECT || accessor.command == StompCommand.SEND || accessor.command == StompCommand.SUBSCRIBE) {
-            val user = accessor.user
+            val user: Principal? = accessor.user
             if (user != null) {
                 accessor.sessionAttributes?.put("userId", user.getUserId())
             } else {
