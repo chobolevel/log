@@ -53,11 +53,11 @@ class ChannelService(
                 channelUser.setBy(owner)
             }
             // 참여자 생성
-            request.userIds.map { userId ->
-                val user: User = userFinder.findById(userId)
+            val participants: List<User> = userFinder.findByIds(request.userIds)
+            participants.forEach { participant: User ->
                 ChannelUser().also { channelUser ->
                     channelUser.setBy(channel)
-                    channelUser.setBy(user)
+                    channelUser.setBy(participant)
                 }
             }
         }

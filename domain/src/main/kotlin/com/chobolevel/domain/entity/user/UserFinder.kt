@@ -43,6 +43,10 @@ class UserFinder(
         )
     }
 
+    fun findByIds(ids: List<Long>): List<User> {
+        return repository.findByIdInAndResignedFalse(ids)
+    }
+
     fun existsByEmail(email: String): Boolean {
         return repository.existsByEmailAndResignedFalse(
             email = email,
