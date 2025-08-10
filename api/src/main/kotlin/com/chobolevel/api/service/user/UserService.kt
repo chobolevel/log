@@ -46,7 +46,7 @@ class UserService(
         return PaginationResponseDto(
             skipCount = pagination.offset,
             limitCount = pagination.limit,
-            data = userList.map { converter.convert(it) },
+            data = converter.convert(userList),
             totalCount = totalCount
         )
     }

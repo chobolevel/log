@@ -41,4 +41,8 @@ class UserConverter(
             updatedAt = entity.updatedAt!!.toInstant().toEpochMilli()
         )
     }
+
+    fun convert(entityList: List<User>): List<UserResponseDto> {
+        return entityList.map { convert(it) }
+    }
 }
