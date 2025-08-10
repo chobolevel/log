@@ -54,7 +54,7 @@ class UserService(
     @Transactional(readOnly = true)
     fun fetchUser(id: Long): UserResponseDto {
         val user: User = finder.findById(id)
-        return converter.convert(user)
+        return converter.convert(entity = user)
     }
 
     @Transactional
