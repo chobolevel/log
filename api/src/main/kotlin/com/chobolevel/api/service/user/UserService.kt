@@ -46,7 +46,7 @@ class UserService(
         return PaginationResponseDto(
             skipCount = pagination.offset,
             limitCount = pagination.limit,
-            data = userList.map { converter.convert(it) },
+            data = converter.convert(entityList = userList),
             totalCount = totalCount
         )
     }
@@ -54,7 +54,7 @@ class UserService(
     @Transactional(readOnly = true)
     fun fetchUser(id: Long): UserResponseDto {
         val user: User = finder.findById(id)
-        return converter.convert(user)
+        return converter.convert(entity = user)
     }
 
     @Transactional
