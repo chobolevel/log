@@ -1,10 +1,12 @@
 package com.chobolevel.api.api.users.service
 
 import com.chobolevel.api.common.dummy.users.DummyUser
+import com.chobolevel.api.dto.user.UserResponseDto
 import com.chobolevel.api.service.user.UserService
 import com.chobolevel.api.service.user.converter.UserConverter
 import com.chobolevel.api.service.user.updater.UserUpdater
 import com.chobolevel.api.service.user.validator.UserValidator
+import com.chobolevel.domain.entity.user.User
 import com.chobolevel.domain.entity.user.UserFinder
 import com.chobolevel.domain.entity.user.UserOrderType
 import com.chobolevel.domain.entity.user.UserQueryFilter
@@ -64,10 +66,13 @@ class UserServiceTest {
     @Test
     fun 회원목록조회() {
         // given
-        val dummyUser = DummyUser.toEntity()
-        val dummyUserResponse = DummyUser.toResponseDto()
-        val users = listOfNotNull(
+        val dummyUser: User = DummyUser.toEntity()
+        val dummyUserResponse: UserResponseDto = DummyUser.toResponseDto()
+        val users: List<User> = listOfNotNull(
             dummyUser
+        )
+        val dummyUserResponses: List<UserResponseDto> = listOfNotNull(
+            dummyUserResponse
         )
         val queryFilter = UserQueryFilter(
             email = null,
@@ -90,7 +95,7 @@ class UserServiceTest {
             )
         ).thenReturn(users)
         `when`(userFinder.searchCount(queryFilter)).thenReturn(users.size.toLong())
-        `when`(userConverter.convert(dummyUser)).thenReturn(dummyUserResponse)
+        `when`(userConverter.convert(users)).thenReturn(dummyUserResponses)
 
         // when
         val result = userService.searchUserList(
