@@ -40,4 +40,8 @@ class PostConverter(
             updatedAt = entity.updatedAt!!.toInstant().toEpochMilli()
         )
     }
+
+    fun convert(entities: List<Post>): List<PostResponseDto> {
+        return entities.map { convert(it) }
+    }
 }
