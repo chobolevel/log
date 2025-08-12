@@ -25,4 +25,8 @@ class TagConverter {
             updatedAt = entity.updatedAt!!.toInstant().toEpochMilli()
         )
     }
+
+    fun convert(entities: List<Tag>): List<TagResponseDto> {
+        return entities.map { convert(it) }
+    }
 }

@@ -45,7 +45,7 @@ class TagService(
         return PaginationResponseDto(
             skipCount = pagination.offset,
             limitCount = pagination.limit,
-            data = postTags.map { converter.convert(it) },
+            data = converter.convert(entities = postTags),
             totalCount = totalCount
         )
     }

@@ -15,7 +15,7 @@ class UserConverter(
 ) {
 
     fun convert(request: CreateUserRequestDto): User {
-        val password = when (request.loginType) {
+        val password: String = when (request.loginType) {
             UserLoginType.GENERAL -> passwordEncoder.encode(request.password)
             else -> passwordEncoder.encode(request.socialId)
         }

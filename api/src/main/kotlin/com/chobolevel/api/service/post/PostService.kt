@@ -75,7 +75,7 @@ class PostService(
         return PaginationResponseDto(
             skipCount = pagination.offset,
             limitCount = pagination.limit,
-            data = posts.map { converter.convert(it) },
+            data = converter.convert(entities = posts),
             totalCount = totalCount
         )
     }
