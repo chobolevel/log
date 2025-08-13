@@ -41,15 +41,19 @@ class PostService(
 
     @Transactional
     fun createPost(userId: Long, request: CreatePostRequestDto): Long {
-        val foundUser: User = userFinder.findById(userId)
+        val writer: User = userFinder.findById(userId)
         val post: Post = converter.convert(request).also { post ->
-            post.setBy(foundUser)
-            request.tagIds.forEach { tagId ->
-                val postTag = PostTag()
-                val tag: Tag = tagFinder.findById(tagId)
-                postTag.setBy(post)
-                postTag.setBy(tag)
+            post.setBy(writer)
+
+            val tags: List<Tag> = tagFinder.findByIds(request.tagIds)
+            // 뭔가 조잡한 느낌
+            tags.forEach { tag ->
+                PostTag().also { postTag ->
+                    postTag.setBy(post)
+                    postTag.setBy(tag)
+                }
             }
+
             if (request.thumbNailIMage != null) {
                 postImageConverter.convert(request.thumbNailIMage).also {
                     it.setBy(post)

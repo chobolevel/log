@@ -23,6 +23,10 @@ class TagFinder(
         )
     }
 
+    fun findByIds(ids: List<Long>): List<Tag> {
+        return repository.findByIdInAndDeletedFalse(ids)
+    }
+
     fun search(
         queryFilter: TagQueryFilter,
         pagination: Pagination,
