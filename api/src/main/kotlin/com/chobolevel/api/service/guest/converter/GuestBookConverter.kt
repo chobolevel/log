@@ -28,4 +28,8 @@ class GuestBookConverter(
             updatedAt = entity.updatedAt!!.toInstant().toEpochMilli()
         )
     }
+
+    fun convert(entities: List<GuestBook>): List<GuestBookResponseDto> {
+        return entities.map { convert(it) }
+    }
 }

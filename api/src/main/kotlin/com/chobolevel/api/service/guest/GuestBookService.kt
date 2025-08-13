@@ -52,7 +52,7 @@ class GuestBookService(
         return PaginationResponseDto(
             skipCount = pagination.offset,
             limitCount = pagination.limit,
-            data = guestBookList.map { converter.convert(it) },
+            data = converter.convert(entities = guestBookList),
             totalCount = totalCount
         )
     }

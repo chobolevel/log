@@ -26,4 +26,8 @@ class PostCommentConverter(
             updatedAt = entity.updatedAt!!.toInstant().toEpochMilli()
         )
     }
+
+    fun convert(entities: List<PostComment>): List<PostCommentResponseDto> {
+        return entities.map { convert(it) }
+    }
 }

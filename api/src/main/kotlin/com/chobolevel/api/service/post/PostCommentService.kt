@@ -35,10 +35,10 @@ class PostCommentService(
     @Transactional
     fun createPostComment(userId: Long, request: CreatePostCommentRequestDto): Long {
         val post: Post = postFinder.findById(request.postId)
-        val user: User = userFinder.findById(userId)
+        val writer: User = userFinder.findById(userId)
         val postComment: PostComment = converter.convert(request).also {
             it.setBy(post)
-            it.setBy(user)
+            it.setBy(writer)
         }
         return repository.save(postComment).id!!
     }
@@ -58,7 +58,7 @@ class PostCommentService(
         return PaginationResponseDto(
             skipCount = pagination.offset,
             limitCount = pagination.limit,
-            data = postComments.map { converter.convert(it) },
+            data = converter.convert(entities = postComments),
             totalCount = totalCount,
         )
     }
