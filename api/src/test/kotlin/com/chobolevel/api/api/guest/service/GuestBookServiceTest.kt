@@ -1,10 +1,12 @@
 package com.chobolevel.api.api.guest.service
 
 import com.chobolevel.api.common.dummy.guest.DummyGuestBook
+import com.chobolevel.api.dto.guest.GuestBookResponseDto
 import com.chobolevel.api.service.guest.GuestBookService
 import com.chobolevel.api.service.guest.converter.GuestBookConverter
 import com.chobolevel.api.service.guest.updater.GuestBookUpdater
 import com.chobolevel.api.service.guest.validator.GuestBookValidator
+import com.chobolevel.domain.entity.guest.GuestBook
 import com.chobolevel.domain.entity.guest.GuestBookFinder
 import com.chobolevel.domain.entity.guest.GuestBookOrderType
 import com.chobolevel.domain.entity.guest.GuestBookQueryFilter
@@ -65,10 +67,13 @@ class GuestBookServiceTest {
     @Test
     fun 방명록_목록_조회() {
         // given
-        val dummyGuestBook = DummyGuestBook.toEntity()
-        val dummyGuestBookResponse = DummyGuestBook.toResponseDto()
-        val dummyGuestBooks = listOfNotNull(
+        val dummyGuestBook: GuestBook = DummyGuestBook.toEntity()
+        val dummyGuestBookResponse: GuestBookResponseDto = DummyGuestBook.toResponseDto()
+        val dummyGuestBooks: List<GuestBook> = listOfNotNull(
             dummyGuestBook
+        )
+        val dummyGuestBookResponses: List<GuestBookResponseDto> = listOfNotNull(
+            dummyGuestBookResponse
         )
         val queryFilter = GuestBookQueryFilter(
             guestName = null
@@ -80,7 +85,7 @@ class GuestBookServiceTest {
         val orderTypes = emptyList<GuestBookOrderType>()
         `when`(finder.search(queryFilter, pagination, orderTypes)).thenReturn(dummyGuestBooks)
         `when`(finder.searchCount(queryFilter)).thenReturn(dummyGuestBooks.size.toLong())
-        `when`(converter.convert(dummyGuestBook)).thenReturn(dummyGuestBookResponse)
+        `when`(converter.convert(dummyGuestBooks)).thenReturn(dummyGuestBookResponses)
 
         // when
         val result = service.searchGuestBooks(
