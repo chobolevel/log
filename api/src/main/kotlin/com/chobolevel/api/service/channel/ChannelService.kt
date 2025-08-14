@@ -79,7 +79,7 @@ class ChannelService(
         return PaginationResponseDto(
             skipCount = pagination.offset,
             limitCount = pagination.limit,
-            data = channels.map { converter.convert(it) },
+            data = converter.convert(entities = channels),
             totalCount = totalCount
         )
     }
