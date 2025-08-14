@@ -26,4 +26,8 @@ class ChannelConverter(
             updatedAt = entity.updatedAt!!.toInstant().toEpochMilli()
         )
     }
+
+    fun convert(entities: List<Channel>): List<ChannelResponseDto> {
+        return entities.map { convert(it) }
+    }
 }
