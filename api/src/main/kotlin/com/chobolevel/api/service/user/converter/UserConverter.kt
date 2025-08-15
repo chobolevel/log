@@ -42,7 +42,7 @@ class UserConverter(
         )
     }
 
-    fun convert(entityList: List<User>): List<UserResponseDto> {
-        return entityList.map { convert(it) }
+    fun convert(entities: List<User>): List<UserResponseDto> {
+        return entities.map { convert(it) }
     }
 }

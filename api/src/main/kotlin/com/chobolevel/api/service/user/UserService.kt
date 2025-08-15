@@ -7,12 +7,13 @@ import com.chobolevel.api.dto.user.UpdateUserRequestDto
 import com.chobolevel.api.dto.user.UserResponseDto
 import com.chobolevel.api.service.user.converter.UserConverter
 import com.chobolevel.api.service.user.updater.UserUpdater
-import com.chobolevel.api.service.user.validator.UserValidator
+import com.chobolevel.api.service.user.validator.UserBusinessValidator
 import com.chobolevel.domain.entity.user.User
 import com.chobolevel.domain.entity.user.UserFinder
 import com.chobolevel.domain.entity.user.UserOrderType
 import com.chobolevel.domain.entity.user.UserQueryFilter
 import com.chobolevel.domain.entity.user.UserRepository
+import com.chobolevel.domain.entity.user.UserUpdateMask
 import com.scrimmers.domain.dto.common.Pagination
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
@@ -23,14 +24,15 @@ class UserService(
     private val repository: UserRepository,
     private val finder: UserFinder,
     private val converter: UserConverter,
-    private val validator: UserValidator,
+    private val validator: UserBusinessValidator,
     private val updater: UserUpdater,
     private val passwordEncoder: BCryptPasswordEncoder
 ) {
 
     @Transactional
     fun createUser(request: CreateUserRequestDto): Long {
-        validator.validate(request)
+        validator.validateEmailExists(email = request.email)
+        validator.validateNicknameExists(nickname = request.nickname)
         val user: User = converter.convert(request)
         return repository.save(user).id!!
     }
@@ -41,12 +43,18 @@ class UserService(
         pagination: Pagination,
         orderTypes: List<UserOrderType>?
     ): PaginationResponseDto {
-        val userList: List<User> = finder.search(queryFilter, pagination, orderTypes)
-        val totalCount: Long = finder.searchCount(queryFilter)
+        val users: List<User> = finder.search(
+            queryFilter = queryFilter,
+            pagination = pagination,
+            orderTypes = orderTypes
+        )
+        val totalCount: Long = finder.searchCount(
+            queryFilter = queryFilter,
+        )
         return PaginationResponseDto(
             skipCount = pagination.offset,
             limitCount = pagination.limit,
-            data = converter.convert(entityList = userList),
+            data = converter.convert(entities = users),
             totalCount = totalCount
         )
     }
@@ -59,7 +67,9 @@ class UserService(
 
     @Transactional
     fun updateUser(id: Long, request: UpdateUserRequestDto): Long {
-        validator.validate(request)
+        if (request.updateMask.contains(UserUpdateMask.NICKNAME)) {
+            validator.validateNicknameExists(nickname = request.nickname!!)
+        }
         val user: User = finder.findById(id)
         updater.markAsUpdate(
             request = request,
@@ -71,9 +81,9 @@ class UserService(
     @Transactional
     fun changePassword(id: Long, request: ChangeUserPasswordRequest): Long {
         val user: User = finder.findById(id)
-        validator.validate(
-            request = request,
-            entity = user,
+        validator.validatePasswordMatch(
+            rawPassword = request.curPassword,
+            encodedPassword = user.password
         )
         user.password = passwordEncoder.encode(request.newPassword)
         return user.id!!

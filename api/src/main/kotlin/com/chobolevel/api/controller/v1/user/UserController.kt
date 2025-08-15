@@ -10,6 +10,7 @@ import com.chobolevel.api.dto.user.UserResponseDto
 import com.chobolevel.api.getUserId
 import com.chobolevel.api.service.user.UserService
 import com.chobolevel.api.service.user.query.UserQueryCreator
+import com.chobolevel.api.service.user.validator.UserParameterValidator
 import com.chobolevel.domain.entity.user.UserLoginType
 import com.chobolevel.domain.entity.user.UserOrderType
 import com.chobolevel.domain.entity.user.UserQueryFilter
@@ -34,6 +35,7 @@ import java.security.Principal
 @RestController
 @RequestMapping("/api/v1")
 class UserController(
+    private val validator: UserParameterValidator,
     private val service: UserService,
     private val queryCreator: UserQueryCreator
 ) {
@@ -44,6 +46,7 @@ class UserController(
         @Valid @RequestBody
         request: CreateUserRequestDto
     ): ResponseEntity<ResultResponse> {
+        validator.validate(request = request)
         val result: Long = service.createUser(request)
         return ResponseEntity.ok(ResultResponse(result))
     }
@@ -100,6 +103,7 @@ class UserController(
         @RequestBody @Valid
         request: UpdateUserRequestDto
     ): ResponseEntity<ResultResponse> {
+        validator.validate(request = request)
         val result: Long = service.updateUser(principal.getUserId(), request)
         return ResponseEntity.ok(ResultResponse(result))
     }
@@ -111,6 +115,7 @@ class UserController(
         principal: Principal,
         @RequestBody request: ChangeUserPasswordRequest
     ): ResponseEntity<ResultResponse> {
+        validator.validate(request = request)
         val result: Long = service.changePassword(principal.getUserId(), request)
         return ResponseEntity.ok(ResultResponse(result))
     }
