@@ -5,7 +5,7 @@ import com.chobolevel.api.dto.user.UserResponseDto
 import com.chobolevel.api.service.user.UserService
 import com.chobolevel.api.service.user.converter.UserConverter
 import com.chobolevel.api.service.user.updater.UserUpdater
-import com.chobolevel.api.service.user.validator.UserValidator
+import com.chobolevel.api.service.user.validator.UserBusinessValidator
 import com.chobolevel.domain.entity.user.User
 import com.chobolevel.domain.entity.user.UserFinder
 import com.chobolevel.domain.entity.user.UserOrderType
@@ -36,7 +36,7 @@ class UserServiceTest {
     private lateinit var userConverter: UserConverter
 
     @Mock
-    private lateinit var userValidator: UserValidator
+    private lateinit var userValidator: UserBusinessValidator
 
     @Mock
     private lateinit var userUpdater: UserUpdater
@@ -136,7 +136,6 @@ class UserServiceTest {
         // given
         val dummyUser = DummyUser.toEntity()
         val request = DummyUser.toUpdateRequestDto()
-        `when`(userValidator.validate(request)).thenCallRealMethod()
         `when`(userFinder.findById(dummyUser.id!!)).thenReturn(dummyUser)
         `when`(userUpdater.markAsUpdate(request, dummyUser)).thenCallRealMethod()
 

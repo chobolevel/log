@@ -19,8 +19,10 @@ enum class ErrorCode {
     A002, // email verification code not match
 
     // USER
-    // NOT FOUND
-    U001,
+    USER_NOT_FOUND, // not found
+    USER_EMAIL_ALREADY_EXISTS, // email already exists
+    USER_NICKNAME_ALREADY_EXISTS, // nickname already exists
+    USER_PASSWORD_NOT_MATCH, // password not match
 
     // USER IMAGE
     UI001,
