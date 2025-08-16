@@ -7,6 +7,7 @@ import com.chobolevel.api.dto.tag.CreateTagRequestDto
 import com.chobolevel.api.dto.tag.UpdateTagRequestDto
 import com.chobolevel.api.service.tag.TagService
 import com.chobolevel.api.service.tag.query.TagQueryCreator
+import com.chobolevel.api.service.tag.validator.TagParameterValidator
 import com.chobolevel.domain.entity.tag.TagOrderType
 import com.chobolevel.domain.entity.tag.TagQueryFilter
 import com.scrimmers.domain.dto.common.Pagination
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/v1")
 class PostTagController(
+    private val validator: TagParameterValidator,
     private val service: TagService,
     private val queryCreator: TagQueryCreator
 ) {
@@ -70,6 +72,7 @@ class PostTagController(
         @Valid @RequestBody
         request: UpdateTagRequestDto
     ): ResponseEntity<ResultResponse> {
+        validator.validate(request = request)
         val result: Long = service.updatePostTag(
             postTagId = id,
             request = request

@@ -8,9 +8,9 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 
 @Component
-class UpdateTagValidator : UpdateTagValidatable {
+class TagParameterValidator {
 
-    override fun validate(request: UpdateTagRequestDto) {
+    fun validate(request: UpdateTagRequestDto) {
         request.updateMask.forEach {
             when (it) {
                 TagUpdateMask.NAME -> {
