@@ -9,6 +9,7 @@ import com.chobolevel.api.dto.post.UpdatePostRequestDto
 import com.chobolevel.api.getUserId
 import com.chobolevel.api.service.post.PostService
 import com.chobolevel.api.service.post.query.PostQueryCreator
+import com.chobolevel.api.service.post.validator.PostParameterValidator
 import com.chobolevel.domain.entity.post.PostOrderType
 import com.chobolevel.domain.entity.post.PostQueryFilter
 import com.scrimmers.domain.dto.common.Pagination
@@ -31,6 +32,7 @@ import java.security.Principal
 @RestController
 @RequestMapping("/api/v1")
 class PostController(
+    private val validator: PostParameterValidator,
     private val service: PostService,
     private val queryCreator: PostQueryCreator
 ) {
@@ -97,6 +99,7 @@ class PostController(
         @Valid @RequestBody
         request: UpdatePostRequestDto
     ): ResponseEntity<ResultResponse> {
+        validator.validate(request = request)
         val result: Long = service.updatePost(
             userId = principal.getUserId(),
             postId = id,
