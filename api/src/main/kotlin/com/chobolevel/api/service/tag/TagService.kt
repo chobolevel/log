@@ -5,7 +5,6 @@ import com.chobolevel.api.dto.tag.CreateTagRequestDto
 import com.chobolevel.api.dto.tag.UpdateTagRequestDto
 import com.chobolevel.api.service.tag.converter.TagConverter
 import com.chobolevel.api.service.tag.updater.TagUpdatable
-import com.chobolevel.api.service.tag.validator.UpdateTagValidatable
 import com.chobolevel.domain.entity.tag.Tag
 import com.chobolevel.domain.entity.tag.TagFinder
 import com.chobolevel.domain.entity.tag.TagOrderType
@@ -20,7 +19,6 @@ class TagService(
     private val repository: TagRepository,
     private val finder: TagFinder,
     private val converter: TagConverter,
-    private val updateValidators: List<UpdateTagValidatable>,
     private val updaters: List<TagUpdatable>
 ) {
 
@@ -52,7 +50,6 @@ class TagService(
 
     @Transactional
     fun updatePostTag(postTagId: Long, request: UpdateTagRequestDto): Long {
-        updateValidators.forEach { it.validate(request) }
         val postTag: Tag = finder.findById(postTagId)
         updaters.sortedBy { it.order() }.forEach { it.markAsUpdate(request, postTag) }
         return postTag.id!!

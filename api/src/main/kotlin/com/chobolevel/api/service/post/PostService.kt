@@ -7,7 +7,6 @@ import com.chobolevel.api.dto.post.UpdatePostRequestDto
 import com.chobolevel.api.service.post.converter.PostConverter
 import com.chobolevel.api.service.post.converter.PostImageConverter
 import com.chobolevel.api.service.post.updater.PostUpdatable
-import com.chobolevel.api.service.post.validator.UpdatePostValidatable
 import com.chobolevel.domain.entity.post.Post
 import com.chobolevel.domain.entity.post.PostFinder
 import com.chobolevel.domain.entity.post.PostOrderType
@@ -34,7 +33,6 @@ class PostService(
     private val tagFinder: TagFinder,
     private val converter: PostConverter,
     private val postImageConverter: PostImageConverter,
-    private val updateValidators: List<UpdatePostValidatable>,
     private val updaters: List<PostUpdatable>,
     private val redisTemplate: RedisTemplate<String, PostResponseDto>
 ) {
@@ -104,7 +102,6 @@ class PostService(
 
     @Transactional
     fun updatePost(userId: Long, postId: Long, request: UpdatePostRequestDto): Long {
-        updateValidators.forEach { it.validate(request) }
         val post: Post = finder.findById(postId)
         validateWriter(
             userId = userId,
