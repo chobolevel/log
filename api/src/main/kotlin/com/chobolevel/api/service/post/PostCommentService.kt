@@ -5,7 +5,6 @@ import com.chobolevel.api.dto.post.comment.CreatePostCommentRequestDto
 import com.chobolevel.api.dto.post.comment.UpdatePostCommentRequestDto
 import com.chobolevel.api.service.post.converter.PostCommentConverter
 import com.chobolevel.api.service.post.updater.PostCommentUpdatable
-import com.chobolevel.api.service.post.validator.UpdatePostCommentValidatable
 import com.chobolevel.domain.entity.post.Post
 import com.chobolevel.domain.entity.post.PostFinder
 import com.chobolevel.domain.entity.post.comment.PostComment
@@ -28,7 +27,6 @@ class PostCommentService(
     private val postFinder: PostFinder,
     private val userFinder: UserFinder,
     private val converter: PostCommentConverter,
-    private val updateValidators: List<UpdatePostCommentValidatable>,
     private val updaters: List<PostCommentUpdatable>,
 ) {
 
@@ -65,7 +63,6 @@ class PostCommentService(
 
     @Transactional
     fun updatePostComment(userId: Long, postCommentId: Long, request: UpdatePostCommentRequestDto): Long {
-        updateValidators.forEach { it.validate(request) }
         val postComment: PostComment = finder.findById(postCommentId)
         validateWriter(
             userId = userId,
