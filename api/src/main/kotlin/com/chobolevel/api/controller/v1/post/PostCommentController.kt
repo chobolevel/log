@@ -9,6 +9,7 @@ import com.chobolevel.api.getUserId
 import com.chobolevel.api.posttask.CreatePostCommentPostTask
 import com.chobolevel.api.service.post.PostCommentService
 import com.chobolevel.api.service.post.query.PostCommentQueryCreator
+import com.chobolevel.api.service.post.validator.PostCommentParameterValidator
 import com.chobolevel.domain.entity.post.comment.PostCommentOrderType
 import com.chobolevel.domain.entity.post.comment.PostCommentQueryFilter
 import com.scrimmers.domain.dto.common.Pagination
@@ -31,6 +32,7 @@ import java.security.Principal
 @RestController
 @RequestMapping("/api/v1")
 class PostCommentController(
+    private val validator: PostCommentParameterValidator,
     private val service: PostCommentService,
     private val queryCreator: PostCommentQueryCreator,
     private val createPostTask: CreatePostCommentPostTask,
@@ -86,6 +88,7 @@ class PostCommentController(
         @Valid @RequestBody
         request: UpdatePostCommentRequestDto
     ): ResponseEntity<ResultResponse> {
+        validator.validate(request = request)
         val result: Long = service.updatePostComment(
             userId = principal.getUserId(),
             postCommentId = id,

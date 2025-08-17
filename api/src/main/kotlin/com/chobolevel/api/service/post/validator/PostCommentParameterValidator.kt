@@ -7,9 +7,9 @@ import com.chobolevel.domain.exception.ErrorCode
 import org.springframework.stereotype.Component
 
 @Component
-class UpdatePostCommentValidator : UpdatePostCommentValidatable {
+class PostCommentParameterValidator {
 
-    override fun validate(request: UpdatePostCommentRequestDto) {
+    fun validate(request: UpdatePostCommentRequestDto) {
         request.updateMask.forEach {
             when (it) {
                 PostCommentUpdateMask.CONTENT -> {
