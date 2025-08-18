@@ -7,7 +7,6 @@ import com.chobolevel.api.dto.guest.GuestBookResponseDto
 import com.chobolevel.api.dto.guest.UpdateGuestBookRequestDto
 import com.chobolevel.api.service.guest.converter.GuestBookConverter
 import com.chobolevel.api.service.guest.updater.GuestBookUpdater
-import com.chobolevel.api.service.guest.validator.GuestBookValidator
 import com.chobolevel.domain.entity.guest.GuestBook
 import com.chobolevel.domain.entity.guest.GuestBookFinder
 import com.chobolevel.domain.entity.guest.GuestBookOrderType
@@ -26,7 +25,6 @@ class GuestBookService(
     private val repository: GuestBookRepository,
     private val finder: GuestBookFinder,
     private val converter: GuestBookConverter,
-    private val validator: GuestBookValidator,
     private val updater: GuestBookUpdater,
     private val passwordEncoder: BCryptPasswordEncoder
 ) {
@@ -65,7 +63,6 @@ class GuestBookService(
 
     @Transactional
     fun updateGuestBook(id: Long, request: UpdateGuestBookRequestDto): Long {
-        validator.validate(request)
         val guestBook: GuestBook = finder.findById(id)
         validatePassword(
             rawPassword = request.password,

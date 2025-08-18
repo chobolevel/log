@@ -5,7 +5,7 @@ import com.chobolevel.api.dto.guest.GuestBookResponseDto
 import com.chobolevel.api.service.guest.GuestBookService
 import com.chobolevel.api.service.guest.converter.GuestBookConverter
 import com.chobolevel.api.service.guest.updater.GuestBookUpdater
-import com.chobolevel.api.service.guest.validator.GuestBookValidator
+import com.chobolevel.api.service.guest.validator.GuestBookParameterValidator
 import com.chobolevel.domain.entity.guest.GuestBook
 import com.chobolevel.domain.entity.guest.GuestBookFinder
 import com.chobolevel.domain.entity.guest.GuestBookOrderType
@@ -38,7 +38,7 @@ class GuestBookServiceTest {
     private lateinit var converter: GuestBookConverter
 
     @Mock
-    private lateinit var validator: GuestBookValidator
+    private lateinit var validator: GuestBookParameterValidator
 
     @Mock
     private lateinit var updater: GuestBookUpdater
