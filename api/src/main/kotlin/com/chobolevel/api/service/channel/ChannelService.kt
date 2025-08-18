@@ -9,7 +9,6 @@ import com.chobolevel.api.dto.common.PaginationResponseDto
 import com.chobolevel.api.service.channel.converter.ChannelConverter
 import com.chobolevel.api.service.channel.converter.ChannelMessageConverter
 import com.chobolevel.api.service.channel.updater.ChannelUpdater
-import com.chobolevel.api.service.channel.validator.ChannelValidator
 import com.chobolevel.domain.entity.channel.Channel
 import com.chobolevel.domain.entity.channel.ChannelFinder
 import com.chobolevel.domain.entity.channel.ChannelOrderType
@@ -37,7 +36,6 @@ class ChannelService(
     private val userFinder: UserFinder,
     private val converter: ChannelConverter,
     private val channelMessageConverter: ChannelMessageConverter,
-    private val validator: ChannelValidator,
     private val updater: ChannelUpdater,
     private val template: SimpMessagingTemplate
 ) {
@@ -97,7 +95,6 @@ class ChannelService(
 
     @Transactional
     fun update(workerId: Long, channelId: Long, request: UpdateChannelRequestDto): Long {
-        validator.validateWhenUpdate(request)
         val worker: User = userFinder.findById(workerId)
         val channel: Channel = finder.findById(channelId)
         validateWorker(

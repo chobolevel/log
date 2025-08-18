@@ -10,6 +10,7 @@ import com.chobolevel.api.dto.common.ResultResponse
 import com.chobolevel.api.getUserId
 import com.chobolevel.api.service.channel.ChannelService
 import com.chobolevel.api.service.channel.query.ChannelQueryCreator
+import com.chobolevel.api.service.channel.validator.ChannelParameterValidator
 import com.chobolevel.domain.entity.channel.ChannelOrderType
 import com.chobolevel.domain.entity.channel.ChannelQueryFilter
 import com.scrimmers.domain.dto.common.Pagination
@@ -32,6 +33,7 @@ import java.security.Principal
 @RestController
 @RequestMapping("/api/v1")
 class ChannelController(
+    private val validator: ChannelParameterValidator,
     private val service: ChannelService,
     private val queryCreator: ChannelQueryCreator
 ) {
@@ -95,6 +97,7 @@ class ChannelController(
         @Valid @RequestBody
         request: UpdateChannelRequestDto
     ): ResponseEntity<ResultResponse> {
+        validator.validate(request = request)
         val result: Long = service.update(
             workerId = principal.getUserId(),
             channelId = channelId,

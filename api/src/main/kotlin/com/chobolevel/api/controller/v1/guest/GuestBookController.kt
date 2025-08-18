@@ -9,6 +9,7 @@ import com.chobolevel.api.dto.guest.UpdateGuestBookRequestDto
 import com.chobolevel.api.posttask.CreateGuestBookPostTask
 import com.chobolevel.api.service.guest.GuestBookService
 import com.chobolevel.api.service.guest.query.GuestBookQueryCreator
+import com.chobolevel.api.service.guest.validator.GuestBookParameterValidator
 import com.chobolevel.domain.entity.guest.GuestBookOrderType
 import com.chobolevel.domain.entity.guest.GuestBookQueryFilter
 import com.scrimmers.domain.dto.common.Pagination
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/v1")
 class GuestBookController(
+    private val validator: GuestBookParameterValidator,
     private val service: GuestBookService,
     private val queryCreator: GuestBookQueryCreator,
     private val createPostTask: CreateGuestBookPostTask
@@ -82,6 +84,7 @@ class GuestBookController(
         @Valid @RequestBody
         request: UpdateGuestBookRequestDto
     ): ResponseEntity<ResultResponse> {
+        validator.validate(request = request)
         val result: Long = service.updateGuestBook(
             id = id,
             request = request

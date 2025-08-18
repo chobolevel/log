@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 
 @Component
-class GuestBookValidator {
+class GuestBookParameterValidator {
 
     fun validate(request: UpdateGuestBookRequestDto) {
         request.updateMask.forEach {
