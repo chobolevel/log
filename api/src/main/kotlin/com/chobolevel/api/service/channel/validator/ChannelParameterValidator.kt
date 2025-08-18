@@ -8,9 +8,9 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 
 @Component
-class ChannelValidator {
+class ChannelParameterValidator {
 
-    fun validateWhenUpdate(request: UpdateChannelRequestDto) {
+    fun validate(request: UpdateChannelRequestDto) {
         request.updateMask.forEach {
             when (it) {
                 ChannelUpdateMask.NAME -> {
