@@ -7,6 +7,7 @@ import com.chobolevel.api.dto.common.ResultResponse
 import com.chobolevel.api.dto.jwt.JwtResponse
 import com.chobolevel.api.getCookie
 import com.chobolevel.api.service.auth.AuthService
+import com.chobolevel.api.service.auth.validator.AuthParameterValidator
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
 import io.swagger.v3.oas.annotations.Operation
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/v1")
 class AuthController(
+    private val validator: AuthParameterValidator,
     @Value("\${server.reactive.session.cookie.access-token-key}")
     private val accessTokenKey: String,
     @Value("\${server.reactive.session.cookie.refresh-token-key}")
@@ -43,6 +45,7 @@ class AuthController(
         @Valid @RequestBody
         request: LoginRequestDto
     ): ResponseEntity<ResultResponse> {
+        validator.validate(request = request)
         val result: JwtResponse = service.login(request)
         val accessTokenCookie: Cookie = generateCookie(
             key = accessTokenKey,
@@ -105,6 +108,7 @@ class AuthController(
         @Valid @RequestBody
         request: SendEmailVerificationCodeRequest
     ): ResponseEntity<ResultResponse> {
+        validator.validate(request = request)
         service.asyncSendEmailVerificationCode(request)
         return ResponseEntity.ok(ResultResponse(true))
     }
@@ -115,6 +119,7 @@ class AuthController(
         @Valid @RequestBody
         request: CheckEmailVerificationCodeRequest
     ): ResponseEntity<ResultResponse> {
+        validator.validate(request = request)
         val result: String = service.checkEmailVerificationCode(request)
         return ResponseEntity.ok(ResultResponse(result))
     }
