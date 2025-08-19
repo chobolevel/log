@@ -6,7 +6,6 @@ import com.chobolevel.api.dto.auth.SendEmailVerificationCodeRequest
 import com.chobolevel.api.dto.jwt.JwtResponse
 import com.chobolevel.api.security.CustomAuthenticationManager
 import com.chobolevel.api.security.TokenProvider
-import com.chobolevel.api.service.auth.validator.AuthValidator
 import com.chobolevel.domain.entity.user.UserLoginType
 import com.chobolevel.domain.exception.ApiException
 import com.chobolevel.domain.exception.ErrorCode
@@ -25,13 +24,11 @@ class AuthService(
     private val tokenProvider: TokenProvider,
     private val authenticationManager: CustomAuthenticationManager,
     private val opsForHash: HashOperations<String, String, String>,
-    private val authValidator: AuthValidator,
     private val emailUtils: EmailUtils
 ) {
 
     @Transactional(readOnly = true)
     fun login(request: LoginRequestDto): JwtResponse {
-        authValidator.validate(request)
         val authenticationToken: UsernamePasswordAuthenticationToken = when (request.loginType) {
             UserLoginType.GENERAL -> UsernamePasswordAuthenticationToken(
                 "${request.email}/${request.loginType}",
@@ -69,7 +66,6 @@ class AuthService(
 
     @Async
     fun asyncSendEmailVerificationCode(request: SendEmailVerificationCodeRequest) {
-        authValidator.validate(request)
         val authCode: String = TSID.fast().toString()
         opsForHash.put("email", request.email, authCode)
         emailUtils.sendEmail(
@@ -80,7 +76,6 @@ class AuthService(
     }
 
     fun checkEmailVerificationCode(request: CheckEmailVerificationCodeRequest): String {
-        authValidator.validate(request)
         val cachedVerificationCode: String = opsForHash.get("email", request.email) ?: throw ApiException(
             errorCode = ErrorCode.A001,
             message = "이메일 인증 코드 전송 후 시도해 주세요."
