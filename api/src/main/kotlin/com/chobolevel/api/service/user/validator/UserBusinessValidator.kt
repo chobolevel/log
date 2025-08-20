@@ -42,4 +42,14 @@ class UserBusinessValidator(
             )
         }
     }
+
+    fun validatePasswordReuse(encodedCurPassword: String, newPassword: String) {
+        if (passwordEncoder.matches(encodedCurPassword, newPassword)) {
+            throw ApiException(
+                errorCode = ErrorCode.USER_PASSWORD_REUSE_NOT_ALLOWED,
+                status = HttpStatus.BAD_REQUEST,
+                message = "동일한 비밀번호는 사용할 수 없습니다."
+            )
+        }
+    }
 }

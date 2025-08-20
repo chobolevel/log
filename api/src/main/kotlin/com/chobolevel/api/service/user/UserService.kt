@@ -85,6 +85,10 @@ class UserService(
             rawPassword = request.curPassword,
             encodedPassword = user.password
         )
+        validator.validatePasswordReuse(
+            encodedCurPassword = user.password,
+            newPassword = request.newPassword
+        )
         user.password = passwordEncoder.encode(request.newPassword)
         return user.id!!
     }
