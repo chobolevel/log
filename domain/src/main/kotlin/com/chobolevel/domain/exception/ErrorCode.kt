@@ -23,6 +23,7 @@ enum class ErrorCode {
     USER_EMAIL_ALREADY_EXISTS, // email already exists
     USER_NICKNAME_ALREADY_EXISTS, // nickname already exists
     USER_PASSWORD_NOT_MATCH, // password not match
+    USER_PASSWORD_REUSE_NOT_ALLOWED, // password reuse not allowed
 
     // USER IMAGE
     UI001,
