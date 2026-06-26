@@ -1,8 +1,8 @@
 package com.chobolevel.api.service.upload.validator
 
 import com.chobolevel.api.dto.upload.UploadRequestDto
-import com.chobolevel.domain.exception.ApiException
-import com.chobolevel.domain.exception.ErrorCode
+import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.ErrorCode
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 

@@ -5,12 +5,12 @@ import com.chobolevel.api.dto.tag.CreateTagRequestDto
 import com.chobolevel.api.dto.tag.UpdateTagRequestDto
 import com.chobolevel.api.service.tag.converter.TagConverter
 import com.chobolevel.api.service.tag.updater.TagUpdatable
-import com.chobolevel.domain.entity.tag.Tag
-import com.chobolevel.domain.entity.tag.TagFinder
-import com.chobolevel.domain.entity.tag.TagOrderType
-import com.chobolevel.domain.entity.tag.TagQueryFilter
-import com.chobolevel.domain.entity.tag.TagRepository
-import com.scrimmers.domain.dto.common.Pagination
+import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.tag.Tag
+import com.chobolevel.domain.tag.TagFinder
+import com.chobolevel.domain.tag.TagOrderType
+import com.chobolevel.domain.tag.TagQueryFilter
+import com.chobolevel.domain.tag.TagRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

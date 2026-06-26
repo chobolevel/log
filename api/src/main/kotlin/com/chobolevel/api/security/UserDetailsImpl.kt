@@ -1,6 +1,6 @@
 package com.chobolevel.api.security
 
-import com.chobolevel.domain.entity.user.User
+import com.chobolevel.domain.user.User
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.userdetails.UserDetails

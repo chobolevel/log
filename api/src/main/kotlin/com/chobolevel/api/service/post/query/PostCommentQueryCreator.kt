@@ -1,7 +1,7 @@
 package com.chobolevel.api.service.post.query
 
-import com.chobolevel.domain.entity.post.comment.PostCommentQueryFilter
-import com.scrimmers.domain.dto.common.Pagination
+import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.post.comment.PostCommentQueryFilter
 import org.springframework.stereotype.Component
 
 @Component

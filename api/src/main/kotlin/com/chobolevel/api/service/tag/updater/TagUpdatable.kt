@@ -1,7 +1,7 @@
 package com.chobolevel.api.service.tag.updater
 
 import com.chobolevel.api.dto.tag.UpdateTagRequestDto
-import com.chobolevel.domain.entity.tag.Tag
+import com.chobolevel.domain.tag.Tag
 
 interface TagUpdatable {
 

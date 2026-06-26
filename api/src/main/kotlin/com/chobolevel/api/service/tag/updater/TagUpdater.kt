@@ -1,8 +1,8 @@
 package com.chobolevel.api.service.tag.updater
 
 import com.chobolevel.api.dto.tag.UpdateTagRequestDto
-import com.chobolevel.domain.entity.tag.Tag
-import com.chobolevel.domain.entity.tag.TagUpdateMask
+import com.chobolevel.domain.tag.Tag
+import com.chobolevel.domain.tag.TagUpdateMask
 import org.springframework.stereotype.Component
 
 @Component

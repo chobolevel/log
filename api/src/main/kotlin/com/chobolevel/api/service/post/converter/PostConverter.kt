@@ -4,7 +4,7 @@ import com.chobolevel.api.dto.post.CreatePostRequestDto
 import com.chobolevel.api.dto.post.PostResponseDto
 import com.chobolevel.api.service.tag.converter.TagConverter
 import com.chobolevel.api.service.user.converter.UserConverter
-import com.chobolevel.domain.entity.post.Post
+import com.chobolevel.domain.post.Post
 import org.springframework.stereotype.Component
 
 @Component

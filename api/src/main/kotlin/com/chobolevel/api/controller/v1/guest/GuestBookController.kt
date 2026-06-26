@@ -10,9 +10,9 @@ import com.chobolevel.api.posttask.CreateGuestBookPostTask
 import com.chobolevel.api.service.guest.GuestBookService
 import com.chobolevel.api.service.guest.query.GuestBookQueryCreator
 import com.chobolevel.api.service.guest.validator.GuestBookParameterValidator
-import com.chobolevel.domain.entity.guest.GuestBookOrderType
-import com.chobolevel.domain.entity.guest.GuestBookQueryFilter
-import com.scrimmers.domain.dto.common.Pagination
+import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.guest.GuestBookOrderType
+import com.chobolevel.domain.guest.GuestBookQueryFilter
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid

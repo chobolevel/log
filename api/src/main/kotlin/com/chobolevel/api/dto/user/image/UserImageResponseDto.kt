@@ -1,6 +1,6 @@
 package com.chobolevel.api.dto.user.image
 
-import com.chobolevel.domain.entity.user.image.UserImageType
+import com.chobolevel.domain.user.image.UserImageType
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 

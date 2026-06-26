@@ -1,9 +1,9 @@
 package com.chobolevel.api.service.post.validator
 
 import com.chobolevel.api.dto.post.comment.UpdatePostCommentRequestDto
-import com.chobolevel.domain.entity.post.comment.PostCommentUpdateMask
-import com.chobolevel.domain.exception.ApiException
-import com.chobolevel.domain.exception.ErrorCode
+import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.post.comment.PostCommentUpdateMask
 import org.springframework.stereotype.Component
 
 @Component

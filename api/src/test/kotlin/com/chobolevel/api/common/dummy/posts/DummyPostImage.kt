@@ -1,7 +1,7 @@
 package com.chobolevel.api.common.dummy.posts
 
-import com.chobolevel.domain.entity.post.image.PostImage
-import com.chobolevel.domain.entity.post.image.PostImageType
+import com.chobolevel.domain.post.image.PostImage
+import com.chobolevel.domain.post.image.PostImageType
 
 /**
  *

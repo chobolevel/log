@@ -1,9 +1,9 @@
 package com.chobolevel.api.service.guest.validator
 
 import com.chobolevel.api.dto.guest.UpdateGuestBookRequestDto
-import com.chobolevel.domain.entity.guest.GuestBookUpdateMask
-import com.chobolevel.domain.exception.ApiException
-import com.chobolevel.domain.exception.ErrorCode
+import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.guest.GuestBookUpdateMask
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 

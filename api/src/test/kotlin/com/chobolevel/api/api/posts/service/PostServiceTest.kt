@@ -2,7 +2,7 @@ package com.chobolevel.api.api.posts.service
 
 import com.chobolevel.api.service.post.PostService
 import com.chobolevel.api.service.post.converter.PostConverter
-import com.chobolevel.domain.entity.post.PostRepository
+import com.chobolevel.domain.post.PostRepository
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.InjectMocks

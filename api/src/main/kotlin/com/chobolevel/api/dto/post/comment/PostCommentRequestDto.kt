@@ -1,6 +1,6 @@
 package com.chobolevel.api.dto.post.comment
 
-import com.chobolevel.domain.entity.post.comment.PostCommentUpdateMask
+import com.chobolevel.domain.post.comment.PostCommentUpdateMask
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import jakarta.validation.constraints.NotEmpty

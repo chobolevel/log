@@ -2,8 +2,8 @@ package com.chobolevel.api.security
 
 import com.chobolevel.api.dto.jwt.JwtResponse
 import com.chobolevel.api.properties.JwtProperties
-import com.chobolevel.domain.exception.ApiException
-import com.chobolevel.domain.exception.ErrorCode
+import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.ErrorCode
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Header
 import io.jsonwebtoken.JwtException

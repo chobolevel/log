@@ -8,9 +8,9 @@ import com.chobolevel.api.dto.tag.UpdateTagRequestDto
 import com.chobolevel.api.service.tag.TagService
 import com.chobolevel.api.service.tag.query.TagQueryCreator
 import com.chobolevel.api.service.tag.validator.TagParameterValidator
-import com.chobolevel.domain.entity.tag.TagOrderType
-import com.chobolevel.domain.entity.tag.TagQueryFilter
-import com.scrimmers.domain.dto.common.Pagination
+import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.tag.TagOrderType
+import com.chobolevel.domain.tag.TagQueryFilter
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid

@@ -2,9 +2,9 @@ package com.chobolevel.api.service.user.converter
 
 import com.chobolevel.api.dto.user.CreateUserRequestDto
 import com.chobolevel.api.dto.user.UserResponseDto
-import com.chobolevel.domain.entity.user.User
-import com.chobolevel.domain.entity.user.UserLoginType
-import com.chobolevel.domain.entity.user.UserRoleType
+import com.chobolevel.domain.user.User
+import com.chobolevel.domain.user.UserLoginType
+import com.chobolevel.domain.user.UserRoleType
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component
 

@@ -10,9 +10,9 @@ import com.chobolevel.api.posttask.CreatePostCommentPostTask
 import com.chobolevel.api.service.post.PostCommentService
 import com.chobolevel.api.service.post.query.PostCommentQueryCreator
 import com.chobolevel.api.service.post.validator.PostCommentParameterValidator
-import com.chobolevel.domain.entity.post.comment.PostCommentOrderType
-import com.chobolevel.domain.entity.post.comment.PostCommentQueryFilter
-import com.scrimmers.domain.dto.common.Pagination
+import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.post.comment.PostCommentOrderType
+import com.chobolevel.domain.post.comment.PostCommentQueryFilter
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid

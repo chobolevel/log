@@ -3,7 +3,7 @@ package com.chobolevel.api.service.post.converter
 import com.chobolevel.api.dto.post.comment.CreatePostCommentRequestDto
 import com.chobolevel.api.dto.post.comment.PostCommentResponseDto
 import com.chobolevel.api.service.user.converter.UserConverter
-import com.chobolevel.domain.entity.post.comment.PostComment
+import com.chobolevel.domain.post.comment.PostComment
 import org.springframework.stereotype.Component
 
 @Component

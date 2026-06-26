@@ -1,7 +1,7 @@
 package com.chobolevel.api.dto.post.image
 
-import com.chobolevel.domain.entity.post.image.PostImageType
-import com.chobolevel.domain.entity.post.image.PostImageUpdateMask
+import com.chobolevel.domain.post.image.PostImageType
+import com.chobolevel.domain.post.image.PostImageUpdateMask
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import jakarta.validation.constraints.NotEmpty

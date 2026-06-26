@@ -1,8 +1,8 @@
 package com.chobolevel.api.service.post.updater
 
 import com.chobolevel.api.dto.post.comment.UpdatePostCommentRequestDto
-import com.chobolevel.domain.entity.post.comment.PostComment
-import com.chobolevel.domain.entity.post.comment.PostCommentUpdateMask
+import com.chobolevel.domain.post.comment.PostComment
+import com.chobolevel.domain.post.comment.PostCommentUpdateMask
 import org.springframework.stereotype.Component
 
 @Component

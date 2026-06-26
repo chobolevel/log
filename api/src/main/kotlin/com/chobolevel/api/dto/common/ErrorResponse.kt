@@ -1,6 +1,6 @@
 package com.chobolevel.api.dto.common
 
-import com.chobolevel.domain.exception.ErrorCode
+import com.chobolevel.domain.common.exception.ErrorCode
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 

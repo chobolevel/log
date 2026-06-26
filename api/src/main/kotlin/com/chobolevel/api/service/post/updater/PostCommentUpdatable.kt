@@ -1,7 +1,7 @@
 package com.chobolevel.api.service.post.updater
 
 import com.chobolevel.api.dto.post.comment.UpdatePostCommentRequestDto
-import com.chobolevel.domain.entity.post.comment.PostComment
+import com.chobolevel.domain.post.comment.PostComment
 
 interface PostCommentUpdatable {
 

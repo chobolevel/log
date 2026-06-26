@@ -6,10 +6,10 @@ import com.chobolevel.api.dto.auth.SendEmailVerificationCodeRequest
 import com.chobolevel.api.dto.jwt.JwtResponse
 import com.chobolevel.api.security.CustomAuthenticationManager
 import com.chobolevel.api.security.TokenProvider
-import com.chobolevel.domain.entity.user.UserLoginType
-import com.chobolevel.domain.exception.ApiException
-import com.chobolevel.domain.exception.ErrorCode
-import com.chobolevel.domain.utils.EmailUtils
+import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.common.utils.EmailUtils
+import com.chobolevel.domain.user.UserLoginType
 import io.hypersistence.tsid.TSID
 import org.springframework.data.redis.core.HashOperations
 import org.springframework.http.HttpStatus

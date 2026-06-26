@@ -10,9 +10,9 @@ import com.chobolevel.api.getUserId
 import com.chobolevel.api.service.post.PostService
 import com.chobolevel.api.service.post.query.PostQueryCreator
 import com.chobolevel.api.service.post.validator.PostParameterValidator
-import com.chobolevel.domain.entity.post.PostOrderType
-import com.chobolevel.domain.entity.post.PostQueryFilter
-import com.scrimmers.domain.dto.common.Pagination
+import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.post.PostOrderType
+import com.chobolevel.domain.post.PostQueryFilter
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid

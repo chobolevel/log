@@ -1,8 +1,8 @@
 package com.chobolevel.api.service.user.validator
 
-import com.chobolevel.domain.entity.user.UserFinder
-import com.chobolevel.domain.exception.ApiException
-import com.chobolevel.domain.exception.ErrorCode
+import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.user.UserFinder
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component

@@ -2,11 +2,11 @@ package com.chobolevel.api.service.user
 
 import com.chobolevel.api.dto.user.image.CreateUserImageRequestDto
 import com.chobolevel.api.service.user.converter.UserImageConverter
-import com.chobolevel.domain.entity.user.User
-import com.chobolevel.domain.entity.user.UserFinder
-import com.chobolevel.domain.entity.user.image.UserImage
-import com.chobolevel.domain.entity.user.image.UserImageFinder
-import com.chobolevel.domain.entity.user.image.UserImageRepository
+import com.chobolevel.domain.user.User
+import com.chobolevel.domain.user.UserFinder
+import com.chobolevel.domain.user.image.UserImage
+import com.chobolevel.domain.user.image.UserImageFinder
+import com.chobolevel.domain.user.image.UserImageRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

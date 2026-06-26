@@ -8,8 +8,8 @@ import com.chobolevel.api.dto.jwt.JwtResponse
 import com.chobolevel.api.getCookie
 import com.chobolevel.api.service.auth.AuthService
 import com.chobolevel.api.service.auth.validator.AuthParameterValidator
-import com.chobolevel.domain.exception.ApiException
-import com.chobolevel.domain.exception.ErrorCode
+import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.ErrorCode
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.Cookie

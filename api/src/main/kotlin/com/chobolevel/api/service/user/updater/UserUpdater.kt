@@ -1,8 +1,8 @@
 package com.chobolevel.api.service.user.updater
 
 import com.chobolevel.api.dto.user.UpdateUserRequestDto
-import com.chobolevel.domain.entity.user.User
-import com.chobolevel.domain.entity.user.UserUpdateMask
+import com.chobolevel.domain.user.User
+import com.chobolevel.domain.user.UserUpdateMask
 import org.springframework.stereotype.Component
 
 @Component

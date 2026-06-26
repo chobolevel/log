@@ -6,9 +6,9 @@ import com.chobolevel.api.dto.common.ResultResponse
 import com.chobolevel.api.getUserId
 import com.chobolevel.api.service.channel.ChannelMessageService
 import com.chobolevel.api.service.channel.query.ChannelMessageQueryCreator
-import com.chobolevel.domain.entity.channel.message.ChannelMessageOrderType
-import com.chobolevel.domain.entity.channel.message.ChannelMessageQueryFilter
-import com.scrimmers.domain.dto.common.Pagination
+import com.chobolevel.domain.channel.message.ChannelMessageOrderType
+import com.chobolevel.domain.channel.message.ChannelMessageQueryFilter
+import com.chobolevel.domain.common.dto.Pagination
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity

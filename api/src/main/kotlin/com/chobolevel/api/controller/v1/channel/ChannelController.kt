@@ -11,9 +11,9 @@ import com.chobolevel.api.getUserId
 import com.chobolevel.api.service.channel.ChannelService
 import com.chobolevel.api.service.channel.query.ChannelQueryCreator
 import com.chobolevel.api.service.channel.validator.ChannelParameterValidator
-import com.chobolevel.domain.entity.channel.ChannelOrderType
-import com.chobolevel.domain.entity.channel.ChannelQueryFilter
-import com.scrimmers.domain.dto.common.Pagination
+import com.chobolevel.domain.channel.ChannelOrderType
+import com.chobolevel.domain.channel.ChannelQueryFilter
+import com.chobolevel.domain.common.dto.Pagination
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid

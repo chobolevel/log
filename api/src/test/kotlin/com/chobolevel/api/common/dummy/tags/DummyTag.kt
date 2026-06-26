@@ -1,6 +1,6 @@
 package com.chobolevel.api.common.dummy.tags
 
-import com.chobolevel.domain.entity.tag.Tag
+import com.chobolevel.domain.tag.Tag
 
 /**
  *

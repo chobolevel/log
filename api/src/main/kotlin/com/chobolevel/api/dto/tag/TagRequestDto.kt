@@ -1,6 +1,6 @@
 package com.chobolevel.api.dto.tag
 
-import com.chobolevel.domain.entity.tag.TagUpdateMask
+import com.chobolevel.domain.tag.TagUpdateMask
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import jakarta.validation.constraints.NotEmpty

@@ -1,10 +1,10 @@
 package com.chobolevel.api.security
 
-import com.chobolevel.domain.entity.user.User
-import com.chobolevel.domain.entity.user.UserFinder
-import com.chobolevel.domain.entity.user.UserLoginType
-import com.chobolevel.domain.exception.ApiException
-import com.chobolevel.domain.exception.ErrorCode
+import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.user.User
+import com.chobolevel.domain.user.UserFinder
+import com.chobolevel.domain.user.UserLoginType
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.BadCredentialsException

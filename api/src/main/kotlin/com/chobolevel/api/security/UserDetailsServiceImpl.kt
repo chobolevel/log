@@ -1,6 +1,6 @@
 package com.chobolevel.api.security
 
-import com.chobolevel.domain.entity.user.UserFinder
+import com.chobolevel.domain.user.UserFinder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Service

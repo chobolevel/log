@@ -1,8 +1,8 @@
 package com.chobolevel.api.config
 
 import com.chobolevel.api.getUserId
-import com.chobolevel.domain.exception.ApiException
-import com.chobolevel.domain.exception.ErrorCode
+import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.ErrorCode
 import org.springframework.context.annotation.Primary
 import org.springframework.http.HttpStatus
 import org.springframework.messaging.Message

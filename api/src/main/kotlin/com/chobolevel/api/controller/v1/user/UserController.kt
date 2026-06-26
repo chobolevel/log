@@ -11,11 +11,11 @@ import com.chobolevel.api.getUserId
 import com.chobolevel.api.service.user.UserService
 import com.chobolevel.api.service.user.query.UserQueryCreator
 import com.chobolevel.api.service.user.validator.UserParameterValidator
-import com.chobolevel.domain.entity.user.UserLoginType
-import com.chobolevel.domain.entity.user.UserOrderType
-import com.chobolevel.domain.entity.user.UserQueryFilter
-import com.chobolevel.domain.entity.user.UserRoleType
-import com.scrimmers.domain.dto.common.Pagination
+import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.user.UserLoginType
+import com.chobolevel.domain.user.UserOrderType
+import com.chobolevel.domain.user.UserQueryFilter
+import com.chobolevel.domain.user.UserRoleType
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid

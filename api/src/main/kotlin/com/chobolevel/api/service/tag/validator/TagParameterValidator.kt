@@ -1,9 +1,9 @@
 package com.chobolevel.api.service.tag.validator
 
 import com.chobolevel.api.dto.tag.UpdateTagRequestDto
-import com.chobolevel.domain.entity.tag.TagUpdateMask
-import com.chobolevel.domain.exception.ApiException
-import com.chobolevel.domain.exception.ErrorCode
+import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.tag.TagUpdateMask
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 

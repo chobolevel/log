@@ -2,11 +2,11 @@ package com.chobolevel.api.service.post.updater
 
 import com.chobolevel.api.dto.post.UpdatePostRequestDto
 import com.chobolevel.api.service.post.converter.PostImageConverter
-import com.chobolevel.domain.entity.post.Post
-import com.chobolevel.domain.entity.post.PostUpdateMask
-import com.chobolevel.domain.entity.post.tag.PostTag
-import com.chobolevel.domain.entity.post.tag.PostTagRepository
-import com.chobolevel.domain.entity.tag.TagFinder
+import com.chobolevel.domain.post.Post
+import com.chobolevel.domain.post.PostUpdateMask
+import com.chobolevel.domain.post.tag.PostTag
+import com.chobolevel.domain.post.tag.PostTagRepository
+import com.chobolevel.domain.tag.TagFinder
 import org.springframework.stereotype.Component
 
 @Component

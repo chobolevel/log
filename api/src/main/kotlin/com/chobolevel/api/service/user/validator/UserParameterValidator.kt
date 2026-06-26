@@ -3,10 +3,10 @@ package com.chobolevel.api.service.user.validator
 import com.chobolevel.api.dto.user.ChangeUserPasswordRequest
 import com.chobolevel.api.dto.user.CreateUserRequestDto
 import com.chobolevel.api.dto.user.UpdateUserRequestDto
-import com.chobolevel.domain.entity.user.UserLoginType
-import com.chobolevel.domain.entity.user.UserUpdateMask
-import com.chobolevel.domain.exception.ApiException
-import com.chobolevel.domain.exception.ErrorCode
+import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.user.UserLoginType
+import com.chobolevel.domain.user.UserUpdateMask
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 

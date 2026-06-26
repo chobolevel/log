@@ -2,7 +2,7 @@ package com.chobolevel.api.service.user.validator
 
 import com.chobolevel.api.annotation.ValidUserPasswordOrSocialId
 import com.chobolevel.api.dto.user.CreateUserRequestDto
-import com.chobolevel.domain.entity.user.UserLoginType
+import com.chobolevel.domain.user.UserLoginType
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
 

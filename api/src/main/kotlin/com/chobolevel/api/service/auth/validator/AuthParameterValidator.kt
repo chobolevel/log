@@ -3,9 +3,9 @@ package com.chobolevel.api.service.auth.validator
 import com.chobolevel.api.dto.auth.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.dto.auth.LoginRequestDto
 import com.chobolevel.api.dto.auth.SendEmailVerificationCodeRequest
-import com.chobolevel.domain.entity.user.UserLoginType
-import com.chobolevel.domain.exception.ApiException
-import com.chobolevel.domain.exception.ErrorCode
+import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.user.UserLoginType
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 

@@ -1,6 +1,6 @@
 package com.chobolevel.api.common.dummy.posts
 
-import com.chobolevel.domain.entity.post.Post
+import com.chobolevel.domain.post.Post
 
 /**
  *

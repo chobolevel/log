@@ -2,7 +2,7 @@ package com.chobolevel.api.service.post.converter
 
 import com.chobolevel.api.dto.post.image.CreatePostImageRequestDto
 import com.chobolevel.api.dto.post.image.PostImageResponseDto
-import com.chobolevel.domain.entity.post.image.PostImage
+import com.chobolevel.domain.post.image.PostImage
 import org.springframework.stereotype.Component
 
 @Component

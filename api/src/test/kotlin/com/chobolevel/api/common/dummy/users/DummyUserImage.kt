@@ -2,8 +2,8 @@ package com.chobolevel.api.common.dummy.users
 
 import com.chobolevel.api.dto.user.image.CreateUserImageRequestDto
 import com.chobolevel.api.dto.user.image.UserImageResponseDto
-import com.chobolevel.domain.entity.user.image.UserImage
-import com.chobolevel.domain.entity.user.image.UserImageType
+import com.chobolevel.domain.user.image.UserImage
+import com.chobolevel.domain.user.image.UserImageType
 
 /**
  *
