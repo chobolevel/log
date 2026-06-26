@@ -1,7 +1,7 @@
 package com.chobolevel.domain.tag
 
 import com.chobolevel.domain.common.dto.Pagination
-import com.chobolevel.domain.entity.tag.QTag.tag
+import com.chobolevel.domain.tag.QTag.tag
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.core.types.dsl.BooleanExpression
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport

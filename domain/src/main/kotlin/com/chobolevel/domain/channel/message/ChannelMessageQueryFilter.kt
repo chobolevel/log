@@ -1,6 +1,6 @@
 package com.chobolevel.domain.channel.message
 
-import com.chobolevel.domain.entity.channel.message.QChannelMessage.channelMessage
+import com.chobolevel.domain.channel.message.QChannelMessage.channelMessage
 import com.querydsl.core.types.dsl.BooleanExpression
 
 data class ChannelMessageQueryFilter(

@@ -1,0 +1,139 @@
+package com.chobolevel.api.post.service
+
+import com.chobolevel.api.common.dto.PaginationResponseDto
+import com.chobolevel.api.post.converter.PostConverter
+import com.chobolevel.api.post.converter.PostImageConverter
+import com.chobolevel.api.post.dto.CreatePostRequestDto
+import com.chobolevel.api.post.dto.PostResponseDto
+import com.chobolevel.api.post.dto.UpdatePostRequestDto
+import com.chobolevel.api.post.updater.PostUpdatable
+import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.post.Post
+import com.chobolevel.domain.post.PostFinder
+import com.chobolevel.domain.post.PostOrderType
+import com.chobolevel.domain.post.PostQueryFilter
+import com.chobolevel.domain.post.PostRepository
+import com.chobolevel.domain.post.tag.PostTag
+import com.chobolevel.domain.tag.Tag
+import com.chobolevel.domain.tag.TagFinder
+import com.chobolevel.domain.user.User
+import com.chobolevel.domain.user.UserFinder
+import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import java.util.concurrent.TimeUnit
+
+@Service
+class PostService(
+    private val repository: PostRepository,
+    private val finder: PostFinder,
+    private val userFinder: UserFinder,
+    private val tagFinder: TagFinder,
+    private val converter: PostConverter,
+    private val postImageConverter: PostImageConverter,
+    private val updaters: List<PostUpdatable>,
+    private val redisTemplate: RedisTemplate<String, PostResponseDto>
+) {
+
+    @Transactional
+    fun createPost(userId: Long, request: CreatePostRequestDto): Long {
+        val writer: User = userFinder.findById(userId)
+        val post: Post = converter.convert(request).also { post ->
+            post.setBy(writer)
+
+            val tags: List<Tag> = tagFinder.findByIds(request.tagIds)
+            // 뭔가 조잡한 느낌
+            tags.forEach { tag ->
+                PostTag().also { postTag ->
+                    postTag.setBy(post)
+                    postTag.setBy(tag)
+                }
+            }
+
+            if (request.thumbNailIMage != null) {
+                postImageConverter.convert(request.thumbNailIMage).also {
+                    it.setBy(post)
+                }
+            }
+        }
+        // write caching pattern(write around)
+        return repository.save(post).id!!
+    }
+
+    @Transactional(readOnly = true)
+    fun searchPosts(
+        queryFilter: PostQueryFilter,
+        pagination: Pagination,
+        orderTypes: List<PostOrderType>?
+    ): PaginationResponseDto {
+        val posts: List<Post> = finder.search(
+            queryFilter = queryFilter,
+            pagination = pagination,
+            orderTypes = orderTypes
+        )
+        val totalCount: Long = finder.searchCount(queryFilter)
+        return PaginationResponseDto(
+            skipCount = pagination.offset,
+            limitCount = pagination.limit,
+            data = converter.convert(entities = posts),
+            totalCount = totalCount
+        )
+    }
+
+    @Transactional(readOnly = true)
+    fun fetchPost(postId: Long): PostResponseDto {
+        val cachingKey: String = generateCachingKey(postId)
+        val cachedPost: PostResponseDto? = redisTemplate.opsForValue().get(cachingKey)
+        // read caching pattern(cache(look) aside)
+        when (cachedPost) {
+            // cache miss
+            null -> {
+                val post: Post = finder.findById(postId)
+                val convertedPost: PostResponseDto = converter.convert(post)
+                redisTemplate.opsForValue().set(cachingKey, convertedPost, 10, TimeUnit.MINUTES)
+                return convertedPost
+            }
+            // cache hit
+            else -> return cachedPost
+        }
+    }
+
+    @Transactional
+    fun updatePost(userId: Long, postId: Long, request: UpdatePostRequestDto): Long {
+        val post: Post = finder.findById(postId)
+        validateWriter(
+            userId = userId,
+            post = post
+        )
+        updaters.sortedBy { it.order() }.forEach { it.markAsUpdate(request, post) }
+        redisTemplate.delete(generateCachingKey(postId))
+        return post.id!!
+    }
+
+    @Transactional
+    fun deletePost(userId: Long, postId: Long): Boolean {
+        val post: Post = finder.findById(postId)
+        validateWriter(
+            userId = userId,
+            post = post
+        )
+        post.delete()
+        redisTemplate.delete(generateCachingKey(postId))
+        return true
+    }
+
+    private fun generateCachingKey(postId: Long): String {
+        return "post:$postId"
+    }
+
+    private fun validateWriter(userId: Long, post: Post) {
+        if (post.user!!.id != userId) {
+            throw ApiException(
+                errorCode = ErrorCode.POST_ONLY_ACCESS_WRITER,
+                message = "작성자만 접근할 수 있습니다."
+            )
+        }
+    }
+}

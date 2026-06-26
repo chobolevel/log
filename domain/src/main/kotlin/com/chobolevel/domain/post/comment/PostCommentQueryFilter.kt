@@ -1,6 +1,6 @@
 package com.chobolevel.domain.post.comment
 
-import com.chobolevel.domain.entity.post.comment.QPostComment.postComment
+import com.chobolevel.domain.post.comment.QPostComment.postComment
 import com.querydsl.core.types.dsl.BooleanExpression
 
 class PostCommentQueryFilter(

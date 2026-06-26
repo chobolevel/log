@@ -1,0 +1,11 @@
+package com.chobolevel.api.channel.dto
+
+import com.chobolevel.domain.channel.message.ChannelMessageType
+import com.fasterxml.jackson.databind.PropertyNamingStrategies
+import com.fasterxml.jackson.databind.annotation.JsonNaming
+
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
+data class CreateChannelMessageRequestDto(
+    val type: ChannelMessageType,
+    val content: String
+)

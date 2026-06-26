@@ -3,7 +3,7 @@ package com.chobolevel.domain.user
 import com.chobolevel.domain.common.dto.Pagination
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
-import com.chobolevel.domain.entity.user.QUser.user
+import com.chobolevel.domain.user.QUser.user
 import com.querydsl.core.types.OrderSpecifier
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus

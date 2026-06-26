@@ -1,7 +1,7 @@
 package com.chobolevel.domain.channel.message
 
+import com.chobolevel.domain.channel.message.QChannelMessage.channelMessage
 import com.chobolevel.domain.common.dto.Pagination
-import com.chobolevel.domain.entity.channel.message.QChannelMessage.channelMessage
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.core.types.dsl.BooleanExpression
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport

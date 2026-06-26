@@ -1,7 +1,7 @@
 package com.chobolevel.domain.post.comment
 
 import com.chobolevel.domain.common.dto.Pagination
-import com.chobolevel.domain.entity.post.comment.QPostComment.postComment
+import com.chobolevel.domain.post.comment.QPostComment.postComment
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.core.types.dsl.BooleanExpression
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport

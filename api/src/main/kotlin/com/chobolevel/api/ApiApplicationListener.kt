@@ -1,6 +1,6 @@
 package com.chobolevel.api
 
-import com.chobolevel.api.warmer.Warmer
+import com.chobolevel.api.common.warmer.Warmer
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.context.event.ApplicationReadyEvent

@@ -1,7 +1,7 @@
 package com.chobolevel.domain.user
 
 import com.chobolevel.domain.common.dto.Pagination
-import com.chobolevel.domain.entity.user.QUser.user
+import com.chobolevel.domain.user.QUser.user
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.core.types.dsl.BooleanExpression
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport

@@ -3,7 +3,7 @@ package com.chobolevel.domain.post
 import com.chobolevel.domain.common.dto.Pagination
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
-import com.chobolevel.domain.entity.post.QPost.post
+import com.chobolevel.domain.post.QPost.post
 import com.querydsl.core.types.OrderSpecifier
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component

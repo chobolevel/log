@@ -1,8 +1,8 @@
 package com.chobolevel.api.common.dummy.users
 
-import com.chobolevel.api.dto.user.CreateUserRequestDto
-import com.chobolevel.api.dto.user.UpdateUserRequestDto
-import com.chobolevel.api.dto.user.UserResponseDto
+import com.chobolevel.api.user.dto.CreateUserRequestDto
+import com.chobolevel.api.user.dto.UpdateUserRequestDto
+import com.chobolevel.api.user.dto.UserResponseDto
 import com.chobolevel.domain.user.User
 import com.chobolevel.domain.user.UserLoginType
 import com.chobolevel.domain.user.UserRoleType

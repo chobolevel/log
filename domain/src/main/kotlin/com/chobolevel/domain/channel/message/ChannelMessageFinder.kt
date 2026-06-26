@@ -1,9 +1,9 @@
 package com.chobolevel.domain.channel.message
 
+import com.chobolevel.domain.channel.message.QChannelMessage.channelMessage
 import com.chobolevel.domain.common.dto.Pagination
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
-import com.chobolevel.domain.entity.channel.message.QChannelMessage.channelMessage
 import com.querydsl.core.types.OrderSpecifier
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component

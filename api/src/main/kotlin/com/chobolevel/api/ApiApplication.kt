@@ -13,7 +13,7 @@ import org.springframework.scheduling.annotation.EnableScheduling
 @EnableScheduling
 @SpringBootApplication
 @Import(DomainConfigurationLoader::class)
-@ConfigurationPropertiesScan("com.chobolevel.api.properties")
+@ConfigurationPropertiesScan("com.chobolevel.api.common.properties")
 class ApiApplication
 
 fun main(args: Array<String>) {

@@ -1,11 +1,11 @@
 package com.chobolevel.api.api.users.service
 
 import com.chobolevel.api.common.dummy.users.DummyUser
-import com.chobolevel.api.dto.user.UserResponseDto
-import com.chobolevel.api.service.user.UserService
-import com.chobolevel.api.service.user.converter.UserConverter
-import com.chobolevel.api.service.user.updater.UserUpdater
-import com.chobolevel.api.service.user.validator.UserBusinessValidator
+import com.chobolevel.api.user.converter.UserConverter
+import com.chobolevel.api.user.dto.UserResponseDto
+import com.chobolevel.api.user.service.UserService
+import com.chobolevel.api.user.updater.UserUpdater
+import com.chobolevel.api.user.validator.UserBusinessValidator
 import com.chobolevel.domain.common.dto.Pagination
 import com.chobolevel.domain.user.User
 import com.chobolevel.domain.user.UserFinder

@@ -1,11 +1,11 @@
 package com.chobolevel.api.api.guest.service
 
 import com.chobolevel.api.common.dummy.guest.DummyGuestBook
-import com.chobolevel.api.dto.guest.GuestBookResponseDto
-import com.chobolevel.api.service.guest.GuestBookService
-import com.chobolevel.api.service.guest.converter.GuestBookConverter
-import com.chobolevel.api.service.guest.updater.GuestBookUpdater
-import com.chobolevel.api.service.guest.validator.GuestBookParameterValidator
+import com.chobolevel.api.guest.converter.GuestBookConverter
+import com.chobolevel.api.guest.dto.GuestBookResponseDto
+import com.chobolevel.api.guest.service.GuestBookService
+import com.chobolevel.api.guest.updater.GuestBookUpdater
+import com.chobolevel.api.guest.validator.GuestBookParameterValidator
 import com.chobolevel.domain.common.dto.Pagination
 import com.chobolevel.domain.guest.GuestBook
 import com.chobolevel.domain.guest.GuestBookFinder

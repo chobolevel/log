@@ -2,8 +2,8 @@ package com.chobolevel.api.api.users.service
 
 import com.chobolevel.api.common.dummy.users.DummyUser
 import com.chobolevel.api.common.dummy.users.DummyUserImage
-import com.chobolevel.api.service.user.UserImageService
-import com.chobolevel.api.service.user.converter.UserImageConverter
+import com.chobolevel.api.user.converter.UserImageConverter
+import com.chobolevel.api.user.service.UserImageService
 import com.chobolevel.domain.user.UserFinder
 import com.chobolevel.domain.user.image.UserImageFinder
 import com.chobolevel.domain.user.image.UserImageRepository

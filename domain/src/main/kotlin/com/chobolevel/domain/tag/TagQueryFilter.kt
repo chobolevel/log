@@ -1,6 +1,6 @@
 package com.chobolevel.domain.tag
 
-import com.chobolevel.domain.entity.tag.QTag.tag
+import com.chobolevel.domain.tag.QTag.tag
 import com.querydsl.core.types.dsl.BooleanExpression
 
 class TagQueryFilter(

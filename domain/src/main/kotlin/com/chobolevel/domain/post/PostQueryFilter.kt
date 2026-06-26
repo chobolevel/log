@@ -1,6 +1,6 @@
 package com.chobolevel.domain.post
 
-import com.chobolevel.domain.entity.post.QPost.post
+import com.chobolevel.domain.post.QPost.post
 import com.querydsl.core.types.dsl.BooleanExpression
 
 class PostQueryFilter(

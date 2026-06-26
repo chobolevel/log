@@ -1,9 +1,9 @@
 package com.chobolevel.api.common.dummy.guest
 
-import com.chobolevel.api.dto.guest.CreateGuestBookRequestDto
-import com.chobolevel.api.dto.guest.DeleteGuestBookRequestDto
-import com.chobolevel.api.dto.guest.GuestBookResponseDto
-import com.chobolevel.api.dto.guest.UpdateGuestBookRequestDto
+import com.chobolevel.api.guest.dto.CreateGuestBookRequestDto
+import com.chobolevel.api.guest.dto.DeleteGuestBookRequestDto
+import com.chobolevel.api.guest.dto.GuestBookResponseDto
+import com.chobolevel.api.guest.dto.UpdateGuestBookRequestDto
 import com.chobolevel.domain.guest.GuestBook
 import com.chobolevel.domain.guest.GuestBookUpdateMask
 

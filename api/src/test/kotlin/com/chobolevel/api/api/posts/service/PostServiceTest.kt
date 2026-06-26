@@ -1,7 +1,7 @@
 package com.chobolevel.api.api.posts.service
 
-import com.chobolevel.api.service.post.PostService
-import com.chobolevel.api.service.post.converter.PostConverter
+import com.chobolevel.api.post.converter.PostConverter
+import com.chobolevel.api.post.service.PostService
 import com.chobolevel.domain.post.PostRepository
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test

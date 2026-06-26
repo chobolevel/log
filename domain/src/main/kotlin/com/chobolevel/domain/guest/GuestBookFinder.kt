@@ -3,7 +3,7 @@ package com.chobolevel.domain.guest
 import com.chobolevel.domain.common.dto.Pagination
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
-import com.chobolevel.domain.entity.guest.QGuestBook.guestBook
+import com.chobolevel.domain.guest.QGuestBook.guestBook
 import com.querydsl.core.types.OrderSpecifier
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component

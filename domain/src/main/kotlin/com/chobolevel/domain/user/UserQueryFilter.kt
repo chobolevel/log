@@ -1,6 +1,6 @@
 package com.chobolevel.domain.user
 
-import com.chobolevel.domain.entity.user.QUser.user
+import com.chobolevel.domain.user.QUser.user
 import com.querydsl.core.types.dsl.BooleanExpression
 
 class UserQueryFilter(

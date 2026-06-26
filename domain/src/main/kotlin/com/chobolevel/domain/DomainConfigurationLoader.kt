@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 
 @Configuration
 @ComponentScan
-@EnableJpaRepositories(basePackages = ["com.chobolevel.domain.entity"])
-@EntityScan(basePackages = ["com.chobolevel.domain.entity"])
+@EnableJpaRepositories(basePackages = ["com.chobolevel.domain"])
+@EntityScan(basePackages = ["com.chobolevel.domain"])
 class DomainConfigurationLoader
