@@ -122,7 +122,6 @@ class GuestBookServiceTest {
         val request = DummyGuestBook.toUpdateRequestDto()
         val dummyGuestBook = DummyGuestBook.toEntity()
         `when`(passwordEncoder.matches(request.password, dummyGuestBook.password)).thenReturn(true)
-        `when`(validator.validate(request)).thenCallRealMethod()
         `when`(finder.findById(dummyGuestBook.id!!)).thenReturn(dummyGuestBook)
         `when`(updater.markAsUpdate(request = request, entity = dummyGuestBook)).thenCallRealMethod()
 
