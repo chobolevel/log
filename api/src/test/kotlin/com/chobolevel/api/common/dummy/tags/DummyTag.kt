@@ -1,35 +1,34 @@
 package com.chobolevel.api.common.dummy.tags
 
+import com.chobolevel.api.tag.dto.TagResponseDto
 import com.chobolevel.domain.tag.Tag
-
-/**
- *
- * 태그 더미 클래스
- *
- * 테스트에 사용될 태그 더미 클래스입니다.
- *
- * 모든 객체는 싱글톤 패턴으로 관리되고 있습니다.
- *
- * @author chobolevel
- * @created 2025-02-04
- * @since 0.0.1
- */
+import java.time.OffsetDateTime
 
 object DummyTag {
-    private val id = 1L
-    private val name = "JAVA"
-    private val order = 1
+    val ID = 1L
+    const val NAME = "JAVA"
+    const val ORDER = 1
 
+    // Tag도 가변 객체(postTags 컬렉션)이므로 매번 새 인스턴스를 반환한다.
     fun toEntity(): Tag {
-        return tag
+        return Tag(
+            name = NAME,
+            order = ORDER
+        ).also {
+            it.id = ID
+            it.createdAt = OffsetDateTime.now()
+            it.updatedAt = OffsetDateTime.now()
+        }
     }
 
-    private val tag: Tag by lazy {
-        Tag(
-            name = name,
-            order = order
-        ).also {
-            it.id = id
-        }
+    fun toResponseDto(): TagResponseDto {
+        return TagResponseDto(
+            id = ID,
+            name = NAME,
+            order = ORDER,
+            postsCount = 0,
+            createdAt = 0L,
+            updatedAt = 0L
+        )
     }
 }

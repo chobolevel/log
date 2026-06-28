@@ -1,43 +1,43 @@
 package com.chobolevel.api.common.dummy.posts
 
+import com.chobolevel.api.post.dto.PostImageResponseDto
 import com.chobolevel.domain.post.image.PostImage
 import com.chobolevel.domain.post.image.PostImageType
-
-/**
- *
- * 게시글 이미지 더미 클래스
- *
- * 테스트에 사용될 게시글 이미지 더미 클래스입니다.
- *
- * 모든 객체는 싱글톤 패턴으로 관리되고 있습니다.
- *
- * @author chobolevel
- * @created 2025-02-04
- * @since 0.0.1
- */
+import java.time.OffsetDateTime
 
 object DummyPostImage {
-    private val id = 1L
-    private val type = PostImageType.THUMB_NAIL
-    private val name = "게시글 사진"
-    private val url =
-        "https://chobolevel.s3.ap-northeast-2.amazonaws.com/image/2024/08/30/93c5e6d9-a261-4179-967c-c032e859194e.jpg"
-    private val width = 100
-    private val height = 100
+    val ID = 1L
+    val TYPE = PostImageType.THUMB_NAIL
+    const val NAME = "게시글 썸네일"
+    const val URL = "https://chobolevel.s3.ap-northeast-2.amazonaws.com/image/2024/08/30/93c5e6d9-a261-4179-967c-c032e859194e.jpg"
+    const val WIDTH = 100
+    const val HEIGHT = 100
 
+    // PostImage도 가변 객체(post 필드, deleted 필드)이므로 매번 새 인스턴스를 반환한다.
     fun toEntity(): PostImage {
-        return postImage
+        return PostImage(
+            type = TYPE,
+            name = NAME,
+            url = URL,
+            width = WIDTH,
+            height = HEIGHT
+        ).also {
+            it.id = ID
+            it.createdAt = OffsetDateTime.now()
+            it.updatedAt = OffsetDateTime.now()
+        }
     }
 
-    private val postImage: PostImage by lazy {
-        PostImage(
-            type = type,
-            name = name,
-            url = url,
-            width = width,
-            height = height,
-        ).also {
-            it.id = id
-        }
+    fun toResponseDto(): PostImageResponseDto {
+        return PostImageResponseDto(
+            id = ID,
+            type = TYPE,
+            name = NAME,
+            url = URL,
+            width = WIDTH,
+            height = HEIGHT,
+            createdAt = 0L,
+            updatedAt = 0L
+        )
     }
 }

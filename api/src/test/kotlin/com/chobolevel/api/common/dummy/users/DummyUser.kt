@@ -25,7 +25,7 @@ import com.chobolevel.domain.user.UserUpdateMask
 // object = 자동으로 싱글톤 패턴으로 관리되어 동일한 인스턴스 재사용
 // class = 인스턴스를 여러번 생성할 수 있고 매번 새로운 객체 생성됨
 object DummyUser {
-    private val id = 1L
+    val id = 1L
     private val email = "rodaka123@naver.com"
     private val password = "rkddlswo218@"
     private val socialId = null

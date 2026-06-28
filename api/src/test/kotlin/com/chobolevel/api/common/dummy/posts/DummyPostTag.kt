@@ -2,29 +2,13 @@ package com.chobolevel.api.common.dummy.posts
 
 import com.chobolevel.domain.post.tag.PostTag
 
-/**
- *
- * 게시글 태그 더미 클래스
- *
- * 테스트에 사용될 게시글 태그 더미 클래스입니다.
- *
- * 모든 객체는 싱글톤 패턴으로 관리되고 있습니다.
- *
- * @author chobolevel
- * @created 2025-02-04
- * @since 0.0.1
- */
-
 object DummyPostTag {
-    private val id = 1L
+    val ID = 1L
 
+    // PostTag는 post, tag 필드를 가지므로 가변 객체다. 매번 새 인스턴스를 반환한다.
     fun toEntity(): PostTag {
-        return postTag
-    }
-
-    private val postTag: PostTag by lazy {
-        PostTag().also {
-            it.id = id
+        return PostTag().also {
+            it.id = ID
         }
     }
 }
