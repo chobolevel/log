@@ -61,25 +61,56 @@ warmers.forEach { it.warm(...) }
 for (post in posts) { ... }
 ```
 
-### 2. 패키지 구조 (도메인 기준)
+### 2. 패키지 구조 (도메인 > 서브도메인 > 레이어)
 
-레이어 기준이 아닌 **도메인 기준**으로 패키지를 구성한다.
+최상위는 도메인, 그 아래 서브도메인, 그 아래 레이어 순서로 구성한다.
+
+**domain 모듈** — 각 도메인/서브도메인 내에 `entity/`, `repository/`, `vo/` 레이어 패키지를 추가한다. Finder(도메인 서비스)는 레이어 구분 없이 도메인 루트에 둔다.
+
+```
+domain/
+  post/
+    entity/        ← JPA 엔티티 및 관련 enum
+      Post.kt
+      PostOrderType.kt (Post.kt 내부 정의)
+    repository/
+      PostRepository.kt
+      PostCustomRepository.kt
+    vo/
+      PostQueryFilter.kt
+    PostFinder.kt  ← 도메인 서비스는 루트
+    comment/       ← 서브도메인
+      entity/
+        PostComment.kt
+      repository/
+        PostCommentRepository.kt
+      vo/
+        PostCommentQueryFilter.kt
+      PostCommentFinder.kt
+    image/
+      entity/
+        PostImage.kt
+```
+
+**api 모듈** — 서브도메인은 별도 디렉토리로 분리하고, 그 안에서 레이어를 나눈다.
 
 ```
 api/
   post/
-    controller/
+    controller/    ← Post 관련 레이어
     service/
-    converter/
     dto/
-    validator/
-    updater/
-domain/
-  post/
-    Post.kt
-    PostFinder.kt
-    PostRepository.kt
-    PostQueryFilter.kt
+    converter/
+    comment/       ← PostComment 서브도메인
+      controller/
+      service/
+      dto/
+      converter/
+      validator/
+      updater/
+    image/         ← PostImage 서브도메인
+      converter/
+      dto/
 ```
 
 ### 3. 테스트 작성 원칙
