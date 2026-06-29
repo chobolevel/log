@@ -1,8 +1,8 @@
 package com.chobolevel.api.guest.updater
 
 import com.chobolevel.api.guest.dto.UpdateGuestBookRequestDto
-import com.chobolevel.domain.guest.GuestBook
-import com.chobolevel.domain.guest.GuestBookUpdateMask
+import com.chobolevel.domain.guest.entity.GuestBook
+import com.chobolevel.domain.guest.entity.GuestBookUpdateMask
 import org.springframework.stereotype.Component
 
 @Component

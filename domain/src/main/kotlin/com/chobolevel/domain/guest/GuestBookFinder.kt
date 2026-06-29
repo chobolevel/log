@@ -3,10 +3,15 @@ package com.chobolevel.domain.guest
 import com.chobolevel.domain.common.dto.Pagination
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
-import com.chobolevel.domain.guest.QGuestBook.guestBook
+import com.chobolevel.domain.guest.entity.QGuestBook.guestBook
 import com.querydsl.core.types.OrderSpecifier
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
+import com.chobolevel.domain.guest.vo.GuestBookQueryFilter
+import com.chobolevel.domain.guest.repository.GuestBookCustomRepository
+import com.chobolevel.domain.guest.repository.GuestBookRepository
+import com.chobolevel.domain.guest.entity.GuestBookOrderType
+import com.chobolevel.domain.guest.entity.GuestBook
 
 @Component
 class GuestBookFinder(

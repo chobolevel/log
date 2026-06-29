@@ -11,8 +11,8 @@ import com.chobolevel.api.common.annotation.HasAuthorityUser
 import com.chobolevel.api.common.dto.PaginationResponseDto
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getUserId
-import com.chobolevel.domain.channel.ChannelOrderType
-import com.chobolevel.domain.channel.ChannelQueryFilter
+import com.chobolevel.domain.channel.entity.ChannelOrderType
+import com.chobolevel.domain.channel.vo.ChannelQueryFilter
 import com.chobolevel.domain.common.dto.Pagination
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag

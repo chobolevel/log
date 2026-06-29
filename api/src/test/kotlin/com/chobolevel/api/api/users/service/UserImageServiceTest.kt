@@ -2,11 +2,11 @@ package com.chobolevel.api.api.users.service
 
 import com.chobolevel.api.common.dummy.users.DummyUser
 import com.chobolevel.api.common.dummy.users.DummyUserImage
-import com.chobolevel.api.user.converter.UserImageConverter
-import com.chobolevel.api.user.service.UserImageService
+import com.chobolevel.api.user.image.converter.UserImageConverter
+import com.chobolevel.api.user.image.service.UserImageService
 import com.chobolevel.domain.user.UserFinder
 import com.chobolevel.domain.user.image.UserImageFinder
-import com.chobolevel.domain.user.image.UserImageRepository
+import com.chobolevel.domain.user.image.repository.UserImageRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test

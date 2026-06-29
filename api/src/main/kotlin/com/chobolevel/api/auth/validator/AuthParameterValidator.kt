@@ -5,7 +5,7 @@ import com.chobolevel.api.auth.dto.LoginRequestDto
 import com.chobolevel.api.auth.dto.SendEmailVerificationCodeRequest
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
-import com.chobolevel.domain.user.UserLoginType
+import com.chobolevel.domain.user.entity.UserLoginType
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 

@@ -1,6 +1,6 @@
 package com.chobolevel.api.channel.query
 
-import com.chobolevel.domain.channel.ChannelQueryFilter
+import com.chobolevel.domain.channel.vo.ChannelQueryFilter
 import com.chobolevel.domain.common.dto.Pagination
 import org.springframework.stereotype.Component
 

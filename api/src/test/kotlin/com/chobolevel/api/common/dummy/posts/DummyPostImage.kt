@@ -1,8 +1,8 @@
 package com.chobolevel.api.common.dummy.posts
 
-import com.chobolevel.api.post.dto.PostImageResponseDto
-import com.chobolevel.domain.post.image.PostImage
-import com.chobolevel.domain.post.image.PostImageType
+import com.chobolevel.api.post.image.dto.PostImageResponseDto
+import com.chobolevel.domain.post.image.entity.PostImage
+import com.chobolevel.domain.post.image.entity.PostImageType
 import java.time.OffsetDateTime
 
 object DummyPostImage {

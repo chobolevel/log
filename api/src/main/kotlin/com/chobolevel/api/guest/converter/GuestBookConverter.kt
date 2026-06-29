@@ -2,7 +2,7 @@ package com.chobolevel.api.guest.converter
 
 import com.chobolevel.api.guest.dto.CreateGuestBookRequestDto
 import com.chobolevel.api.guest.dto.GuestBookResponseDto
-import com.chobolevel.domain.guest.GuestBook
+import com.chobolevel.domain.guest.entity.GuestBook
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component
 

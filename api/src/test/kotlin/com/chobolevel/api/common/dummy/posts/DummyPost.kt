@@ -5,8 +5,8 @@ import com.chobolevel.api.common.dummy.users.DummyUser
 import com.chobolevel.api.post.dto.CreatePostRequestDto
 import com.chobolevel.api.post.dto.PostResponseDto
 import com.chobolevel.api.post.dto.UpdatePostRequestDto
-import com.chobolevel.domain.post.Post
-import com.chobolevel.domain.post.PostUpdateMask
+import com.chobolevel.domain.post.entity.Post
+import com.chobolevel.domain.post.entity.PostUpdateMask
 import java.time.OffsetDateTime
 
 object DummyPost {

@@ -7,11 +7,11 @@ import com.chobolevel.api.user.service.UserService
 import com.chobolevel.api.user.updater.UserUpdater
 import com.chobolevel.api.user.validator.UserBusinessValidator
 import com.chobolevel.domain.common.dto.Pagination
-import com.chobolevel.domain.user.User
+import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.UserFinder
-import com.chobolevel.domain.user.UserOrderType
-import com.chobolevel.domain.user.UserQueryFilter
-import com.chobolevel.domain.user.UserRepository
+import com.chobolevel.domain.user.entity.UserOrderType
+import com.chobolevel.domain.user.vo.UserQueryFilter
+import com.chobolevel.domain.user.repository.UserRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test

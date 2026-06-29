@@ -9,12 +9,12 @@ import com.chobolevel.api.user.dto.UserResponseDto
 import com.chobolevel.api.user.updater.UserUpdater
 import com.chobolevel.api.user.validator.UserBusinessValidator
 import com.chobolevel.domain.common.dto.Pagination
-import com.chobolevel.domain.user.User
+import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.UserFinder
-import com.chobolevel.domain.user.UserOrderType
-import com.chobolevel.domain.user.UserQueryFilter
-import com.chobolevel.domain.user.UserRepository
-import com.chobolevel.domain.user.UserUpdateMask
+import com.chobolevel.domain.user.entity.UserOrderType
+import com.chobolevel.domain.user.vo.UserQueryFilter
+import com.chobolevel.domain.user.repository.UserRepository
+import com.chobolevel.domain.user.entity.UserUpdateMask
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

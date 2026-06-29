@@ -1,7 +1,7 @@
 package com.chobolevel.api.user.dto
 
-import com.chobolevel.domain.user.UserLoginType
-import com.chobolevel.domain.user.UserRoleType
+import com.chobolevel.domain.user.entity.UserLoginType
+import com.chobolevel.domain.user.entity.UserRoleType
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 

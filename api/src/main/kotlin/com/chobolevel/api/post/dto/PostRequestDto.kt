@@ -1,6 +1,6 @@
 package com.chobolevel.api.post.dto
 
-import com.chobolevel.domain.post.PostUpdateMask
+import com.chobolevel.domain.post.entity.PostUpdateMask
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import jakarta.validation.constraints.NotEmpty

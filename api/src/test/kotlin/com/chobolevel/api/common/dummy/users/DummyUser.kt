@@ -3,10 +3,10 @@ package com.chobolevel.api.common.dummy.users
 import com.chobolevel.api.user.dto.CreateUserRequestDto
 import com.chobolevel.api.user.dto.UpdateUserRequestDto
 import com.chobolevel.api.user.dto.UserResponseDto
-import com.chobolevel.domain.user.User
-import com.chobolevel.domain.user.UserLoginType
-import com.chobolevel.domain.user.UserRoleType
-import com.chobolevel.domain.user.UserUpdateMask
+import com.chobolevel.domain.user.entity.User
+import com.chobolevel.domain.user.entity.UserLoginType
+import com.chobolevel.domain.user.entity.UserRoleType
+import com.chobolevel.domain.user.entity.UserUpdateMask
 
 /**
  *

@@ -7,11 +7,11 @@ import com.chobolevel.api.guest.service.GuestBookService
 import com.chobolevel.api.guest.updater.GuestBookUpdater
 import com.chobolevel.api.guest.validator.GuestBookParameterValidator
 import com.chobolevel.domain.common.dto.Pagination
-import com.chobolevel.domain.guest.GuestBook
+import com.chobolevel.domain.guest.entity.GuestBook
 import com.chobolevel.domain.guest.GuestBookFinder
-import com.chobolevel.domain.guest.GuestBookOrderType
-import com.chobolevel.domain.guest.GuestBookQueryFilter
-import com.chobolevel.domain.guest.GuestBookRepository
+import com.chobolevel.domain.guest.entity.GuestBookOrderType
+import com.chobolevel.domain.guest.vo.GuestBookQueryFilter
+import com.chobolevel.domain.guest.repository.GuestBookRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test

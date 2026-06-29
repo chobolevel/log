@@ -12,10 +12,10 @@ import com.chobolevel.api.user.query.UserQueryCreator
 import com.chobolevel.api.user.service.UserService
 import com.chobolevel.api.user.validator.UserParameterValidator
 import com.chobolevel.domain.common.dto.Pagination
-import com.chobolevel.domain.user.UserLoginType
-import com.chobolevel.domain.user.UserOrderType
-import com.chobolevel.domain.user.UserQueryFilter
-import com.chobolevel.domain.user.UserRoleType
+import com.chobolevel.domain.user.entity.UserLoginType
+import com.chobolevel.domain.user.entity.UserOrderType
+import com.chobolevel.domain.user.vo.UserQueryFilter
+import com.chobolevel.domain.user.entity.UserRoleType
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid

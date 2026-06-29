@@ -1,0 +1,46 @@
+package com.chobolevel.api.user.image.controller
+
+import com.chobolevel.api.common.annotation.HasAuthorityUser
+import com.chobolevel.api.common.dto.ResultResponse
+import com.chobolevel.api.common.extension.getUserId
+import com.chobolevel.api.user.image.dto.CreateUserImageRequestDto
+import com.chobolevel.api.user.image.service.UserImageService
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
+import java.security.Principal
+
+@Tag(name = "UserImage (회원 프로필 이미지)", description = "회원 프로필 이미지 관리 API")
+@RestController
+@RequestMapping("/api/v1")
+class UserImageController(
+    private val service: UserImageService
+) {
+
+    @Operation(summary = "회원 프로필 이미지 변경 API")
+    @HasAuthorityUser
+    @PostMapping("/users/images")
+    fun createUserImage(
+        principal: Principal,
+        @Valid @RequestBody
+        request: CreateUserImageRequestDto
+    ): ResponseEntity<ResultResponse> {
+        val result: Long = service.createUserImage(principal.getUserId(), request)
+        return ResponseEntity.ok(ResultResponse(result))
+    }
+
+    @Operation(summary = "회원 프로필 이미지 삭제 API")
+    @HasAuthorityUser
+    @DeleteMapping("/users/images/{userImageId}")
+    fun deleteUserImage(principal: Principal, @PathVariable userImageId: Long): ResponseEntity<ResultResponse> {
+        val result: Boolean = service.deleteUserImage(principal.getUserId(), userImageId)
+        return ResponseEntity.ok(ResultResponse(result))
+    }
+}

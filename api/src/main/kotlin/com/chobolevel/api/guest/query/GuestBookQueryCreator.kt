@@ -1,7 +1,7 @@
 package com.chobolevel.api.guest.query
 
 import com.chobolevel.domain.common.dto.Pagination
-import com.chobolevel.domain.guest.GuestBookQueryFilter
+import com.chobolevel.domain.guest.vo.GuestBookQueryFilter
 import org.springframework.stereotype.Component
 
 @Component

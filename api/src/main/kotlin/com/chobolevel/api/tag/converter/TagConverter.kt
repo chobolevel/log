@@ -2,7 +2,7 @@ package com.chobolevel.api.tag.converter
 
 import com.chobolevel.api.tag.dto.CreateTagRequestDto
 import com.chobolevel.api.tag.dto.TagResponseDto
-import com.chobolevel.domain.tag.Tag
+import com.chobolevel.domain.tag.entity.Tag
 import org.springframework.stereotype.Component
 
 @Component

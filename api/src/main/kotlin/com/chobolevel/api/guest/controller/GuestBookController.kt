@@ -11,8 +11,8 @@ import com.chobolevel.api.guest.query.GuestBookQueryCreator
 import com.chobolevel.api.guest.service.GuestBookService
 import com.chobolevel.api.guest.validator.GuestBookParameterValidator
 import com.chobolevel.domain.common.dto.Pagination
-import com.chobolevel.domain.guest.GuestBookOrderType
-import com.chobolevel.domain.guest.GuestBookQueryFilter
+import com.chobolevel.domain.guest.entity.GuestBookOrderType
+import com.chobolevel.domain.guest.vo.GuestBookQueryFilter
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid

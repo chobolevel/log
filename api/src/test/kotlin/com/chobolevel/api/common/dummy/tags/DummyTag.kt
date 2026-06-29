@@ -1,7 +1,7 @@
 package com.chobolevel.api.common.dummy.tags
 
 import com.chobolevel.api.tag.dto.TagResponseDto
-import com.chobolevel.domain.tag.Tag
+import com.chobolevel.domain.tag.entity.Tag
 import java.time.OffsetDateTime
 
 object DummyTag {

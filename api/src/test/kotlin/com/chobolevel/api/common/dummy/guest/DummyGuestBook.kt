@@ -4,8 +4,8 @@ import com.chobolevel.api.guest.dto.CreateGuestBookRequestDto
 import com.chobolevel.api.guest.dto.DeleteGuestBookRequestDto
 import com.chobolevel.api.guest.dto.GuestBookResponseDto
 import com.chobolevel.api.guest.dto.UpdateGuestBookRequestDto
-import com.chobolevel.domain.guest.GuestBook
-import com.chobolevel.domain.guest.GuestBookUpdateMask
+import com.chobolevel.domain.guest.entity.GuestBook
+import com.chobolevel.domain.guest.entity.GuestBookUpdateMask
 
 /**
  *

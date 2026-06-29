@@ -3,12 +3,18 @@ package com.chobolevel.domain.user
 import com.chobolevel.domain.common.dto.Pagination
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
-import com.chobolevel.domain.user.QUser.user
+import com.chobolevel.domain.user.entity.QUser.user
 import com.querydsl.core.types.OrderSpecifier
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import kotlin.jvm.Throws
+import com.chobolevel.domain.user.vo.UserQueryFilter
+import com.chobolevel.domain.user.repository.UserCustomRepository
+import com.chobolevel.domain.user.repository.UserRepository
+import com.chobolevel.domain.user.entity.UserOrderType
+import com.chobolevel.domain.user.entity.UserLoginType
+import com.chobolevel.domain.user.entity.User
 
 @Component
 class UserFinder(

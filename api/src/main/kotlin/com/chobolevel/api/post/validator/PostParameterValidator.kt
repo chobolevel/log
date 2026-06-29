@@ -3,7 +3,7 @@ package com.chobolevel.api.post.validator
 import com.chobolevel.api.post.dto.UpdatePostRequestDto
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
-import com.chobolevel.domain.post.PostUpdateMask
+import com.chobolevel.domain.post.entity.PostUpdateMask
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 

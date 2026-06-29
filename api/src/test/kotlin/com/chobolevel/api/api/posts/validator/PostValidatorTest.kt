@@ -3,7 +3,7 @@ package com.chobolevel.api.api.posts.validator
 import com.chobolevel.api.post.dto.UpdatePostRequestDto
 import com.chobolevel.api.post.validator.PostParameterValidator
 import com.chobolevel.domain.common.exception.ApiException
-import com.chobolevel.domain.post.PostUpdateMask
+import com.chobolevel.domain.post.entity.PostUpdateMask
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe

@@ -1,7 +1,7 @@
 package com.chobolevel.api.tag.query
 
 import com.chobolevel.domain.common.dto.Pagination
-import com.chobolevel.domain.tag.TagQueryFilter
+import com.chobolevel.domain.tag.vo.TagQueryFilter
 import org.springframework.stereotype.Component
 
 @Component

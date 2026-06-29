@@ -2,7 +2,7 @@ package com.chobolevel.api.post.service
 
 import com.chobolevel.api.common.dto.PaginationResponseDto
 import com.chobolevel.api.post.converter.PostConverter
-import com.chobolevel.api.post.converter.PostImageConverter
+import com.chobolevel.api.post.image.converter.PostImageConverter
 import com.chobolevel.api.post.dto.CreatePostRequestDto
 import com.chobolevel.api.post.dto.PostResponseDto
 import com.chobolevel.api.post.dto.UpdatePostRequestDto
@@ -10,15 +10,15 @@ import com.chobolevel.api.post.updater.PostUpdatable
 import com.chobolevel.domain.common.dto.Pagination
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
-import com.chobolevel.domain.post.Post
+import com.chobolevel.domain.post.entity.Post
 import com.chobolevel.domain.post.PostFinder
-import com.chobolevel.domain.post.PostOrderType
-import com.chobolevel.domain.post.PostQueryFilter
-import com.chobolevel.domain.post.PostRepository
-import com.chobolevel.domain.post.tag.PostTag
-import com.chobolevel.domain.tag.Tag
+import com.chobolevel.domain.post.entity.PostOrderType
+import com.chobolevel.domain.post.vo.PostQueryFilter
+import com.chobolevel.domain.post.repository.PostRepository
+import com.chobolevel.domain.post.tag.entity.PostTag
+import com.chobolevel.domain.tag.entity.Tag
 import com.chobolevel.domain.tag.TagFinder
-import com.chobolevel.domain.user.User
+import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.UserFinder
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Service

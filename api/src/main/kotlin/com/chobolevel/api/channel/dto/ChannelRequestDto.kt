@@ -1,6 +1,6 @@
 package com.chobolevel.api.channel.dto
 
-import com.chobolevel.domain.channel.ChannelUpdateMask
+import com.chobolevel.domain.channel.entity.ChannelUpdateMask
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import jakarta.validation.constraints.NotEmpty

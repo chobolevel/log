@@ -6,10 +6,10 @@ import com.chobolevel.api.common.dummy.posts.DummyPostTag
 import com.chobolevel.api.common.dummy.tags.DummyTag
 import com.chobolevel.api.common.dummy.users.DummyUser
 import com.chobolevel.api.post.converter.PostConverter
-import com.chobolevel.api.post.converter.PostImageConverter
+import com.chobolevel.api.post.image.converter.PostImageConverter
 import com.chobolevel.api.tag.converter.TagConverter
 import com.chobolevel.api.user.converter.UserConverter
-import com.chobolevel.domain.user.User
+import com.chobolevel.domain.user.entity.User
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull

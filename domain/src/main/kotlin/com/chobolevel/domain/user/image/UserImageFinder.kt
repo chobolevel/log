@@ -5,6 +5,8 @@ import com.chobolevel.domain.common.exception.ErrorCode
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
+import com.chobolevel.domain.user.image.repository.UserImageRepository
+import com.chobolevel.domain.user.image.entity.UserImage
 
 @Component
 class UserImageFinder(

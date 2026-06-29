@@ -1,9 +1,9 @@
 package com.chobolevel.api.user.query
 
 import com.chobolevel.domain.common.dto.Pagination
-import com.chobolevel.domain.user.UserLoginType
-import com.chobolevel.domain.user.UserQueryFilter
-import com.chobolevel.domain.user.UserRoleType
+import com.chobolevel.domain.user.entity.UserLoginType
+import com.chobolevel.domain.user.vo.UserQueryFilter
+import com.chobolevel.domain.user.entity.UserRoleType
 import org.springframework.stereotype.Component
 
 @Component

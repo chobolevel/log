@@ -1,7 +1,7 @@
 package com.chobolevel.api.channel.controller
 
-import com.chobolevel.api.channel.dto.CreateChannelMessageRequestDto
-import com.chobolevel.api.channel.service.ChannelMessageService
+import com.chobolevel.api.channel.message.dto.CreateChannelMessageRequestDto
+import com.chobolevel.api.channel.message.service.ChannelMessageService
 import org.springframework.messaging.handler.annotation.DestinationVariable
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor

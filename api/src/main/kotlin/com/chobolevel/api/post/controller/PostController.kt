@@ -11,8 +11,8 @@ import com.chobolevel.api.post.query.PostQueryCreator
 import com.chobolevel.api.post.service.PostService
 import com.chobolevel.api.post.validator.PostParameterValidator
 import com.chobolevel.domain.common.dto.Pagination
-import com.chobolevel.domain.post.PostOrderType
-import com.chobolevel.domain.post.PostQueryFilter
+import com.chobolevel.domain.post.entity.PostOrderType
+import com.chobolevel.domain.post.vo.PostQueryFilter
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid

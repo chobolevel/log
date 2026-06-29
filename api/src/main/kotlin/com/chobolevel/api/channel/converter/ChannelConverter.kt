@@ -3,7 +3,7 @@ package com.chobolevel.api.channel.converter
 import com.chobolevel.api.channel.dto.ChannelResponseDto
 import com.chobolevel.api.channel.dto.CreateChannelRequestDto
 import com.chobolevel.api.user.converter.UserConverter
-import com.chobolevel.domain.channel.Channel
+import com.chobolevel.domain.channel.entity.Channel
 import org.springframework.stereotype.Component
 
 @Component

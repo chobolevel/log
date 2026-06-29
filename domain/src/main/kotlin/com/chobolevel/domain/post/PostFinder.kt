@@ -3,10 +3,15 @@ package com.chobolevel.domain.post
 import com.chobolevel.domain.common.dto.Pagination
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
-import com.chobolevel.domain.post.QPost.post
+import com.chobolevel.domain.post.entity.QPost.post
 import com.querydsl.core.types.OrderSpecifier
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
+import com.chobolevel.domain.post.vo.PostQueryFilter
+import com.chobolevel.domain.post.repository.PostCustomRepository
+import com.chobolevel.domain.post.repository.PostRepository
+import com.chobolevel.domain.post.entity.PostOrderType
+import com.chobolevel.domain.post.entity.Post
 
 @Component
 class PostFinder(
