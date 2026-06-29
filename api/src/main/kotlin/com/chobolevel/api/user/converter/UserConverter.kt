@@ -2,6 +2,7 @@ package com.chobolevel.api.user.converter
 
 import com.chobolevel.api.user.dto.CreateUserRequestDto
 import com.chobolevel.api.user.dto.UserResponseDto
+import com.chobolevel.api.user.image.converter.UserImageConverter
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.entity.UserLoginType
 import com.chobolevel.domain.user.entity.UserRoleType

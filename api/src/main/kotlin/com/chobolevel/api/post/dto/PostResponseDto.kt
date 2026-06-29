@@ -1,5 +1,6 @@
 package com.chobolevel.api.post.dto
 
+import com.chobolevel.api.post.image.dto.PostImageResponseDto
 import com.chobolevel.api.tag.dto.TagResponseDto
 import com.chobolevel.api.user.dto.UserResponseDto
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
