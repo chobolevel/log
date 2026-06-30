@@ -64,6 +64,20 @@ dependencies {
 
     // batch
     implementation("org.springframework.boot:spring-boot-starter-batch")
+
+    // test: @WebMvcTest에서 MockK 기반 Bean 등록 지원
+    testImplementation("com.ninja-squad:springmockk:4.0.2")
+
+    // test: @DataJpaTest용 인메모리 DB
+    testRuntimeOnly("com.h2database:h2")
+
+    // test: Spring Security MockMvc 지원 (@WithMockUser 등)
+    testImplementation("org.springframework.security:spring-security-test")
+
+    // test: Testcontainers (대규모 통합 테스트용 실제 컨테이너)
+    testImplementation("org.springframework.boot:spring-boot-testcontainers")
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:mysql")
 }
 
 val baseJvmFlags: (memory: String, imageTag: String?, stage: String?) -> List<String> by ext
