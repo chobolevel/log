@@ -1,7 +1,7 @@
 package com.chobolevel.domain.guest.repository
 
-import org.springframework.data.jpa.repository.JpaRepository
 import com.chobolevel.domain.guest.entity.GuestBook
+import org.springframework.data.jpa.repository.JpaRepository
 
 interface GuestBookRepository : JpaRepository<GuestBook, Long> {
 

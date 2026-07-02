@@ -2,8 +2,8 @@ package com.chobolevel.api.common.security
 
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
-import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.UserFinder
+import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.entity.UserLoginType
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.AuthenticationProvider

@@ -14,8 +14,8 @@ import com.chobolevel.api.user.validator.UserParameterValidator
 import com.chobolevel.domain.common.dto.Pagination
 import com.chobolevel.domain.user.entity.UserLoginType
 import com.chobolevel.domain.user.entity.UserOrderType
-import com.chobolevel.domain.user.vo.UserQueryFilter
 import com.chobolevel.domain.user.entity.UserRoleType
+import com.chobolevel.domain.user.vo.UserQueryFilter
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -76,7 +76,7 @@ class UserController(
             skipCount = skipCount,
             limitCount = limitCount
         )
-        val result: PaginationResponseDto = service.searchUserList(queryFilter, pagination, orderTypes)
+        val result: PaginationResponseDto = service.searchUserList(queryFilter, pagination, orderTypes ?: emptyList())
         return ResponseEntity.ok(ResultResponse(result))
     }
 

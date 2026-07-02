@@ -1,17 +1,17 @@
 package com.chobolevel.domain.channel.message
 
+import com.chobolevel.domain.channel.message.entity.ChannelMessage
+import com.chobolevel.domain.channel.message.entity.ChannelMessageOrderType
 import com.chobolevel.domain.channel.message.entity.QChannelMessage.channelMessage
+import com.chobolevel.domain.channel.message.repository.ChannelMessageCustomRepository
+import com.chobolevel.domain.channel.message.repository.ChannelMessageRepository
+import com.chobolevel.domain.channel.message.vo.ChannelMessageQueryFilter
 import com.chobolevel.domain.common.dto.Pagination
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.querydsl.core.types.OrderSpecifier
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
-import com.chobolevel.domain.channel.message.vo.ChannelMessageQueryFilter
-import com.chobolevel.domain.channel.message.repository.ChannelMessageCustomRepository
-import com.chobolevel.domain.channel.message.repository.ChannelMessageRepository
-import com.chobolevel.domain.channel.message.entity.ChannelMessageOrderType
-import com.chobolevel.domain.channel.message.entity.ChannelMessage
 
 @Component
 class ChannelMessageFinder(

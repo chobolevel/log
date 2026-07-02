@@ -1,18 +1,32 @@
 package com.chobolevel.domain.user.repository
 
-import org.springframework.data.jpa.repository.JpaRepository
+import com.chobolevel.domain.common.dto.Pagination
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.entity.UserLoginType
+import com.chobolevel.domain.user.entity.UserOrderType
+import com.chobolevel.domain.user.vo.UserQueryFilter
 
-interface UserRepository : JpaRepository<User, Long> {
+interface UserRepository {
 
-    fun findByEmailAndLoginTypeAndResignedFalse(email: String, loginType: UserLoginType): User?
+    fun save(user: User): User
 
-    fun findBySocialIdAndLoginTypeAndResignedFalse(socialId: String, loginType: UserLoginType): User?
+    fun searchUsers(
+        queryFilter: UserQueryFilter,
+        pagination: Pagination,
+        orderTypes: List<UserOrderType>
+    ): List<User>
 
-    fun findByIdInAndResignedFalse(ids: List<Long>): List<User>
+    fun searchUsersCount(queryFilter: UserQueryFilter): Long
 
-    fun existsByEmailAndResignedFalse(email: String): Boolean
+    fun findById(id: Long): User
 
-    fun existsByNicknameAndResignedFalse(nickname: String): Boolean
+    fun findByEmailAndLoginType(email: String, loginType: UserLoginType): User?
+
+    fun findBySocialIdAndLoginType(socialId: String, loginType: UserLoginType): User?
+
+    fun findByIds(ids: List<Long>): List<User>
+
+    fun existsByEmail(email: String): Boolean
+
+    fun existsByNickname(nickname: String): Boolean
 }

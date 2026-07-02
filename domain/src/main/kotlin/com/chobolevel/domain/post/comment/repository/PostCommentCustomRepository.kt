@@ -1,12 +1,12 @@
 package com.chobolevel.domain.post.comment.repository
 
 import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.post.comment.entity.PostComment
 import com.chobolevel.domain.post.comment.entity.QPostComment.postComment
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.core.types.dsl.BooleanExpression
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import org.springframework.stereotype.Repository
-import com.chobolevel.domain.post.comment.entity.PostComment
 
 @Repository
 class PostCommentCustomRepository : QuerydslRepositorySupport(PostComment::class.java) {

@@ -2,14 +2,14 @@ package com.chobolevel.domain.user.repository
 
 import com.chobolevel.domain.common.dto.Pagination
 import com.chobolevel.domain.user.entity.QUser.user
+import com.chobolevel.domain.user.entity.User
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.core.types.dsl.BooleanExpression
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import org.springframework.stereotype.Repository
-import com.chobolevel.domain.user.entity.User
 
 @Repository
-class UserCustomRepository : QuerydslRepositorySupport(User::class.java) {
+class UserQuerydslRepository : QuerydslRepositorySupport(User::class.java) {
 
     /**
      * Get user entities meet the condition by querydsl

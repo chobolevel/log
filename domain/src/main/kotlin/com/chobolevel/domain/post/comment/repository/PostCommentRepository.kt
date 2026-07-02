@@ -1,7 +1,7 @@
 package com.chobolevel.domain.post.comment.repository
 
-import org.springframework.data.jpa.repository.JpaRepository
 import com.chobolevel.domain.post.comment.entity.PostComment
+import org.springframework.data.jpa.repository.JpaRepository
 
 interface PostCommentRepository : JpaRepository<PostComment, Long> {
 

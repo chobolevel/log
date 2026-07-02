@@ -1,7 +1,7 @@
 package com.chobolevel.domain.user.image.repository
 
-import org.springframework.data.jpa.repository.JpaRepository
 import com.chobolevel.domain.user.image.entity.UserImage
+import org.springframework.data.jpa.repository.JpaRepository
 
 interface UserImageRepository : JpaRepository<UserImage, Long> {
 

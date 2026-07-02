@@ -2,11 +2,11 @@ package com.chobolevel.domain.tag.repository
 
 import com.chobolevel.domain.common.dto.Pagination
 import com.chobolevel.domain.tag.entity.QTag.tag
+import com.chobolevel.domain.tag.entity.Tag
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.core.types.dsl.BooleanExpression
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import org.springframework.stereotype.Repository
-import com.chobolevel.domain.tag.entity.Tag
 
 @Repository
 class TagCustomRepository : QuerydslRepositorySupport(Tag::class.java) {

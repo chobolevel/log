@@ -4,8 +4,8 @@ import com.chobolevel.api.channel.dto.UpdateChannelRequestDto
 import com.chobolevel.domain.channel.entity.Channel
 import com.chobolevel.domain.channel.entity.ChannelUpdateMask
 import com.chobolevel.domain.channel.user.entity.ChannelUser
-import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.UserFinder
+import com.chobolevel.domain.user.entity.User
 import org.springframework.stereotype.Component
 
 @Component

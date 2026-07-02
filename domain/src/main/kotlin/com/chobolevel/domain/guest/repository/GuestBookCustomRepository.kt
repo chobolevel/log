@@ -1,12 +1,12 @@
 package com.chobolevel.domain.guest.repository
 
 import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.guest.entity.GuestBook
 import com.chobolevel.domain.guest.entity.QGuestBook.guestBook
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.core.types.dsl.BooleanExpression
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import org.springframework.stereotype.Repository
-import com.chobolevel.domain.guest.entity.GuestBook
 
 @Repository
 class GuestBookCustomRepository : QuerydslRepositorySupport(GuestBook::class.java) {

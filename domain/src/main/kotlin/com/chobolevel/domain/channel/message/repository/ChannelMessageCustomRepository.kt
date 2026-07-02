@@ -1,12 +1,12 @@
 package com.chobolevel.domain.channel.message.repository
 
+import com.chobolevel.domain.channel.message.entity.ChannelMessage
 import com.chobolevel.domain.channel.message.entity.QChannelMessage.channelMessage
 import com.chobolevel.domain.common.dto.Pagination
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.core.types.dsl.BooleanExpression
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import org.springframework.stereotype.Repository
-import com.chobolevel.domain.channel.message.entity.ChannelMessage
 
 @Repository
 class ChannelMessageCustomRepository : QuerydslRepositorySupport(ChannelMessage::class.java) {
