@@ -15,8 +15,8 @@ import com.chobolevel.domain.post.entity.PostOrderType
 import com.chobolevel.domain.post.repository.PostRepository
 import com.chobolevel.domain.post.tag.entity.PostTag
 import com.chobolevel.domain.post.vo.PostQueryFilter
-import com.chobolevel.domain.tag.TagFinder
 import com.chobolevel.domain.tag.entity.Tag
+import com.chobolevel.domain.tag.repository.TagRepository
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
 import org.springframework.data.redis.core.RedisTemplate
@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit
 class PostService(
     private val repository: PostRepository,
     private val userRepository: UserRepository,
-    private val tagFinder: TagFinder,
+    private val tagRepository: TagRepository,
     private val converter: PostConverter,
     private val postImageConverter: PostImageConverter,
     private val updaters: List<PostUpdatable>,
@@ -41,7 +41,7 @@ class PostService(
         val post: Post = converter.convert(request).also { post ->
             post.setBy(writer)
 
-            val tags: List<Tag> = tagFinder.findByIds(request.tagIds)
+            val tags: List<Tag> = tagRepository.findByIds(request.tagIds)
             // 뭔가 조잡한 느낌
             tags.forEach { tag ->
                 PostTag().also { postTag ->

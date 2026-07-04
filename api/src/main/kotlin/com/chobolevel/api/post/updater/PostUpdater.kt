@@ -6,13 +6,13 @@ import com.chobolevel.domain.post.entity.Post
 import com.chobolevel.domain.post.entity.PostUpdateMask
 import com.chobolevel.domain.post.tag.entity.PostTag
 import com.chobolevel.domain.post.tag.repository.PostTagRepository
-import com.chobolevel.domain.tag.TagFinder
+import com.chobolevel.domain.tag.repository.TagRepository
 import org.springframework.stereotype.Component
 
 @Component
 class PostUpdater(
     private val postTagRepository: PostTagRepository,
-    private val tagFinder: TagFinder,
+    private val tagRepository: TagRepository,
     private val postImageConverter: PostImageConverter,
 ) : PostUpdatable {
 
@@ -22,7 +22,7 @@ class PostUpdater(
                 PostUpdateMask.TAGS -> {
                     postTagRepository.deleteAllInBatch(entity.postTags)
                     request.tagIds!!.forEach { tagId ->
-                        val tag = tagFinder.findById(tagId)
+                        val tag = tagRepository.findById(tagId)
                         val postTag = PostTag()
                         postTag.setBy(tag)
                         postTag.setBy(entity)
