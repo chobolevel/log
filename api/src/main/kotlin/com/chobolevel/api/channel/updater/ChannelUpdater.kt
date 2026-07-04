@@ -4,13 +4,13 @@ import com.chobolevel.api.channel.dto.UpdateChannelRequestDto
 import com.chobolevel.domain.channel.entity.Channel
 import com.chobolevel.domain.channel.entity.ChannelUpdateMask
 import com.chobolevel.domain.channel.user.entity.ChannelUser
-import com.chobolevel.domain.user.UserFinder
 import com.chobolevel.domain.user.entity.User
+import com.chobolevel.domain.user.repository.UserRepository
 import org.springframework.stereotype.Component
 
 @Component
 class ChannelUpdater(
-    private val userFinder: UserFinder
+    private val userRepository: UserRepository
 ) {
 
     fun markAsUpdate(request: UpdateChannelRequestDto, entity: Channel): Channel {
@@ -20,7 +20,7 @@ class ChannelUpdater(
                 ChannelUpdateMask.USERS -> {
                     entity.channelUsers.forEach { it.delete() }
                     request.userIds!!.map { userId ->
-                        val user: User = userFinder.findById(userId)
+                        val user: User = userRepository.findById(userId)
                         ChannelUser().also { channelUser ->
                             channelUser.setBy(user)
                             channelUser.setBy(entity)

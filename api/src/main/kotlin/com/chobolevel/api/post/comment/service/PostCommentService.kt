@@ -15,8 +15,8 @@ import com.chobolevel.domain.post.comment.entity.PostCommentOrderType
 import com.chobolevel.domain.post.comment.repository.PostCommentRepository
 import com.chobolevel.domain.post.comment.vo.PostCommentQueryFilter
 import com.chobolevel.domain.post.entity.Post
-import com.chobolevel.domain.user.UserFinder
 import com.chobolevel.domain.user.entity.User
+import com.chobolevel.domain.user.repository.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -25,7 +25,7 @@ class PostCommentService(
     private val repository: PostCommentRepository,
     private val finder: PostCommentFinder,
     private val postFinder: PostFinder,
-    private val userFinder: UserFinder,
+    private val userRepository: UserRepository,
     private val converter: PostCommentConverter,
     private val updaters: List<PostCommentUpdatable>,
 ) {
@@ -33,7 +33,7 @@ class PostCommentService(
     @Transactional
     fun createPostComment(userId: Long, request: CreatePostCommentRequestDto): Long {
         val post: Post = postFinder.findById(request.postId)
-        val writer: User = userFinder.findById(userId)
+        val writer: User = userRepository.findById(userId)
         val postComment: PostComment = converter.convert(request).also {
             it.setBy(post)
             it.setBy(writer)

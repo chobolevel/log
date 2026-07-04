@@ -18,8 +18,8 @@ import com.chobolevel.domain.post.tag.entity.PostTag
 import com.chobolevel.domain.post.vo.PostQueryFilter
 import com.chobolevel.domain.tag.TagFinder
 import com.chobolevel.domain.tag.entity.Tag
-import com.chobolevel.domain.user.UserFinder
 import com.chobolevel.domain.user.entity.User
+import com.chobolevel.domain.user.repository.UserRepository
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit
 class PostService(
     private val repository: PostRepository,
     private val finder: PostFinder,
-    private val userFinder: UserFinder,
+    private val userRepository: UserRepository,
     private val tagFinder: TagFinder,
     private val converter: PostConverter,
     private val postImageConverter: PostImageConverter,
@@ -39,7 +39,7 @@ class PostService(
 
     @Transactional
     fun createPost(userId: Long, request: CreatePostRequestDto): Long {
-        val writer: User = userFinder.findById(userId)
+        val writer: User = userRepository.findById(userId)
         val post: Post = converter.convert(request).also { post ->
             post.setBy(writer)
 

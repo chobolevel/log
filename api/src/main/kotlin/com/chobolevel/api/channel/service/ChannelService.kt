@@ -21,8 +21,8 @@ import com.chobolevel.domain.channel.vo.ChannelQueryFilter
 import com.chobolevel.domain.common.dto.Pagination
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
-import com.chobolevel.domain.user.UserFinder
 import com.chobolevel.domain.user.entity.User
+import com.chobolevel.domain.user.repository.UserRepository
 import org.springframework.http.HttpStatus
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Service
@@ -33,7 +33,7 @@ class ChannelService(
     private val repository: ChannelRepository,
     private val channelMessageRepository: ChannelMessageRepository,
     private val finder: ChannelFinder,
-    private val userFinder: UserFinder,
+    private val userRepository: UserRepository,
     private val converter: ChannelConverter,
     private val channelMessageConverter: ChannelMessageConverter,
     private val updater: ChannelUpdater,
@@ -42,7 +42,7 @@ class ChannelService(
 
     @Transactional
     fun create(ownerId: Long, request: CreateChannelRequestDto): Long {
-        val owner: User = userFinder.findById(ownerId)
+        val owner: User = userRepository.findById(ownerId)
         val channel: Channel = converter.convert(request).also { channel ->
             channel.setBy(owner)
             // 채널 생성자를 참여자로
@@ -51,7 +51,7 @@ class ChannelService(
                 channelUser.setBy(owner)
             }
             // 참여자 생성
-            val participants: List<User> = userFinder.findByIds(request.userIds)
+            val participants: List<User> = userRepository.findByIds(request.userIds)
             participants.forEach { participant: User ->
                 ChannelUser().also { channelUser ->
                     channelUser.setBy(channel)
@@ -95,7 +95,7 @@ class ChannelService(
 
     @Transactional
     fun update(workerId: Long, channelId: Long, request: UpdateChannelRequestDto): Long {
-        val worker: User = userFinder.findById(workerId)
+        val worker: User = userRepository.findById(workerId)
         val channel: Channel = finder.findById(channelId)
         validateWorker(
             worker = worker,
@@ -153,7 +153,7 @@ class ChannelService(
             )
         }
         request.userIds.map { userId ->
-            val user: User = userFinder.findById(userId)
+            val user: User = userRepository.findById(userId)
             ChannelUser().also { channelUser ->
                 channelUser.setBy(channel)
                 channelUser.setBy(user)
@@ -178,7 +178,7 @@ class ChannelService(
 
     @Transactional
     fun delete(workerId: Long, channelId: Long): Boolean {
-        val worker: User = userFinder.findById(workerId)
+        val worker: User = userRepository.findById(workerId)
         val channel: Channel = finder.findById(channelId)
         validateWorker(
             worker = worker,

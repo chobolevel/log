@@ -2,9 +2,9 @@ package com.chobolevel.api.common.security
 
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
-import com.chobolevel.domain.user.UserFinder
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.entity.UserLoginType
+import com.chobolevel.domain.user.repository.UserRepository
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.BadCredentialsException
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class CustomAuthenticationProvider(
-    private val userFinder: UserFinder,
+    private val userRepository: UserRepository,
     private val passwordEncoder: BCryptPasswordEncoder
 ) : AuthenticationProvider {
 
@@ -30,7 +30,11 @@ class CustomAuthenticationProvider(
             message = "유효하지 않은 회원 로그인 타입입니다."
         )
         val tokenCredentials: String = authentication.credentials.toString()
-        val user: User = userFinder.findByEmailAndLoginType(email, loginType)
+        val user: User = userRepository.findByEmailAndLoginType(email, loginType) ?: throw ApiException(
+            errorCode = ErrorCode.USER_NOT_FOUND,
+            status = HttpStatus.BAD_REQUEST,
+            message = "회원 정보를 찾을 수 없습니다."
+        )
         when (user.loginType) {
             UserLoginType.GENERAL -> {
                 if (!passwordEncoder.matches(tokenCredentials, user.password)) {

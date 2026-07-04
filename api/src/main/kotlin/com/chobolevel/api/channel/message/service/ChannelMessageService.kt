@@ -13,8 +13,8 @@ import com.chobolevel.domain.channel.message.vo.ChannelMessageQueryFilter
 import com.chobolevel.domain.common.dto.Pagination
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
-import com.chobolevel.domain.user.UserFinder
 import com.chobolevel.domain.user.entity.User
+import com.chobolevel.domain.user.repository.UserRepository
 import org.springframework.http.HttpStatus
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Service
@@ -25,14 +25,14 @@ class ChannelMessageService(
     private val repository: ChannelMessageRepository,
     private val finder: ChannelMessageFinder,
     private val channelFinder: ChannelFinder,
-    private val userFinder: UserFinder,
+    private val userRepository: UserRepository,
     private val converter: ChannelMessageConverter,
     private val template: SimpMessagingTemplate
 ) {
 
     @Transactional
     fun create(userId: Long, channelId: Long, request: CreateChannelMessageRequestDto): Long {
-        val user: User = userFinder.findById(userId)
+        val user: User = userRepository.findById(userId)
         val channel: Channel = channelFinder.findById(channelId)
         val channelMessage: ChannelMessage = converter.convert(request).also {
             it.setBy(channel)
@@ -68,7 +68,7 @@ class ChannelMessageService(
 
     @Transactional
     fun delete(workerId: Long, channelMessageId: Long): Boolean {
-        val worker: User = userFinder.findById(workerId)
+        val worker: User = userRepository.findById(workerId)
         val channelMessage: ChannelMessage = finder.findById(channelMessageId)
         validateWorker(
             worker = worker,

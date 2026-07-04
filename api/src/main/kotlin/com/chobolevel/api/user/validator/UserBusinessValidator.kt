@@ -2,19 +2,19 @@ package com.chobolevel.api.user.validator
 
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
-import com.chobolevel.domain.user.UserFinder
+import com.chobolevel.domain.user.repository.UserRepository
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component
 
 @Component
 class UserBusinessValidator(
-    private val userFinder: UserFinder,
+    private val userRepository: UserRepository,
     private val passwordEncoder: BCryptPasswordEncoder
 ) {
 
     fun validateEmailExists(email: String) {
-        if (userFinder.existsByEmail(email = email)) {
+        if (userRepository.existsByEmail(email = email)) {
             throw ApiException(
                 errorCode = ErrorCode.USER_EMAIL_ALREADY_EXISTS,
                 status = HttpStatus.BAD_REQUEST,
@@ -24,7 +24,7 @@ class UserBusinessValidator(
     }
 
     fun validateNicknameExists(nickname: String) {
-        if (userFinder.existsByNickname(nickname = nickname)) {
+        if (userRepository.existsByNickname(nickname = nickname)) {
             throw ApiException(
                 errorCode = ErrorCode.USER_NICKNAME_ALREADY_EXISTS,
                 status = HttpStatus.BAD_REQUEST,
