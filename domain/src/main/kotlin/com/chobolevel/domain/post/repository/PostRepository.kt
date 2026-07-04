@@ -1,11 +1,21 @@
 package com.chobolevel.domain.post.repository
 
+import com.chobolevel.domain.common.dto.Pagination
 import com.chobolevel.domain.post.entity.Post
-import org.springframework.data.jpa.repository.JpaRepository
+import com.chobolevel.domain.post.entity.PostOrderType
+import com.chobolevel.domain.post.vo.PostQueryFilter
 
-interface PostRepository : JpaRepository<Post, Long> {
+interface PostRepository {
 
-    fun findByIdAndDeletedFalse(id: Long): Post?
+    fun save(post: Post): Post
 
-    fun findByIdAndUserIdAndDeletedFalse(id: Long, userId: Long): Post?
+    fun findById(id: Long): Post
+
+    fun searchPosts(
+        queryFilter: PostQueryFilter,
+        pagination: Pagination,
+        orderTypes: List<PostOrderType>
+    ): List<Post>
+
+    fun searchPostsCount(queryFilter: PostQueryFilter): Long
 }

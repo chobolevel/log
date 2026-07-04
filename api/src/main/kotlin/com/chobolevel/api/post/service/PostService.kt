@@ -10,7 +10,6 @@ import com.chobolevel.api.post.updater.PostUpdatable
 import com.chobolevel.domain.common.dto.Pagination
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
-import com.chobolevel.domain.post.PostFinder
 import com.chobolevel.domain.post.entity.Post
 import com.chobolevel.domain.post.entity.PostOrderType
 import com.chobolevel.domain.post.repository.PostRepository
@@ -28,7 +27,6 @@ import java.util.concurrent.TimeUnit
 @Service
 class PostService(
     private val repository: PostRepository,
-    private val finder: PostFinder,
     private val userRepository: UserRepository,
     private val tagFinder: TagFinder,
     private val converter: PostConverter,
@@ -68,12 +66,12 @@ class PostService(
         pagination: Pagination,
         orderTypes: List<PostOrderType>?
     ): PaginationResponseDto {
-        val posts: List<Post> = finder.search(
+        val posts: List<Post> = repository.searchPosts(
             queryFilter = queryFilter,
             pagination = pagination,
-            orderTypes = orderTypes
+            orderTypes = orderTypes ?: emptyList()
         )
-        val totalCount: Long = finder.searchCount(queryFilter)
+        val totalCount: Long = repository.searchPostsCount(queryFilter)
         return PaginationResponseDto(
             skipCount = pagination.offset,
             limitCount = pagination.limit,
@@ -90,7 +88,7 @@ class PostService(
         when (cachedPost) {
             // cache miss
             null -> {
-                val post: Post = finder.findById(postId)
+                val post: Post = repository.findById(postId)
                 val convertedPost: PostResponseDto = converter.convert(post)
                 redisTemplate.opsForValue().set(cachingKey, convertedPost, 10, TimeUnit.MINUTES)
                 return convertedPost
@@ -102,7 +100,7 @@ class PostService(
 
     @Transactional
     fun updatePost(userId: Long, postId: Long, request: UpdatePostRequestDto): Long {
-        val post: Post = finder.findById(postId)
+        val post: Post = repository.findById(postId)
         validateWriter(
             userId = userId,
             post = post
@@ -114,7 +112,7 @@ class PostService(
 
     @Transactional
     fun deletePost(userId: Long, postId: Long): Boolean {
-        val post: Post = finder.findById(postId)
+        val post: Post = repository.findById(postId)
         validateWriter(
             userId = userId,
             post = post

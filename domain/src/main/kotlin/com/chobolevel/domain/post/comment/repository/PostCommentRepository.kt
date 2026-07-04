@@ -1,9 +1,21 @@
 package com.chobolevel.domain.post.comment.repository
 
+import com.chobolevel.domain.common.dto.Pagination
 import com.chobolevel.domain.post.comment.entity.PostComment
-import org.springframework.data.jpa.repository.JpaRepository
+import com.chobolevel.domain.post.comment.entity.PostCommentOrderType
+import com.chobolevel.domain.post.comment.vo.PostCommentQueryFilter
 
-interface PostCommentRepository : JpaRepository<PostComment, Long> {
+interface PostCommentRepository {
 
-    fun findByIdAndDeletedFalse(id: Long): PostComment?
+    fun save(postComment: PostComment): PostComment
+
+    fun findById(id: Long): PostComment
+
+    fun searchPostComments(
+        queryFilter: PostCommentQueryFilter,
+        pagination: Pagination,
+        orderTypes: List<PostCommentOrderType>
+    ): List<PostComment>
+
+    fun searchPostCommentsCount(queryFilter: PostCommentQueryFilter): Long
 }
