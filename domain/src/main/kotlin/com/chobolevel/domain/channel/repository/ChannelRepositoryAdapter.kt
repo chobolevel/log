@@ -1,10 +1,8 @@
-package com.chobolevel.domain.channel
+package com.chobolevel.domain.channel.repository
 
 import com.chobolevel.domain.channel.entity.Channel
 import com.chobolevel.domain.channel.entity.ChannelOrderType
 import com.chobolevel.domain.channel.entity.QChannel.channel
-import com.chobolevel.domain.channel.repository.ChannelCustomRepository
-import com.chobolevel.domain.channel.repository.ChannelRepository
 import com.chobolevel.domain.channel.vo.ChannelQueryFilter
 import com.chobolevel.domain.common.dto.Pagination
 import com.chobolevel.domain.common.exception.ApiException
@@ -14,39 +12,41 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 
 @Component
-class ChannelFinder(
-    private val repository: ChannelRepository,
-    private val customRepository: ChannelCustomRepository
-) {
+class ChannelRepositoryAdapter(
+    private val channelJpaRepository: ChannelJpaRepository,
+    private val channelQuerydslRepository: ChannelQuerydslRepository
+) : ChannelRepository {
 
-    fun findById(id: Long): Channel {
-        return repository.findByIdAndDeletedFalse(id) ?: throw ApiException(
+    override fun save(channel: Channel): Channel {
+        return channelJpaRepository.save(channel)
+    }
+
+    override fun findById(id: Long): Channel {
+        return channelJpaRepository.findByIdAndDeletedFalse(id) ?: throw ApiException(
             errorCode = ErrorCode.INVALID_PARAMETER,
             status = HttpStatus.BAD_REQUEST,
             message = "해당 채널을 찾을 수 없습니다."
         )
     }
 
-    fun search(
+    override fun searchChannels(
         queryFilter: ChannelQueryFilter,
         pagination: Pagination,
-        orderTypes: List<ChannelOrderType>?
+        orderTypes: List<ChannelOrderType>
     ): List<Channel> {
-        return customRepository.searchByPredicates(
+        return channelQuerydslRepository.searchByPredicates(
             predicates = queryFilter.toPredicates(),
             pagination = pagination,
-            orderSpecifiers = orderSpecifiers(orderTypes ?: emptyList())
+            orderSpecifiers = orderTypes.toOrderSpecifiers()
         )
     }
 
-    fun searchCount(queryFilter: ChannelQueryFilter): Long {
-        return customRepository.countByPredicates(
-            predicates = queryFilter.toPredicates(),
-        )
+    override fun searchChannelsCount(queryFilter: ChannelQueryFilter): Long {
+        return channelQuerydslRepository.countByPredicates(predicates = queryFilter.toPredicates())
     }
 
-    private fun orderSpecifiers(orderTypes: List<ChannelOrderType>): Array<OrderSpecifier<*>> {
-        return orderTypes.map {
+    private fun List<ChannelOrderType>.toOrderSpecifiers(): Array<OrderSpecifier<*>> {
+        return this.map {
             when (it) {
                 ChannelOrderType.CREATED_AT_ASC -> channel.createdAt.asc()
                 ChannelOrderType.CREATED_AT_DESC -> channel.createdAt.desc()

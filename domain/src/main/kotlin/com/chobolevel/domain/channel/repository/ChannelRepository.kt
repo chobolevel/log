@@ -1,9 +1,21 @@
 package com.chobolevel.domain.channel.repository
 
 import com.chobolevel.domain.channel.entity.Channel
-import org.springframework.data.jpa.repository.JpaRepository
+import com.chobolevel.domain.channel.entity.ChannelOrderType
+import com.chobolevel.domain.channel.vo.ChannelQueryFilter
+import com.chobolevel.domain.common.dto.Pagination
 
-interface ChannelRepository : JpaRepository<Channel, Long> {
+interface ChannelRepository {
 
-    fun findByIdAndDeletedFalse(id: Long): Channel?
+    fun save(channel: Channel): Channel
+
+    fun findById(id: Long): Channel
+
+    fun searchChannels(
+        queryFilter: ChannelQueryFilter,
+        pagination: Pagination,
+        orderTypes: List<ChannelOrderType>
+    ): List<Channel>
+
+    fun searchChannelsCount(queryFilter: ChannelQueryFilter): Long
 }

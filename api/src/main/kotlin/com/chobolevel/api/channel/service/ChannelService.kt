@@ -9,7 +9,6 @@ import com.chobolevel.api.channel.message.converter.ChannelMessageConverter
 import com.chobolevel.api.channel.message.dto.CreateChannelMessageRequestDto
 import com.chobolevel.api.channel.updater.ChannelUpdater
 import com.chobolevel.api.common.dto.PaginationResponseDto
-import com.chobolevel.domain.channel.ChannelFinder
 import com.chobolevel.domain.channel.entity.Channel
 import com.chobolevel.domain.channel.entity.ChannelOrderType
 import com.chobolevel.domain.channel.message.entity.ChannelMessage
@@ -32,7 +31,6 @@ import org.springframework.transaction.annotation.Transactional
 class ChannelService(
     private val repository: ChannelRepository,
     private val channelMessageRepository: ChannelMessageRepository,
-    private val finder: ChannelFinder,
     private val userRepository: UserRepository,
     private val converter: ChannelConverter,
     private val channelMessageConverter: ChannelMessageConverter,
@@ -68,12 +66,12 @@ class ChannelService(
         pagination: Pagination,
         orderTypes: List<ChannelOrderType>?
     ): PaginationResponseDto {
-        val channels: List<Channel> = finder.search(
+        val channels: List<Channel> = repository.searchChannels(
             queryFilter = queryFilter,
             pagination = pagination,
-            orderTypes = orderTypes
+            orderTypes = orderTypes ?: emptyList()
         )
-        val totalCount: Long = finder.searchCount(queryFilter)
+        val totalCount: Long = repository.searchChannelsCount(queryFilter)
         return PaginationResponseDto(
             skipCount = pagination.offset,
             limitCount = pagination.limit,
@@ -84,7 +82,7 @@ class ChannelService(
 
     @Transactional(readOnly = true)
     fun getChannel(userId: Long, channelId: Long): ChannelResponseDto {
-        val channel: Channel = finder.findById(channelId)
+        val channel: Channel = repository.findById(channelId)
         channel.channelUsers.find { it.user?.id == userId } ?: throw ApiException(
             errorCode = ErrorCode.NOT_INVITED_CHANNEL,
             status = HttpStatus.BAD_REQUEST,
@@ -96,7 +94,7 @@ class ChannelService(
     @Transactional
     fun update(workerId: Long, channelId: Long, request: UpdateChannelRequestDto): Long {
         val worker: User = userRepository.findById(workerId)
-        val channel: Channel = finder.findById(channelId)
+        val channel: Channel = repository.findById(channelId)
         validateWorker(
             worker = worker,
             channel = channel
@@ -110,7 +108,7 @@ class ChannelService(
 
     @Transactional
     fun exit(userId: Long, channelId: Long): Long {
-        val channel: Channel = finder.findById(channelId)
+        val channel: Channel = repository.findById(channelId)
         val channelUser: ChannelUser? = channel.channelUsers.find { it.user!!.id == userId }
         when (channelUser) {
             null -> {
@@ -144,7 +142,7 @@ class ChannelService(
 
     @Transactional
     fun invite(userId: Long, channelId: Long, request: InviteChannelRequestDto): Long {
-        val channel = finder.findById(channelId)
+        val channel = repository.findById(channelId)
         channel.channelUsers.filter { request.userIds.contains(it.user!!.id) }.takeIf { it.isNotEmpty() }?.let {
             throw ApiException(
                 errorCode = ErrorCode.CHANNEL_MESSAGE_WRITER_DOES_NOT_MATCH,
@@ -179,7 +177,7 @@ class ChannelService(
     @Transactional
     fun delete(workerId: Long, channelId: Long): Boolean {
         val worker: User = userRepository.findById(workerId)
-        val channel: Channel = finder.findById(channelId)
+        val channel: Channel = repository.findById(channelId)
         validateWorker(
             worker = worker,
             channel = channel

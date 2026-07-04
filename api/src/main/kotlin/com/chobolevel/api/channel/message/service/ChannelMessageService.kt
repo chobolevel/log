@@ -3,13 +3,12 @@ package com.chobolevel.api.channel.message.service
 import com.chobolevel.api.channel.message.converter.ChannelMessageConverter
 import com.chobolevel.api.channel.message.dto.CreateChannelMessageRequestDto
 import com.chobolevel.api.common.dto.PaginationResponseDto
-import com.chobolevel.domain.channel.ChannelFinder
 import com.chobolevel.domain.channel.entity.Channel
-import com.chobolevel.domain.channel.message.ChannelMessageFinder
 import com.chobolevel.domain.channel.message.entity.ChannelMessage
 import com.chobolevel.domain.channel.message.entity.ChannelMessageOrderType
 import com.chobolevel.domain.channel.message.repository.ChannelMessageRepository
 import com.chobolevel.domain.channel.message.vo.ChannelMessageQueryFilter
+import com.chobolevel.domain.channel.repository.ChannelRepository
 import com.chobolevel.domain.common.dto.Pagination
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
@@ -23,8 +22,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class ChannelMessageService(
     private val repository: ChannelMessageRepository,
-    private val finder: ChannelMessageFinder,
-    private val channelFinder: ChannelFinder,
+    private val channelRepository: ChannelRepository,
     private val userRepository: UserRepository,
     private val converter: ChannelMessageConverter,
     private val template: SimpMessagingTemplate
@@ -33,7 +31,7 @@ class ChannelMessageService(
     @Transactional
     fun create(userId: Long, channelId: Long, request: CreateChannelMessageRequestDto): Long {
         val user: User = userRepository.findById(userId)
-        val channel: Channel = channelFinder.findById(channelId)
+        val channel: Channel = channelRepository.findById(channelId)
         val channelMessage: ChannelMessage = converter.convert(request).also {
             it.setBy(channel)
             it.setBy(user)
@@ -52,12 +50,12 @@ class ChannelMessageService(
         pagination: Pagination,
         orderTypes: List<ChannelMessageOrderType>?
     ): PaginationResponseDto {
-        val channelMessage: List<ChannelMessage> = finder.search(
+        val channelMessage: List<ChannelMessage> = repository.searchChannelMessages(
             queryFilter = queryFilter,
             pagination = pagination,
-            orderTypes = orderTypes
+            orderTypes = orderTypes ?: emptyList()
         )
-        val totalCount: Long = finder.searchCount(queryFilter)
+        val totalCount: Long = repository.searchChannelMessagesCount(queryFilter)
         return PaginationResponseDto(
             skipCount = pagination.offset,
             limitCount = pagination.limit,
@@ -69,7 +67,7 @@ class ChannelMessageService(
     @Transactional
     fun delete(workerId: Long, channelMessageId: Long): Boolean {
         val worker: User = userRepository.findById(workerId)
-        val channelMessage: ChannelMessage = finder.findById(channelMessageId)
+        val channelMessage: ChannelMessage = repository.findById(channelMessageId)
         validateWorker(
             worker = worker,
             channelMessage = channelMessage,
