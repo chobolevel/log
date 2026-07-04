@@ -3,7 +3,6 @@ package com.chobolevel.api.user.image.service
 import com.chobolevel.api.user.image.converter.UserImageConverter
 import com.chobolevel.api.user.image.dto.CreateUserImageRequestDto
 import com.chobolevel.domain.user.entity.User
-import com.chobolevel.domain.user.image.UserImageFinder
 import com.chobolevel.domain.user.image.entity.UserImage
 import com.chobolevel.domain.user.image.repository.UserImageRepository
 import com.chobolevel.domain.user.repository.UserRepository
@@ -13,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class UserImageService(
     private val repository: UserImageRepository,
-    private val finder: UserImageFinder,
     private val userRepository: UserRepository,
     private val converter: UserImageConverter
 ) {
@@ -33,7 +31,7 @@ class UserImageService(
     @Transactional
     fun deleteUserImage(userId: Long, userImageId: Long): Boolean {
         val foundUser: User = userRepository.findById(userId)
-        val userImage: UserImage = finder.findByIdAndUserId(userImageId, foundUser.id!!)
+        val userImage: UserImage = repository.findByIdAndUserId(userImageId, foundUser.id!!)
         userImage.delete()
         return true
     }

@@ -1,9 +1,12 @@
 package com.chobolevel.domain.user.image.repository
 
 import com.chobolevel.domain.user.image.entity.UserImage
-import org.springframework.data.jpa.repository.JpaRepository
 
-interface UserImageRepository : JpaRepository<UserImage, Long> {
+interface UserImageRepository {
 
-    fun findByIdAndUserId(id: Long, userId: Long): UserImage?
+    fun save(userImage: UserImage): UserImage
+
+    fun findById(id: Long): UserImage
+
+    fun findByIdAndUserId(id: Long, userId: Long): UserImage
 }
