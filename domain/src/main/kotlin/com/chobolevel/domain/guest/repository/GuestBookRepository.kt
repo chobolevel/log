@@ -1,9 +1,21 @@
 package com.chobolevel.domain.guest.repository
 
+import com.chobolevel.domain.common.dto.Pagination
 import com.chobolevel.domain.guest.entity.GuestBook
-import org.springframework.data.jpa.repository.JpaRepository
+import com.chobolevel.domain.guest.entity.GuestBookOrderType
+import com.chobolevel.domain.guest.vo.GuestBookQueryFilter
 
-interface GuestBookRepository : JpaRepository<GuestBook, Long> {
+interface GuestBookRepository {
 
-    fun findByIdAndDeletedFalse(id: Long): GuestBook?
+    fun save(guestBook: GuestBook): GuestBook
+
+    fun findById(id: Long): GuestBook
+
+    fun searchGuestBooks(
+        queryFilter: GuestBookQueryFilter,
+        pagination: Pagination,
+        orderTypes: List<GuestBookOrderType>
+    ): List<GuestBook>
+
+    fun searchGuestBooksCount(queryFilter: GuestBookQueryFilter): Long
 }
