@@ -1,15 +1,16 @@
 package com.chobolevel.api.channel.message.service
 
 import com.chobolevel.api.channel.message.converter.ChannelMessageConverter
+import com.chobolevel.api.channel.message.dto.ChannelMessagePageRequest
 import com.chobolevel.api.channel.message.dto.CreateChannelMessageRequestDto
-import com.chobolevel.api.common.dto.PaginationResponseDto
+import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.domain.channel.entity.Channel
 import com.chobolevel.domain.channel.message.entity.ChannelMessage
 import com.chobolevel.domain.channel.message.entity.ChannelMessageOrderType
 import com.chobolevel.domain.channel.message.repository.ChannelMessageRepository
 import com.chobolevel.domain.channel.message.vo.ChannelMessageQueryFilter
 import com.chobolevel.domain.channel.repository.ChannelRepository
-import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.user.entity.User
@@ -46,20 +47,22 @@ class ChannelMessageService(
 
     @Transactional(readOnly = true)
     fun getChannelMessages(
-        queryFilter: ChannelMessageQueryFilter,
-        pagination: Pagination,
-        orderTypes: List<ChannelMessageOrderType>?
-    ): PaginationResponseDto {
-        val channelMessage: List<ChannelMessage> = repository.searchChannelMessages(
+        channelId: Long,
+        pageRequest: ChannelMessagePageRequest
+    ): PagingResponse {
+        val queryFilter = ChannelMessageQueryFilter(channelId = channelId)
+        val paging = Paging(page = pageRequest.page, size = pageRequest.size)
+        val orderTypes: List<ChannelMessageOrderType> = listOf(ChannelMessageOrderType.CREATED_AT_DESC)
+        val channelMessages: List<ChannelMessage> = repository.searchChannelMessages(
             queryFilter = queryFilter,
-            pagination = pagination,
-            orderTypes = orderTypes ?: emptyList()
+            paging = paging,
+            orderTypes = orderTypes
         )
         val totalCount: Long = repository.searchChannelMessagesCount(queryFilter)
-        return PaginationResponseDto(
-            skipCount = pagination.offset,
-            limitCount = pagination.limit,
-            data = channelMessage.map { converter.convert(it) },
+        return PagingResponse(
+            page = paging.page,
+            size = paging.size,
+            data = channelMessages.map { converter.convert(it) },
             totalCount = totalCount
         )
     }

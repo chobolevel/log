@@ -1,6 +1,7 @@
 package com.chobolevel.api.channel.service
 
 import com.chobolevel.api.channel.converter.ChannelConverter
+import com.chobolevel.api.channel.dto.ChannelPageRequest
 import com.chobolevel.api.channel.dto.ChannelResponseDto
 import com.chobolevel.api.channel.dto.CreateChannelRequestDto
 import com.chobolevel.api.channel.dto.InviteChannelRequestDto
@@ -8,7 +9,7 @@ import com.chobolevel.api.channel.dto.UpdateChannelRequestDto
 import com.chobolevel.api.channel.message.converter.ChannelMessageConverter
 import com.chobolevel.api.channel.message.dto.CreateChannelMessageRequestDto
 import com.chobolevel.api.channel.updater.ChannelUpdater
-import com.chobolevel.api.common.dto.PaginationResponseDto
+import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.domain.channel.entity.Channel
 import com.chobolevel.domain.channel.entity.ChannelOrderType
 import com.chobolevel.domain.channel.message.entity.ChannelMessage
@@ -17,7 +18,7 @@ import com.chobolevel.domain.channel.message.repository.ChannelMessageRepository
 import com.chobolevel.domain.channel.repository.ChannelRepository
 import com.chobolevel.domain.channel.user.entity.ChannelUser
 import com.chobolevel.domain.channel.vo.ChannelQueryFilter
-import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.user.entity.User
@@ -62,19 +63,21 @@ class ChannelService(
 
     @Transactional(readOnly = true)
     fun getChannels(
-        queryFilter: ChannelQueryFilter,
-        pagination: Pagination,
-        orderTypes: List<ChannelOrderType>?
-    ): PaginationResponseDto {
+        userId: Long,
+        pageRequest: ChannelPageRequest
+    ): PagingResponse {
+        val queryFilter = ChannelQueryFilter(userId = userId)
+        val paging = Paging(page = pageRequest.page, size = pageRequest.size)
+        val orderTypes: List<ChannelOrderType> = pageRequest.orderTypes
         val channels: List<Channel> = repository.searchChannels(
             queryFilter = queryFilter,
-            pagination = pagination,
-            orderTypes = orderTypes ?: emptyList()
+            paging = paging,
+            orderTypes = orderTypes
         )
         val totalCount: Long = repository.searchChannelsCount(queryFilter)
-        return PaginationResponseDto(
-            skipCount = pagination.offset,
-            limitCount = pagination.limit,
+        return PagingResponse(
+            page = paging.page,
+            size = paging.size,
             data = converter.convert(entities = channels),
             totalCount = totalCount
         )

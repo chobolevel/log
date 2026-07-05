@@ -2,7 +2,9 @@ package com.chobolevel.api.guest.converter
 
 import com.chobolevel.api.guest.dto.CreateGuestBookRequestDto
 import com.chobolevel.api.guest.dto.GuestBookResponseDto
+import com.chobolevel.api.guest.dto.SearchGuestBookRequest
 import com.chobolevel.domain.guest.entity.GuestBook
+import com.chobolevel.domain.guest.vo.GuestBookQueryFilter
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component
 
@@ -16,6 +18,12 @@ class GuestBookConverter(
             guestName = request.guestName,
             password = passwordEncoder.encode(request.password),
             content = request.content
+        )
+    }
+
+    fun convert(request: SearchGuestBookRequest): GuestBookQueryFilter {
+        return GuestBookQueryFilter(
+            guestName = request.guestName
         )
     }
 

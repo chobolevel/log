@@ -1,6 +1,6 @@
 package com.chobolevel.domain.post.repository
 
-import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.post.entity.Post
 import com.chobolevel.domain.post.entity.QPost.post
 import com.querydsl.core.types.OrderSpecifier
@@ -13,14 +13,14 @@ class PostQuerydslRepository : QuerydslRepositorySupport(Post::class.java) {
 
     fun searchByPredicates(
         predicates: Array<BooleanExpression>,
-        pagination: Pagination,
+        paging: Paging,
         orderSpecifiers: Array<OrderSpecifier<*>>
     ): List<Post> {
         return from(post)
             .where(*predicates)
             .orderBy(*orderSpecifiers)
-            .offset(pagination.offset)
-            .limit(pagination.limit)
+            .offset(paging.offset)
+            .limit(paging.limit)
             .fetch()
     }
 

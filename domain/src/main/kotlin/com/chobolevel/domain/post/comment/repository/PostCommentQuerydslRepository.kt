@@ -1,6 +1,6 @@
 package com.chobolevel.domain.post.comment.repository
 
-import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.post.comment.entity.PostComment
 import com.chobolevel.domain.post.comment.entity.QPostComment.postComment
 import com.querydsl.core.types.OrderSpecifier
@@ -13,14 +13,14 @@ class PostCommentQuerydslRepository : QuerydslRepositorySupport(PostComment::cla
 
     fun searchByPredicates(
         predicates: Array<BooleanExpression>,
-        pagination: Pagination,
+        paging: Paging,
         orderSpecifiers: Array<OrderSpecifier<*>>
     ): List<PostComment> {
         return from(postComment)
             .where(*predicates)
             .orderBy(*orderSpecifiers)
-            .offset(pagination.offset)
-            .limit(pagination.limit)
+            .offset(paging.offset)
+            .limit(paging.limit)
             .fetch()
     }
 

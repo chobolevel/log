@@ -1,19 +1,16 @@
 package com.chobolevel.api.channel.controller
 
+import com.chobolevel.api.channel.dto.ChannelPageRequest
 import com.chobolevel.api.channel.dto.ChannelResponseDto
 import com.chobolevel.api.channel.dto.CreateChannelRequestDto
 import com.chobolevel.api.channel.dto.InviteChannelRequestDto
 import com.chobolevel.api.channel.dto.UpdateChannelRequestDto
-import com.chobolevel.api.channel.query.ChannelQueryCreator
 import com.chobolevel.api.channel.service.ChannelService
 import com.chobolevel.api.channel.validator.ChannelParameterValidator
 import com.chobolevel.api.common.annotation.HasAuthorityUser
-import com.chobolevel.api.common.dto.PaginationResponseDto
+import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getUserId
-import com.chobolevel.domain.channel.entity.ChannelOrderType
-import com.chobolevel.domain.channel.vo.ChannelQueryFilter
-import com.chobolevel.domain.common.dto.Pagination
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -25,7 +22,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.security.Principal
 
@@ -34,8 +30,7 @@ import java.security.Principal
 @RequestMapping("/api/v1")
 class ChannelController(
     private val validator: ChannelParameterValidator,
-    private val service: ChannelService,
-    private val queryCreator: ChannelQueryCreator
+    private val service: ChannelService
 ) {
 
     @Operation(summary = "채널 생성 API")
@@ -58,21 +53,11 @@ class ChannelController(
     @GetMapping("/channels")
     fun getChannels(
         principal: Principal,
-        @RequestParam(required = false) skipCount: Long?,
-        @RequestParam(required = false) limitCount: Long?,
-        @RequestParam(required = false) orderTypes: List<ChannelOrderType>?
+        pageRequest: ChannelPageRequest
     ): ResponseEntity<ResultResponse> {
-        val queryFilter: ChannelQueryFilter = queryCreator.createQueryFilter(
+        val result: PagingResponse = service.getChannels(
             userId = principal.getUserId(),
-        )
-        val pagination: Pagination = queryCreator.createPaginationFilter(
-            skipCount = skipCount,
-            limitCount = limitCount
-        )
-        val result: PaginationResponseDto = service.getChannels(
-            queryFilter = queryFilter,
-            pagination = pagination,
-            orderTypes = orderTypes
+            pageRequest = pageRequest
         )
         return ResponseEntity.ok(ResultResponse(result))
     }

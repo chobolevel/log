@@ -1,11 +1,13 @@
 package com.chobolevel.api.post.comment.service
 
-import com.chobolevel.api.common.dto.PaginationResponseDto
+import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.post.comment.converter.PostCommentConverter
 import com.chobolevel.api.post.comment.dto.CreatePostCommentRequestDto
+import com.chobolevel.api.post.comment.dto.PostCommentPageRequest
+import com.chobolevel.api.post.comment.dto.SearchPostCommentRequest
 import com.chobolevel.api.post.comment.dto.UpdatePostCommentRequestDto
 import com.chobolevel.api.post.comment.updater.PostCommentUpdatable
-import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.post.comment.entity.PostComment
@@ -41,19 +43,21 @@ class PostCommentService(
 
     @Transactional(readOnly = true)
     fun searchPostComments(
-        queryFilter: PostCommentQueryFilter,
-        pagination: Pagination,
-        orderTypes: List<PostCommentOrderType>?
-    ): PaginationResponseDto {
+        filter: SearchPostCommentRequest,
+        pageRequest: PostCommentPageRequest
+    ): PagingResponse {
+        val queryFilter: PostCommentQueryFilter = converter.convert(request = filter)
+        val paging = Paging(page = pageRequest.page, size = pageRequest.size)
+        val orderTypes: List<PostCommentOrderType> = pageRequest.orderTypes
         val postComments: List<PostComment> = repository.searchPostComments(
             queryFilter = queryFilter,
-            pagination = pagination,
-            orderTypes = orderTypes ?: emptyList()
+            paging = paging,
+            orderTypes = orderTypes
         )
         val totalCount: Long = repository.searchPostCommentsCount(queryFilter)
-        return PaginationResponseDto(
-            skipCount = pagination.offset,
-            limitCount = pagination.limit,
+        return PagingResponse(
+            page = paging.page,
+            size = paging.size,
             data = converter.convert(entities = postComments),
             totalCount = totalCount,
         )

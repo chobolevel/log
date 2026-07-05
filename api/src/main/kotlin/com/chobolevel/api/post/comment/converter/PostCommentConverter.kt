@@ -2,8 +2,10 @@ package com.chobolevel.api.post.comment.converter
 
 import com.chobolevel.api.post.comment.dto.CreatePostCommentRequestDto
 import com.chobolevel.api.post.comment.dto.PostCommentResponseDto
+import com.chobolevel.api.post.comment.dto.SearchPostCommentRequest
 import com.chobolevel.api.user.converter.UserConverter
 import com.chobolevel.domain.post.comment.entity.PostComment
+import com.chobolevel.domain.post.comment.vo.PostCommentQueryFilter
 import org.springframework.stereotype.Component
 
 @Component
@@ -14,6 +16,13 @@ class PostCommentConverter(
     fun convert(request: CreatePostCommentRequestDto): PostComment {
         return PostComment(
             content = request.content,
+        )
+    }
+
+    fun convert(request: SearchPostCommentRequest): PostCommentQueryFilter {
+        return PostCommentQueryFilter(
+            postId = request.postId,
+            writerId = request.writerId
         )
     }
 

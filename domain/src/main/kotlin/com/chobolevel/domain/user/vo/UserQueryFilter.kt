@@ -11,7 +11,7 @@ class UserQueryFilter(
     private val nickname: String?,
     private val role: UserRoleType?,
     private val resigned: Boolean?,
-    private val excludeUserIds: List<Long>?
+    private val excludeUserIds: Set<Long>?
 ) {
 
     fun toPredicates(): Array<BooleanExpression> {

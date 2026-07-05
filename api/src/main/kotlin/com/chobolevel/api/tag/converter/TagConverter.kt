@@ -1,8 +1,10 @@
 package com.chobolevel.api.tag.converter
 
 import com.chobolevel.api.tag.dto.CreateTagRequestDto
+import com.chobolevel.api.tag.dto.SearchTagRequest
 import com.chobolevel.api.tag.dto.TagResponseDto
 import com.chobolevel.domain.tag.entity.Tag
+import com.chobolevel.domain.tag.vo.TagQueryFilter
 import org.springframework.stereotype.Component
 
 @Component
@@ -12,6 +14,12 @@ class TagConverter {
         return Tag(
             name = request.name,
             order = request.order
+        )
+    }
+
+    fun convert(request: SearchTagRequest): TagQueryFilter {
+        return TagQueryFilter(
+            name = request.name
         )
     }
 

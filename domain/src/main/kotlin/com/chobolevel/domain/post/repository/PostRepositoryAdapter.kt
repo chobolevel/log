@@ -1,6 +1,6 @@
 package com.chobolevel.domain.post.repository
 
-import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.post.entity.Post
@@ -31,12 +31,12 @@ class PostRepositoryAdapter(
 
     override fun searchPosts(
         queryFilter: PostQueryFilter,
-        pagination: Pagination,
+        paging: Paging,
         orderTypes: List<PostOrderType>
     ): List<Post> {
         return postQuerydslRepository.searchByPredicates(
             predicates = queryFilter.toPredicates(),
-            pagination = pagination,
+            paging = paging,
             orderSpecifiers = orderTypes.toOrderSpecifiers()
         )
     }

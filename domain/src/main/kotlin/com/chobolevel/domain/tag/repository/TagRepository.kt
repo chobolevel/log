@@ -1,6 +1,6 @@
 package com.chobolevel.domain.tag.repository
 
-import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.tag.entity.Tag
 import com.chobolevel.domain.tag.entity.TagOrderType
 import com.chobolevel.domain.tag.vo.TagQueryFilter
@@ -17,7 +17,7 @@ interface TagRepository {
 
     fun searchTags(
         queryFilter: TagQueryFilter,
-        pagination: Pagination,
+        paging: Paging,
         orderTypes: List<TagOrderType>
     ): List<Tag>
 

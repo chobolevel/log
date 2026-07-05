@@ -1,21 +1,17 @@
 package com.chobolevel.api.user.controller
 
 import com.chobolevel.api.common.annotation.HasAuthorityUser
-import com.chobolevel.api.common.dto.PaginationResponseDto
+import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getUserId
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequestDto
+import com.chobolevel.api.user.dto.SearchUserRequest
 import com.chobolevel.api.user.dto.UpdateUserRequestDto
+import com.chobolevel.api.user.dto.UserPageRequest
 import com.chobolevel.api.user.dto.UserResponseDto
-import com.chobolevel.api.user.query.UserQueryCreator
 import com.chobolevel.api.user.service.UserService
 import com.chobolevel.api.user.validator.UserParameterValidator
-import com.chobolevel.domain.common.dto.Pagination
-import com.chobolevel.domain.user.entity.UserLoginType
-import com.chobolevel.domain.user.entity.UserOrderType
-import com.chobolevel.domain.user.entity.UserRoleType
-import com.chobolevel.domain.user.vo.UserQueryFilter
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -27,7 +23,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.security.Principal
 
@@ -36,8 +31,7 @@ import java.security.Principal
 @RequestMapping("/api/v1")
 class UserController(
     private val validator: UserParameterValidator,
-    private val service: UserService,
-    private val queryCreator: UserQueryCreator
+    private val service: UserService
 ) {
 
     @Operation(summary = "회원 가입 API")
@@ -54,29 +48,13 @@ class UserController(
     @Operation(summary = "회원 목록 조회 API")
     @GetMapping("/users")
     fun searchUsers(
-        @RequestParam(required = false) email: String?,
-        @RequestParam(required = false) loginType: UserLoginType?,
-        @RequestParam(required = false) nickname: String?,
-        @RequestParam(required = false) role: UserRoleType?,
-        @RequestParam(required = false) resigned: Boolean?,
-        @RequestParam(required = false) excludeUserIds: List<Long>?,
-        @RequestParam(required = false) skipCount: Long?,
-        @RequestParam(required = false) limitCount: Long?,
-        @RequestParam(required = false) orderTypes: List<UserOrderType>?
+        filter: SearchUserRequest,
+        pageRequest: UserPageRequest
     ): ResponseEntity<ResultResponse> {
-        val queryFilter: UserQueryFilter = queryCreator.createQueryFilter(
-            email = email,
-            loginType = loginType,
-            nickname = nickname,
-            role = role,
-            resigned = resigned,
-            excludeUserIds = excludeUserIds
+        val result: PagingResponse = service.searchUsers(
+            filter = filter,
+            pageRequest = pageRequest,
         )
-        val pagination: Pagination = queryCreator.createPaginationFilter(
-            skipCount = skipCount,
-            limitCount = limitCount
-        )
-        val result: PaginationResponseDto = service.searchUserList(queryFilter, pagination, orderTypes ?: emptyList())
         return ResponseEntity.ok(ResultResponse(result))
     }
 

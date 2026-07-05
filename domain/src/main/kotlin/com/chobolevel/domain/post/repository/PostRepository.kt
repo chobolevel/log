@@ -1,6 +1,6 @@
 package com.chobolevel.domain.post.repository
 
-import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.post.entity.Post
 import com.chobolevel.domain.post.entity.PostOrderType
 import com.chobolevel.domain.post.vo.PostQueryFilter
@@ -13,7 +13,7 @@ interface PostRepository {
 
     fun searchPosts(
         queryFilter: PostQueryFilter,
-        pagination: Pagination,
+        paging: Paging,
         orderTypes: List<PostOrderType>
     ): List<Post>
 

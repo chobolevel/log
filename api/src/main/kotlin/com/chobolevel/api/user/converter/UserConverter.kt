@@ -1,11 +1,13 @@
 package com.chobolevel.api.user.converter
 
 import com.chobolevel.api.user.dto.CreateUserRequestDto
+import com.chobolevel.api.user.dto.SearchUserRequest
 import com.chobolevel.api.user.dto.UserResponseDto
 import com.chobolevel.api.user.image.converter.UserImageConverter
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.entity.UserLoginType
 import com.chobolevel.domain.user.entity.UserRoleType
+import com.chobolevel.domain.user.vo.UserQueryFilter
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component
 
@@ -27,6 +29,17 @@ class UserConverter(
             loginType = request.loginType,
             nickname = request.nickname,
             role = UserRoleType.ROLE_USER
+        )
+    }
+
+    fun convert(request: SearchUserRequest): UserQueryFilter {
+        return UserQueryFilter(
+            email = request.email,
+            loginType = request.loginType,
+            nickname = request.nickname,
+            role = request.role,
+            resigned = request.resigned,
+            excludeUserIds = request.excludeUserIds
         )
     }
 

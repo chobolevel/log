@@ -1,13 +1,15 @@
 package com.chobolevel.api.post.service
 
-import com.chobolevel.api.common.dto.PaginationResponseDto
+import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.post.converter.PostConverter
 import com.chobolevel.api.post.dto.CreatePostRequestDto
+import com.chobolevel.api.post.dto.PostPageRequest
 import com.chobolevel.api.post.dto.PostResponseDto
+import com.chobolevel.api.post.dto.SearchPostRequest
 import com.chobolevel.api.post.dto.UpdatePostRequestDto
 import com.chobolevel.api.post.image.converter.PostImageConverter
 import com.chobolevel.api.post.updater.PostUpdatable
-import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.post.entity.Post
@@ -62,19 +64,21 @@ class PostService(
 
     @Transactional(readOnly = true)
     fun searchPosts(
-        queryFilter: PostQueryFilter,
-        pagination: Pagination,
-        orderTypes: List<PostOrderType>?
-    ): PaginationResponseDto {
+        filter: SearchPostRequest,
+        pageRequest: PostPageRequest
+    ): PagingResponse {
+        val queryFilter: PostQueryFilter = converter.convert(request = filter)
+        val paging = Paging(page = pageRequest.page, size = pageRequest.size)
+        val orderTypes: List<PostOrderType> = pageRequest.orderTypes
         val posts: List<Post> = repository.searchPosts(
             queryFilter = queryFilter,
-            pagination = pagination,
-            orderTypes = orderTypes ?: emptyList()
+            paging = paging,
+            orderTypes = orderTypes
         )
         val totalCount: Long = repository.searchPostsCount(queryFilter)
-        return PaginationResponseDto(
-            skipCount = pagination.offset,
-            limitCount = pagination.limit,
+        return PagingResponse(
+            page = paging.page,
+            size = paging.size,
             data = converter.convert(entities = posts),
             totalCount = totalCount
         )

@@ -1,6 +1,6 @@
 package com.chobolevel.domain.user.repository
 
-import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.entity.UserLoginType
 import com.chobolevel.domain.user.entity.UserOrderType
@@ -12,7 +12,7 @@ interface UserRepository {
 
     fun searchUsers(
         queryFilter: UserQueryFilter,
-        pagination: Pagination,
+        paging: Paging,
         orderTypes: List<UserOrderType>
     ): List<User>
 

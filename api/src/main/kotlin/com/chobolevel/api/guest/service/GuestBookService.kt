@@ -1,13 +1,15 @@
 package com.chobolevel.api.guest.service
 
-import com.chobolevel.api.common.dto.PaginationResponseDto
+import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.guest.converter.GuestBookConverter
 import com.chobolevel.api.guest.dto.CreateGuestBookRequestDto
 import com.chobolevel.api.guest.dto.DeleteGuestBookRequestDto
+import com.chobolevel.api.guest.dto.GuestBookPageRequest
 import com.chobolevel.api.guest.dto.GuestBookResponseDto
+import com.chobolevel.api.guest.dto.SearchGuestBookRequest
 import com.chobolevel.api.guest.dto.UpdateGuestBookRequestDto
 import com.chobolevel.api.guest.updater.GuestBookUpdater
-import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.guest.entity.GuestBook
@@ -35,19 +37,21 @@ class GuestBookService(
 
     @Transactional(readOnly = true)
     fun searchGuestBooks(
-        queryFilter: GuestBookQueryFilter,
-        pagination: Pagination,
-        orderTypes: List<GuestBookOrderType>?
-    ): PaginationResponseDto {
+        filter: SearchGuestBookRequest,
+        pageRequest: GuestBookPageRequest
+    ): PagingResponse {
+        val queryFilter: GuestBookQueryFilter = converter.convert(request = filter)
+        val paging = Paging(page = pageRequest.page, size = pageRequest.size)
+        val orderTypes: List<GuestBookOrderType> = pageRequest.orderTypes
         val guestBookList: List<GuestBook> = repository.searchGuestBooks(
             queryFilter = queryFilter,
-            pagination = pagination,
-            orderTypes = orderTypes ?: emptyList()
+            paging = paging,
+            orderTypes = orderTypes
         )
         val totalCount: Long = repository.searchGuestBooksCount(queryFilter)
-        return PaginationResponseDto(
-            skipCount = pagination.offset,
-            limitCount = pagination.limit,
+        return PagingResponse(
+            page = paging.page,
+            size = paging.size,
             data = converter.convert(entities = guestBookList),
             totalCount = totalCount
         )

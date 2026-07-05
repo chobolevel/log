@@ -1,6 +1,6 @@
 package com.chobolevel.domain.guest.repository
 
-import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.guest.entity.GuestBook
@@ -31,12 +31,12 @@ class GuestBookRepositoryAdapter(
 
     override fun searchGuestBooks(
         queryFilter: GuestBookQueryFilter,
-        pagination: Pagination,
+        paging: Paging,
         orderTypes: List<GuestBookOrderType>
     ): List<GuestBook> {
         return guestBookQuerydslRepository.searchByPredicates(
             predicates = queryFilter.toPredicates(),
-            pagination = pagination,
+            paging = paging,
             orderSpecifiers = orderTypes.toOrderSpecifiers()
         )
     }

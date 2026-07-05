@@ -1,11 +1,13 @@
 package com.chobolevel.api.tag.service
 
-import com.chobolevel.api.common.dto.PaginationResponseDto
+import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.tag.converter.TagConverter
 import com.chobolevel.api.tag.dto.CreateTagRequestDto
+import com.chobolevel.api.tag.dto.SearchTagRequest
+import com.chobolevel.api.tag.dto.TagPageRequest
 import com.chobolevel.api.tag.dto.UpdateTagRequestDto
 import com.chobolevel.api.tag.updater.TagUpdatable
-import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.tag.entity.Tag
 import com.chobolevel.domain.tag.entity.TagOrderType
 import com.chobolevel.domain.tag.repository.TagRepository
@@ -28,19 +30,21 @@ class TagService(
 
     @Transactional(readOnly = true)
     fun searchPostTags(
-        queryFilter: TagQueryFilter,
-        pagination: Pagination,
-        orderTypes: List<TagOrderType>?
-    ): PaginationResponseDto {
+        filter: SearchTagRequest,
+        pageRequest: TagPageRequest
+    ): PagingResponse {
+        val queryFilter: TagQueryFilter = converter.convert(request = filter)
+        val paging = Paging(page = pageRequest.page, size = pageRequest.size)
+        val orderTypes: List<TagOrderType> = pageRequest.orderTypes
         val postTags: List<Tag> = repository.searchTags(
             queryFilter = queryFilter,
-            pagination = pagination,
-            orderTypes = orderTypes ?: emptyList()
+            paging = paging,
+            orderTypes = orderTypes
         )
         val totalCount: Long = repository.searchTagsCount(queryFilter)
-        return PaginationResponseDto(
-            skipCount = pagination.offset,
-            limitCount = pagination.limit,
+        return PagingResponse(
+            page = paging.page,
+            size = paging.size,
             data = converter.convert(entities = postTags),
             totalCount = totalCount
         )

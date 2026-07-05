@@ -1,6 +1,6 @@
 package com.chobolevel.domain.post.comment.repository
 
-import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.post.comment.entity.PostComment
@@ -31,12 +31,12 @@ class PostCommentRepositoryAdapter(
 
     override fun searchPostComments(
         queryFilter: PostCommentQueryFilter,
-        pagination: Pagination,
+        paging: Paging,
         orderTypes: List<PostCommentOrderType>
     ): List<PostComment> {
         return postCommentQuerydslRepository.searchByPredicates(
             predicates = queryFilter.toPredicates(),
-            pagination = pagination,
+            paging = paging,
             orderSpecifiers = orderTypes.toOrderSpecifiers()
         )
     }

@@ -1,6 +1,6 @@
 package com.chobolevel.domain.tag.repository
 
-import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.tag.entity.QTag.tag
@@ -40,12 +40,12 @@ class TagRepositoryAdapter(
 
     override fun searchTags(
         queryFilter: TagQueryFilter,
-        pagination: Pagination,
+        paging: Paging,
         orderTypes: List<TagOrderType>
     ): List<Tag> {
         return tagQuerydslRepository.searchByPredicates(
             predicates = queryFilter.toPredicates(),
-            pagination = pagination,
+            paging = paging,
             orderSpecifiers = orderTypes.toOrderSpecifiers()
         )
     }

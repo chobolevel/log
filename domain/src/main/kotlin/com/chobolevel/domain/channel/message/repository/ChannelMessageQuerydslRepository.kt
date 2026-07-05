@@ -2,7 +2,7 @@ package com.chobolevel.domain.channel.message.repository
 
 import com.chobolevel.domain.channel.message.entity.ChannelMessage
 import com.chobolevel.domain.channel.message.entity.QChannelMessage.channelMessage
-import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.common.dto.Paging
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.core.types.dsl.BooleanExpression
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
@@ -13,14 +13,14 @@ class ChannelMessageQuerydslRepository : QuerydslRepositorySupport(ChannelMessag
 
     fun searchByPredicates(
         predicates: Array<BooleanExpression>,
-        pagination: Pagination,
+        paging: Paging,
         orderSpecifiers: Array<OrderSpecifier<*>>
     ): List<ChannelMessage> {
         return from(channelMessage)
             .where(*predicates)
             .orderBy(*orderSpecifiers)
-            .offset(pagination.offset)
-            .limit(pagination.limit)
+            .offset(paging.offset)
+            .limit(paging.limit)
             .fetch().reversed()
     }
 

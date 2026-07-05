@@ -1,6 +1,6 @@
 package com.chobolevel.domain.guest.repository
 
-import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.guest.entity.GuestBook
 import com.chobolevel.domain.guest.entity.QGuestBook.guestBook
 import com.querydsl.core.types.OrderSpecifier
@@ -13,14 +13,14 @@ class GuestBookQuerydslRepository : QuerydslRepositorySupport(GuestBook::class.j
 
     fun searchByPredicates(
         predicates: Array<BooleanExpression>,
-        pagination: Pagination,
+        paging: Paging,
         orderSpecifiers: Array<OrderSpecifier<*>>
     ): List<GuestBook> {
         return from(guestBook)
             .where(*predicates)
             .orderBy(*orderSpecifiers)
-            .offset(pagination.offset)
-            .limit(pagination.limit)
+            .offset(paging.offset)
+            .limit(paging.limit)
             .fetch()
     }
 

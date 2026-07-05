@@ -1,6 +1,6 @@
 package com.chobolevel.domain.user.repository
 
-import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.user.entity.QUser.user
@@ -25,12 +25,12 @@ class UserRepositoryAdapter(
 
     override fun searchUsers(
         queryFilter: UserQueryFilter,
-        pagination: Pagination,
+        paging: Paging,
         orderTypes: List<UserOrderType>
     ): List<User> {
         return userQuerydslRepository.searchByPredicates(
             predicates = queryFilter.toPredicates(),
-            pagination = pagination,
+            paging = paging,
             orderSpecifiers = orderTypes.toOrderSpecifiers()
         )
     }

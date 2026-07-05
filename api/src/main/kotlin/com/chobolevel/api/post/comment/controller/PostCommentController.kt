@@ -1,18 +1,16 @@
 package com.chobolevel.api.post.comment.controller
 
 import com.chobolevel.api.common.annotation.HasAuthorityUser
-import com.chobolevel.api.common.dto.PaginationResponseDto
+import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getUserId
 import com.chobolevel.api.common.posttask.CreatePostCommentPostTask
 import com.chobolevel.api.post.comment.dto.CreatePostCommentRequestDto
+import com.chobolevel.api.post.comment.dto.PostCommentPageRequest
+import com.chobolevel.api.post.comment.dto.SearchPostCommentRequest
 import com.chobolevel.api.post.comment.dto.UpdatePostCommentRequestDto
-import com.chobolevel.api.post.comment.query.PostCommentQueryCreator
 import com.chobolevel.api.post.comment.service.PostCommentService
 import com.chobolevel.api.post.comment.validator.PostCommentParameterValidator
-import com.chobolevel.domain.common.dto.Pagination
-import com.chobolevel.domain.post.comment.entity.PostCommentOrderType
-import com.chobolevel.domain.post.comment.vo.PostCommentQueryFilter
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -24,7 +22,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.security.Principal
 
@@ -34,7 +31,6 @@ import java.security.Principal
 class PostCommentController(
     private val validator: PostCommentParameterValidator,
     private val service: PostCommentService,
-    private val queryCreator: PostCommentQueryCreator,
     private val createPostTask: CreatePostCommentPostTask,
 ) {
 
@@ -57,24 +53,12 @@ class PostCommentController(
     @Operation(summary = "게시글 댓글 목록 조회 API")
     @GetMapping("/posts/comments")
     fun searchPostComments(
-        @RequestParam(required = false) postId: Long?,
-        @RequestParam(required = false) writerId: Long?,
-        @RequestParam(required = false) skipCount: Long?,
-        @RequestParam(required = false) limitCount: Long?,
-        @RequestParam(required = false) orderTypes: List<PostCommentOrderType>?
+        filter: SearchPostCommentRequest,
+        pageRequest: PostCommentPageRequest
     ): ResponseEntity<ResultResponse> {
-        val queryFilter: PostCommentQueryFilter = queryCreator.createQueryFilter(
-            postId = postId,
-            writerId = writerId
-        )
-        val pagination: Pagination = queryCreator.createPaginationFilter(
-            skipCount = skipCount,
-            limitCount = limitCount
-        )
-        val result: PaginationResponseDto = service.searchPostComments(
-            queryFilter = queryFilter,
-            pagination = pagination,
-            orderTypes = orderTypes
+        val result: PagingResponse = service.searchPostComments(
+            filter = filter,
+            pageRequest = pageRequest
         )
         return ResponseEntity.ok(ResultResponse(result))
     }

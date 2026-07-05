@@ -2,10 +2,12 @@ package com.chobolevel.api.post.converter
 
 import com.chobolevel.api.post.dto.CreatePostRequestDto
 import com.chobolevel.api.post.dto.PostResponseDto
+import com.chobolevel.api.post.dto.SearchPostRequest
 import com.chobolevel.api.post.image.converter.PostImageConverter
 import com.chobolevel.api.tag.converter.TagConverter
 import com.chobolevel.api.user.converter.UserConverter
 import com.chobolevel.domain.post.entity.Post
+import com.chobolevel.domain.post.vo.PostQueryFilter
 import org.springframework.stereotype.Component
 
 @Component
@@ -20,6 +22,15 @@ class PostConverter(
             title = request.title,
             subTitle = request.subTitle,
             content = request.content
+        )
+    }
+
+    fun convert(request: SearchPostRequest): PostQueryFilter {
+        return PostQueryFilter(
+            tagId = request.tagId,
+            title = request.title,
+            subTitle = request.subTitle,
+            userId = request.userId
         )
     }
 

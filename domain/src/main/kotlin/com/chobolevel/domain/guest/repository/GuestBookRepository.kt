@@ -1,6 +1,6 @@
 package com.chobolevel.domain.guest.repository
 
-import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.guest.entity.GuestBook
 import com.chobolevel.domain.guest.entity.GuestBookOrderType
 import com.chobolevel.domain.guest.vo.GuestBookQueryFilter
@@ -13,7 +13,7 @@ interface GuestBookRepository {
 
     fun searchGuestBooks(
         queryFilter: GuestBookQueryFilter,
-        pagination: Pagination,
+        paging: Paging,
         orderTypes: List<GuestBookOrderType>
     ): List<GuestBook>
 

@@ -4,7 +4,7 @@ import com.chobolevel.domain.channel.entity.Channel
 import com.chobolevel.domain.channel.entity.ChannelOrderType
 import com.chobolevel.domain.channel.entity.QChannel.channel
 import com.chobolevel.domain.channel.vo.ChannelQueryFilter
-import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.querydsl.core.types.OrderSpecifier
@@ -31,12 +31,12 @@ class ChannelRepositoryAdapter(
 
     override fun searchChannels(
         queryFilter: ChannelQueryFilter,
-        pagination: Pagination,
+        paging: Paging,
         orderTypes: List<ChannelOrderType>
     ): List<Channel> {
         return channelQuerydslRepository.searchByPredicates(
             predicates = queryFilter.toPredicates(),
-            pagination = pagination,
+            paging = paging,
             orderSpecifiers = orderTypes.toOrderSpecifiers()
         )
     }

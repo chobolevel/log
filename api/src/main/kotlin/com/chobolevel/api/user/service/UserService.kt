@@ -1,14 +1,16 @@
 package com.chobolevel.api.user.service
 
-import com.chobolevel.api.common.dto.PaginationResponseDto
+import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.user.converter.UserConverter
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequestDto
+import com.chobolevel.api.user.dto.SearchUserRequest
 import com.chobolevel.api.user.dto.UpdateUserRequestDto
+import com.chobolevel.api.user.dto.UserPageRequest
 import com.chobolevel.api.user.dto.UserResponseDto
 import com.chobolevel.api.user.updater.UserUpdater
 import com.chobolevel.api.user.validator.UserBusinessValidator
-import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.entity.UserOrderType
 import com.chobolevel.domain.user.entity.UserUpdateMask
@@ -36,24 +38,26 @@ class UserService(
     }
 
     @Transactional(readOnly = true)
-    fun searchUserList(
-        queryFilter: UserQueryFilter,
-        pagination: Pagination,
-        orderTypes: List<UserOrderType>
-    ): PaginationResponseDto {
+    fun searchUsers(
+        filter: SearchUserRequest,
+        pageRequest: UserPageRequest
+    ): PagingResponse {
+        val queryFilter: UserQueryFilter = converter.convert(request = filter)
+        val paging = Paging(page = pageRequest.page, size = pageRequest.size)
+        val orderTypes: List<UserOrderType> = pageRequest.orderTypes
         val users: List<User> = repository.searchUsers(
             queryFilter = queryFilter,
-            pagination = pagination,
+            paging = paging,
             orderTypes = orderTypes
         )
-        val totalCount: Long = repository.searchUsersCount(
+        val usersCount: Long = repository.searchUsersCount(
             queryFilter = queryFilter,
         )
-        return PaginationResponseDto(
-            skipCount = pagination.offset,
-            limitCount = pagination.limit,
-            data = converter.convert(entities = users),
-            totalCount = totalCount
+        return PagingResponse(
+            page = paging.page,
+            size = paging.size,
+            data = users,
+            totalCount = usersCount,
         )
     }
 

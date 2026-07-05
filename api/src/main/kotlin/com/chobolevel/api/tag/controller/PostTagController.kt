@@ -1,16 +1,14 @@
 package com.chobolevel.api.tag.controller
 
 import com.chobolevel.api.common.annotation.HasAuthorityAdmin
-import com.chobolevel.api.common.dto.PaginationResponseDto
+import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.tag.dto.CreateTagRequestDto
+import com.chobolevel.api.tag.dto.SearchTagRequest
+import com.chobolevel.api.tag.dto.TagPageRequest
 import com.chobolevel.api.tag.dto.UpdateTagRequestDto
-import com.chobolevel.api.tag.query.TagQueryCreator
 import com.chobolevel.api.tag.service.TagService
 import com.chobolevel.api.tag.validator.TagParameterValidator
-import com.chobolevel.domain.common.dto.Pagination
-import com.chobolevel.domain.tag.entity.TagOrderType
-import com.chobolevel.domain.tag.vo.TagQueryFilter
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -22,7 +20,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @Tag(name = "Tag (게시글 태그)", description = "게시글 태그 관리 API")
@@ -30,8 +27,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/v1")
 class PostTagController(
     private val validator: TagParameterValidator,
-    private val service: TagService,
-    private val queryCreator: TagQueryCreator
+    private val service: TagService
 ) {
 
     @Operation(summary = "게시글 태그 등록 API")
@@ -48,19 +44,13 @@ class PostTagController(
     @Operation(summary = "게시글 태그 목록 조회 API")
     @GetMapping("/tags")
     fun searchPostTags(
-        @RequestParam(required = false) name: String?,
-        @RequestParam(required = false) skipCount: Long?,
-        @RequestParam(required = false) limitCount: Long?,
-        @RequestParam(required = false) orderTypes: List<TagOrderType>?
+        filter: SearchTagRequest,
+        pageRequest: TagPageRequest
     ): ResponseEntity<ResultResponse> {
-        val queryFilter: TagQueryFilter = queryCreator.createQueryFilter(
-            name = name
+        val result: PagingResponse = service.searchPostTags(
+            filter = filter,
+            pageRequest = pageRequest
         )
-        val pagination: Pagination = queryCreator.createPaginationFilter(
-            skipCount = skipCount,
-            limitCount = limitCount
-        )
-        val result: PaginationResponseDto = service.searchPostTags(queryFilter, pagination, orderTypes)
         return ResponseEntity.ok(ResultResponse(result))
     }
 

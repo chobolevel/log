@@ -3,7 +3,7 @@ package com.chobolevel.domain.channel.message.repository
 import com.chobolevel.domain.channel.message.entity.ChannelMessage
 import com.chobolevel.domain.channel.message.entity.ChannelMessageOrderType
 import com.chobolevel.domain.channel.message.vo.ChannelMessageQueryFilter
-import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.common.dto.Paging
 
 interface ChannelMessageRepository {
 
@@ -13,7 +13,7 @@ interface ChannelMessageRepository {
 
     fun searchChannelMessages(
         queryFilter: ChannelMessageQueryFilter,
-        pagination: Pagination,
+        paging: Paging,
         orderTypes: List<ChannelMessageOrderType>
     ): List<ChannelMessage>
 

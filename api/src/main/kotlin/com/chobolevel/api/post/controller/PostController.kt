@@ -1,18 +1,16 @@
 package com.chobolevel.api.post.controller
 
 import com.chobolevel.api.common.annotation.HasAuthorityUser
-import com.chobolevel.api.common.dto.PaginationResponseDto
+import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getUserId
 import com.chobolevel.api.post.dto.CreatePostRequestDto
+import com.chobolevel.api.post.dto.PostPageRequest
 import com.chobolevel.api.post.dto.PostResponseDto
+import com.chobolevel.api.post.dto.SearchPostRequest
 import com.chobolevel.api.post.dto.UpdatePostRequestDto
-import com.chobolevel.api.post.query.PostQueryCreator
 import com.chobolevel.api.post.service.PostService
 import com.chobolevel.api.post.validator.PostParameterValidator
-import com.chobolevel.domain.common.dto.Pagination
-import com.chobolevel.domain.post.entity.PostOrderType
-import com.chobolevel.domain.post.vo.PostQueryFilter
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -24,7 +22,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.security.Principal
 
@@ -33,8 +30,7 @@ import java.security.Principal
 @RequestMapping("/api/v1")
 class PostController(
     private val validator: PostParameterValidator,
-    private val service: PostService,
-    private val queryCreator: PostQueryCreator
+    private val service: PostService
 ) {
 
     @Operation(summary = "게시글 등록 API")
@@ -55,28 +51,12 @@ class PostController(
     @Operation(summary = "게시글 목록 조회 API")
     @GetMapping("/posts")
     fun searchPosts(
-        @RequestParam(required = false) tagId: Long?,
-        @RequestParam(required = false) title: String?,
-        @RequestParam(required = false) subTitle: String?,
-        @RequestParam(required = false) userId: Long?,
-        @RequestParam(required = false) skipCount: Long?,
-        @RequestParam(required = false) limitCount: Long?,
-        @RequestParam(required = false) orderTypes: List<PostOrderType>?
+        filter: SearchPostRequest,
+        pageRequest: PostPageRequest
     ): ResponseEntity<ResultResponse> {
-        val queryFilter: PostQueryFilter = queryCreator.createQueryFilter(
-            tagId = tagId,
-            title = title,
-            subTitle = subTitle,
-            userId = userId
-        )
-        val pagination: Pagination = queryCreator.createPaginationFilter(
-            skipCount = skipCount,
-            limitCount = limitCount
-        )
-        val result: PaginationResponseDto = service.searchPosts(
-            queryFilter = queryFilter,
-            pagination = pagination,
-            orderTypes = orderTypes
+        val result: PagingResponse = service.searchPosts(
+            filter = filter,
+            pageRequest = pageRequest
         )
         return ResponseEntity.ok(ResultResponse(result))
     }

@@ -1,6 +1,6 @@
 package com.chobolevel.domain.tag.repository
 
-import com.chobolevel.domain.common.dto.Pagination
+import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.tag.entity.QTag.tag
 import com.chobolevel.domain.tag.entity.Tag
 import com.querydsl.core.types.OrderSpecifier
@@ -13,14 +13,14 @@ class TagQuerydslRepository : QuerydslRepositorySupport(Tag::class.java) {
 
     fun searchByPredicates(
         predicates: Array<BooleanExpression>,
-        pagination: Pagination,
+        paging: Paging,
         orderSpecifiers: Array<OrderSpecifier<*>>
     ): List<Tag> {
         return from(tag)
             .where(*predicates)
             .orderBy(*orderSpecifiers)
-            .offset(pagination.offset)
-            .limit(pagination.limit)
+            .offset(paging.offset)
+            .limit(paging.limit)
             .fetch()
     }
 
