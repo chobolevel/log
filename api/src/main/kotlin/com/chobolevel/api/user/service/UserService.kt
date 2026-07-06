@@ -12,9 +12,8 @@ import com.chobolevel.api.user.updater.UserUpdater
 import com.chobolevel.api.user.validator.UserBusinessValidator
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.user.entity.User
-import com.chobolevel.domain.user.entity.UserOrderType
-import com.chobolevel.domain.user.entity.UserUpdateMask
 import com.chobolevel.domain.user.repository.UserRepository
+import com.chobolevel.domain.user.vo.UserOrderType
 import com.chobolevel.domain.user.vo.UserQueryFilter
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
@@ -31,9 +30,8 @@ class UserService(
 
     @Transactional
     fun createUser(request: CreateUserRequestDto): Long {
-        validator.validateEmailExists(email = request.email)
-        validator.validateNicknameExists(nickname = request.nickname)
-        val user: User = converter.convert(request)
+        validator.validate(request = request)
+        val user: User = converter.convert(request = request)
         return repository.save(user).id!!
     }
 
@@ -69,9 +67,7 @@ class UserService(
 
     @Transactional
     fun updateUser(id: Long, request: UpdateUserRequestDto): Long {
-        if (request.updateMask.contains(UserUpdateMask.NICKNAME)) {
-            validator.validateNicknameExists(nickname = request.nickname!!)
-        }
+        validator.validate(request = request)
         val user: User = repository.findById(id)
         updater.markAsUpdate(
             request = request,
@@ -83,13 +79,9 @@ class UserService(
     @Transactional
     fun changePassword(id: Long, request: ChangeUserPasswordRequest): Long {
         val user: User = repository.findById(id)
-        validator.validatePasswordMatch(
-            rawPassword = request.curPassword,
-            encodedPassword = user.password
-        )
-        validator.validatePasswordReuse(
-            encodedCurPassword = user.password,
-            newPassword = request.newPassword
+        validator.validate(
+            user = user,
+            request = request
         )
         user.password = passwordEncoder.encode(request.newPassword)
         return user.id!!

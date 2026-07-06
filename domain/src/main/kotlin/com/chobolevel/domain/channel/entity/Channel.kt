@@ -56,13 +56,3 @@ class Channel(
         }
     }
 }
-
-enum class ChannelUpdateMask {
-    NAME,
-    USERS
-}
-
-enum class ChannelOrderType {
-    CREATED_AT_ASC,
-    CREATED_AT_DESC
-}

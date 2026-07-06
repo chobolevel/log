@@ -32,12 +32,3 @@ class GuestBook(
         this.deleted = true
     }
 }
-
-enum class GuestBookOrderType {
-    CREATED_AT_ASC,
-    CREATED_AT_DESC
-}
-
-enum class GuestBookUpdateMask {
-    CONTENT
-}

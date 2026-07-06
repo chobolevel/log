@@ -2,6 +2,7 @@ package com.chobolevel.domain.user.image.entity
 
 import com.chobolevel.domain.common.entity.Audit
 import com.chobolevel.domain.user.entity.User
+import com.chobolevel.domain.user.image.vo.UserImageType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -53,8 +54,4 @@ class UserImage(
     fun delete() {
         this.deleted = true
     }
-}
-
-enum class UserImageType {
-    PROFILE
 }

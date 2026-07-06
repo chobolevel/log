@@ -1,6 +1,6 @@
 package com.chobolevel.api.tag.dto
 
-import com.chobolevel.domain.tag.entity.TagOrderType
+import com.chobolevel.domain.tag.vo.TagOrderType
 
 data class TagPageRequest(
     val page: Long = 1,

@@ -2,7 +2,7 @@ package com.chobolevel.domain.post.comment.repository
 
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.post.comment.entity.PostComment
-import com.chobolevel.domain.post.comment.entity.PostCommentOrderType
+import com.chobolevel.domain.post.comment.vo.PostCommentOrderType
 import com.chobolevel.domain.post.comment.vo.PostCommentQueryFilter
 
 interface PostCommentRepository {

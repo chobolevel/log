@@ -1,6 +1,6 @@
 package com.chobolevel.api.post.comment.dto
 
-import com.chobolevel.domain.post.comment.entity.PostCommentOrderType
+import com.chobolevel.domain.post.comment.vo.PostCommentOrderType
 
 data class PostCommentPageRequest(
     val page: Long = 1,

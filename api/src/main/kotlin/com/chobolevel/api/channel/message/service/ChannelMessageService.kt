@@ -6,8 +6,8 @@ import com.chobolevel.api.channel.message.dto.CreateChannelMessageRequestDto
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.domain.channel.entity.Channel
 import com.chobolevel.domain.channel.message.entity.ChannelMessage
-import com.chobolevel.domain.channel.message.entity.ChannelMessageOrderType
 import com.chobolevel.domain.channel.message.repository.ChannelMessageRepository
+import com.chobolevel.domain.channel.message.vo.ChannelMessageOrderType
 import com.chobolevel.domain.channel.message.vo.ChannelMessageQueryFilter
 import com.chobolevel.domain.channel.repository.ChannelRepository
 import com.chobolevel.domain.common.dto.Paging

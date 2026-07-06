@@ -3,7 +3,7 @@ package com.chobolevel.api.post.comment.validator
 import com.chobolevel.api.post.comment.dto.UpdatePostCommentRequestDto
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
-import com.chobolevel.domain.post.comment.entity.PostCommentUpdateMask
+import com.chobolevel.domain.post.comment.vo.PostCommentUpdateMask
 import org.springframework.stereotype.Component
 
 @Component

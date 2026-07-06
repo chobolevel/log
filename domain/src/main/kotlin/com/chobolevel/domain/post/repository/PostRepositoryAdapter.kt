@@ -4,8 +4,8 @@ import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.post.entity.Post
-import com.chobolevel.domain.post.entity.PostOrderType
 import com.chobolevel.domain.post.entity.QPost.post
+import com.chobolevel.domain.post.vo.PostOrderType
 import com.chobolevel.domain.post.vo.PostQueryFilter
 import com.querydsl.core.types.OrderSpecifier
 import org.springframework.http.HttpStatus

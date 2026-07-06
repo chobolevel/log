@@ -1,6 +1,7 @@
 package com.chobolevel.domain.channel.message.entity
 
 import com.chobolevel.domain.channel.entity.Channel
+import com.chobolevel.domain.channel.message.vo.ChannelMessageType
 import com.chobolevel.domain.common.entity.Audit
 import com.chobolevel.domain.user.entity.User
 import jakarta.persistence.Column
@@ -57,15 +58,4 @@ class ChannelMessage(
     fun delete() {
         this.deleted = true
     }
-}
-
-enum class ChannelMessageType() {
-    ENTER,
-    TALK,
-    EXIT
-}
-
-enum class ChannelMessageOrderType {
-    CREATED_AT_ASC,
-    CREATED_AT_DESC
 }

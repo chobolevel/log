@@ -2,7 +2,7 @@ package com.chobolevel.domain.tag.repository
 
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.tag.entity.Tag
-import com.chobolevel.domain.tag.entity.TagOrderType
+import com.chobolevel.domain.tag.vo.TagOrderType
 import com.chobolevel.domain.tag.vo.TagQueryFilter
 
 interface TagRepository {

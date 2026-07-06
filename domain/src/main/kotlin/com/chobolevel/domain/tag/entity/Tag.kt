@@ -40,13 +40,3 @@ class Tag(
         }
     }
 }
-
-enum class TagOrderType {
-    ORDER_ASC,
-    ORDER_DESC
-}
-
-enum class TagUpdateMask {
-    NAME,
-    ORDER
-}

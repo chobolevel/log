@@ -1,6 +1,6 @@
 package com.chobolevel.api.channel.message.dto
 
-import com.chobolevel.domain.channel.message.entity.ChannelMessageType
+import com.chobolevel.domain.channel.message.vo.ChannelMessageType
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 

@@ -13,8 +13,8 @@ import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.guest.entity.GuestBook
-import com.chobolevel.domain.guest.entity.GuestBookOrderType
 import com.chobolevel.domain.guest.repository.GuestBookRepository
+import com.chobolevel.domain.guest.vo.GuestBookOrderType
 import com.chobolevel.domain.guest.vo.GuestBookQueryFilter
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder

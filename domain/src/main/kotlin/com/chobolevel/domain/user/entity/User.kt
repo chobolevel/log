@@ -2,6 +2,8 @@ package com.chobolevel.domain.user.entity
 
 import com.chobolevel.domain.common.entity.Audit
 import com.chobolevel.domain.user.image.entity.UserImage
+import com.chobolevel.domain.user.vo.UserLoginType
+import com.chobolevel.domain.user.vo.UserRoleType
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -55,36 +57,4 @@ class User(
     fun resign() {
         this.resigned = true
     }
-}
-
-enum class UserLoginType {
-    GENERAL,
-    KAKAO,
-    NAVER,
-    GOOGLE;
-
-    // equal to java static method
-    companion object {
-        fun find(value: String): UserLoginType? {
-            return values().find { it.name == value }
-        }
-    }
-}
-
-enum class UserRoleType {
-    ROLE_USER,
-    ROLE_ADMIN
-}
-
-enum class UserOrderType {
-    CREATED_AT_ASC,
-    CREATED_AT_DESC,
-    EMAIL_ASC,
-    EMAIL_DESC,
-    NICKNAME_ASC,
-    NICKNAME_DESC
-}
-
-enum class UserUpdateMask {
-    NICKNAME,
 }

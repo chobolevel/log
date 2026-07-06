@@ -2,7 +2,7 @@ package com.chobolevel.domain.post.entity
 
 import com.chobolevel.domain.common.entity.Audit
 import com.chobolevel.domain.post.image.entity.PostImage
-import com.chobolevel.domain.post.image.entity.PostImageType
+import com.chobolevel.domain.post.image.vo.PostImageType
 import com.chobolevel.domain.post.tag.entity.PostTag
 import com.chobolevel.domain.user.entity.User
 import jakarta.persistence.CascadeType
@@ -81,19 +81,4 @@ class Post(
             this.images.remove(it)
         }
     }
-}
-
-enum class PostOrderType {
-    CREATED_AT_ASC,
-    CREATED_AT_DESC,
-    UPDATED_AT_ASC,
-    UPDATED_AT_DESC
-}
-
-enum class PostUpdateMask {
-    TAGS,
-    TITLE,
-    SUB_TITLE,
-    CONTENT,
-    THUMB_NAIL_IMAGE
 }

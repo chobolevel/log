@@ -5,8 +5,8 @@ import com.chobolevel.api.user.dto.CreateUserRequestDto
 import com.chobolevel.api.user.dto.UpdateUserRequestDto
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
-import com.chobolevel.domain.user.entity.UserLoginType
-import com.chobolevel.domain.user.entity.UserUpdateMask
+import com.chobolevel.domain.user.vo.UserLoginType
+import com.chobolevel.domain.user.vo.UserUpdateMask
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 

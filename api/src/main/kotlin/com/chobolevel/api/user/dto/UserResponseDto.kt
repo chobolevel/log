@@ -1,8 +1,8 @@
 package com.chobolevel.api.user.dto
 
 import com.chobolevel.api.user.image.dto.UserImageResponseDto
-import com.chobolevel.domain.user.entity.UserLoginType
-import com.chobolevel.domain.user.entity.UserRoleType
+import com.chobolevel.domain.user.vo.UserLoginType
+import com.chobolevel.domain.user.vo.UserRoleType
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 

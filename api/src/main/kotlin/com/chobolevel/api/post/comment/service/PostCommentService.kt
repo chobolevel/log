@@ -11,8 +11,8 @@ import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.post.comment.entity.PostComment
-import com.chobolevel.domain.post.comment.entity.PostCommentOrderType
 import com.chobolevel.domain.post.comment.repository.PostCommentRepository
+import com.chobolevel.domain.post.comment.vo.PostCommentOrderType
 import com.chobolevel.domain.post.comment.vo.PostCommentQueryFilter
 import com.chobolevel.domain.post.entity.Post
 import com.chobolevel.domain.post.repository.PostRepository

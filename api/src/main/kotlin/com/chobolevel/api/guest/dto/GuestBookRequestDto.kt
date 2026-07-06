@@ -1,6 +1,6 @@
 package com.chobolevel.api.guest.dto
 
-import com.chobolevel.domain.guest.entity.GuestBookUpdateMask
+import com.chobolevel.domain.guest.vo.GuestBookUpdateMask
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import jakarta.validation.constraints.NotEmpty

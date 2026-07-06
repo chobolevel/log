@@ -2,6 +2,7 @@ package com.chobolevel.domain.post.image.entity
 
 import com.chobolevel.domain.common.entity.Audit
 import com.chobolevel.domain.post.entity.Post
+import com.chobolevel.domain.post.image.vo.PostImageType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -55,16 +56,4 @@ class PostImage(
     fun delete() {
         this.deleted = true
     }
-}
-
-enum class PostImageType {
-    THUMB_NAIL
-}
-
-enum class PostImageUpdateMask {
-    TYPE,
-    NAME,
-    URL,
-    WIDTH,
-    HEIGHT
 }

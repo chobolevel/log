@@ -1,6 +1,6 @@
 package com.chobolevel.api.auth.dto
 
-import com.chobolevel.domain.user.entity.UserLoginType
+import com.chobolevel.domain.user.vo.UserLoginType
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import jakarta.validation.constraints.NotEmpty

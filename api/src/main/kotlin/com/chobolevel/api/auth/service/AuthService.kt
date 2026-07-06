@@ -9,7 +9,7 @@ import com.chobolevel.api.common.security.TokenProvider
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.utils.EmailUtils
-import com.chobolevel.domain.user.entity.UserLoginType
+import com.chobolevel.domain.user.vo.UserLoginType
 import io.hypersistence.tsid.TSID
 import org.springframework.data.redis.core.HashOperations
 import org.springframework.http.HttpStatus

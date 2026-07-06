@@ -2,7 +2,7 @@ package com.chobolevel.domain.guest.repository
 
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.guest.entity.GuestBook
-import com.chobolevel.domain.guest.entity.GuestBookOrderType
+import com.chobolevel.domain.guest.vo.GuestBookOrderType
 import com.chobolevel.domain.guest.vo.GuestBookQueryFilter
 
 interface GuestBookRepository {

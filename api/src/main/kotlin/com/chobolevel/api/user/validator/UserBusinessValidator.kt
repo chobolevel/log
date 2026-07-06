@@ -1,8 +1,13 @@
 package com.chobolevel.api.user.validator
 
+import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
+import com.chobolevel.api.user.dto.CreateUserRequestDto
+import com.chobolevel.api.user.dto.UpdateUserRequestDto
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
+import com.chobolevel.domain.user.vo.UserUpdateMask
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component
@@ -13,7 +18,29 @@ class UserBusinessValidator(
     private val passwordEncoder: BCryptPasswordEncoder
 ) {
 
-    fun validateEmailExists(email: String) {
+    fun validate(request: CreateUserRequestDto) {
+        validateEmailExists(email = request.email)
+        validateNicknameExists(nickname = request.nickname)
+    }
+
+    fun validate(request: UpdateUserRequestDto) {
+        if (request.updateMask.contains(UserUpdateMask.NICKNAME)) {
+            validateNicknameExists(nickname = request.nickname!!)
+        }
+    }
+
+    fun validate(user: User, request: ChangeUserPasswordRequest) {
+        validatePasswordMatch(
+            rawPassword = request.curPassword,
+            encodedPassword = user.password
+        )
+        validatePasswordReuse(
+            encodedCurPassword = user.password,
+            newPassword = request.newPassword
+        )
+    }
+
+    private fun validateEmailExists(email: String) {
         if (userRepository.existsByEmail(email = email)) {
             throw ApiException(
                 errorCode = ErrorCode.USER_EMAIL_ALREADY_EXISTS,
@@ -23,7 +50,7 @@ class UserBusinessValidator(
         }
     }
 
-    fun validateNicknameExists(nickname: String) {
+    private fun validateNicknameExists(nickname: String) {
         if (userRepository.existsByNickname(nickname = nickname)) {
             throw ApiException(
                 errorCode = ErrorCode.USER_NICKNAME_ALREADY_EXISTS,
@@ -33,7 +60,7 @@ class UserBusinessValidator(
         }
     }
 
-    fun validatePasswordMatch(rawPassword: String, encodedPassword: String) {
+    private fun validatePasswordMatch(rawPassword: String, encodedPassword: String) {
         if (passwordEncoder.matches(rawPassword, encodedPassword)) {
             throw ApiException(
                 errorCode = ErrorCode.USER_PASSWORD_NOT_MATCH,
@@ -43,7 +70,7 @@ class UserBusinessValidator(
         }
     }
 
-    fun validatePasswordReuse(encodedCurPassword: String, newPassword: String) {
+    private fun validatePasswordReuse(encodedCurPassword: String, newPassword: String) {
         if (passwordEncoder.matches(encodedCurPassword, newPassword)) {
             throw ApiException(
                 errorCode = ErrorCode.USER_PASSWORD_REUSE_NOT_ALLOWED,

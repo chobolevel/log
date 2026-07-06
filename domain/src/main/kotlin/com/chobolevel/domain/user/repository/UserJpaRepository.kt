@@ -1,7 +1,7 @@
 package com.chobolevel.domain.user.repository
 
 import com.chobolevel.domain.user.entity.User
-import com.chobolevel.domain.user.entity.UserLoginType
+import com.chobolevel.domain.user.vo.UserLoginType
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface UserJpaRepository : JpaRepository<User, Long> {

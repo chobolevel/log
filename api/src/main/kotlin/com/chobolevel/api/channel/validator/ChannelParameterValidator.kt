@@ -1,7 +1,7 @@
 package com.chobolevel.api.channel.validator
 
 import com.chobolevel.api.channel.dto.UpdateChannelRequestDto
-import com.chobolevel.domain.channel.entity.ChannelUpdateMask
+import com.chobolevel.domain.channel.vo.ChannelUpdateMask
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
 import org.springframework.http.HttpStatus

@@ -1,6 +1,6 @@
 package com.chobolevel.api.channel.dto
 
-import com.chobolevel.domain.channel.entity.ChannelOrderType
+import com.chobolevel.domain.channel.vo.ChannelOrderType
 
 data class ChannelPageRequest(
     val page: Long = 1,

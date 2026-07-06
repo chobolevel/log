@@ -2,8 +2,8 @@ package com.chobolevel.domain.user.repository
 
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.user.entity.User
-import com.chobolevel.domain.user.entity.UserLoginType
-import com.chobolevel.domain.user.entity.UserOrderType
+import com.chobolevel.domain.user.vo.UserLoginType
+import com.chobolevel.domain.user.vo.UserOrderType
 import com.chobolevel.domain.user.vo.UserQueryFilter
 
 interface UserRepository {

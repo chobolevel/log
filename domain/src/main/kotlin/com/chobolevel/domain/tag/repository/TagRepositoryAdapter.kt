@@ -5,7 +5,7 @@ import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.tag.entity.QTag.tag
 import com.chobolevel.domain.tag.entity.Tag
-import com.chobolevel.domain.tag.entity.TagOrderType
+import com.chobolevel.domain.tag.vo.TagOrderType
 import com.chobolevel.domain.tag.vo.TagQueryFilter
 import com.querydsl.core.types.OrderSpecifier
 import org.springframework.data.repository.findByIdOrNull

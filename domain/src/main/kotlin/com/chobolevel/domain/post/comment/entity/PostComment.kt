@@ -53,12 +53,3 @@ class PostComment(
         this.deleted = true
     }
 }
-
-enum class PostCommentOrderType {
-    CREATED_AT_ASC,
-    CREATED_AT_DESC,
-}
-
-enum class PostCommentUpdateMask {
-    CONTENT,
-}

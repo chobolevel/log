@@ -1,8 +1,8 @@
 package com.chobolevel.domain.channel.repository
 
 import com.chobolevel.domain.channel.entity.Channel
-import com.chobolevel.domain.channel.entity.ChannelOrderType
 import com.chobolevel.domain.channel.entity.QChannel.channel
+import com.chobolevel.domain.channel.vo.ChannelOrderType
 import com.chobolevel.domain.channel.vo.ChannelQueryFilter
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.ApiException

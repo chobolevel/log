@@ -11,12 +11,12 @@ import com.chobolevel.api.channel.message.dto.CreateChannelMessageRequestDto
 import com.chobolevel.api.channel.updater.ChannelUpdater
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.domain.channel.entity.Channel
-import com.chobolevel.domain.channel.entity.ChannelOrderType
 import com.chobolevel.domain.channel.message.entity.ChannelMessage
-import com.chobolevel.domain.channel.message.entity.ChannelMessageType
 import com.chobolevel.domain.channel.message.repository.ChannelMessageRepository
+import com.chobolevel.domain.channel.message.vo.ChannelMessageType
 import com.chobolevel.domain.channel.repository.ChannelRepository
 import com.chobolevel.domain.channel.user.entity.ChannelUser
+import com.chobolevel.domain.channel.vo.ChannelOrderType
 import com.chobolevel.domain.channel.vo.ChannelQueryFilter
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.ApiException

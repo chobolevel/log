@@ -1,8 +1,8 @@
 package com.chobolevel.api.user.dto
 
 import com.chobolevel.api.common.annotation.ValidUserPasswordOrSocialId
-import com.chobolevel.domain.user.entity.UserLoginType
-import com.chobolevel.domain.user.entity.UserUpdateMask
+import com.chobolevel.domain.user.vo.UserLoginType
+import com.chobolevel.domain.user.vo.UserUpdateMask
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import jakarta.validation.constraints.NotBlank

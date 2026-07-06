@@ -1,6 +1,6 @@
 package com.chobolevel.api.guest.dto
 
-import com.chobolevel.domain.guest.entity.GuestBookOrderType
+import com.chobolevel.domain.guest.vo.GuestBookOrderType
 
 data class GuestBookPageRequest(
     val page: Long = 1,

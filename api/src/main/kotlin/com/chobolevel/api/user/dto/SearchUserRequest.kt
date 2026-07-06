@@ -1,7 +1,7 @@
 package com.chobolevel.api.user.dto
 
-import com.chobolevel.domain.user.entity.UserLoginType
-import com.chobolevel.domain.user.entity.UserRoleType
+import com.chobolevel.domain.user.vo.UserLoginType
+import com.chobolevel.domain.user.vo.UserRoleType
 
 data class SearchUserRequest(
     val email: String?,

@@ -1,6 +1,6 @@
 package com.chobolevel.api.post.dto
 
-import com.chobolevel.domain.post.entity.PostOrderType
+import com.chobolevel.domain.post.vo.PostOrderType
 
 data class PostPageRequest(
     val page: Long = 1,

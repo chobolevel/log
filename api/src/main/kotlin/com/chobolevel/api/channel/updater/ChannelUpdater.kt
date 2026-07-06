@@ -2,8 +2,8 @@ package com.chobolevel.api.channel.updater
 
 import com.chobolevel.api.channel.dto.UpdateChannelRequestDto
 import com.chobolevel.domain.channel.entity.Channel
-import com.chobolevel.domain.channel.entity.ChannelUpdateMask
 import com.chobolevel.domain.channel.user.entity.ChannelUser
+import com.chobolevel.domain.channel.vo.ChannelUpdateMask
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
 import org.springframework.stereotype.Component

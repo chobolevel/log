@@ -5,9 +5,9 @@ import com.chobolevel.api.user.dto.SearchUserRequest
 import com.chobolevel.api.user.dto.UserResponseDto
 import com.chobolevel.api.user.image.converter.UserImageConverter
 import com.chobolevel.domain.user.entity.User
-import com.chobolevel.domain.user.entity.UserLoginType
-import com.chobolevel.domain.user.entity.UserRoleType
+import com.chobolevel.domain.user.vo.UserLoginType
 import com.chobolevel.domain.user.vo.UserQueryFilter
+import com.chobolevel.domain.user.vo.UserRoleType
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component
 

@@ -1,8 +1,8 @@
 package com.chobolevel.domain.channel.message.repository
 
 import com.chobolevel.domain.channel.message.entity.ChannelMessage
-import com.chobolevel.domain.channel.message.entity.ChannelMessageOrderType
 import com.chobolevel.domain.channel.message.entity.QChannelMessage.channelMessage
+import com.chobolevel.domain.channel.message.vo.ChannelMessageOrderType
 import com.chobolevel.domain.channel.message.vo.ChannelMessageQueryFilter
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.ApiException

@@ -5,8 +5,8 @@ import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.user.entity.QUser.user
 import com.chobolevel.domain.user.entity.User
-import com.chobolevel.domain.user.entity.UserLoginType
-import com.chobolevel.domain.user.entity.UserOrderType
+import com.chobolevel.domain.user.vo.UserLoginType
+import com.chobolevel.domain.user.vo.UserOrderType
 import com.chobolevel.domain.user.vo.UserQueryFilter
 import com.querydsl.core.types.OrderSpecifier
 import org.springframework.data.repository.findByIdOrNull
