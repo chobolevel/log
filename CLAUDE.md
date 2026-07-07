@@ -150,7 +150,25 @@ fun `게시글_등록_성공`() {
 }
 ```
 
-### 4. 예시 코드 작성 시
+### 4. 엔티티를 API 응답으로 직접 반환 금지
+
+JPA 엔티티를 Jackson이 직렬화하면 양방향 연관관계로 인한 **무한 참조(StackOverflowError)**가 발생할 수 있다.
+
+> 근거: `User.profileImage → UserImage.user → User.profileImage → ...` 처럼 JPA는 양방향 관계를 메모리 상에서 두 객체가 서로를 참조하는 형태로 유지한다. Jackson은 이 참조가 순환인지 모르고 끝날 때까지 객체 그래프를 탐색하기 때문에 무한 루프에 빠진다.
+
+**반드시 Converter를 통해 DTO로 변환한 뒤 반환한다.**
+
+```kotlin
+// 잘못된 예 — 엔티티 직접 반환
+return PagingResponse(data = users)
+
+// 올바른 예 — DTO 변환 후 반환
+return PagingResponse(data = converter.convert(entities = users))
+```
+
+DTO는 연관 엔티티를 다시 상위 DTO로 참조하지 않으므로 순환이 끊긴다.
+
+### 5. 예시 코드 작성 시
 
 Claude가 이 프로젝트에서 예시 코드를 작성할 때는 반드시 위의 타입 명시 규칙을 따른다. 타입 추론에 의존하는 코틀린 관용구(`val x = someFunction()`) 스타일은 사용하지 않는다.
 

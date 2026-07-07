@@ -54,7 +54,7 @@ class UserService(
         return PagingResponse(
             page = paging.page,
             size = paging.size,
-            data = users,
+            data = converter.convert(entities = users),
             totalCount = usersCount,
         )
     }
