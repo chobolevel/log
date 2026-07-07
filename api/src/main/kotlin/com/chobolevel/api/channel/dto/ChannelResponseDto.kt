@@ -1,6 +1,6 @@
 package com.chobolevel.api.channel.dto
 
-import com.chobolevel.api.user.dto.UserResponseDto
+import com.chobolevel.api.user.dto.UserResponse
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 
@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
 data class ChannelResponseDto(
     val id: Long,
     val name: String,
-    val participants: List<UserResponseDto>,
+    val participants: List<UserResponse>,
     val createdAt: Long,
     val updatedAt: Long
 )

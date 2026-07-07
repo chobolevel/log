@@ -2,7 +2,7 @@ package com.chobolevel.api.user.converter
 
 import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.SearchUserRequest
-import com.chobolevel.api.user.dto.UserResponseDto
+import com.chobolevel.api.user.dto.UserResponse
 import com.chobolevel.api.user.image.converter.UserImageConverter
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.vo.UserLoginType
@@ -43,8 +43,8 @@ class UserConverter(
         )
     }
 
-    fun convert(entity: User): UserResponseDto {
-        return UserResponseDto(
+    fun convert(entity: User): UserResponse {
+        return UserResponse(
             id = entity.id!!,
             email = entity.email,
             loginType = entity.loginType,
@@ -56,7 +56,7 @@ class UserConverter(
         )
     }
 
-    fun convert(entities: List<User>): List<UserResponseDto> {
+    fun convert(entities: List<User>): List<UserResponse> {
         return entities.map { convert(it) }
     }
 }

@@ -9,7 +9,7 @@ import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.SearchUserRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
 import com.chobolevel.api.user.dto.UserPageRequest
-import com.chobolevel.api.user.dto.UserResponseDto
+import com.chobolevel.api.user.dto.UserResponse
 import com.chobolevel.api.user.service.UserService
 import com.chobolevel.api.user.validator.UserParameterValidator
 import io.swagger.v3.oas.annotations.Operation
@@ -61,7 +61,7 @@ class UserController(
     @Operation(summary = "회원 단건 조회 API")
     @GetMapping("/users/{id}")
     fun fetchUser(@PathVariable id: Long): ResponseEntity<ResultResponse> {
-        val result: UserResponseDto = service.fetchUser(id)
+        val result: UserResponse = service.fetchUser(id)
         return ResponseEntity.ok(ResultResponse(result))
     }
 
@@ -69,7 +69,7 @@ class UserController(
     @HasAuthorityUser
     @GetMapping("/users/me")
     fun myUser(principal: Principal): ResponseEntity<ResultResponse> {
-        val result: UserResponseDto = service.fetchUser(principal.getUserId())
+        val result: UserResponse = service.fetchUser(principal.getUserId())
         return ResponseEntity.ok(ResultResponse(result))
     }
 

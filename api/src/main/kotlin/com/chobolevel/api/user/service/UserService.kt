@@ -7,7 +7,7 @@ import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.SearchUserRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
 import com.chobolevel.api.user.dto.UserPageRequest
-import com.chobolevel.api.user.dto.UserResponseDto
+import com.chobolevel.api.user.dto.UserResponse
 import com.chobolevel.api.user.updater.UserUpdater
 import com.chobolevel.api.user.validator.UserBusinessValidator
 import com.chobolevel.domain.common.dto.Paging
@@ -60,7 +60,7 @@ class UserService(
     }
 
     @Transactional(readOnly = true)
-    fun fetchUser(id: Long): UserResponseDto {
+    fun fetchUser(id: Long): UserResponse {
         val user: User = repository.findById(id)
         return converter.convert(entity = user)
     }

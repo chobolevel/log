@@ -2,14 +2,14 @@ package com.chobolevel.api.post.dto
 
 import com.chobolevel.api.post.image.dto.PostImageResponseDto
 import com.chobolevel.api.tag.dto.TagResponseDto
-import com.chobolevel.api.user.dto.UserResponseDto
+import com.chobolevel.api.user.dto.UserResponse
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class PostResponseDto(
     val id: Long = 0,
-    val writer: UserResponseDto? = null,
+    val writer: UserResponse? = null,
     val tags: List<TagResponseDto>? = null,
     val title: String = "",
     val subTitle: String = "",

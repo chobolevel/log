@@ -4,7 +4,7 @@ import com.chobolevel.api.user.image.dto.UserImageResponse
 import com.chobolevel.domain.user.vo.UserLoginType
 import com.chobolevel.domain.user.vo.UserRoleType
 
-data class UserResponseDto(
+data class UserResponse(
     val id: Long,
     val email: String,
     val loginType: UserLoginType,
