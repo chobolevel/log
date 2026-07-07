@@ -1,6 +1,6 @@
 package com.chobolevel.api.user.converter
 
-import com.chobolevel.api.user.dto.CreateUserRequestDto
+import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.SearchUserRequest
 import com.chobolevel.api.user.dto.UserResponseDto
 import com.chobolevel.api.user.image.converter.UserImageConverter
@@ -17,7 +17,7 @@ class UserConverter(
     private val userImageConverter: UserImageConverter
 ) {
 
-    fun convert(request: CreateUserRequestDto): User {
+    fun convert(request: CreateUserRequest): User {
         val password: String = when (request.loginType) {
             UserLoginType.GENERAL -> passwordEncoder.encode(request.password)
             else -> passwordEncoder.encode(request.socialId)

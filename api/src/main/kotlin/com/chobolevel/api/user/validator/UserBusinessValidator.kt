@@ -1,8 +1,8 @@
 package com.chobolevel.api.user.validator
 
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
-import com.chobolevel.api.user.dto.CreateUserRequestDto
-import com.chobolevel.api.user.dto.UpdateUserRequestDto
+import com.chobolevel.api.user.dto.CreateUserRequest
+import com.chobolevel.api.user.dto.UpdateUserRequest
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.user.entity.User
@@ -18,12 +18,12 @@ class UserBusinessValidator(
     private val passwordEncoder: BCryptPasswordEncoder
 ) {
 
-    fun validate(request: CreateUserRequestDto) {
+    fun validate(request: CreateUserRequest) {
         validateEmailExists(email = request.email)
         validateNicknameExists(nickname = request.nickname)
     }
 
-    fun validate(request: UpdateUserRequestDto) {
+    fun validate(request: UpdateUserRequest) {
         if (request.updateMask.contains(UserUpdateMask.NICKNAME)) {
             validateNicknameExists(nickname = request.nickname!!)
         }

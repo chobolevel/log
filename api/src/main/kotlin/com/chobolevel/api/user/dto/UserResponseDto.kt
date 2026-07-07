@@ -1,19 +1,16 @@
 package com.chobolevel.api.user.dto
 
-import com.chobolevel.api.user.image.dto.UserImageResponseDto
+import com.chobolevel.api.user.image.dto.UserImageResponse
 import com.chobolevel.domain.user.vo.UserLoginType
 import com.chobolevel.domain.user.vo.UserRoleType
-import com.fasterxml.jackson.databind.PropertyNamingStrategies
-import com.fasterxml.jackson.databind.annotation.JsonNaming
 
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class UserResponseDto(
-    val id: Long = 0,
-    val email: String = "",
-    val loginType: UserLoginType = UserLoginType.GENERAL,
-    val nickname: String = "",
-    val role: UserRoleType = UserRoleType.ROLE_USER,
-    val profileImage: UserImageResponseDto? = null,
-    val createdAt: Long = 0,
-    val updatedAt: Long = 0
+    val id: Long,
+    val email: String,
+    val loginType: UserLoginType,
+    val nickname: String,
+    val role: UserRoleType,
+    val profileImage: UserImageResponse? = null,
+    val createdAt: Long,
+    val updatedAt: Long
 )

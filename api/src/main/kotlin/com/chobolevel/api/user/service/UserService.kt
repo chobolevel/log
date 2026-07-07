@@ -3,9 +3,9 @@ package com.chobolevel.api.user.service
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.user.converter.UserConverter
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
-import com.chobolevel.api.user.dto.CreateUserRequestDto
+import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.SearchUserRequest
-import com.chobolevel.api.user.dto.UpdateUserRequestDto
+import com.chobolevel.api.user.dto.UpdateUserRequest
 import com.chobolevel.api.user.dto.UserPageRequest
 import com.chobolevel.api.user.dto.UserResponseDto
 import com.chobolevel.api.user.updater.UserUpdater
@@ -29,7 +29,7 @@ class UserService(
 ) {
 
     @Transactional
-    fun createUser(request: CreateUserRequestDto): Long {
+    fun createUser(request: CreateUserRequest): Long {
         validator.validate(request = request)
         val user: User = converter.convert(request = request)
         return repository.save(user).id!!
@@ -66,7 +66,7 @@ class UserService(
     }
 
     @Transactional
-    fun updateUser(id: Long, request: UpdateUserRequestDto): Long {
+    fun updateUser(id: Long, request: UpdateUserRequest): Long {
         validator.validate(request = request)
         val user: User = repository.findById(id)
         updater.markAsUpdate(

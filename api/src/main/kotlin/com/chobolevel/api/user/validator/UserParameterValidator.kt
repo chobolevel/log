@@ -1,8 +1,8 @@
 package com.chobolevel.api.user.validator
 
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
-import com.chobolevel.api.user.dto.CreateUserRequestDto
-import com.chobolevel.api.user.dto.UpdateUserRequestDto
+import com.chobolevel.api.user.dto.CreateUserRequest
+import com.chobolevel.api.user.dto.UpdateUserRequest
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.user.vo.UserLoginType
@@ -19,7 +19,7 @@ class UserParameterValidator {
         private val nicknameRegexp = "^[a-zA-Z가-힣]+\$".toRegex()
     }
 
-    fun validate(request: CreateUserRequestDto) {
+    fun validate(request: CreateUserRequest) {
         validateEmailFormat(email = request.email)
         validateNicknameFormat(nickname = request.nickname)
         if (request.loginType == UserLoginType.GENERAL) {
@@ -27,7 +27,7 @@ class UserParameterValidator {
         }
     }
 
-    fun validate(request: UpdateUserRequestDto) {
+    fun validate(request: UpdateUserRequest) {
         request.updateMask.forEach {
             when (it) {
                 UserUpdateMask.NICKNAME -> {

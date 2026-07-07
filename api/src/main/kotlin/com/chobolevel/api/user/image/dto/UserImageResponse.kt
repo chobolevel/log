@@ -1,11 +1,8 @@
 package com.chobolevel.api.user.image.dto
 
 import com.chobolevel.domain.user.image.vo.UserImageType
-import com.fasterxml.jackson.databind.PropertyNamingStrategies
-import com.fasterxml.jackson.databind.annotation.JsonNaming
 
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
-data class UserImageResponseDto(
+data class UserImageResponse(
     val id: Long = 0,
     val type: UserImageType = UserImageType.PROFILE,
     val originUrl: String = "",

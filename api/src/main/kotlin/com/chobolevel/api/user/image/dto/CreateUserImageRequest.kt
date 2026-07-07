@@ -1,13 +1,10 @@
 package com.chobolevel.api.user.image.dto
 
 import com.chobolevel.domain.user.image.vo.UserImageType
-import com.fasterxml.jackson.databind.PropertyNamingStrategies
-import com.fasterxml.jackson.databind.annotation.JsonNaming
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
-data class CreateUserImageRequestDto(
+data class CreateUserImageRequest(
     @field:NotNull(message = "이미지 타입은 필수 값입니다.")
     val type: UserImageType,
     @field:NotEmpty(message = "이미지 파일 URL은 필수 값입니다.")

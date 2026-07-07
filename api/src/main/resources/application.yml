@@ -76,6 +76,8 @@ spring:
           timeout: 5000
           starttls:
             enable: true
+  jackson:
+    property-naming-strategy: SNAKE_CASE
 
 jasypt:
   encryptor:

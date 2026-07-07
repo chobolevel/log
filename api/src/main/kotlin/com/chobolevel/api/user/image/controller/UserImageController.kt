@@ -3,7 +3,7 @@ package com.chobolevel.api.user.image.controller
 import com.chobolevel.api.common.annotation.HasAuthorityUser
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getUserId
-import com.chobolevel.api.user.image.dto.CreateUserImageRequestDto
+import com.chobolevel.api.user.image.dto.CreateUserImageRequest
 import com.chobolevel.api.user.image.service.UserImageService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -30,7 +30,7 @@ class UserImageController(
     fun createUserImage(
         principal: Principal,
         @Valid @RequestBody
-        request: CreateUserImageRequestDto
+        request: CreateUserImageRequest
     ): ResponseEntity<ResultResponse> {
         val result: Long = service.createUserImage(principal.getUserId(), request)
         return ResponseEntity.ok(ResultResponse(result))

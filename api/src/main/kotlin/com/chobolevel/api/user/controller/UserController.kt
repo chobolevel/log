@@ -5,9 +5,9 @@ import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getUserId
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
-import com.chobolevel.api.user.dto.CreateUserRequestDto
+import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.SearchUserRequest
-import com.chobolevel.api.user.dto.UpdateUserRequestDto
+import com.chobolevel.api.user.dto.UpdateUserRequest
 import com.chobolevel.api.user.dto.UserPageRequest
 import com.chobolevel.api.user.dto.UserResponseDto
 import com.chobolevel.api.user.service.UserService
@@ -38,7 +38,7 @@ class UserController(
     @PostMapping("/users")
     fun createUser(
         @Valid @RequestBody
-        request: CreateUserRequestDto
+        request: CreateUserRequest
     ): ResponseEntity<ResultResponse> {
         validator.validate(request = request)
         val result: Long = service.createUser(request)
@@ -79,7 +79,7 @@ class UserController(
     fun updateUser(
         principal: Principal,
         @RequestBody @Valid
-        request: UpdateUserRequestDto
+        request: UpdateUserRequest
     ): ResponseEntity<ResultResponse> {
         validator.validate(request = request)
         val result: Long = service.updateUser(principal.getUserId(), request)

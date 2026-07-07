@@ -1,7 +1,7 @@
 package com.chobolevel.api.user.image.service
 
 import com.chobolevel.api.user.image.converter.UserImageConverter
-import com.chobolevel.api.user.image.dto.CreateUserImageRequestDto
+import com.chobolevel.api.user.image.dto.CreateUserImageRequest
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.image.entity.UserImage
 import com.chobolevel.domain.user.image.repository.UserImageRepository
@@ -17,7 +17,7 @@ class UserImageService(
 ) {
 
     @Transactional
-    fun createUserImage(userId: Long, request: CreateUserImageRequestDto): Long {
+    fun createUserImage(userId: Long, request: CreateUserImageRequest): Long {
         val foundUser: User = userRepository.findById(userId)
         if (foundUser.profileImage != null) {
             foundUser.profileImage!!.delete()
