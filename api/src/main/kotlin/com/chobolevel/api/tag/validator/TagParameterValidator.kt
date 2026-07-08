@@ -1,6 +1,6 @@
 package com.chobolevel.api.tag.validator
 
-import com.chobolevel.api.tag.dto.UpdateTagRequestDto
+import com.chobolevel.api.tag.dto.UpdateTagRequest
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.tag.vo.TagUpdateMask
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 @Component
 class TagParameterValidator {
 
-    fun validate(request: UpdateTagRequestDto) {
+    fun validate(request: UpdateTagRequest) {
         request.updateMask.forEach {
             when (it) {
                 TagUpdateMask.NAME -> {

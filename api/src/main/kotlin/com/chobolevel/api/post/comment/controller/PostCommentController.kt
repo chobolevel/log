@@ -5,10 +5,10 @@ import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getUserId
 import com.chobolevel.api.common.posttask.CreatePostCommentPostTask
-import com.chobolevel.api.post.comment.dto.CreatePostCommentRequestDto
+import com.chobolevel.api.post.comment.dto.CreatePostCommentRequest
 import com.chobolevel.api.post.comment.dto.PostCommentPageRequest
 import com.chobolevel.api.post.comment.dto.SearchPostCommentRequest
-import com.chobolevel.api.post.comment.dto.UpdatePostCommentRequestDto
+import com.chobolevel.api.post.comment.dto.UpdatePostCommentRequest
 import com.chobolevel.api.post.comment.service.PostCommentService
 import com.chobolevel.api.post.comment.validator.PostCommentParameterValidator
 import io.swagger.v3.oas.annotations.Operation
@@ -40,7 +40,7 @@ class PostCommentController(
     fun createPostComment(
         principal: Principal,
         @Valid @RequestBody
-        request: CreatePostCommentRequestDto
+        request: CreatePostCommentRequest
     ): ResponseEntity<ResultResponse> {
         val result: Long = service.createPostComment(
             userId = principal.getUserId(),
@@ -70,7 +70,7 @@ class PostCommentController(
         principal: Principal,
         @PathVariable id: Long,
         @Valid @RequestBody
-        request: UpdatePostCommentRequestDto
+        request: UpdatePostCommentRequest
     ): ResponseEntity<ResultResponse> {
         validator.validate(request = request)
         val result: Long = service.updatePostComment(

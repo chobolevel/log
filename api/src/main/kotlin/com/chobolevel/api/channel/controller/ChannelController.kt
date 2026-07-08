@@ -1,10 +1,10 @@
 package com.chobolevel.api.channel.controller
 
 import com.chobolevel.api.channel.dto.ChannelPageRequest
-import com.chobolevel.api.channel.dto.ChannelResponseDto
-import com.chobolevel.api.channel.dto.CreateChannelRequestDto
-import com.chobolevel.api.channel.dto.InviteChannelRequestDto
-import com.chobolevel.api.channel.dto.UpdateChannelRequestDto
+import com.chobolevel.api.channel.dto.ChannelResponse
+import com.chobolevel.api.channel.dto.CreateChannelRequest
+import com.chobolevel.api.channel.dto.InviteChannelRequest
+import com.chobolevel.api.channel.dto.UpdateChannelRequest
 import com.chobolevel.api.channel.service.ChannelService
 import com.chobolevel.api.channel.validator.ChannelParameterValidator
 import com.chobolevel.api.common.annotation.HasAuthorityUser
@@ -39,7 +39,7 @@ class ChannelController(
     fun createChannel(
         principal: Principal,
         @Valid @RequestBody
-        request: CreateChannelRequestDto
+        request: CreateChannelRequest
     ): ResponseEntity<ResultResponse> {
         val result: Long = service.create(
             ownerId = principal.getUserId(),
@@ -66,7 +66,7 @@ class ChannelController(
     @HasAuthorityUser
     @GetMapping("/channels/{id}")
     fun getChannel(principal: Principal, @PathVariable("id") channelId: Long): ResponseEntity<ResultResponse> {
-        val result: ChannelResponseDto = service.getChannel(
+        val result: ChannelResponse = service.getChannel(
             userId = principal.getUserId(),
             channelId = channelId
         )
@@ -80,7 +80,7 @@ class ChannelController(
         principal: Principal,
         @PathVariable("id") channelId: Long,
         @Valid @RequestBody
-        request: UpdateChannelRequestDto
+        request: UpdateChannelRequest
     ): ResponseEntity<ResultResponse> {
         validator.validate(request = request)
         val result: Long = service.update(
@@ -109,7 +109,7 @@ class ChannelController(
         principal: Principal,
         @PathVariable("id") channelId: Long,
         @Valid @RequestBody
-        request: InviteChannelRequestDto
+        request: InviteChannelRequest
     ): ResponseEntity<ResultResponse> {
         val result: Long = service.invite(
             userId = principal.getUserId(),

@@ -1,12 +1,11 @@
-package com.chobolevel.api.common.dto
+package com.chobolevel.api.upload.dto
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
-data class DiscordRequestDto(
-    val content: String,
-    val username: String,
-    val avatarUrl: String,
-    val tts: Boolean
+data class UploadRequest(
+    val prefix: String,
+    val filename: String,
+    val extension: String
 )

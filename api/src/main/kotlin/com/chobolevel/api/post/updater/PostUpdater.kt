@@ -1,6 +1,6 @@
 package com.chobolevel.api.post.updater
 
-import com.chobolevel.api.post.dto.UpdatePostRequestDto
+import com.chobolevel.api.post.dto.UpdatePostRequest
 import com.chobolevel.api.post.image.converter.PostImageConverter
 import com.chobolevel.domain.post.entity.Post
 import com.chobolevel.domain.post.tag.entity.PostTag
@@ -16,7 +16,7 @@ class PostUpdater(
     private val postImageConverter: PostImageConverter,
 ) : PostUpdatable {
 
-    override fun markAsUpdate(request: UpdatePostRequestDto, entity: Post): Post {
+    override fun markAsUpdate(request: UpdatePostRequest, entity: Post): Post {
         request.updateMask.forEach {
             when (it) {
                 PostUpdateMask.TAGS -> {

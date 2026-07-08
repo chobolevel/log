@@ -5,8 +5,8 @@ import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.Headers
 import com.amazonaws.services.s3.model.CannedAccessControlList
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest
-import com.chobolevel.api.upload.dto.UploadRequestDto
-import com.chobolevel.api.upload.dto.UploadResponseDto
+import com.chobolevel.api.upload.dto.UploadRequest
+import com.chobolevel.api.upload.dto.UploadResponse
 import com.chobolevel.api.upload.validator.UploadValidator
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -25,7 +25,7 @@ class UploadService(
     private val validator: UploadValidator,
 ) {
 
-    fun getPresignedUrl(request: UploadRequestDto): UploadResponseDto {
+    fun getPresignedUrl(request: UploadRequest): UploadResponse {
         validator.validate(request)
         val savedPath: String = createSavedPath(
             prefix = request.prefix,
@@ -35,7 +35,7 @@ class UploadService(
             savedPath = savedPath
         )
         val presignedResponse: URL = amazonS3.generatePresignedUrl(presignedRequest)
-        return UploadResponseDto(
+        return UploadResponse(
             presignedUrl = presignedResponse.toString(),
             url = "${presignedResponse.protocol}://${presignedResponse.host}${presignedResponse.path}",
             filenameWithExtension = "${request.filename}.${request.extension}"

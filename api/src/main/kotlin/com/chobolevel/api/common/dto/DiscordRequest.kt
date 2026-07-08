@@ -1,0 +1,12 @@
+package com.chobolevel.api.common.dto
+
+import com.fasterxml.jackson.databind.PropertyNamingStrategies
+import com.fasterxml.jackson.databind.annotation.JsonNaming
+
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
+data class DiscordRequest(
+    val content: String,
+    val username: String,
+    val avatarUrl: String,
+    val tts: Boolean
+)

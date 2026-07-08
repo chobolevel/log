@@ -2,12 +2,12 @@ package com.chobolevel.api.channel.service
 
 import com.chobolevel.api.channel.converter.ChannelConverter
 import com.chobolevel.api.channel.dto.ChannelPageRequest
-import com.chobolevel.api.channel.dto.ChannelResponseDto
-import com.chobolevel.api.channel.dto.CreateChannelRequestDto
-import com.chobolevel.api.channel.dto.InviteChannelRequestDto
-import com.chobolevel.api.channel.dto.UpdateChannelRequestDto
+import com.chobolevel.api.channel.dto.ChannelResponse
+import com.chobolevel.api.channel.dto.CreateChannelRequest
+import com.chobolevel.api.channel.dto.InviteChannelRequest
+import com.chobolevel.api.channel.dto.UpdateChannelRequest
 import com.chobolevel.api.channel.message.converter.ChannelMessageConverter
-import com.chobolevel.api.channel.message.dto.CreateChannelMessageRequestDto
+import com.chobolevel.api.channel.message.dto.CreateChannelMessageRequest
 import com.chobolevel.api.channel.updater.ChannelUpdater
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.domain.channel.entity.Channel
@@ -40,7 +40,7 @@ class ChannelService(
 ) {
 
     @Transactional
-    fun create(ownerId: Long, request: CreateChannelRequestDto): Long {
+    fun create(ownerId: Long, request: CreateChannelRequest): Long {
         val owner: User = userRepository.findById(ownerId)
         val channel: Channel = converter.convert(request).also { channel ->
             channel.setBy(owner)
@@ -84,7 +84,7 @@ class ChannelService(
     }
 
     @Transactional(readOnly = true)
-    fun getChannel(userId: Long, channelId: Long): ChannelResponseDto {
+    fun getChannel(userId: Long, channelId: Long): ChannelResponse {
         val channel: Channel = repository.findById(channelId)
         channel.channelUsers.find { it.user?.id == userId } ?: throw ApiException(
             errorCode = ErrorCode.NOT_INVITED_CHANNEL,
@@ -95,7 +95,7 @@ class ChannelService(
     }
 
     @Transactional
-    fun update(workerId: Long, channelId: Long, request: UpdateChannelRequestDto): Long {
+    fun update(workerId: Long, channelId: Long, request: UpdateChannelRequest): Long {
         val worker: User = userRepository.findById(workerId)
         val channel: Channel = repository.findById(channelId)
         validateWorker(
@@ -125,7 +125,7 @@ class ChannelService(
             else -> {
                 channelUser.delete()
                 val channelMessage = channelMessageConverter.convert(
-                    CreateChannelMessageRequestDto(
+                    CreateChannelMessageRequest(
                         type = ChannelMessageType.EXIT,
                         content = "${channelUser.user!!.nickname}님이 채널을 떠났습니다."
                     )
@@ -144,7 +144,7 @@ class ChannelService(
     }
 
     @Transactional
-    fun invite(userId: Long, channelId: Long, request: InviteChannelRequestDto): Long {
+    fun invite(userId: Long, channelId: Long, request: InviteChannelRequest): Long {
         val channel = repository.findById(channelId)
         channel.channelUsers.filter { request.userIds.contains(it.user!!.id) }.takeIf { it.isNotEmpty() }?.let {
             throw ApiException(
@@ -159,7 +159,7 @@ class ChannelService(
                 channelUser.setBy(channel)
                 channelUser.setBy(user)
                 val channelMessage: ChannelMessage = channelMessageConverter.convert(
-                    CreateChannelMessageRequestDto(
+                    CreateChannelMessageRequest(
                         type = ChannelMessageType.ENTER,
                         content = "${channelUser.user!!.nickname}님이 채널에 참가하였습니다."
                     )

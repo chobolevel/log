@@ -1,7 +1,7 @@
 package com.chobolevel.api.auth.validator
 
 import com.chobolevel.api.auth.dto.CheckEmailVerificationCodeRequest
-import com.chobolevel.api.auth.dto.LoginRequestDto
+import com.chobolevel.api.auth.dto.LoginRequest
 import com.chobolevel.api.auth.dto.SendEmailVerificationCodeRequest
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
@@ -14,7 +14,7 @@ class AuthParameterValidator {
 
     private final val emailRegexp = "^[a-zA-Z0-9+-\\_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+\$".toRegex()
 
-    fun validate(request: LoginRequestDto) {
+    fun validate(request: LoginRequest) {
         when (request.loginType) {
             UserLoginType.GENERAL -> {
                 if (request.password.isNullOrEmpty()) {

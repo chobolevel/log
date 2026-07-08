@@ -1,7 +1,7 @@
 package com.chobolevel.api.guest.converter
 
-import com.chobolevel.api.guest.dto.CreateGuestBookRequestDto
-import com.chobolevel.api.guest.dto.GuestBookResponseDto
+import com.chobolevel.api.guest.dto.CreateGuestBookRequest
+import com.chobolevel.api.guest.dto.GuestBookResponse
 import com.chobolevel.api.guest.dto.SearchGuestBookRequest
 import com.chobolevel.domain.guest.entity.GuestBook
 import com.chobolevel.domain.guest.vo.GuestBookQueryFilter
@@ -13,7 +13,7 @@ class GuestBookConverter(
     private val passwordEncoder: BCryptPasswordEncoder
 ) {
 
-    fun convert(request: CreateGuestBookRequestDto): GuestBook {
+    fun convert(request: CreateGuestBookRequest): GuestBook {
         return GuestBook(
             guestName = request.guestName,
             password = passwordEncoder.encode(request.password),
@@ -27,8 +27,8 @@ class GuestBookConverter(
         )
     }
 
-    fun convert(entity: GuestBook): GuestBookResponseDto {
-        return GuestBookResponseDto(
+    fun convert(entity: GuestBook): GuestBookResponse {
+        return GuestBookResponse(
             id = entity.id!!,
             guestName = entity.guestName,
             content = entity.content,
@@ -37,7 +37,7 @@ class GuestBookConverter(
         )
     }
 
-    fun convert(entities: List<GuestBook>): List<GuestBookResponseDto> {
+    fun convert(entities: List<GuestBook>): List<GuestBookResponse> {
         return entities.map { convert(it) }
     }
 }

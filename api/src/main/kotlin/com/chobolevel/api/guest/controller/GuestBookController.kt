@@ -3,12 +3,12 @@ package com.chobolevel.api.guest.controller
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.posttask.CreateGuestBookPostTask
-import com.chobolevel.api.guest.dto.CreateGuestBookRequestDto
-import com.chobolevel.api.guest.dto.DeleteGuestBookRequestDto
+import com.chobolevel.api.guest.dto.CreateGuestBookRequest
+import com.chobolevel.api.guest.dto.DeleteGuestBookRequest
 import com.chobolevel.api.guest.dto.GuestBookPageRequest
-import com.chobolevel.api.guest.dto.GuestBookResponseDto
+import com.chobolevel.api.guest.dto.GuestBookResponse
 import com.chobolevel.api.guest.dto.SearchGuestBookRequest
-import com.chobolevel.api.guest.dto.UpdateGuestBookRequestDto
+import com.chobolevel.api.guest.dto.UpdateGuestBookRequest
 import com.chobolevel.api.guest.service.GuestBookService
 import com.chobolevel.api.guest.validator.GuestBookParameterValidator
 import io.swagger.v3.oas.annotations.Operation
@@ -36,7 +36,7 @@ class GuestBookController(
     @PostMapping("/guest-books")
     fun createGuestBook(
         @Valid @RequestBody
-        request: CreateGuestBookRequestDto
+        request: CreateGuestBookRequest
     ): ResponseEntity<ResultResponse> {
         val result: Long = service.createGuestBook(request)
         createPostTask.invoke()
@@ -59,7 +59,7 @@ class GuestBookController(
     @Operation(summary = "방명록 단건 조회 API")
     @GetMapping("/guest-books/{id}")
     fun fetchGuestBook(@PathVariable id: Long): ResponseEntity<ResultResponse> {
-        val result: GuestBookResponseDto = service.fetchGuestBook(id)
+        val result: GuestBookResponse = service.fetchGuestBook(id)
         return ResponseEntity.ok(ResultResponse(result))
     }
 
@@ -68,7 +68,7 @@ class GuestBookController(
     fun updateGuestBook(
         @PathVariable id: Long,
         @Valid @RequestBody
-        request: UpdateGuestBookRequestDto
+        request: UpdateGuestBookRequest
     ): ResponseEntity<ResultResponse> {
         validator.validate(request = request)
         val result: Long = service.updateGuestBook(
@@ -83,7 +83,7 @@ class GuestBookController(
     fun deleteGuestBook(
         @PathVariable id: Long,
         @Valid @RequestBody
-        request: DeleteGuestBookRequestDto
+        request: DeleteGuestBookRequest
     ): ResponseEntity<ResultResponse> {
         val result: Boolean = service.deleteGuestBook(
             id = id,

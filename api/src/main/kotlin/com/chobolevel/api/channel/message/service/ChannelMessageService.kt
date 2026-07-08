@@ -2,7 +2,7 @@ package com.chobolevel.api.channel.message.service
 
 import com.chobolevel.api.channel.message.converter.ChannelMessageConverter
 import com.chobolevel.api.channel.message.dto.ChannelMessagePageRequest
-import com.chobolevel.api.channel.message.dto.CreateChannelMessageRequestDto
+import com.chobolevel.api.channel.message.dto.CreateChannelMessageRequest
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.domain.channel.entity.Channel
 import com.chobolevel.domain.channel.message.entity.ChannelMessage
@@ -30,7 +30,7 @@ class ChannelMessageService(
 ) {
 
     @Transactional
-    fun create(userId: Long, channelId: Long, request: CreateChannelMessageRequestDto): Long {
+    fun create(userId: Long, channelId: Long, request: CreateChannelMessageRequest): Long {
         val user: User = userRepository.findById(userId)
         val channel: Channel = channelRepository.findById(channelId)
         val channelMessage: ChannelMessage = converter.convert(request).also {

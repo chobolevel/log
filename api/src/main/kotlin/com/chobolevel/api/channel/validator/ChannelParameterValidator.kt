@@ -1,6 +1,6 @@
 package com.chobolevel.api.channel.validator
 
-import com.chobolevel.api.channel.dto.UpdateChannelRequestDto
+import com.chobolevel.api.channel.dto.UpdateChannelRequest
 import com.chobolevel.domain.channel.vo.ChannelUpdateMask
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 @Component
 class ChannelParameterValidator {
 
-    fun validate(request: UpdateChannelRequestDto) {
+    fun validate(request: UpdateChannelRequest) {
         request.updateMask.forEach {
             when (it) {
                 ChannelUpdateMask.NAME -> {

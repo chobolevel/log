@@ -2,12 +2,12 @@ package com.chobolevel.api.guest.service
 
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.guest.converter.GuestBookConverter
-import com.chobolevel.api.guest.dto.CreateGuestBookRequestDto
-import com.chobolevel.api.guest.dto.DeleteGuestBookRequestDto
+import com.chobolevel.api.guest.dto.CreateGuestBookRequest
+import com.chobolevel.api.guest.dto.DeleteGuestBookRequest
 import com.chobolevel.api.guest.dto.GuestBookPageRequest
-import com.chobolevel.api.guest.dto.GuestBookResponseDto
+import com.chobolevel.api.guest.dto.GuestBookResponse
 import com.chobolevel.api.guest.dto.SearchGuestBookRequest
-import com.chobolevel.api.guest.dto.UpdateGuestBookRequestDto
+import com.chobolevel.api.guest.dto.UpdateGuestBookRequest
 import com.chobolevel.api.guest.updater.GuestBookUpdater
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.ApiException
@@ -30,7 +30,7 @@ class GuestBookService(
 ) {
 
     @Transactional
-    fun createGuestBook(request: CreateGuestBookRequestDto): Long {
+    fun createGuestBook(request: CreateGuestBookRequest): Long {
         val guestBook: GuestBook = converter.convert(request)
         return repository.save(guestBook).id!!
     }
@@ -58,13 +58,13 @@ class GuestBookService(
     }
 
     @Transactional(readOnly = true)
-    fun fetchGuestBook(id: Long): GuestBookResponseDto {
+    fun fetchGuestBook(id: Long): GuestBookResponse {
         val guestBook: GuestBook = repository.findById(id)
         return converter.convert(guestBook)
     }
 
     @Transactional
-    fun updateGuestBook(id: Long, request: UpdateGuestBookRequestDto): Long {
+    fun updateGuestBook(id: Long, request: UpdateGuestBookRequest): Long {
         val guestBook: GuestBook = repository.findById(id)
         validatePassword(
             rawPassword = request.password,
@@ -75,7 +75,7 @@ class GuestBookService(
     }
 
     @Transactional
-    fun deleteGuestBook(id: Long, request: DeleteGuestBookRequestDto): Boolean {
+    fun deleteGuestBook(id: Long, request: DeleteGuestBookRequest): Boolean {
         val guestBook: GuestBook = repository.findById(id)
         validatePassword(
             rawPassword = request.password,

@@ -1,7 +1,7 @@
 package com.chobolevel.api.post.converter
 
-import com.chobolevel.api.post.dto.CreatePostRequestDto
-import com.chobolevel.api.post.dto.PostResponseDto
+import com.chobolevel.api.post.dto.CreatePostRequest
+import com.chobolevel.api.post.dto.PostResponse
 import com.chobolevel.api.post.dto.SearchPostRequest
 import com.chobolevel.api.post.image.converter.PostImageConverter
 import com.chobolevel.api.tag.converter.TagConverter
@@ -17,7 +17,7 @@ class PostConverter(
     private val postImageConverter: PostImageConverter,
 ) {
 
-    fun convert(request: CreatePostRequestDto): Post {
+    fun convert(request: CreatePostRequest): Post {
         return Post(
             title = request.title,
             subTitle = request.subTitle,
@@ -34,13 +34,13 @@ class PostConverter(
         )
     }
 
-    fun convert(entity: Post): PostResponseDto {
+    fun convert(entity: Post): PostResponse {
         val convertedThumbNailImage = if (entity.getThumbNailImage() != null) {
             postImageConverter.convert(entity.getThumbNailImage()!!)
         } else {
             null
         }
-        return PostResponseDto(
+        return PostResponse(
             id = entity.id!!,
             writer = userConverter.convert(entity.user!!),
             tags = entity.postTags.map { tagConverter.convert(it.tag!!) },
@@ -53,7 +53,7 @@ class PostConverter(
         )
     }
 
-    fun convert(entities: List<Post>): List<PostResponseDto> {
+    fun convert(entities: List<Post>): List<PostResponse> {
         return entities.map { convert(it) }
     }
 }

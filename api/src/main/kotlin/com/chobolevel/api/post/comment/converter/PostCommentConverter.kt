@@ -1,7 +1,7 @@
 package com.chobolevel.api.post.comment.converter
 
-import com.chobolevel.api.post.comment.dto.CreatePostCommentRequestDto
-import com.chobolevel.api.post.comment.dto.PostCommentResponseDto
+import com.chobolevel.api.post.comment.dto.CreatePostCommentRequest
+import com.chobolevel.api.post.comment.dto.PostCommentResponse
 import com.chobolevel.api.post.comment.dto.SearchPostCommentRequest
 import com.chobolevel.api.user.converter.UserConverter
 import com.chobolevel.domain.post.comment.entity.PostComment
@@ -13,7 +13,7 @@ class PostCommentConverter(
     private val userConverter: UserConverter
 ) {
 
-    fun convert(request: CreatePostCommentRequestDto): PostComment {
+    fun convert(request: CreatePostCommentRequest): PostComment {
         return PostComment(
             content = request.content,
         )
@@ -26,8 +26,8 @@ class PostCommentConverter(
         )
     }
 
-    fun convert(entity: PostComment): PostCommentResponseDto {
-        return PostCommentResponseDto(
+    fun convert(entity: PostComment): PostCommentResponse {
+        return PostCommentResponse(
             id = entity.id!!,
             writer = userConverter.convert(entity.writer!!),
             content = entity.content,
@@ -36,7 +36,7 @@ class PostCommentConverter(
         )
     }
 
-    fun convert(entities: List<PostComment>): List<PostCommentResponseDto> {
+    fun convert(entities: List<PostComment>): List<PostCommentResponse> {
         return entities.map { convert(it) }
     }
 }

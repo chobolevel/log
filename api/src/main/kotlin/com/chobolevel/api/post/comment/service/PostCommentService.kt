@@ -2,10 +2,10 @@ package com.chobolevel.api.post.comment.service
 
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.post.comment.converter.PostCommentConverter
-import com.chobolevel.api.post.comment.dto.CreatePostCommentRequestDto
+import com.chobolevel.api.post.comment.dto.CreatePostCommentRequest
 import com.chobolevel.api.post.comment.dto.PostCommentPageRequest
 import com.chobolevel.api.post.comment.dto.SearchPostCommentRequest
-import com.chobolevel.api.post.comment.dto.UpdatePostCommentRequestDto
+import com.chobolevel.api.post.comment.dto.UpdatePostCommentRequest
 import com.chobolevel.api.post.comment.updater.PostCommentUpdatable
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.ApiException
@@ -31,7 +31,7 @@ class PostCommentService(
 ) {
 
     @Transactional
-    fun createPostComment(userId: Long, request: CreatePostCommentRequestDto): Long {
+    fun createPostComment(userId: Long, request: CreatePostCommentRequest): Long {
         val post: Post = postRepository.findById(request.postId)
         val writer: User = userRepository.findById(userId)
         val postComment: PostComment = converter.convert(request).also {
@@ -64,7 +64,7 @@ class PostCommentService(
     }
 
     @Transactional
-    fun updatePostComment(userId: Long, postCommentId: Long, request: UpdatePostCommentRequestDto): Long {
+    fun updatePostComment(userId: Long, postCommentId: Long, request: UpdatePostCommentRequest): Long {
         val postComment: PostComment = repository.findById(postCommentId)
         validateWriter(
             userId = userId,

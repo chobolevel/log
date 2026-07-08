@@ -1,6 +1,6 @@
 package com.chobolevel.api.guest.validator
 
-import com.chobolevel.api.guest.dto.UpdateGuestBookRequestDto
+import com.chobolevel.api.guest.dto.UpdateGuestBookRequest
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.guest.vo.GuestBookUpdateMask
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 @Component
 class GuestBookParameterValidator {
 
-    fun validate(request: UpdateGuestBookRequestDto) {
+    fun validate(request: UpdateGuestBookRequest) {
         request.updateMask.forEach {
             when (it) {
                 GuestBookUpdateMask.CONTENT -> {

@@ -1,6 +1,6 @@
 package com.chobolevel.api.common.posttask
 
-import com.chobolevel.api.common.dto.DiscordRequestDto
+import com.chobolevel.api.common.dto.DiscordRequest
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
@@ -17,7 +17,7 @@ class CreatePostCommentPostTask(
 
     @Async
     fun invoke() {
-        val discordRequest = DiscordRequestDto(
+        val discordRequest = DiscordRequest(
             content = "⌨\uFE0F\t새로운 댓글이 등록되었습니다!\t⌨\uFE0F",
             username = discordUsername,
             avatarUrl = discordAvatarUrl,

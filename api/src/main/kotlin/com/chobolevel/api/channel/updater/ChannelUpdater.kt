@@ -1,6 +1,6 @@
 package com.chobolevel.api.channel.updater
 
-import com.chobolevel.api.channel.dto.UpdateChannelRequestDto
+import com.chobolevel.api.channel.dto.UpdateChannelRequest
 import com.chobolevel.domain.channel.entity.Channel
 import com.chobolevel.domain.channel.user.entity.ChannelUser
 import com.chobolevel.domain.channel.vo.ChannelUpdateMask
@@ -13,7 +13,7 @@ class ChannelUpdater(
     private val userRepository: UserRepository
 ) {
 
-    fun markAsUpdate(request: UpdateChannelRequestDto, entity: Channel): Channel {
+    fun markAsUpdate(request: UpdateChannelRequest, entity: Channel): Channel {
         request.updateMask.forEach {
             when (it) {
                 ChannelUpdateMask.NAME -> entity.name = request.name!!

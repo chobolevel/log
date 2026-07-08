@@ -1,6 +1,6 @@
 package com.chobolevel.api.channel.controller
 
-import com.chobolevel.api.channel.message.dto.CreateChannelMessageRequestDto
+import com.chobolevel.api.channel.message.dto.CreateChannelMessageRequest
 import com.chobolevel.api.channel.message.service.ChannelMessageService
 import org.springframework.messaging.handler.annotation.DestinationVariable
 import org.springframework.messaging.handler.annotation.MessageMapping
@@ -15,7 +15,7 @@ class WebSocketController(
     @MessageMapping("/channels/{channelId}/messages")
     fun message(
         @DestinationVariable channelId: Long,
-        request: CreateChannelMessageRequestDto,
+        request: CreateChannelMessageRequest,
         accessor: SimpMessageHeaderAccessor
     ) {
         val userId = accessor.sessionAttributes?.get("userId") as Long

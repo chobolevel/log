@@ -1,6 +1,6 @@
 package com.chobolevel.api.post.validator
 
-import com.chobolevel.api.post.dto.UpdatePostRequestDto
+import com.chobolevel.api.post.dto.UpdatePostRequest
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.post.vo.PostUpdateMask
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 @Component
 class PostParameterValidator {
 
-    fun validate(request: UpdatePostRequestDto) {
+    fun validate(request: UpdatePostRequest) {
         request.updateMask.forEach {
             when (it) {
                 PostUpdateMask.TAGS -> {

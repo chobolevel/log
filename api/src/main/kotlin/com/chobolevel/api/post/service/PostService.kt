@@ -2,11 +2,11 @@ package com.chobolevel.api.post.service
 
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.post.converter.PostConverter
-import com.chobolevel.api.post.dto.CreatePostRequestDto
+import com.chobolevel.api.post.dto.CreatePostRequest
 import com.chobolevel.api.post.dto.PostPageRequest
-import com.chobolevel.api.post.dto.PostResponseDto
+import com.chobolevel.api.post.dto.PostResponse
 import com.chobolevel.api.post.dto.SearchPostRequest
-import com.chobolevel.api.post.dto.UpdatePostRequestDto
+import com.chobolevel.api.post.dto.UpdatePostRequest
 import com.chobolevel.api.post.image.converter.PostImageConverter
 import com.chobolevel.api.post.updater.PostUpdatable
 import com.chobolevel.domain.common.dto.Paging
@@ -34,11 +34,11 @@ class PostService(
     private val converter: PostConverter,
     private val postImageConverter: PostImageConverter,
     private val updaters: List<PostUpdatable>,
-    private val redisTemplate: RedisTemplate<String, PostResponseDto>
+    private val redisTemplate: RedisTemplate<String, PostResponse>
 ) {
 
     @Transactional
-    fun createPost(userId: Long, request: CreatePostRequestDto): Long {
+    fun createPost(userId: Long, request: CreatePostRequest): Long {
         val writer: User = userRepository.findById(userId)
         val post: Post = converter.convert(request).also { post ->
             post.setBy(writer)
@@ -85,15 +85,15 @@ class PostService(
     }
 
     @Transactional(readOnly = true)
-    fun fetchPost(postId: Long): PostResponseDto {
+    fun fetchPost(postId: Long): PostResponse {
         val cachingKey: String = generateCachingKey(postId)
-        val cachedPost: PostResponseDto? = redisTemplate.opsForValue().get(cachingKey)
+        val cachedPost: PostResponse? = redisTemplate.opsForValue().get(cachingKey)
         // read caching pattern(cache(look) aside)
         when (cachedPost) {
             // cache miss
             null -> {
                 val post: Post = repository.findById(postId)
-                val convertedPost: PostResponseDto = converter.convert(post)
+                val convertedPost: PostResponse = converter.convert(post)
                 redisTemplate.opsForValue().set(cachingKey, convertedPost, 10, TimeUnit.MINUTES)
                 return convertedPost
             }
@@ -103,7 +103,7 @@ class PostService(
     }
 
     @Transactional
-    fun updatePost(userId: Long, postId: Long, request: UpdatePostRequestDto): Long {
+    fun updatePost(userId: Long, postId: Long, request: UpdatePostRequest): Long {
         val post: Post = repository.findById(postId)
         validateWriter(
             userId = userId,

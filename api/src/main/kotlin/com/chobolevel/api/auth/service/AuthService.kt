@@ -2,7 +2,7 @@ package com.chobolevel.api.auth.service
 
 import com.chobolevel.api.auth.dto.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.auth.dto.JwtResponse
-import com.chobolevel.api.auth.dto.LoginRequestDto
+import com.chobolevel.api.auth.dto.LoginRequest
 import com.chobolevel.api.auth.dto.SendEmailVerificationCodeRequest
 import com.chobolevel.api.common.security.CustomAuthenticationManager
 import com.chobolevel.api.common.security.TokenProvider
@@ -28,7 +28,7 @@ class AuthService(
 ) {
 
     @Transactional(readOnly = true)
-    fun login(request: LoginRequestDto): JwtResponse {
+    fun login(request: LoginRequest): JwtResponse {
         val authenticationToken: UsernamePasswordAuthenticationToken = when (request.loginType) {
             UserLoginType.GENERAL -> UsernamePasswordAuthenticationToken(
                 "${request.email}/${request.loginType}",

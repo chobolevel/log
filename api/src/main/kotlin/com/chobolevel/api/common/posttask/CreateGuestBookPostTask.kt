@@ -1,6 +1,6 @@
 package com.chobolevel.api.common.posttask
 
-import com.chobolevel.api.common.dto.DiscordRequestDto
+import com.chobolevel.api.common.dto.DiscordRequest
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
@@ -17,7 +17,7 @@ class CreateGuestBookPostTask(
 
     @Async
     fun invoke() {
-        val discordRequest = DiscordRequestDto(
+        val discordRequest = DiscordRequest(
             content = "\uD83D\uDCDD\t새로운 방명록이 등록되었습니다!\t\uD83D\uDCDD",
             username = discordUsername,
             avatarUrl = discordAvatarUrl,

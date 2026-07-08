@@ -2,10 +2,10 @@ package com.chobolevel.api.tag.service
 
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.tag.converter.TagConverter
-import com.chobolevel.api.tag.dto.CreateTagRequestDto
+import com.chobolevel.api.tag.dto.CreateTagRequest
 import com.chobolevel.api.tag.dto.SearchTagRequest
 import com.chobolevel.api.tag.dto.TagPageRequest
-import com.chobolevel.api.tag.dto.UpdateTagRequestDto
+import com.chobolevel.api.tag.dto.UpdateTagRequest
 import com.chobolevel.api.tag.updater.TagUpdatable
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.tag.entity.Tag
@@ -23,7 +23,7 @@ class TagService(
 ) {
 
     @Transactional
-    fun createPostTag(request: CreateTagRequestDto): Long {
+    fun createPostTag(request: CreateTagRequest): Long {
         val postTag: Tag = converter.convert(request)
         return repository.save(postTag).id!!
     }
@@ -51,7 +51,7 @@ class TagService(
     }
 
     @Transactional
-    fun updatePostTag(postTagId: Long, request: UpdateTagRequestDto): Long {
+    fun updatePostTag(postTagId: Long, request: UpdateTagRequest): Long {
         val postTag: Tag = repository.findById(postTagId)
         updaters.sortedBy { it.order() }.forEach { it.markAsUpdate(request, postTag) }
         return postTag.id!!

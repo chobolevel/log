@@ -1,17 +1,14 @@
-package com.chobolevel.api.post.image.dto
+package com.chobolevel.api.tag.dto
 
-import com.chobolevel.domain.post.image.vo.PostImageType
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
-data class PostImageResponseDto(
+data class TagResponse(
     val id: Long = 0,
-    val type: PostImageType = PostImageType.THUMB_NAIL,
     val name: String = "",
-    val url: String = "",
-    val width: Int = 0,
-    val height: Int = 0,
+    val order: Int = 0,
+    val postsCount: Int = 0,
     val createdAt: Long = 0,
     val updatedAt: Long = 0
 )

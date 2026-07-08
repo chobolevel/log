@@ -4,11 +4,11 @@ import com.chobolevel.api.common.annotation.HasAuthorityUser
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getUserId
-import com.chobolevel.api.post.dto.CreatePostRequestDto
+import com.chobolevel.api.post.dto.CreatePostRequest
 import com.chobolevel.api.post.dto.PostPageRequest
-import com.chobolevel.api.post.dto.PostResponseDto
+import com.chobolevel.api.post.dto.PostResponse
 import com.chobolevel.api.post.dto.SearchPostRequest
-import com.chobolevel.api.post.dto.UpdatePostRequestDto
+import com.chobolevel.api.post.dto.UpdatePostRequest
 import com.chobolevel.api.post.service.PostService
 import com.chobolevel.api.post.validator.PostParameterValidator
 import io.swagger.v3.oas.annotations.Operation
@@ -39,7 +39,7 @@ class PostController(
     fun createPost(
         principal: Principal,
         @Valid @RequestBody
-        request: CreatePostRequestDto
+        request: CreatePostRequest
     ): ResponseEntity<ResultResponse> {
         val result: Long = service.createPost(
             userId = principal.getUserId(),
@@ -64,7 +64,7 @@ class PostController(
     @Operation(summary = "게시글 단건 조회 API")
     @GetMapping("/posts/{id}")
     fun fetchPost(@PathVariable id: Long): ResponseEntity<ResultResponse> {
-        val result: PostResponseDto = service.fetchPost(
+        val result: PostResponse = service.fetchPost(
             postId = id
         )
         return ResponseEntity.ok(ResultResponse(result))
@@ -77,7 +77,7 @@ class PostController(
         principal: Principal,
         @PathVariable id: Long,
         @Valid @RequestBody
-        request: UpdatePostRequestDto
+        request: UpdatePostRequest
     ): ResponseEntity<ResultResponse> {
         validator.validate(request = request)
         val result: Long = service.updatePost(

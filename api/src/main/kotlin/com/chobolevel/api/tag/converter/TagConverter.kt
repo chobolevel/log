@@ -1,8 +1,8 @@
 package com.chobolevel.api.tag.converter
 
-import com.chobolevel.api.tag.dto.CreateTagRequestDto
+import com.chobolevel.api.tag.dto.CreateTagRequest
 import com.chobolevel.api.tag.dto.SearchTagRequest
-import com.chobolevel.api.tag.dto.TagResponseDto
+import com.chobolevel.api.tag.dto.TagResponse
 import com.chobolevel.domain.tag.entity.Tag
 import com.chobolevel.domain.tag.vo.TagQueryFilter
 import org.springframework.stereotype.Component
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 @Component
 class TagConverter {
 
-    fun convert(request: CreateTagRequestDto): Tag {
+    fun convert(request: CreateTagRequest): Tag {
         return Tag(
             name = request.name,
             order = request.order
@@ -23,8 +23,8 @@ class TagConverter {
         )
     }
 
-    fun convert(entity: Tag): TagResponseDto {
-        return TagResponseDto(
+    fun convert(entity: Tag): TagResponse {
+        return TagResponse(
             id = entity.id!!,
             name = entity.name,
             order = entity.order,
@@ -34,7 +34,7 @@ class TagConverter {
         )
     }
 
-    fun convert(entities: List<Tag>): List<TagResponseDto> {
+    fun convert(entities: List<Tag>): List<TagResponse> {
         return entities.map { convert(it) }
     }
 }

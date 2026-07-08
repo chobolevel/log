@@ -1,14 +1,14 @@
 package com.chobolevel.api.post.image.converter
 
-import com.chobolevel.api.post.image.dto.CreatePostImageRequestDto
-import com.chobolevel.api.post.image.dto.PostImageResponseDto
+import com.chobolevel.api.post.image.dto.CreatePostImageRequest
+import com.chobolevel.api.post.image.dto.PostImageResponse
 import com.chobolevel.domain.post.image.entity.PostImage
 import org.springframework.stereotype.Component
 
 @Component
 class PostImageConverter {
 
-    fun convert(request: CreatePostImageRequestDto): PostImage {
+    fun convert(request: CreatePostImageRequest): PostImage {
         return PostImage(
             type = request.type,
             name = request.name,
@@ -18,8 +18,8 @@ class PostImageConverter {
         )
     }
 
-    fun convert(entity: PostImage): PostImageResponseDto {
-        return PostImageResponseDto(
+    fun convert(entity: PostImage): PostImageResponse {
+        return PostImageResponse(
             id = entity.id!!,
             type = entity.type,
             name = entity.name,

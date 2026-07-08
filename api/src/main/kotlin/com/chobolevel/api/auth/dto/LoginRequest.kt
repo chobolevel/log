@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
-data class LoginRequestDto(
+data class LoginRequest(
     @field:NotEmpty(message = "아이디(이메일)는 필수 값입니다.")
     val email: String,
     val password: String?,

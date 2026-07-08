@@ -1,7 +1,7 @@
 package com.chobolevel.api.channel.converter
 
-import com.chobolevel.api.channel.dto.ChannelResponseDto
-import com.chobolevel.api.channel.dto.CreateChannelRequestDto
+import com.chobolevel.api.channel.dto.ChannelResponse
+import com.chobolevel.api.channel.dto.CreateChannelRequest
 import com.chobolevel.api.user.converter.UserConverter
 import com.chobolevel.domain.channel.entity.Channel
 import org.springframework.stereotype.Component
@@ -11,14 +11,14 @@ class ChannelConverter(
     private val userConverter: UserConverter
 ) {
 
-    fun convert(request: CreateChannelRequestDto): Channel {
+    fun convert(request: CreateChannelRequest): Channel {
         return Channel(
             name = request.name
         )
     }
 
-    fun convert(entity: Channel): ChannelResponseDto {
-        return ChannelResponseDto(
+    fun convert(entity: Channel): ChannelResponse {
+        return ChannelResponse(
             id = entity.id!!,
             name = entity.name,
             participants = entity.channelUsers.map { userConverter.convert(it.user!!) },
@@ -27,7 +27,7 @@ class ChannelConverter(
         )
     }
 
-    fun convert(entities: List<Channel>): List<ChannelResponseDto> {
+    fun convert(entities: List<Channel>): List<ChannelResponse> {
         return entities.map { convert(it) }
     }
 }

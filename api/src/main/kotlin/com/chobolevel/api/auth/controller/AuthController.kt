@@ -2,7 +2,7 @@ package com.chobolevel.api.auth.controller
 
 import com.chobolevel.api.auth.dto.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.auth.dto.JwtResponse
-import com.chobolevel.api.auth.dto.LoginRequestDto
+import com.chobolevel.api.auth.dto.LoginRequest
 import com.chobolevel.api.auth.dto.SendEmailVerificationCodeRequest
 import com.chobolevel.api.auth.service.AuthService
 import com.chobolevel.api.auth.validator.AuthParameterValidator
@@ -43,7 +43,7 @@ class AuthController(
     fun loginUser(
         res: HttpServletResponse,
         @Valid @RequestBody
-        request: LoginRequestDto
+        request: LoginRequest
     ): ResponseEntity<ResultResponse> {
         validator.validate(request = request)
         val result: JwtResponse = service.login(request)

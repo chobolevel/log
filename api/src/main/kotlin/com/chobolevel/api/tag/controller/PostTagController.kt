@@ -3,10 +3,10 @@ package com.chobolevel.api.tag.controller
 import com.chobolevel.api.common.annotation.HasAuthorityAdmin
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dto.ResultResponse
-import com.chobolevel.api.tag.dto.CreateTagRequestDto
+import com.chobolevel.api.tag.dto.CreateTagRequest
 import com.chobolevel.api.tag.dto.SearchTagRequest
 import com.chobolevel.api.tag.dto.TagPageRequest
-import com.chobolevel.api.tag.dto.UpdateTagRequestDto
+import com.chobolevel.api.tag.dto.UpdateTagRequest
 import com.chobolevel.api.tag.service.TagService
 import com.chobolevel.api.tag.validator.TagParameterValidator
 import io.swagger.v3.oas.annotations.Operation
@@ -35,7 +35,7 @@ class PostTagController(
     @PostMapping("/tags")
     fun createPostTag(
         @Valid @RequestBody
-        request: CreateTagRequestDto
+        request: CreateTagRequest
     ): ResponseEntity<ResultResponse> {
         val result: Long = service.createPostTag(request)
         return ResponseEntity.ok(ResultResponse(result))
@@ -60,7 +60,7 @@ class PostTagController(
     fun updatePostTag(
         @PathVariable id: Long,
         @Valid @RequestBody
-        request: UpdateTagRequestDto
+        request: UpdateTagRequest
     ): ResponseEntity<ResultResponse> {
         validator.validate(request = request)
         val result: Long = service.updatePostTag(
