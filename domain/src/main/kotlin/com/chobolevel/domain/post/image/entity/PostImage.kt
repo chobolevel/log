@@ -28,7 +28,7 @@ class PostImage(
     @Column(nullable = false)
     var name: String,
     @Column(nullable = false)
-    var url: String,
+    var path: String,
     @Column(nullable = false)
     var width: Int,
     @Column(nullable = false)

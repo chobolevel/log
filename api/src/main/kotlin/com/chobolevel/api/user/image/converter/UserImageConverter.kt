@@ -1,17 +1,20 @@
 package com.chobolevel.api.user.image.converter
 
+import com.chobolevel.api.common.properties.S3Properties
 import com.chobolevel.api.user.image.dto.CreateUserImageRequest
 import com.chobolevel.api.user.image.dto.UserImageResponse
 import com.chobolevel.domain.user.image.entity.UserImage
 import org.springframework.stereotype.Component
 
 @Component
-class UserImageConverter {
+class UserImageConverter(
+    private val S3Properties: S3Properties
+) {
 
     fun convert(request: CreateUserImageRequest): UserImage {
         return UserImage(
             type = request.type,
-            originUrl = request.originUrl,
+            path = request.path,
             name = request.name,
         )
     }
@@ -20,7 +23,7 @@ class UserImageConverter {
         return UserImageResponse(
             id = entity.id!!,
             type = entity.type,
-            originUrl = entity.originUrl,
+            url = "${S3Properties.host}${entity.path}",
             name = entity.name,
             createdAt = entity.createdAt!!.toInstant().toEpochMilli(),
             updatedAt = entity.updatedAt!!.toInstant().toEpochMilli(),

@@ -13,7 +13,7 @@ data class CreatePostImageRequest(
     @field:NotEmpty(message = "이미지 이름은 필수 값입니다.")
     val name: String,
     @field:NotEmpty(message = "이미지 경로는 필수 값입니다.")
-    val url: String,
+    val path: String,
     val width: Int?,
     val height: Int?,
 )

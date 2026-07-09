@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class UploadResponse(
     val presignedUrl: String,
-    val url: String,
+    val host: String,
+    val path: String,
     val filenameWithExtension: String
 )

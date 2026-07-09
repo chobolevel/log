@@ -10,7 +10,7 @@ import jakarta.validation.constraints.Size
 data class UpdatePostImageRequest(
     val type: PostImageType?,
     val name: String?,
-    val url: String?,
+    val path: String?,
     val width: Int?,
     val height: Int?,
     @field:Size(min = 1, message = "update_mask는 필수 값입니다.")

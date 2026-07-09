@@ -28,7 +28,7 @@ class UserImage(
     @Column(nullable = false)
     var type: UserImageType,
     @Column(nullable = false)
-    var originUrl: String,
+    var path: String,
     @Column(nullable = false)
     var name: String,
 ) : Audit() {
