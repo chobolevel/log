@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class UserImageConverter(
-    private val S3Properties: S3Properties
+    private val s3Properties: S3Properties
 ) {
 
     fun convert(request: CreateUserImageRequest): UserImage {
@@ -23,7 +23,7 @@ class UserImageConverter(
         return UserImageResponse(
             id = entity.id!!,
             type = entity.type,
-            url = "${S3Properties.host}${entity.path}",
+            url = "${s3Properties.host}${entity.path}",
             name = entity.name,
             createdAt = entity.createdAt!!.toInstant().toEpochMilli(),
             updatedAt = entity.updatedAt!!.toInstant().toEpochMilli(),

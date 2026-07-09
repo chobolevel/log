@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class PostImageConverter(
-    private val S3Properties: S3Properties,
+    private val s3Properties: S3Properties,
 ) {
 
     fun convert(request: CreatePostImageRequest): PostImage {
@@ -26,7 +26,7 @@ class PostImageConverter(
             id = entity.id!!,
             type = entity.type,
             name = entity.name,
-            url = "${S3Properties.host}${entity.path}",
+            url = "${s3Properties.host}${entity.path}",
             width = entity.width,
             height = entity.height,
             createdAt = entity.createdAt!!.toInstant().toEpochMilli(),
