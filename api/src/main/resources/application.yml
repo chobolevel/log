@@ -106,7 +106,7 @@ cloud:
   aws:
     s3:
       bucket: "chobolevel"
-      host: "https://chobolevel.s3.ap-northeast-2.amazonaws.com"
+      host: ENC(c7xZ2ymIgjq7v09nf7EETPvFK/HHPAtguoeoypNta4gHLPfIC2qph+6mWYIOy2YUFPxygFewbGmHuDCN7sE3cnOkQ5ZNJmYZ5xSDrT9qyVDtKoqHTCGqiLz2K43FSw+M)
     stack.auto: false
     region.static: "ap-northeast-2"
     credentials:
