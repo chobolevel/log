@@ -1,6 +1,7 @@
 package com.chobolevel.api.guest.service
 
 import com.chobolevel.api.common.dto.PagingResponse
+import com.chobolevel.api.common.provider.PasswordProvider
 import com.chobolevel.api.guest.converter.GuestBookConverter
 import com.chobolevel.api.guest.dto.CreateGuestBookRequest
 import com.chobolevel.api.guest.dto.DeleteGuestBookRequest
@@ -17,7 +18,6 @@ import com.chobolevel.domain.guest.repository.GuestBookRepository
 import com.chobolevel.domain.guest.vo.GuestBookOrderType
 import com.chobolevel.domain.guest.vo.GuestBookQueryFilter
 import org.springframework.http.HttpStatus
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -26,7 +26,7 @@ class GuestBookService(
     private val repository: GuestBookRepository,
     private val converter: GuestBookConverter,
     private val updater: GuestBookUpdater,
-    private val passwordEncoder: BCryptPasswordEncoder
+    private val passwordProvider: PasswordProvider
 ) {
 
     @Transactional
@@ -86,7 +86,7 @@ class GuestBookService(
     }
 
     private fun validatePassword(rawPassword: String, encodedPassword: String) {
-        if (!passwordEncoder.matches(rawPassword, encodedPassword)) {
+        if (!passwordProvider.matches(rawPassword, encodedPassword)) {
             throw ApiException(
                 errorCode = ErrorCode.INVALID_PARAMETER,
                 status = HttpStatus.BAD_REQUEST,

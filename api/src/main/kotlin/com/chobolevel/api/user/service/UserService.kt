@@ -1,6 +1,7 @@
 package com.chobolevel.api.user.service
 
 import com.chobolevel.api.common.dto.PagingResponse
+import com.chobolevel.api.common.provider.PasswordProvider
 import com.chobolevel.api.user.converter.UserConverter
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
@@ -15,7 +16,6 @@ import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
 import com.chobolevel.domain.user.vo.UserOrderType
 import com.chobolevel.domain.user.vo.UserQueryFilter
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -25,7 +25,7 @@ class UserService(
     private val converter: UserConverter,
     private val validator: UserBusinessValidator,
     private val updater: UserUpdater,
-    private val passwordEncoder: BCryptPasswordEncoder
+    private val passwordProvider: PasswordProvider
 ) {
 
     @Transactional
@@ -83,7 +83,7 @@ class UserService(
             user = user,
             request = request
         )
-        user.password = passwordEncoder.encode(request.newPassword)
+        user.password = passwordProvider.encode(request.newPassword)
         return user.id!!
     }
 

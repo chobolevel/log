@@ -1,5 +1,6 @@
 package com.chobolevel.api.common.security
 
+import com.chobolevel.api.common.provider.PasswordProvider
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.user.entity.User
@@ -12,13 +13,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.AuthorityUtils
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component
 
 @Component
 class CustomAuthenticationProvider(
     private val userRepository: UserRepository,
-    private val passwordEncoder: BCryptPasswordEncoder
+    private val passwordProvider: PasswordProvider
 ) : AuthenticationProvider {
 
     override fun authenticate(authentication: Authentication): Authentication? {
@@ -37,7 +37,7 @@ class CustomAuthenticationProvider(
         )
         when (user.loginType) {
             UserLoginType.GENERAL -> {
-                if (!passwordEncoder.matches(tokenCredentials, user.password)) {
+                if (!passwordProvider.matches(tokenCredentials, user.password)) {
                     throw BadCredentialsException("아이디 또는 비밀번호가 일치하지 않습니다.")
                 }
             }
