@@ -25,8 +25,8 @@ class UserImageConverter(
             type = entity.type,
             url = "${s3Properties.host}${entity.path}",
             name = entity.name,
-            createdAt = entity.createdAt!!.toInstant().toEpochMilli(),
-            updatedAt = entity.updatedAt!!.toInstant().toEpochMilli(),
+            createdAt = entity.createdAt.toInstant().toEpochMilli(),
+            updatedAt = entity.updatedAt.toInstant().toEpochMilli(),
         )
     }
 }

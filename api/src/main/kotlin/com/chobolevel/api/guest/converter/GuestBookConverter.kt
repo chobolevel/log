@@ -32,8 +32,8 @@ class GuestBookConverter(
             id = entity.id!!,
             guestName = entity.guestName,
             content = entity.content,
-            createdAt = entity.createdAt!!.toInstant().toEpochMilli(),
-            updatedAt = entity.updatedAt!!.toInstant().toEpochMilli()
+            createdAt = entity.createdAt.toInstant().toEpochMilli(),
+            updatedAt = entity.updatedAt.toInstant().toEpochMilli()
         )
     }
 

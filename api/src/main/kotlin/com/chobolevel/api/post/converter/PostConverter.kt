@@ -48,8 +48,8 @@ class PostConverter(
             subTitle = entity.subTitle,
             content = entity.content,
             thumbNailImage = convertedThumbNailImage,
-            createdAt = entity.createdAt!!.toInstant().toEpochMilli(),
-            updatedAt = entity.updatedAt!!.toInstant().toEpochMilli()
+            createdAt = entity.createdAt.toInstant().toEpochMilli(),
+            updatedAt = entity.updatedAt.toInstant().toEpochMilli()
         )
     }
 

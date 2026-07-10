@@ -51,8 +51,8 @@ class UserConverter(
             nickname = entity.nickname,
             role = entity.role,
             profileImage = entity.profileImage?.let { userImageConverter.convert(it) },
-            createdAt = entity.createdAt!!.toInstant().toEpochMilli(),
-            updatedAt = entity.updatedAt!!.toInstant().toEpochMilli()
+            createdAt = entity.createdAt.toInstant().toEpochMilli(),
+            updatedAt = entity.updatedAt.toInstant().toEpochMilli()
         )
     }
 

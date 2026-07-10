@@ -31,8 +31,8 @@ class PostCommentConverter(
             id = entity.id!!,
             writer = userConverter.convert(entity.writer!!),
             content = entity.content,
-            createdAt = entity.createdAt!!.toInstant().toEpochMilli(),
-            updatedAt = entity.updatedAt!!.toInstant().toEpochMilli()
+            createdAt = entity.createdAt.toInstant().toEpochMilli(),
+            updatedAt = entity.updatedAt.toInstant().toEpochMilli()
         )
     }
 

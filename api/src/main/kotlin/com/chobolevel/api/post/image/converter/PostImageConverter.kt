@@ -29,8 +29,8 @@ class PostImageConverter(
             url = "${s3Properties.host}${entity.path}",
             width = entity.width,
             height = entity.height,
-            createdAt = entity.createdAt!!.toInstant().toEpochMilli(),
-            updatedAt = entity.updatedAt!!.toInstant().toEpochMilli()
+            createdAt = entity.createdAt.toInstant().toEpochMilli(),
+            updatedAt = entity.updatedAt.toInstant().toEpochMilli()
         )
     }
 }

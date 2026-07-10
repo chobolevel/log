@@ -22,8 +22,8 @@ class ChannelConverter(
             id = entity.id!!,
             name = entity.name,
             participants = entity.channelUsers.map { userConverter.convert(it.user!!) },
-            createdAt = entity.createdAt!!.toInstant().toEpochMilli(),
-            updatedAt = entity.updatedAt!!.toInstant().toEpochMilli()
+            createdAt = entity.createdAt.toInstant().toEpochMilli(),
+            updatedAt = entity.updatedAt.toInstant().toEpochMilli()
         )
     }
 

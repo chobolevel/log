@@ -17,9 +17,9 @@ class Audit {
 
     @Column(nullable = false, updatable = false)
     @CreatedDate
-    var createdAt: OffsetDateTime? = null
+    lateinit var createdAt: OffsetDateTime
 
     @Column(nullable = false)
     @LastModifiedDate
-    var updatedAt: OffsetDateTime? = null
+    lateinit var updatedAt: OffsetDateTime
 }
