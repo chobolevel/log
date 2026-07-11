@@ -1,12 +1,14 @@
-package com.chobolevel.api.common.warmer
+package com.chobolevel.api.post.warmer
 
+import com.chobolevel.api.common.warmer.Warmer
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForEntity
 
 @Component
-class PostDetailWarmer : Warmer {
+class PostWarmer : Warmer {
+
     override fun warm(url: String, restTemplate: RestTemplate) {
-        restTemplate.getForEntity<String>("$url/api/v1/posts/1")
+        restTemplate.getForEntity<String>("$url/api/v1/posts?skipCount=0&limitCount=8&orderTypes=CREATED_AT_DESC")
     }
 }
