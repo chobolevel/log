@@ -1,6 +1,6 @@
 package com.chobolevel.api.channel.controller
 
-import com.chobolevel.api.channel.dto.ChannelPageRequest
+import com.chobolevel.api.channel.dto.ChannelPagingRequest
 import com.chobolevel.api.channel.dto.ChannelResponse
 import com.chobolevel.api.channel.dto.CreateChannelRequest
 import com.chobolevel.api.channel.dto.InviteChannelRequest
@@ -8,6 +8,7 @@ import com.chobolevel.api.channel.dto.UpdateChannelRequest
 import com.chobolevel.api.channel.service.ChannelService
 import com.chobolevel.api.channel.validator.ChannelParameterValidator
 import com.chobolevel.api.common.annotation.HasAuthorityUser
+import com.chobolevel.api.common.annotation.QueryObject
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getUserId
@@ -53,7 +54,7 @@ class ChannelController(
     @GetMapping("/channels")
     fun getChannels(
         principal: Principal,
-        pageRequest: ChannelPageRequest
+        @QueryObject pageRequest: ChannelPagingRequest
     ): ResponseEntity<ResultResponse> {
         val result: PagingResponse = service.getChannels(
             userId = principal.getUserId(),

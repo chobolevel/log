@@ -1,12 +1,13 @@
 package com.chobolevel.api.post.comment.controller
 
 import com.chobolevel.api.common.annotation.HasAuthorityUser
+import com.chobolevel.api.common.annotation.QueryObject
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getUserId
 import com.chobolevel.api.common.posttask.CreatePostCommentPostTask
 import com.chobolevel.api.post.comment.dto.CreatePostCommentRequest
-import com.chobolevel.api.post.comment.dto.PostCommentPageRequest
+import com.chobolevel.api.post.comment.dto.PostCommentPagingRequest
 import com.chobolevel.api.post.comment.dto.SearchPostCommentRequest
 import com.chobolevel.api.post.comment.dto.UpdatePostCommentRequest
 import com.chobolevel.api.post.comment.service.PostCommentService
@@ -53,8 +54,8 @@ class PostCommentController(
     @Operation(summary = "게시글 댓글 목록 조회 API")
     @GetMapping("/posts/comments")
     fun searchPostComments(
-        filter: SearchPostCommentRequest,
-        pageRequest: PostCommentPageRequest
+        @QueryObject filter: SearchPostCommentRequest,
+        @QueryObject pageRequest: PostCommentPagingRequest
     ): ResponseEntity<ResultResponse> {
         val result: PagingResponse = service.searchPostComments(
             filter = filter,

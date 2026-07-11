@@ -1,11 +1,12 @@
 package com.chobolevel.api.guest.controller
 
+import com.chobolevel.api.common.annotation.QueryObject
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.posttask.CreateGuestBookPostTask
 import com.chobolevel.api.guest.dto.CreateGuestBookRequest
 import com.chobolevel.api.guest.dto.DeleteGuestBookRequest
-import com.chobolevel.api.guest.dto.GuestBookPageRequest
+import com.chobolevel.api.guest.dto.GuestBookPagingRequest
 import com.chobolevel.api.guest.dto.GuestBookResponse
 import com.chobolevel.api.guest.dto.SearchGuestBookRequest
 import com.chobolevel.api.guest.dto.UpdateGuestBookRequest
@@ -46,8 +47,8 @@ class GuestBookController(
     @Operation(summary = "방명록 목록 조회 API")
     @GetMapping("/guest-books")
     fun searchGuestBooks(
-        filter: SearchGuestBookRequest,
-        pageRequest: GuestBookPageRequest
+        @QueryObject filter: SearchGuestBookRequest,
+        @QueryObject pageRequest: GuestBookPagingRequest
     ): ResponseEntity<ResultResponse> {
         val result: PagingResponse = service.searchGuestBooks(
             filter = filter,

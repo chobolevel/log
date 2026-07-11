@@ -1,8 +1,9 @@
 package com.chobolevel.api.channel.message.controller
 
-import com.chobolevel.api.channel.message.dto.ChannelMessagePageRequest
+import com.chobolevel.api.channel.message.dto.ChannelMessagePagingRequest
 import com.chobolevel.api.channel.message.service.ChannelMessageService
 import com.chobolevel.api.common.annotation.HasAuthorityUser
+import com.chobolevel.api.common.annotation.QueryObject
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getUserId
@@ -28,7 +29,7 @@ class ChannelMessageController(
     @GetMapping("/channels/{id}/messages")
     fun getChannelMessages(
         @PathVariable("id") channelId: Long,
-        pageRequest: ChannelMessagePageRequest
+        @QueryObject pageRequest: ChannelMessagePagingRequest
     ): ResponseEntity<ResultResponse> {
         val result: PagingResponse = service.getChannelMessages(
             channelId = channelId,

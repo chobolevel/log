@@ -1,6 +1,7 @@
 package com.chobolevel.api.user.controller
 
 import com.chobolevel.api.common.annotation.HasAuthorityUser
+import com.chobolevel.api.common.annotation.QueryObject
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getUserId
@@ -8,7 +9,7 @@ import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.SearchUserRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
-import com.chobolevel.api.user.dto.UserPageRequest
+import com.chobolevel.api.user.dto.UserPagingRequest
 import com.chobolevel.api.user.dto.UserResponse
 import com.chobolevel.api.user.service.UserService
 import com.chobolevel.api.user.validator.UserParameterValidator
@@ -48,8 +49,8 @@ class UserController(
     @Operation(summary = "회원 목록 조회 API")
     @GetMapping("/users")
     fun searchUsers(
-        filter: SearchUserRequest,
-        pageRequest: UserPageRequest
+        @QueryObject filter: SearchUserRequest,
+        @QueryObject pageRequest: UserPagingRequest
     ): ResponseEntity<ResultResponse> {
         val result: PagingResponse = service.searchUsers(
             filter = filter,

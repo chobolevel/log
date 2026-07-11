@@ -1,7 +1,7 @@
 package com.chobolevel.api.channel.service
 
 import com.chobolevel.api.channel.converter.ChannelConverter
-import com.chobolevel.api.channel.dto.ChannelPageRequest
+import com.chobolevel.api.channel.dto.ChannelPagingRequest
 import com.chobolevel.api.channel.dto.ChannelResponse
 import com.chobolevel.api.channel.dto.CreateChannelRequest
 import com.chobolevel.api.channel.dto.InviteChannelRequest
@@ -64,7 +64,7 @@ class ChannelService(
     @Transactional(readOnly = true)
     fun getChannels(
         userId: Long,
-        pageRequest: ChannelPageRequest
+        pageRequest: ChannelPagingRequest
     ): PagingResponse {
         val queryFilter = ChannelQueryFilter(userId = userId)
         val paging = Paging(page = pageRequest.page, size = pageRequest.size)

@@ -1,11 +1,12 @@
 package com.chobolevel.api.post.controller
 
 import com.chobolevel.api.common.annotation.HasAuthorityUser
+import com.chobolevel.api.common.annotation.QueryObject
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getUserId
 import com.chobolevel.api.post.dto.CreatePostRequest
-import com.chobolevel.api.post.dto.PostPageRequest
+import com.chobolevel.api.post.dto.PostPagingRequest
 import com.chobolevel.api.post.dto.PostResponse
 import com.chobolevel.api.post.dto.SearchPostRequest
 import com.chobolevel.api.post.dto.UpdatePostRequest
@@ -51,8 +52,8 @@ class PostController(
     @Operation(summary = "게시글 목록 조회 API")
     @GetMapping("/posts")
     fun searchPosts(
-        filter: SearchPostRequest,
-        pageRequest: PostPageRequest
+        @QueryObject filter: SearchPostRequest,
+        @QueryObject pageRequest: PostPagingRequest
     ): ResponseEntity<ResultResponse> {
         val result: PagingResponse = service.searchPosts(
             filter = filter,

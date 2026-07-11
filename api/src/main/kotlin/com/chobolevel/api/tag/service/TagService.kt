@@ -4,7 +4,7 @@ import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.tag.converter.TagConverter
 import com.chobolevel.api.tag.dto.CreateTagRequest
 import com.chobolevel.api.tag.dto.SearchTagRequest
-import com.chobolevel.api.tag.dto.TagPageRequest
+import com.chobolevel.api.tag.dto.TagPagingRequest
 import com.chobolevel.api.tag.dto.UpdateTagRequest
 import com.chobolevel.api.tag.updater.TagUpdatable
 import com.chobolevel.domain.common.dto.Paging
@@ -31,7 +31,7 @@ class TagService(
     @Transactional(readOnly = true)
     fun searchPostTags(
         filter: SearchTagRequest,
-        pageRequest: TagPageRequest
+        pageRequest: TagPagingRequest
     ): PagingResponse {
         val queryFilter: TagQueryFilter = converter.convert(request = filter)
         val paging = Paging(page = pageRequest.page, size = pageRequest.size)

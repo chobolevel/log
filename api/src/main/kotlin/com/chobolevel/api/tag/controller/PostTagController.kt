@@ -1,11 +1,12 @@
 package com.chobolevel.api.tag.controller
 
 import com.chobolevel.api.common.annotation.HasAuthorityAdmin
+import com.chobolevel.api.common.annotation.QueryObject
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.tag.dto.CreateTagRequest
 import com.chobolevel.api.tag.dto.SearchTagRequest
-import com.chobolevel.api.tag.dto.TagPageRequest
+import com.chobolevel.api.tag.dto.TagPagingRequest
 import com.chobolevel.api.tag.dto.UpdateTagRequest
 import com.chobolevel.api.tag.service.TagService
 import com.chobolevel.api.tag.validator.TagParameterValidator
@@ -44,8 +45,8 @@ class PostTagController(
     @Operation(summary = "게시글 태그 목록 조회 API")
     @GetMapping("/tags")
     fun searchPostTags(
-        filter: SearchTagRequest,
-        pageRequest: TagPageRequest
+        @QueryObject filter: SearchTagRequest,
+        @QueryObject pageRequest: TagPagingRequest
     ): ResponseEntity<ResultResponse> {
         val result: PagingResponse = service.searchPostTags(
             filter = filter,

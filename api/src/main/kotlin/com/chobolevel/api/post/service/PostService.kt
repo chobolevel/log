@@ -3,7 +3,7 @@ package com.chobolevel.api.post.service
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.post.converter.PostConverter
 import com.chobolevel.api.post.dto.CreatePostRequest
-import com.chobolevel.api.post.dto.PostPageRequest
+import com.chobolevel.api.post.dto.PostPagingRequest
 import com.chobolevel.api.post.dto.PostResponse
 import com.chobolevel.api.post.dto.SearchPostRequest
 import com.chobolevel.api.post.dto.UpdatePostRequest
@@ -65,7 +65,7 @@ class PostService(
     @Transactional(readOnly = true)
     fun searchPosts(
         filter: SearchPostRequest,
-        pageRequest: PostPageRequest
+        pageRequest: PostPagingRequest
     ): PagingResponse {
         val queryFilter: PostQueryFilter = converter.convert(request = filter)
         val paging = Paging(page = pageRequest.page, size = pageRequest.size)

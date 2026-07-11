@@ -7,7 +7,7 @@ import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.SearchUserRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
-import com.chobolevel.api.user.dto.UserPageRequest
+import com.chobolevel.api.user.dto.UserPagingRequest
 import com.chobolevel.api.user.dto.UserResponse
 import com.chobolevel.api.user.updater.UserUpdater
 import com.chobolevel.api.user.validator.UserBusinessValidator
@@ -38,7 +38,7 @@ class UserService(
     @Transactional(readOnly = true)
     fun searchUsers(
         filter: SearchUserRequest,
-        pageRequest: UserPageRequest
+        pageRequest: UserPagingRequest
     ): PagingResponse {
         val queryFilter: UserQueryFilter = converter.convert(request = filter)
         val paging = Paging(page = pageRequest.page, size = pageRequest.size)

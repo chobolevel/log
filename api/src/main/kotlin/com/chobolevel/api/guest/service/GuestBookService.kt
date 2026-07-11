@@ -5,7 +5,7 @@ import com.chobolevel.api.common.provider.PasswordProvider
 import com.chobolevel.api.guest.converter.GuestBookConverter
 import com.chobolevel.api.guest.dto.CreateGuestBookRequest
 import com.chobolevel.api.guest.dto.DeleteGuestBookRequest
-import com.chobolevel.api.guest.dto.GuestBookPageRequest
+import com.chobolevel.api.guest.dto.GuestBookPagingRequest
 import com.chobolevel.api.guest.dto.GuestBookResponse
 import com.chobolevel.api.guest.dto.SearchGuestBookRequest
 import com.chobolevel.api.guest.dto.UpdateGuestBookRequest
@@ -38,7 +38,7 @@ class GuestBookService(
     @Transactional(readOnly = true)
     fun searchGuestBooks(
         filter: SearchGuestBookRequest,
-        pageRequest: GuestBookPageRequest
+        pageRequest: GuestBookPagingRequest
     ): PagingResponse {
         val queryFilter: GuestBookQueryFilter = converter.convert(request = filter)
         val paging = Paging(page = pageRequest.page, size = pageRequest.size)
