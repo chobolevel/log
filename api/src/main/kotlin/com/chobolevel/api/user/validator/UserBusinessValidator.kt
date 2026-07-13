@@ -43,7 +43,7 @@ class UserBusinessValidator(
         }
 
         // 현재 비밀번호랑 입력한 변경할 비밀번호 일치 여부
-        if (!passwordProvider.matches(
+        if (passwordProvider.matches(
                 plainText = request.newPassword,
                 encodedText = user.password
             )
