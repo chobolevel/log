@@ -186,3 +186,132 @@ Claude가 이 프로젝트에서 예시 코드를 작성할 때는 반드시 위
 | ORM | Spring Data JPA |
 | 포맷터 | ktlint 11.3.1 |
 | 컨테이너 빌드 | Jib 3.4.4 |
+
+# 테스트 코드 학습 컨텍스트 (Java/Kotlin + Spring Boot)
+
+> 이 파일을 프로젝트 루트의 `CLAUDE.md`에 붙여넣거나, Claude Code 세션 시작 시 그대로 프롬프트로 붙여넣어 사용한다.
+
+## 배경
+
+이미 개발이 진행된 개인 프로젝트에 테스트 코드를 단계적으로 리트로핏(retrofit)한다. 목표는 단순히 테스트를 "채워 넣는" 것이 아니라, 대기업 백엔드 조직의 코드 리뷰 기준을 통과할 수준의 테스트 작성 역량을 기르는 것이다.
+
+## Claude Code에게 요청하는 역할
+
+- 답을 바로 완성해서 주지 말고, 각 단계마다 "왜 이 테스트가 필요한지 → 어떻게 구조를 잡을지 → 실제 코드" 순서로 설명하며 진행한다.
+- 매 단계 진입 전, 현재 프로젝트 구조(컨트롤러/서비스/리포지토리/도메인)를 먼저 훑어보고 어떤 클래스부터 테스트할지 제안한다.
+- 테스트 코드 작성 후에는 실무 코드 리뷰어 관점에서 자체 리뷰 코멘트를 함께 남긴다 (네이밍, 가독성, 불필요한 mocking, 경계값 누락 등).
+- 한 번에 여러 단계를 몰아서 처리하지 않는다. 사용자가 "다음 단계"라고 명시할 때까지 현재 단계에 머문다.
+- 진행 상황은 아래 체크리스트를 갱신하는 방식으로 트래킹한다.
+
+## 진행 체크리스트
+
+- [~] 1단계: 단위 테스트 기본기 (진행 중)
+- [ ] 2단계: Spring 슬라이스 테스트
+- [ ] 3단계: Testcontainers 기반 통합 테스트
+- [ ] 4단계: 테스트 전략 & 커버리지 & CI
+- [ ] 5단계: 계약 테스트 / E2E
+
+---
+
+## 1단계: 단위 테스트 기본기
+
+**목표**: 순수 로직(도메인 객체, 서비스의 비즈니스 규칙)에 대한 단위 테스트 작성 습관화.
+
+**다룰 내용**
+- JUnit5 기본 구조 (`@Test`, `@BeforeEach`, `@DisplayName`, `@Nested`)
+- AssertJ(Java) / Kotest matcher(Kotlin)로 가독성 있는 검증
+- Mockito(Java) / MockK(Kotlin)로 협력 객체 mocking, `verify`/`argumentCaptor` 활용
+- given-when-then 구조와 테스트 네이밍 규칙 정립 (예: `주문을_취소하면_상태가_CANCELLED로_변경된다`)
+- 과도한 mocking 지양 — mock이 3개 이상 필요하면 설계(의존성 과다)를 의심
+
+**실습 방식**: 프로젝트에서 도메인 로직이 있는 서비스 클래스 1~2개를 골라 실제로 테스트를 짜본다. Claude Code는 후보 클래스를 스캔해서 우선순위를 제안한다.
+
+**완료 기준**: 서비스 계층 핵심 로직에 대해 given-when-then 구조의 단위 테스트를 스스로 작성할 수 있고, mock 사용 이유를 설명할 수 있다.
+
+### 1단계 진행 현황
+
+**작성 완료된 테스트 파일**
+- `api/src/test/kotlin/com/chobolevel/api/common/dummy/DummyUser.kt` — 테스트용 User 더미 객체
+- `api/src/test/kotlin/com/chobolevel/api/user/validator/UserBusinessValidatorTest.kt` — `UserBusinessValidator` 단위 테스트 (9개 케이스, 전부 통과)
+
+**이번 세션에서 배운 것**
+
+1. **Kotest BehaviorSpec 실행 모델 주의사항**
+   - `given` / `when` 블록 안의 코드(예: `every { }`)는 스펙 초기화 시 **한 번만** 실행된다.
+   - `beforeEach { clearAllMocks() }`가 그 stubs를 지워버리기 때문에 실제 테스트 실행 시점엔 mock이 비어 있다.
+   - **규칙**: `every { }`, `val request = ...` 등 셋업 코드는 반드시 `then { }` 블록 안에 작성한다.
+
+2. **Dummy 객체 위치**: `api/src/test/kotlin/com/chobolevel/api/common/dummy/` 하위에 도메인별로 분리한다.
+
+3. **테스트 실행 명령**
+   ```bash
+   ./gradlew :api:test                                         # 전체 테스트
+   ./gradlew :api:test --tests "com.chobolevel.api.user.validator.UserBusinessValidatorTest"  # 특정 클래스
+   ./gradlew :api:test --rerun-tasks                           # 캐시 무시하고 강제 재실행
+   ```
+   결과 리포트: `api/build/reports/tests/test/index.html`
+
+**다음 할 일 (1단계 계속)**
+- `UserService` 단위 테스트 작성 (createUser, changePassword, resignUser 등)
+- 또는 `AuthService.checkEmailVerificationCode` — mock 1개라 구조 연습에 적합
+
+---
+
+## 2단계: Spring 슬라이스 테스트
+
+**목표**: 전체 컨텍스트를 매번 띄우지 않고 계층별로 필요한 범위만 테스트하는 감각 습득.
+
+**다룰 내용**
+- `@WebMvcTest` — 컨트롤러 계층, `MockMvc`로 요청/응답 검증, `@MockBean`/`@MockkBean`으로 서비스 계층 격리
+- `@DataJpaTest` — 리포지토리 계층, 쿼리 메서드/QueryDSL 검증, 임베디드 DB 또는 실제 DB 선택 기준
+- `@SpringBootTest`는 언제만 쓰는지 (통합 시나리오, 컨텍스트 로딩 비용 트레이드오프)
+- 슬라이스 테스트에서 자주 하는 실수: 매번 `@SpringBootTest`로 때우기, 슬라이스 범위 밖 빈 주입 실패 등
+
+**실습 방식**: 1단계에서 테스트한 서비스를 사용하는 컨트롤러와 리포지토리에 대해 각각 슬라이스 테스트 작성.
+
+**완료 기준**: 어떤 테스트 상황에 어떤 슬라이스 어노테이션을 써야 하는지 스스로 판단할 수 있다.
+
+---
+
+## 3단계: Testcontainers 기반 통합 테스트
+
+**목표**: 인메모리 DB가 아닌 프로덕션과 동일한 인프라(DB, 캐시, 메시지 큐)로 테스트.
+
+**다룰 내용**
+- Testcontainers 기본 세팅 (`@Testcontainers`, `@Container`, `DynamicPropertySource`)
+- 프로젝트에서 쓰는 DB(MySQL/PostgreSQL 등)로 전환, H2와의 SQL 방언 차이 문제 확인
+- Redis, Kafka 등 프로젝트에 실제로 쓰이는 인프라가 있다면 확장
+- 테스트 실행 속도 문제와 컨테이너 재사용 전략 (`Singleton Container` 패턴)
+
+**실습 방식**: 2단계 `@DataJpaTest`를 Testcontainers 기반으로 전환.
+
+**완료 기준**: 로컬 DB 방언 차이로 인한 버그를 통합 테스트에서 잡아낸 경험을 만든다.
+
+---
+
+## 4단계: 테스트 전략, 커버리지, CI
+
+**목표**: "얼마나 테스트했는가"가 아니라 "무엇을 테스트해야 하는가"를 판단하는 기준 정립.
+
+**다룰 내용**
+- Jacoco로 커버리지 측정, 수치보다 경로(정상/예외/경계값/동시성) 기준으로 우선순위 판단
+- GitHub Actions 등 CI에 테스트 단계 통합, PR 시 자동 실행
+- 테스트 피라미드 관점에서 프로젝트의 현재 테스트 분포 점검 (단위:슬라이스:통합 비율)
+- 짧은 TDD 실습(kata)으로 사이클(Red-Green-Refactor) 체득
+
+**실습 방식**: 프로젝트 CI 워크플로우에 테스트 실행 단계 추가, 커버리지 리포트 생성.
+
+**완료 기준**: 커버리지 리포트를 보고 어떤 영역이 위험한지 스스로 짚어낼 수 있다.
+
+---
+
+## 5단계: 계약 테스트 / E2E
+
+**목표**: 서비스 경계를 넘는 신뢰성 확보 (여유가 있을 때 진행, 필수 아님).
+
+**다룰 내용**
+- Spring Cloud Contract 또는 Pact로 소비자-제공자 계약 테스트
+- RestAssured로 API E2E 테스트 시나리오 작성
+- 프로젝트가 외부 API를 호출한다면 WireMock으로 stub 처리
+
+**완료 기준**: 서비스 간 인터페이스 변경이 계약 테스트에서 감지되는 흐름을 경험한다.
