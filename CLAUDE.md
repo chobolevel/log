@@ -251,9 +251,26 @@ Claude가 이 프로젝트에서 예시 코드를 작성할 때는 반드시 위
    ```
    결과 리포트: `api/build/reports/tests/test/index.html`
 
-**다음 할 일 (1단계 계속)**
-- `UserService` 단위 테스트 작성 (createUser, changePassword, resignUser 등)
-- 또는 `AuthService.checkEmailVerificationCode` — mock 1개라 구조 연습에 적합
+**작성 완료된 테스트 파일 (추가)**
+- `api/src/test/kotlin/com/chobolevel/api/user/service/UserServiceTest.kt` — `UserService` 단위 테스트 (6개 케이스, 전부 통과)
+
+**이번 세션에서 추가로 배운 것**
+
+3. **Object Mother 패턴** (`DummyUser`)
+   - 테스트마다 엔티티를 직접 생성하면 생성자 변경 시 모든 테스트 수정 필요 → 한 곳에 모아두는 패턴
+   - `toEntity()`: 엔티티 생성, `toResponseDto()`: DTO 생성 — 테스트 성격에 맞게 분리
+
+4. **justRun**: Unit(void) 반환 메서드를 mock할 때 사용 (`every { } returns Unit` 대신)
+
+5. **반환값 + 상태 변화 모두 검증**
+   - `resignUser`: `result shouldBe true` (반환값) + `user.resigned shouldBe true` (사이드 이펙트)
+   - `changePassword`: `user.password shouldBe encodedNewPassword` (상태 변화)
+
+6. **mock 5개 = 설계 신호**: 서비스가 많은 협력 객체를 가질 때 자연히 발생. API 계층 조율자 역할이므로 허용되지만, "이 서비스가 너무 많은 것을 알고 있지 않은가?" 체크 기준으로 삼는다.
+
+**다음 할 일 (1단계 계속 또는 2단계 진입)**
+- `AuthService` 단위 테스트 작성 — mock 1개라 구조 연습에 적합 (선택)
+- 또는 2단계(Spring 슬라이스 테스트)로 진입
 
 ---
 
