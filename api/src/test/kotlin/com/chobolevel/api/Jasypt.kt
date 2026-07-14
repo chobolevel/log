@@ -9,8 +9,9 @@ fun main() {
     val encryptor = PooledPBEStringEncryptor()
     val config = SimpleStringPBEConfig()
 
-    // 암호화할 때 사용하는 키
-    config.setPassword("chobolevel")
+    // 암호화할 때 사용하는
+    val key = ""
+    config.setPassword(key)
 
     // 암호화 알고리즘
     config.setAlgorithm("PBEWITHHMACSHA512ANDAES_256")
