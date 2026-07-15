@@ -205,7 +205,7 @@ Claude가 이 프로젝트에서 예시 코드를 작성할 때는 반드시 위
 
 ## 진행 체크리스트
 
-- [~] 1단계: 단위 테스트 기본기 (진행 중)
+- [x] 1단계: 단위 테스트 기본기 (완료)
 - [ ] 2단계: Spring 슬라이스 테스트
 - [ ] 3단계: Testcontainers 기반 통합 테스트
 - [ ] 4단계: 테스트 전략 & 커버리지 & CI
@@ -268,9 +268,19 @@ Claude가 이 프로젝트에서 예시 코드를 작성할 때는 반드시 위
 
 6. **mock 5개 = 설계 신호**: 서비스가 많은 협력 객체를 가질 때 자연히 발생. API 계층 조율자 역할이므로 허용되지만, "이 서비스가 너무 많은 것을 알고 있지 않은가?" 체크 기준으로 삼는다.
 
-**다음 할 일 (1단계 계속 또는 2단계 진입)**
-- `AuthService` 단위 테스트 작성 — mock 1개라 구조 연습에 적합 (선택)
-- 또는 2단계(Spring 슬라이스 테스트)로 진입
+**작성 완료된 테스트 파일 (추가)**
+- `api/src/test/kotlin/com/chobolevel/api/common/dummy/DummyAuth.kt` — 테스트용 Auth 더미 객체
+- `api/src/test/kotlin/com/chobolevel/api/auth/service/AuthServiceTest.kt` — `AuthService` 단위 테스트 (11개 케이스, 전부 통과)
+
+**이번 세션에서 추가로 배운 것**
+
+7. **slot + capture로 인수 검증**: `any()`는 "호출됐는가"만 확인하지만, `slot<T>()`과 `capture(slot)`을 조합하면 실제 전달된 인수 값까지 검증할 수 있다. `authSlot.captured.principal shouldBe "email/GENERAL"` 처럼 분기 로직의 출력값 자체를 단언한다.
+
+8. **MockK DSL 스코프 함수**: `match { }`, `capture(slot)` 같은 인수 매처는 `MockKMatcherScope`의 멤버 함수라 `import` 없이 `every { }` 블록 안에서 자동으로 사용 가능하다. `CapturingSlot<T>`은 `io.mockk.CapturingSlot`으로 import 후 타입으로 명시한다.
+
+9. **@Async 메서드의 단위 테스트**: `@Async`는 Spring 컨텍스트 없이 단위 테스트할 때 동기로 실행된다. 동작 자체(Redis 저장, 이메일 발송)는 `verify`로 검증 가능하지만, 실제 비동기 동작은 2단계 슬라이스 테스트에서 별도로 확인해야 한다.
+
+**1단계 완료 — 다음은 2단계 진입**
 
 ---
 
