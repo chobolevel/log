@@ -52,8 +52,8 @@ class PostService(
                 }
             }
 
-            if (request.thumbNailIMage != null) {
-                postImageConverter.convert(request.thumbNailIMage).also {
+            if (request.thumbNailImage != null) {
+                postImageConverter.convert(request.thumbNailImage).also {
                     it.setBy(post)
                 }
             }

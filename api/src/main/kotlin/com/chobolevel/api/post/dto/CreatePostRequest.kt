@@ -16,5 +16,5 @@ data class CreatePostRequest(
     var subTitle: String,
     @field:NotEmpty(message = "게시글 내용은 필수 값입니다.")
     val content: String,
-    val thumbNailIMage: CreatePostImageRequest?
+    val thumbNailImage: CreatePostImageRequest?
 )
