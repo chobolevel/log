@@ -9,12 +9,15 @@ import com.chobolevel.api.post.dto.PostResponse
 import com.chobolevel.api.post.image.converter.PostImageConverter
 import com.chobolevel.api.post.image.dto.CreatePostImageRequest
 import com.chobolevel.api.post.updater.PostUpdater
+import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.post.entity.Post
 import com.chobolevel.domain.post.repository.PostRepository
 import com.chobolevel.domain.tag.entity.Tag
 import com.chobolevel.domain.tag.repository.TagRepository
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
@@ -66,8 +69,6 @@ class PostServiceTest : BehaviorSpec({
                 every { postConverter.convert(request) } returns post
                 every { tagRepository.findByIds(request.tagIds) } returns tags
                 every { postRepository.save(post) } returns post
-                // 실해되는 조건으로 변경 필요
-                verify(exactly = 0) { postImageConverter.convert(any<CreatePostImageRequest>()) }
 
                 // when
                 val result: Long = postService.createPost(
@@ -77,6 +78,40 @@ class PostServiceTest : BehaviorSpec({
 
                 // then
                 result shouldBe DummyPost.ID
+                verify { userRepository.findById(userId) }
+                verify { postRepository.save(post) }
+                verify(exactly = 0) { postImageConverter.convert(any<CreatePostImageRequest>()) }
+            }
+        }
+
+        `when`("회원 정보가 유효하지 않을 때") {
+            then("예외를 반환한다") {
+                // given
+                val invalidUserId: Long = 0L
+                val request: CreatePostRequest = CreatePostRequest(
+                    tagIds = listOf(DummyTag.ID),
+                    title = DummyPost.TITLE,
+                    subTitle = DummyPost.SUB_TITLE,
+                    content = DummyPost.CONTENT,
+                    thumbNailImage = null
+                )
+                every { userRepository.findById(invalidUserId) } throws ApiException(
+                    errorCode = ErrorCode.USER_NOT_FOUND,
+                    message = "회원 정보를 찾을 수 없습니다."
+                )
+
+                // when
+                val exception: ApiException = shouldThrow {
+                    postService.createPost(
+                        userId = invalidUserId,
+                        request = request
+                    )
+                }
+
+                // then
+                exception.errorCode shouldBe ErrorCode.USER_NOT_FOUND
+                exception.message shouldBe "회원 정보를 찾을 수 없습니다."
+                verify { userRepository.findById(invalidUserId) }
             }
         }
     }
