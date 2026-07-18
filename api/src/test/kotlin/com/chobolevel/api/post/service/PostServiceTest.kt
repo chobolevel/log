@@ -1,5 +1,6 @@
 package com.chobolevel.api.post.service
 
+import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dummy.DummyPost
 import com.chobolevel.api.common.dummy.DummyPostImage
 import com.chobolevel.api.common.dummy.DummyTag
@@ -7,13 +8,16 @@ import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.post.assembler.PostAssembler
 import com.chobolevel.api.post.converter.PostConverter
 import com.chobolevel.api.post.dto.CreatePostRequest
+import com.chobolevel.api.post.dto.PostPagingRequest
 import com.chobolevel.api.post.dto.PostResponse
+import com.chobolevel.api.post.dto.SearchPostRequest
 import com.chobolevel.api.post.image.converter.PostImageConverter
 import com.chobolevel.api.post.image.dto.CreatePostImageRequest
 import com.chobolevel.api.post.updater.PostUpdater
 import com.chobolevel.domain.post.entity.Post
 import com.chobolevel.domain.post.image.entity.PostImage
 import com.chobolevel.domain.post.repository.PostRepository
+import com.chobolevel.domain.post.vo.PostQueryFilter
 import com.chobolevel.domain.tag.entity.Tag
 import com.chobolevel.domain.tag.repository.TagRepository
 import com.chobolevel.domain.user.entity.User
@@ -114,6 +118,74 @@ class PostServiceTest : BehaviorSpec({
                 verify { postRepository.save(any()) }
                 savedPostSlot.captured.user shouldBe user
                 savedPostSlot.captured.postImages.size shouldBe 0 // 이미지 미첨부 확인
+            }
+        }
+    }
+
+    given("게시글 목록을 조회할 때") {
+        `when`("게시글이 존재하면") {
+            then("페이징 정보와 게시글 목록을 반환한다") {
+                // given
+                val filter: SearchPostRequest = DummyPost.toSearchRequest()
+                val pageRequest: PostPagingRequest = PostPagingRequest()
+
+                val queryFilter: PostQueryFilter = PostQueryFilter(
+                    tagId = null,
+                    title = null,
+                    subTitle = null,
+                    userId = null
+                )
+                val posts: List<Post> = listOf(DummyPost.toEntity())
+                val postResponses: List<PostResponse> = listOf(DummyPost.toResponse())
+                val totalCount: Long = 1L
+
+                every { postConverter.convert(request = filter) } returns queryFilter
+                every { postRepository.searchPosts(queryFilter = queryFilter, paging = any(), orderTypes = any()) } returns posts
+                every { postRepository.searchPostsCount(queryFilter) } returns totalCount
+                every { postConverter.convert(entities = posts) } returns postResponses
+
+                // when
+                val result: PagingResponse = postService.searchPosts(filter = filter, pageRequest = pageRequest)
+
+                // then
+                result.page shouldBe pageRequest.page
+                result.size shouldBe pageRequest.size
+                result.totalCount shouldBe totalCount
+                result.data shouldBe postResponses
+                verify { postRepository.searchPosts(queryFilter = queryFilter, paging = any(), orderTypes = any()) }
+                verify { postRepository.searchPostsCount(queryFilter) }
+            }
+        }
+
+        `when`("검색 결과가 없으면") {
+            then("빈 목록과 totalCount 0을 반환한다") {
+                // given
+                val filter: SearchPostRequest = DummyPost.toSearchRequest()
+                val pageRequest: PostPagingRequest = PostPagingRequest()
+
+                val queryFilter: PostQueryFilter = PostQueryFilter(
+                    tagId = null,
+                    title = null,
+                    subTitle = null,
+                    userId = null
+                )
+                val emptyPosts: List<Post> = emptyList()
+                val emptyResponses: List<PostResponse> = emptyList()
+                val totalCount: Long = 0L
+
+                every { postConverter.convert(request = filter) } returns queryFilter
+                every { postRepository.searchPosts(queryFilter = queryFilter, paging = any(), orderTypes = any()) } returns emptyPosts
+                every { postRepository.searchPostsCount(queryFilter) } returns totalCount
+                every { postConverter.convert(entities = emptyPosts) } returns emptyResponses
+
+                // when
+                val result: PagingResponse = postService.searchPosts(filter = filter, pageRequest = pageRequest)
+
+                // then
+                result.totalCount shouldBe 0L
+                result.data shouldBe emptyList<PostResponse>()
+                verify { postRepository.searchPosts(queryFilter = queryFilter, paging = any(), orderTypes = any()) }
+                verify { postRepository.searchPostsCount(queryFilter) }
             }
         }
     }

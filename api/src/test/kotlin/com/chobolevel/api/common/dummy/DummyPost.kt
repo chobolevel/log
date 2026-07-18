@@ -1,6 +1,8 @@
 package com.chobolevel.api.common.dummy
 
 import com.chobolevel.api.post.dto.CreatePostRequest
+import com.chobolevel.api.post.dto.PostResponse
+import com.chobolevel.api.post.dto.SearchPostRequest
 import com.chobolevel.domain.post.entity.Post
 
 object DummyPost {
@@ -29,5 +31,19 @@ object DummyPost {
         subTitle = SUB_TITLE,
         content = CONTENT,
         thumbnailImage = null
+    )
+
+    fun toSearchRequest(): SearchPostRequest = SearchPostRequest(
+        tagId = null,
+        title = null,
+        subTitle = null,
+        userId = null
+    )
+
+    fun toResponse(): PostResponse = PostResponse(
+        id = ID,
+        title = TITLE,
+        subTitle = SUB_TITLE,
+        content = CONTENT
     )
 }
