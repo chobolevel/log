@@ -46,11 +46,10 @@ class PostImage(
     @Column(nullable = false)
     var deleted: Boolean = false
 
-    fun setBy(post: Post) {
+    fun assignPost(post: Post) {
         if (this.post != post) {
             this.post = post
         }
-        post.addImage(this)
     }
 
     fun delete() {

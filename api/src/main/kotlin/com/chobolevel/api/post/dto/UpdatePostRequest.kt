@@ -12,7 +12,7 @@ data class UpdatePostRequest(
     val title: String?,
     val subTitle: String?,
     val content: String?,
-    val thumbNailImage: CreatePostImageRequest?,
+    val thumbnailImage: CreatePostImageRequest?,
     @field:Size(min = 1, message = "update_mask는 필수 값입니다.")
     val updateMask: List<PostUpdateMask>
 )

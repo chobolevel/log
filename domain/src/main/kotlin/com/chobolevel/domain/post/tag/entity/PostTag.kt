@@ -30,17 +30,15 @@ class PostTag : Audit() {
     @JoinColumn(name = "tag_id")
     var tag: Tag? = null
 
-    fun setBy(post: Post) {
+    fun assignPost(post: Post) {
         if (this.post != post) {
             this.post = post
         }
-        post.addPostTag(this)
     }
 
-    fun setBy(tag: Tag) {
+    fun assignTag(tag: Tag) {
         if (this.tag != tag) {
             this.tag = tag
         }
-        tag.addPostTag(this)
     }
 }

@@ -1,5 +1,6 @@
 package com.chobolevel.api.common.dummy
 
+import com.chobolevel.api.post.dto.CreatePostRequest
 import com.chobolevel.domain.post.entity.Post
 
 object DummyPost {
@@ -13,4 +14,20 @@ object DummyPost {
         subTitle = SUB_TITLE,
         content = CONTENT
     ).also { it.id = ID }
+
+    fun toCreateRequest(): CreatePostRequest = CreatePostRequest(
+        tagIds = listOf(DummyTag.ID),
+        title = TITLE,
+        subTitle = SUB_TITLE,
+        content = CONTENT,
+        thumbnailImage = DummyPostImage.toCreateRequest()
+    )
+
+    fun toCreateRequestWithoutThumbnail(): CreatePostRequest = CreatePostRequest(
+        tagIds = listOf(DummyTag.ID),
+        title = TITLE,
+        subTitle = SUB_TITLE,
+        content = CONTENT,
+        thumbnailImage = null
+    )
 }

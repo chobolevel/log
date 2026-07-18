@@ -3,9 +3,10 @@ package com.chobolevel.api.post.updater
 import com.chobolevel.api.post.dto.UpdatePostRequest
 import com.chobolevel.api.post.image.converter.PostImageConverter
 import com.chobolevel.domain.post.entity.Post
-import com.chobolevel.domain.post.tag.entity.PostTag
+import com.chobolevel.domain.post.image.entity.PostImage
 import com.chobolevel.domain.post.tag.repository.PostTagRepository
 import com.chobolevel.domain.post.vo.PostUpdateMask
+import com.chobolevel.domain.tag.entity.Tag
 import com.chobolevel.domain.tag.repository.TagRepository
 import org.springframework.stereotype.Component
 
@@ -21,23 +22,20 @@ class PostUpdater(
             when (it) {
                 PostUpdateMask.TAGS -> {
                     postTagRepository.deleteAllInBatch(entity.postTags)
-                    request.tagIds!!.forEach { tagId ->
-                        val tag = tagRepository.findById(tagId)
-                        val postTag = PostTag()
-                        postTag.setBy(tag)
-                        postTag.setBy(entity)
-                    }
+                    val tags: List<Tag> = tagRepository.findByIds(request.tagIds!!)
+                    entity.addTags(tags)
                 }
-
                 PostUpdateMask.TITLE -> entity.title = request.title!!
                 PostUpdateMask.SUB_TITLE -> entity.subTitle = request.subTitle!!
                 PostUpdateMask.CONTENT -> entity.content = request.content!!
                 PostUpdateMask.THUMB_NAIL_IMAGE -> {
-                    entity.deleteThumbNailImage()
-                    if (request.thumbNailImage != null) {
-                        postImageConverter.convert(request.thumbNailImage).also { postImage ->
-                            postImage.setBy(entity)
-                        }
+                    // 수정/삭제 구분하도록 변경 필요
+                    entity.getThumbnailImage()?.let { postThumbnailImage ->
+                        entity.removePostImage(postImage = postThumbnailImage)
+                    }
+                    request.thumbnailImage?.let { createPostImageRequest ->
+                        val postThumbnailImage: PostImage = postImageConverter.convert(request = createPostImageRequest)
+                        entity.addPostImage(postThumbnailImage)
                     }
                 }
             }

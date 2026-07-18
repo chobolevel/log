@@ -35,11 +35,6 @@ class PostConverter(
     }
 
     fun convert(entity: Post): PostResponse {
-        val convertedThumbNailImage = if (entity.getThumbNailImage() != null) {
-            postImageConverter.convert(entity.getThumbNailImage()!!)
-        } else {
-            null
-        }
         return PostResponse(
             id = entity.id!!,
             writer = userConverter.convert(entity.user!!),
@@ -47,7 +42,7 @@ class PostConverter(
             title = entity.title,
             subTitle = entity.subTitle,
             content = entity.content,
-            thumbNailImage = convertedThumbNailImage,
+            thumbnailImage = entity.getThumbnailImage()?.let { postImageConverter.convert(it) },
             createdAt = entity.createdAt.toInstant().toEpochMilli(),
             updatedAt = entity.updatedAt.toInstant().toEpochMilli()
         )

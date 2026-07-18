@@ -1,6 +1,7 @@
 package com.chobolevel.api.post.service
 
 import com.chobolevel.api.common.dto.PagingResponse
+import com.chobolevel.api.post.assembler.PostAssembler
 import com.chobolevel.api.post.converter.PostConverter
 import com.chobolevel.api.post.dto.CreatePostRequest
 import com.chobolevel.api.post.dto.PostPagingRequest
@@ -13,8 +14,8 @@ import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.post.entity.Post
+import com.chobolevel.domain.post.image.entity.PostImage
 import com.chobolevel.domain.post.repository.PostRepository
-import com.chobolevel.domain.post.tag.entity.PostTag
 import com.chobolevel.domain.post.vo.PostOrderType
 import com.chobolevel.domain.post.vo.PostQueryFilter
 import com.chobolevel.domain.tag.entity.Tag
@@ -28,38 +29,31 @@ import java.util.concurrent.TimeUnit
 
 @Service
 class PostService(
-    private val repository: PostRepository,
+    private val postRepository: PostRepository,
     private val userRepository: UserRepository,
     private val tagRepository: TagRepository,
-    private val converter: PostConverter,
+    private val postConverter: PostConverter,
     private val postImageConverter: PostImageConverter,
-    private val updaters: List<PostUpdatable>,
+    private val postAssembler: PostAssembler,
+    private val postUpdaters: List<PostUpdatable>,
     private val redisTemplate: RedisTemplate<String, PostResponse>
 ) {
 
     @Transactional
     fun createPost(userId: Long, request: CreatePostRequest): Long {
-        val writer: User = userRepository.findById(userId)
-        val post: Post = converter.convert(request).also { post ->
-            post.setBy(writer)
+        val user: User = userRepository.findById(userId)
+        val post: Post = postConverter.convert(request)
+        val postThumbnailImage: PostImage? = request.thumbnailImage?.let { postImageConverter.convert(it) }
+        val tags: List<Tag> = tagRepository.findByIds(request.tagIds)
 
-            val tags: List<Tag> = tagRepository.findByIds(request.tagIds)
-            // 뭔가 조잡한 느낌
-            tags.forEach { tag ->
-                PostTag().also { postTag ->
-                    postTag.setBy(post)
-                    postTag.setBy(tag)
-                }
-            }
+        val assembledPost: Post = postAssembler.assemble(
+            post = post,
+            postThumbnailImage = postThumbnailImage,
+            user = user,
+            tags = tags
+        )
 
-            if (request.thumbNailImage != null) {
-                postImageConverter.convert(request.thumbNailImage).also {
-                    it.setBy(post)
-                }
-            }
-        }
-        // write caching pattern(write around)
-        return repository.save(post).id!!
+        return postRepository.save(assembledPost).id!!
     }
 
     @Transactional(readOnly = true)
@@ -67,19 +61,19 @@ class PostService(
         filter: SearchPostRequest,
         pageRequest: PostPagingRequest
     ): PagingResponse {
-        val queryFilter: PostQueryFilter = converter.convert(request = filter)
+        val queryFilter: PostQueryFilter = postConverter.convert(request = filter)
         val paging = Paging(page = pageRequest.page, size = pageRequest.size)
         val orderTypes: List<PostOrderType> = pageRequest.orderTypes
-        val posts: List<Post> = repository.searchPosts(
+        val posts: List<Post> = postRepository.searchPosts(
             queryFilter = queryFilter,
             paging = paging,
             orderTypes = orderTypes
         )
-        val totalCount: Long = repository.searchPostsCount(queryFilter)
+        val totalCount: Long = postRepository.searchPostsCount(queryFilter)
         return PagingResponse(
             page = paging.page,
             size = paging.size,
-            data = converter.convert(entities = posts),
+            data = postConverter.convert(entities = posts),
             totalCount = totalCount
         )
     }
@@ -92,8 +86,8 @@ class PostService(
         when (cachedPost) {
             // cache miss
             null -> {
-                val post: Post = repository.findById(postId)
-                val convertedPost: PostResponse = converter.convert(post)
+                val post: Post = postRepository.findById(postId)
+                val convertedPost: PostResponse = postConverter.convert(post)
                 redisTemplate.opsForValue().set(cachingKey, convertedPost, 10, TimeUnit.MINUTES)
                 return convertedPost
             }
@@ -104,19 +98,19 @@ class PostService(
 
     @Transactional
     fun updatePost(userId: Long, postId: Long, request: UpdatePostRequest): Long {
-        val post: Post = repository.findById(postId)
+        val post: Post = postRepository.findById(postId)
         validateWriter(
             userId = userId,
             post = post
         )
-        updaters.sortedBy { it.order() }.forEach { it.markAsUpdate(request, post) }
+        postUpdaters.sortedBy { it.order() }.forEach { it.markAsUpdate(request, post) }
         redisTemplate.delete(generateCachingKey(postId))
         return post.id!!
     }
 
     @Transactional
     fun deletePost(userId: Long, postId: Long): Boolean {
-        val post: Post = repository.findById(postId)
+        val post: Post = postRepository.findById(postId)
         validateWriter(
             userId = userId,
             post = post

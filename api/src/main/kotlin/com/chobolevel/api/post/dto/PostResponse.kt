@@ -14,7 +14,7 @@ data class PostResponse(
     val title: String = "",
     val subTitle: String = "",
     val content: String = "",
-    val thumbNailImage: PostImageResponse? = null,
+    val thumbnailImage: PostImageResponse? = null,
     val createdAt: Long = 0,
     val updatedAt: Long = 0
 )

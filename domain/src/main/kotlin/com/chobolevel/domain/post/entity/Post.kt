@@ -4,6 +4,7 @@ import com.chobolevel.domain.common.entity.Audit
 import com.chobolevel.domain.post.image.entity.PostImage
 import com.chobolevel.domain.post.image.vo.PostImageType
 import com.chobolevel.domain.post.tag.entity.PostTag
+import com.chobolevel.domain.tag.entity.Tag
 import com.chobolevel.domain.user.entity.User
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
@@ -47,38 +48,43 @@ class Post(
 
     @Where(clause = "deleted = false")
     @OneToMany(mappedBy = "post", cascade = [CascadeType.ALL], orphanRemoval = true)
-    var images = mutableSetOf<PostImage>()
+    var postImages = mutableSetOf<PostImage>()
 
-    fun setBy(user: User) {
+    fun assignWriter(user: User) {
         if (this.user != user) {
             this.user = user
         }
     }
 
-    fun addPostTag(postTag: PostTag) {
-        if (!this.postTags.contains(postTag)) {
-            this.postTags.add(postTag)
+    fun addPostImage(postImage: PostImage) {
+        if (!this.postImages.contains(postImage)) {
+            this.postImages.add(postImage)
+            postImage.assignPost(this)
         }
     }
 
-    fun addImage(image: PostImage) {
-        if (!this.images.contains(image)) {
-            this.images.add(image)
+    fun removePostImage(postImage: PostImage) {
+        if (this.postImages.contains(postImage)) {
+            this.postImages.remove(postImage)
         }
     }
 
-    fun getThumbNailImage(): PostImage? {
-        return this.images.find { it.type === PostImageType.THUMB_NAIL }
+    fun getThumbnailImage(): PostImage? {
+        return this.postImages.find { postImage -> postImage.type == PostImageType.THUMBNAIL }
+    }
+
+    fun addTags(tags: List<Tag>) {
+        tags.forEach { tag ->
+            val postTag = PostTag()
+            postTag.assignTag(tag)
+            postTag.assignPost(this)
+            if (!this.postTags.contains(postTag)) {
+                this.postTags.add(postTag)
+            }
+        }
     }
 
     fun delete() {
         this.deleted = true
-    }
-
-    fun deleteThumbNailImage() {
-        this.images.filter { it.type === PostImageType.THUMB_NAIL }.forEach {
-            it.delete()
-            this.images.remove(it)
-        }
     }
 }
