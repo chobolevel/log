@@ -3,7 +3,9 @@ package com.chobolevel.api.common.dummy
 import com.chobolevel.api.post.dto.CreatePostRequest
 import com.chobolevel.api.post.dto.PostResponse
 import com.chobolevel.api.post.dto.SearchPostRequest
+import com.chobolevel.api.post.dto.UpdatePostRequest
 import com.chobolevel.domain.post.entity.Post
+import com.chobolevel.domain.post.vo.PostUpdateMask
 
 object DummyPost {
     val ID: Long = 1L
@@ -45,5 +47,14 @@ object DummyPost {
         title = TITLE,
         subTitle = SUB_TITLE,
         content = CONTENT
+    )
+
+    fun toUpdateRequest(): UpdatePostRequest = UpdatePostRequest(
+        tagIds = null,
+        title = "updatedTitle",
+        subTitle = null,
+        content = null,
+        thumbnailImage = null,
+        updateMask = listOf(PostUpdateMask.TITLE)
     )
 }

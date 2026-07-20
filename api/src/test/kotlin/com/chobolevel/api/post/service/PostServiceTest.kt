@@ -11,9 +11,12 @@ import com.chobolevel.api.post.dto.CreatePostRequest
 import com.chobolevel.api.post.dto.PostPagingRequest
 import com.chobolevel.api.post.dto.PostResponse
 import com.chobolevel.api.post.dto.SearchPostRequest
+import com.chobolevel.api.post.dto.UpdatePostRequest
 import com.chobolevel.api.post.image.converter.PostImageConverter
 import com.chobolevel.api.post.image.dto.CreatePostImageRequest
 import com.chobolevel.api.post.updater.PostUpdater
+import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.post.entity.Post
 import com.chobolevel.domain.post.image.entity.PostImage
 import com.chobolevel.domain.post.repository.PostRepository
@@ -22,15 +25,18 @@ import com.chobolevel.domain.tag.entity.Tag
 import com.chobolevel.domain.tag.repository.TagRepository
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.CapturingSlot
 import io.mockk.clearAllMocks
 import io.mockk.every
+import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.data.redis.core.ValueOperations
 
 class PostServiceTest : BehaviorSpec({
 
@@ -186,6 +192,137 @@ class PostServiceTest : BehaviorSpec({
                 result.data shouldBe emptyList<PostResponse>()
                 verify { postRepository.searchPosts(queryFilter = queryFilter, paging = any(), orderTypes = any()) }
                 verify { postRepository.searchPostsCount(queryFilter) }
+            }
+        }
+    }
+
+    given("게시글 단건 조회할 때") {
+        `when`("캐시가 없으면") {
+            then("DB에서 조회 후 캐시에 저장하고 응답을 반환한다") {
+                // given
+                val postId: Long = DummyPost.ID
+                val cachingKey: String = "post:$postId"
+                val post: Post = DummyPost.toEntity().also { it.assignWriter(DummyUser.toEntity()) }
+                val postResponse: PostResponse = DummyPost.toResponse()
+                val valueOperations: ValueOperations<String, PostResponse> = mockk()
+
+                every { redisTemplate.opsForValue() } returns valueOperations
+                every { valueOperations.get(cachingKey) } returns null
+                every { postRepository.findById(postId) } returns post
+                every { postConverter.convert(entity = post) } returns postResponse
+                justRun { valueOperations.set(any(), any(), any(), any()) }
+
+                // when
+                val result: PostResponse = postService.fetchPost(postId)
+
+                // then
+                result shouldBe postResponse
+                verify { postRepository.findById(postId) }
+                verify { valueOperations.set(cachingKey, postResponse, any(), any()) }
+            }
+        }
+
+        `when`("캐시가 있으면") {
+            then("DB 조회 없이 캐시에서 응답을 반환한다") {
+                // given
+                val postId: Long = DummyPost.ID
+                val cachingKey: String = "post:$postId"
+                val cachedPostResponse: PostResponse = DummyPost.toResponse()
+                val valueOperations: ValueOperations<String, PostResponse> = mockk()
+
+                every { redisTemplate.opsForValue() } returns valueOperations
+                every { valueOperations.get(cachingKey) } returns cachedPostResponse
+
+                // when
+                val result: PostResponse = postService.fetchPost(postId)
+
+                // then
+                result shouldBe cachedPostResponse
+                verify(exactly = 0) { postRepository.findById(any()) }
+            }
+        }
+    }
+
+    given("게시글 수정할 때") {
+        `when`("작성자가 수정 요청하면") {
+            then("수정된 게시글의 id를 반환한다") {
+                // given
+                val userId: Long = DummyUser.ID
+                val postId: Long = DummyPost.ID
+                val request: UpdatePostRequest = DummyPost.toUpdateRequest()
+                val post: Post = DummyPost.toEntity().also { it.assignWriter(DummyUser.toEntity()) }
+
+                every { postRepository.findById(postId) } returns post
+                every { postUpdater.order() } returns 0
+                every { postUpdater.markAsUpdate(request, post) } returns post
+                every { redisTemplate.delete(any<String>()) } returns true
+
+                // when
+                val result: Long = postService.updatePost(userId = userId, postId = postId, request = request)
+
+                // then
+                result shouldBe DummyPost.ID
+                verify { postUpdater.markAsUpdate(request, post) }
+                verify { redisTemplate.delete("post:$postId") }
+            }
+        }
+
+        `when`("작성자가 아닌 사람이 수정 요청하면") {
+            then("POST_ONLY_ACCESS_WRITER 예외가 발생한다") {
+                // given
+                val otherUserId: Long = DummyUser.ID + 1
+                val postId: Long = DummyPost.ID
+                val request: UpdatePostRequest = DummyPost.toUpdateRequest()
+                val post: Post = DummyPost.toEntity().also { it.assignWriter(DummyUser.toEntity()) }
+
+                every { postRepository.findById(postId) } returns post
+
+                // when / then
+                val exception: ApiException = shouldThrow<ApiException> {
+                    postService.updatePost(userId = otherUserId, postId = postId, request = request)
+                }
+                exception.errorCode shouldBe ErrorCode.POST_ONLY_ACCESS_WRITER
+                verify(exactly = 0) { postUpdater.markAsUpdate(any(), any()) }
+            }
+        }
+    }
+
+    given("게시글 삭제할 때") {
+        `when`("작성자가 삭제 요청하면") {
+            then("true를 반환하고 게시글이 삭제 처리된다") {
+                // given
+                val userId: Long = DummyUser.ID
+                val postId: Long = DummyPost.ID
+                val post: Post = DummyPost.toEntity().also { it.assignWriter(DummyUser.toEntity()) }
+
+                every { postRepository.findById(postId) } returns post
+                every { redisTemplate.delete(any<String>()) } returns true
+
+                // when
+                val result: Boolean = postService.deletePost(userId = userId, postId = postId)
+
+                // then
+                result shouldBe true
+                post.deleted shouldBe true
+                verify { redisTemplate.delete("post:$postId") }
+            }
+        }
+
+        `when`("작성자가 아닌 사람이 삭제 요청하면") {
+            then("POST_ONLY_ACCESS_WRITER 예외가 발생한다") {
+                // given
+                val otherUserId: Long = DummyUser.ID + 1
+                val postId: Long = DummyPost.ID
+                val post: Post = DummyPost.toEntity().also { it.assignWriter(DummyUser.toEntity()) }
+
+                every { postRepository.findById(postId) } returns post
+
+                // when / then
+                val exception: ApiException = shouldThrow<ApiException> {
+                    postService.deletePost(userId = otherUserId, postId = postId)
+                }
+                exception.errorCode shouldBe ErrorCode.POST_ONLY_ACCESS_WRITER
+                post.deleted shouldBe false
             }
         }
     }
