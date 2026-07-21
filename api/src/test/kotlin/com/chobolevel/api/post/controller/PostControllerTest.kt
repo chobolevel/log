@@ -63,7 +63,7 @@ class PostControllerTest {
         @Bean
         fun filterChain(http: HttpSecurity): SecurityFilterChain =
             http
-                .csrf { it.disable() }           // 비활성화하지 않으면 POST 요청이 CSRF 토큰 없이 403
+                .csrf { it.disable() } // 비활성화하지 않으면 POST 요청이 CSRF 토큰 없이 403
                 .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
                 .authorizeHttpRequests { it.anyRequest().permitAll() } // URL 레벨은 전부 허용, 인가는 @PreAuthorize가 담당
                 .build()
