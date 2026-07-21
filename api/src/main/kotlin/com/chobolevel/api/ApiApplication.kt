@@ -1,18 +1,15 @@
 package com.chobolevel.api
 
-import com.chobolevel.domain.DomainConfigurationLoader
 import com.ulisesbocchio.jasyptspringboot.environment.StandardEncryptableEnvironment
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.builder.SpringApplicationBuilder
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
-import org.springframework.context.annotation.Import
 import org.springframework.scheduling.annotation.EnableAsync
 import org.springframework.scheduling.annotation.EnableScheduling
 
 @EnableAsync
 @EnableScheduling
 @SpringBootApplication
-@Import(DomainConfigurationLoader::class)
 @ConfigurationPropertiesScan("com.chobolevel.api.common.properties")
 class ApiApplication
 
