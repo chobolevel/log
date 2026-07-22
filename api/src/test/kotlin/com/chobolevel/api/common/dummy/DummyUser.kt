@@ -1,5 +1,6 @@
 package com.chobolevel.api.common.dummy
 
+import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.UserResponse
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.vo.UserLoginType
@@ -19,6 +20,14 @@ object DummyUser {
         nickname = NICKNAME,
         role = UserRoleType.ROLE_USER
     ).also { it.id = ID }
+
+    fun toCreateRequest(): CreateUserRequest = CreateUserRequest(
+        email = EMAIL,
+        password = PASSWORD,
+        socialId = null,
+        loginType = UserLoginType.GENERAL,
+        nickname = NICKNAME,
+    )
 
     fun toResponseDto(): UserResponse = UserResponse(
         id = ID,
