@@ -1,5 +1,6 @@
 package com.chobolevel.api.post.controller
 
+import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dummy.DummyPost
 import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.post.service.PostService
@@ -124,7 +125,7 @@ class PostControllerTest {
     fun `인증 없이 게시글 목록을 조회할 수 있다`() {
         // given
         every { postService.searchPosts(filter = any(), pageRequest = any()) } returns
-            com.chobolevel.api.common.dto.PagingResponse(
+            PagingResponse(
                 page = 1L,
                 size = 20L,
                 data = listOf(DummyPost.toResponse()),
