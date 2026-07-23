@@ -89,7 +89,7 @@ class UserServiceTest : BehaviorSpec({
                 )
                 val queryFilter: UserQueryFilter = mockk()
                 val users: List<User> = listOf(DummyUser.toEntity())
-                val userResponses: List<UserResponse> = listOf(DummyUser.toResponseDto())
+                val userResponses: List<UserResponse> = listOf(DummyUser.toResponse())
                 val totalCount: Long = 1L
                 every { converter.convert(request = filter) } returns queryFilter
                 every { repository.searchUsers(queryFilter = queryFilter, paging = any(), orderTypes = any()) } returns users
@@ -113,7 +113,7 @@ class UserServiceTest : BehaviorSpec({
             then("UserResponse를 반환한다") {
                 // given
                 val user: User = DummyUser.toEntity()
-                val userResponse: UserResponse = DummyUser.toResponseDto()
+                val userResponse: UserResponse = DummyUser.toResponse()
                 every { repository.findById(DummyUser.ID) } returns user
                 every { converter.convert(entity = user) } returns userResponse
 
