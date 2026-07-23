@@ -1,5 +1,6 @@
 package com.chobolevel.api.common.dummy
 
+import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.UserResponse
 import com.chobolevel.domain.user.entity.User
@@ -29,7 +30,12 @@ object DummyUser {
         nickname = NICKNAME,
     )
 
-    fun toResponseDto(): UserResponse = UserResponse(
+    fun toChangePasswordRequest(): ChangeUserPasswordRequest = ChangeUserPasswordRequest(
+        curPassword = PASSWORD,
+        newPassword = "newPassword"
+    )
+
+    fun toResponse(): UserResponse = UserResponse(
         id = ID,
         email = EMAIL,
         loginType = UserLoginType.GENERAL,
