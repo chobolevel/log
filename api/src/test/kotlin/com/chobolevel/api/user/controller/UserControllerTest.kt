@@ -4,6 +4,7 @@ import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
+import com.chobolevel.api.user.dto.UpdateUserRequest
 import com.chobolevel.api.user.service.UserService
 import com.chobolevel.api.user.validator.UserParameterValidator
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -147,6 +148,39 @@ class UserControllerTest {
 
     @Test
     @WithMockUser(username = "${DummyUser.ID}")
+    fun `인증된 사용자가 본인 회원 정보를 수정할 수 있다`() {
+        // given
+        justRun { userParameterValidator.validate(request = any<UpdateUserRequest>()) }
+        every {
+            userService.updateUser(
+                id = DummyUser.ID,
+                request = DummyUser.toUpdateRequest()
+            )
+        } returns DummyUser.ID
+
+        // when & then
+        mockMvc.perform(
+            put("/api/v1/users/me")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(DummyUser.toUpdateRequest()))
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.data").value(DummyUser.ID))
+    }
+
+    @Test
+    fun `미인증 사용자가 본인 회원 정보 수정 시도하면 401을 반환한다`() {
+        // given & when & then
+        mockMvc.perform(
+            put("/api/v1/users/me")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(DummyUser.toUpdateRequest()))
+        )
+            .andExpect(status().isUnauthorized)
+    }
+
+    @Test
+    @WithMockUser(username = "${DummyUser.ID}")
     fun `인증된 사용자가 본인 회원 비밀번호를 변경할 수 있다`() {
         // given
         justRun { userParameterValidator.validate(request = any<ChangeUserPasswordRequest>()) }
@@ -192,5 +226,14 @@ class UserControllerTest {
         mockMvc.perform(delete("/api/v1/users/me"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.data").value(true))
+    }
+
+    @Test
+    fun `미인증 사용자가 본인 회원 탈퇴 시도하면 401을 반환한다`() {
+        // given & when & then
+        mockMvc.perform(
+            delete("/api/v1/users/me")
+        )
+            .andExpect(status().isUnauthorized)
     }
 }

@@ -2,10 +2,12 @@ package com.chobolevel.api.common.dummy
 
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
+import com.chobolevel.api.user.dto.UpdateUserRequest
 import com.chobolevel.api.user.dto.UserResponse
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.vo.UserLoginType
 import com.chobolevel.domain.user.vo.UserRoleType
+import com.chobolevel.domain.user.vo.UserUpdateMask
 
 object DummyUser {
     const val ID: Long = 1L
@@ -28,6 +30,11 @@ object DummyUser {
         socialId = null,
         loginType = UserLoginType.GENERAL,
         nickname = NICKNAME,
+    )
+
+    fun toUpdateRequest(): UpdateUserRequest = UpdateUserRequest(
+        nickname = "newNickname",
+        updateMask = listOf(UserUpdateMask.NICKNAME)
     )
 
     fun toChangePasswordRequest(): ChangeUserPasswordRequest = ChangeUserPasswordRequest(
