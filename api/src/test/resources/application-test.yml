@@ -1,2 +1,15 @@
+server:
+  reactive:
+    session:
+      cookie:
+        path: "/"
+        max-age: 31536000
+        domain: localhost
+        secure: false
+        http-only: true
+        same-site: none
+        access-token-key: _cat
+        refresh-token-key: _crt
+
 logging:
   config: classpath:logback-test-spring.xml
