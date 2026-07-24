@@ -5,10 +5,10 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class TagResponse(
-    val id: Long = 0,
-    val name: String = "",
-    val order: Int = 0,
-    val postsCount: Int = 0,
-    val createdAt: Long = 0,
-    val updatedAt: Long = 0
+    val id: Long,
+    val name: String,
+    val order: Int,
+    val postsCount: Int,
+    val createdAt: Long,
+    val updatedAt: Long
 )

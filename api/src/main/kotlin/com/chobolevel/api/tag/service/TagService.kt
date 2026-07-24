@@ -17,50 +17,50 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class TagService(
-    private val repository: TagRepository,
-    private val converter: TagConverter,
-    private val updaters: List<TagUpdatable>
+    private val tagRepository: TagRepository,
+    private val tagConverter: TagConverter,
+    private val tagUpdaters: List<TagUpdatable>
 ) {
 
     @Transactional
-    fun createPostTag(request: CreateTagRequest): Long {
-        val postTag: Tag = converter.convert(request)
-        return repository.save(postTag).id!!
+    fun createTag(request: CreateTagRequest): Long {
+        val tag: Tag = tagConverter.convert(request)
+        return tagRepository.save(tag).id!!
     }
 
     @Transactional(readOnly = true)
-    fun searchPostTags(
+    fun searchTags(
         filter: SearchTagRequest,
         pageRequest: TagPagingRequest
     ): PagingResponse {
-        val queryFilter: TagQueryFilter = converter.convert(request = filter)
+        val queryFilter: TagQueryFilter = tagConverter.convert(request = filter)
         val paging = Paging(page = pageRequest.page, size = pageRequest.size)
         val orderTypes: List<TagOrderType> = pageRequest.orderTypes
-        val postTags: List<Tag> = repository.searchTags(
+        val tags: List<Tag> = tagRepository.searchTags(
             queryFilter = queryFilter,
             paging = paging,
             orderTypes = orderTypes
         )
-        val totalCount: Long = repository.searchTagsCount(queryFilter)
+        val totalCount: Long = tagRepository.searchTagsCount(queryFilter)
         return PagingResponse(
             page = paging.page,
             size = paging.size,
-            data = converter.convert(entities = postTags),
+            data = tagConverter.convert(entities = tags),
             totalCount = totalCount
         )
     }
 
     @Transactional
-    fun updatePostTag(postTagId: Long, request: UpdateTagRequest): Long {
-        val postTag: Tag = repository.findById(postTagId)
-        updaters.sortedBy { it.order() }.forEach { it.markAsUpdate(request, postTag) }
-        return postTag.id!!
+    fun updateTag(tagId: Long, request: UpdateTagRequest): Long {
+        val tag: Tag = tagRepository.findById(id = tagId)
+        tagUpdaters.sortedBy { it.order() }.forEach { it.markAsUpdate(request, tag) }
+        return tag.id!!
     }
 
     @Transactional
-    fun deletePostTag(postTagId: Long): Boolean {
-        val postTag: Tag = repository.findById(postTagId)
-        repository.delete(postTag)
+    fun deleteTag(tagId: Long): Boolean {
+        val tag: Tag = tagRepository.findById(tagId)
+        tag.delete()
         return true
     }
 }

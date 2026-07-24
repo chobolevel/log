@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController
 @Tag(name = "Tag (게시글 태그)", description = "게시글 태그 관리 API")
 @RestController
 @RequestMapping("/api/v1")
-class PostTagController(
+class TagController(
     private val validator: TagParameterValidator,
     private val service: TagService
 ) {
@@ -34,21 +34,21 @@ class PostTagController(
     @Operation(summary = "게시글 태그 등록 API")
     @HasAuthorityAdmin
     @PostMapping("/tags")
-    fun createPostTag(
+    fun createTag(
         @Valid @RequestBody
         request: CreateTagRequest
     ): ResponseEntity<ResultResponse> {
-        val result: Long = service.createPostTag(request)
+        val result: Long = service.createTag(request)
         return ResponseEntity.ok(ResultResponse(result))
     }
 
     @Operation(summary = "게시글 태그 목록 조회 API")
     @GetMapping("/tags")
-    fun searchPostTags(
+    fun searchTags(
         @QueryObject filter: SearchTagRequest,
         @QueryObject pageRequest: TagPagingRequest
     ): ResponseEntity<ResultResponse> {
-        val result: PagingResponse = service.searchPostTags(
+        val result: PagingResponse = service.searchTags(
             filter = filter,
             pageRequest = pageRequest
         )
@@ -58,14 +58,14 @@ class PostTagController(
     @Operation(summary = "게시글 태그 정보 수정 API")
     @HasAuthorityAdmin
     @PutMapping("/tags/{id}")
-    fun updatePostTag(
+    fun updateTag(
         @PathVariable id: Long,
         @Valid @RequestBody
         request: UpdateTagRequest
     ): ResponseEntity<ResultResponse> {
         validator.validate(request = request)
-        val result: Long = service.updatePostTag(
-            postTagId = id,
+        val result: Long = service.updateTag(
+            tagId = id,
             request = request
         )
         return ResponseEntity.ok(ResultResponse(result))
@@ -74,9 +74,9 @@ class PostTagController(
     @Operation(summary = "게시글 태그 삭제 API")
     @HasAuthorityAdmin
     @DeleteMapping("/tags/{id}")
-    fun deletePostTag(@PathVariable id: Long): ResponseEntity<ResultResponse> {
-        val result: Boolean = service.deletePostTag(
-            postTagId = id
+    fun deleteTag(@PathVariable id: Long): ResponseEntity<ResultResponse> {
+        val result: Boolean = service.deleteTag(
+            tagId = id
         )
         return ResponseEntity.ok(ResultResponse(result))
     }

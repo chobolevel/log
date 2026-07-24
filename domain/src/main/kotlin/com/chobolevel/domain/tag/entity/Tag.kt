@@ -10,13 +10,11 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
-import org.hibernate.annotations.SQLDelete
 import org.hibernate.envers.Audited
 
 @Entity
 @Table(name = "tags")
 @Audited
-@SQLDelete(sql = "UPDATE tags SET deleted = true WHERE id = ?")
 class Tag(
     @Column(nullable = false)
     var name: String,
@@ -38,5 +36,9 @@ class Tag(
         if (!this.postTags.contains(postTag)) {
             this.postTags.add(postTag)
         }
+    }
+
+    fun delete() {
+        this.deleted = true
     }
 }
