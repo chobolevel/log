@@ -71,6 +71,10 @@ dependencies {
     // test: @DataJpaTest용 인메모리 DB
     testRuntimeOnly("com.h2database:h2")
 
+    // test: @DataJpaTest에서 QueryDSL Q타입 직접 사용 시 필요
+    // domain 모듈의 querydsl-jpa는 implementation이라 테스트 classpath에 전파되지 않는다.
+    testImplementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
+
     // test: Spring Security MockMvc 지원 (@WithMockUser 등)
     testImplementation("org.springframework.security:spring-security-test")
 

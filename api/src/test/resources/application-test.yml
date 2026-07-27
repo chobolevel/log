@@ -13,3 +13,23 @@ server:
 
 logging:
   config: classpath:logback-test-spring.xml
+
+spring:
+  test:
+    database:
+      # @DataJpaTest 기본값인 replace=ANY는 spring.datasource.url을 무시하고 자체 H2 URL을 생성한다.
+      # replace=none으로 비활성화해 아래 datasource.url이 실제로 적용되게 한다.
+      replace: none
+  datasource:
+    # CASE_INSENSITIVE_IDENTIFIERS=TRUE: H2에서 quoted("deleted")와 unquoted(deleted) 식별자를
+    # 대소문자 무감각하게 동일시한다.
+    # @Where(clause = "deleted = false")의 unquoted 'deleted'가 Hibernate가 생성한
+    # quoted "deleted" 칼럼과 매칭되도록 하기 위해 필요하다.
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;CASE_INSENSITIVE_IDENTIFIERS=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop

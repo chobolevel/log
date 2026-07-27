@@ -206,7 +206,7 @@ Claude가 이 프로젝트에서 예시 코드를 작성할 때는 반드시 위
 ## 진행 체크리스트
 
 - [x] 1단계: 단위 테스트 기본기 (완료)
-- [ ] 2단계: Spring 슬라이스 테스트
+- [x] 2단계: Spring 슬라이스 테스트 (완료)
 - [ ] 3단계: Testcontainers 기반 통합 테스트
 - [ ] 4단계: 테스트 전략 & 커버리지 & CI
 - [ ] 5단계: 계약 테스트 / E2E
@@ -297,6 +297,69 @@ Claude가 이 프로젝트에서 예시 코드를 작성할 때는 반드시 위
 **실습 방식**: 1단계에서 테스트한 서비스를 사용하는 컨트롤러와 리포지토리에 대해 각각 슬라이스 테스트 작성.
 
 **완료 기준**: 어떤 테스트 상황에 어떤 슬라이스 어노테이션을 써야 하는지 스스로 판단할 수 있다.
+
+### 2단계 진행 현황
+
+**`@WebMvcTest` 컨트롤러 슬라이스 테스트**
+- `api/.../user/controller/UserControllerTest.kt`
+- `api/.../auth/controller/AuthControllerTest.kt`
+- `api/.../tag/controller/TagControllerTest.kt`
+- `api/.../post/controller/PostControllerTest.kt`
+- `api/.../post/comment/controller/PostCommentControllerTest.kt`
+- `api/.../channel/controller/ChannelControllerTest.kt`
+- `api/.../channel/message/controller/ChannelMessageControllerTest.kt`
+- `api/.../guest/controller/GuestBookControllerTest.kt`
+
+**`@DataJpaTest` 리포지토리 슬라이스 테스트**
+- `api/.../user/repository/UserJpaRepositoryTest.kt`
+- `api/.../user/image/repository/UserImageJpaRepositoryTest.kt`
+- `api/.../post/repository/PostJpaRepositoryTest.kt`
+- `api/.../post/comment/repository/PostCommentJpaRepositoryTest.kt`
+- `api/.../post/tag/repository/PostTagJpaRepositoryTest.kt`
+- `api/.../tag/repository/TagJpaRepositoryTest.kt`
+- `api/.../channel/repository/ChannelJpaRepositoryTest.kt`
+- `api/.../channel/message/repository/ChannelMessageJpaRepositoryTest.kt`
+- `api/.../guest/repository/GuestBookJpaRepositoryTest.kt`
+
+**공유 테스트 인프라**
+- `api/.../common/config/DomainJpaTestConfig.kt` — `@EnableJpaRepositories` + `@EntityScan`만 담은 `@TestConfiguration`; 멀티 모듈 `@DataJpaTest`에서 공유
+- `api/build.gradle.kts` — `testImplementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")` 추가
+- `api/src/test/resources/application-test.yml` — `@DataJpaTest`용 설정 오버라이드
+
+**추가된 설정 (`application-test.yml` 최종 상태)**
+```yaml
+spring:
+  test:
+    database:
+      replace: none        # @DataJpaTest의 자동 datasource 교체 비활성화
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;CASE_INSENSITIVE_IDENTIFIERS=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+```
+
+**이번 세션에서 배운 것**
+
+10. **`@WebMvcTest` + `TestSecurityConfig` 패턴**: `@WebMvcTest`는 `@EnableWebSecurity`를 로드하지 않아 기본 Spring Security 설정(CSRF, 모든 요청 인증 필요)이 적용된다. 프로덕션과 동일한 조건으로 테스트하려면 `@TestConfiguration`으로 FilterChain을 직접 정의해야 한다.
+
+11. **`@WithMockUser`**: JWT 필터 없이 특정 유저로 인증된 요청을 시뮬레이션한다. `username = "1"` → `principal.name = "1"` → `getUserId() = 1L`.
+
+12. **`@DataJpaTest`의 멀티 모듈 함정**: `@DataJpaTest`는 `@SpringBootApplication`의 base package(`com.chobolevel.api`)만 스캔한다. domain 리포지토리(`com.chobolevel.domain`)를 찾으려면 `@TestConfiguration`에 `@EnableJpaRepositories`와 `@EntityScan`을 명시적으로 지정해야 한다. `DomainConfigurationLoader`를 직접 import하면 `@ComponentScan`이 `EmailUtils` 등 비JPA 빈도 로드해 `JavaMailSender` 의존성 에러가 발생한다.
+
+13. **H2 + `@Where` 충돌 해결**: `globally_quoted_identifiers: true`로 Hibernate가 SELECT에서 `"deleted"`처럼 쌍따옴표로 인용하지만, `@Where(clause = "deleted = false")`는 unquoted raw SQL이라 H2가 `DELETED` != `"deleted"`로 처리해 "Column not found" 에러가 발생한다. H2 URL에 `CASE_INSENSITIVE_IDENTIFIERS=TRUE`를 추가하면 두 형태가 대소문자 무감각하게 동일시된다. 단, `@DataJpaTest`의 `replace=ANY`가 URL을 무시하므로, `spring.test.database.replace: none` + 명시적 H2 datasource 설정이 함께 필요하다.
+
+14. **`TestEntityManager` 활용**: `@DataJpaTest`에서 테스트 데이터 셋업은 `TestEntityManager.persistAndFlush()`로 한다. `entityManager.clear()` 후 조회하면 1차 캐시를 우회해 실제 DB에서 읽히는지 검증할 수 있다.
+
+15. **cascade + `deleteByPostId` 함정**: `post.addTags()`로 PostTag를 cascade 삽입한 후 `deleteByPostId()`를 호출하면, `entityManager.flush()` 시점에 `post.postTags` 컬렉션이 cascade로 PostTag를 재삽입한다. 해결: cascade 우회(`entityManager.persistAndFlush(PostTag())` 직접 사용) + `entityManager.clear()` 없이 `count()` 호출(FlushMode.AUTO가 쿼리 전 자동 flush).
+
+16. **`entityManager.clear()` 주의**: `clear()`는 REMOVED 상태의 엔티티도 함께 날린다. 삭제 후 `clear()`를 먼저 호출하면 DELETE SQL이 실행되지 않는다. 검증 쿼리(`count()`, `findAll()`)가 FlushMode.AUTO로 flush를 트리거하도록 두는 것이 안전하다.
+
+**2단계 완료 — 다음은 3단계 진입**
 
 ---
 
