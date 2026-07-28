@@ -207,7 +207,7 @@ Claude가 이 프로젝트에서 예시 코드를 작성할 때는 반드시 위
 
 - [x] 1단계: 단위 테스트 기본기 (완료)
 - [x] 2단계: Spring 슬라이스 테스트 (완료)
-- [ ] 3단계: Testcontainers 기반 통합 테스트
+- [x] 3단계: Testcontainers 기반 통합 테스트 (완료)
 - [ ] 4단계: 테스트 전략 & 커버리지 & CI
 - [ ] 5단계: 계약 테스트 / E2E
 
@@ -376,6 +376,30 @@ spring:
 **실습 방식**: 2단계 `@DataJpaTest`를 Testcontainers 기반으로 전환.
 
 **완료 기준**: 로컬 DB 방언 차이로 인한 버그를 통합 테스트에서 잡아낸 경험을 만든다.
+
+### 3단계 진행 현황
+
+**작성 완료된 파일**
+- `api/.../common/container/AbstractMySQLContainerTest.kt` — Singleton Container 패턴 기반 클래스
+- `api/.../tag/repository/TagJpaRepositoryContainerTest.kt` — MySQL 8.0 컨테이너로 실행하는 리포지토리 슬라이스 테스트 (3개 케이스)
+
+**이번 세션에서 배운 것**
+
+17. **Singleton Container 패턴**: `companion object` + `@JvmField`로 JVM 당 하나의 컨테이너만 기동한다. 인스턴스 필드에 `@Container`를 달면 클래스마다 재기동되어 전체 테스트 시간이 클래스 수 × 기동 시간만큼 늘어난다.
+
+18. **`@DynamicPropertySource`**: Testcontainers의 포트는 실행 시점에 결정된다. `@DynamicPropertySource`는 Spring 컨텍스트 생성 직전에 람다로 프로퍼티를 주입할 수 있어, `application-test.yml`보다 높은 우선순위로 MySQL URL과 dialect를 덮어쓴다.
+
+19. **H2 vs MySQL 동작 차이 — 실제로 발견된 것**
+
+    | 항목 | H2 | MySQL |
+    |------|-----|-------|
+    | `@Where(clause = "deleted = false")` | `CASE_INSENSITIVE_IDENTIFIERS=TRUE` 필요 | 문제 없음 |
+    | `order` 예약어 칼럼 | H2는 대부분 허용 | 백틱 쿼팅 필수 |
+    | `LIKE` 대소문자 | 기본 감각(case-sensitive) | 기본 무감각(utf8mb4_0900_ai_ci) |
+
+    `TagJpaRepositoryContainerTest`의 LIKE 대소문자 테스트는 H2에서 실행하면 실패한다. H2 통과 ≠ MySQL 통과임을 직접 확인한 사례다.
+
+**3단계 완료 — 다음은 4단계 진입**
 
 ---
 
