@@ -280,6 +280,25 @@ Claude가 이 프로젝트에서 예시 코드를 작성할 때는 반드시 위
 
 9. **@Async 메서드의 단위 테스트**: `@Async`는 Spring 컨텍스트 없이 단위 테스트할 때 동기로 실행된다. 동작 자체(Redis 저장, 이메일 발송)는 `verify`로 검증 가능하지만, 실제 비동기 동작은 2단계 슬라이스 테스트에서 별도로 확인해야 한다.
 
+**작성 완료된 테스트 파일 (4단계 사전 보완)**
+
+- `api/.../user/validator/UserParameterValidatorTest.kt` — 이메일/닉네임/비밀번호 형식 검증 (10개 케이스)
+- `api/.../user/validator/UserPasswordOrSocialIdValidatorTest.kt` — GENERAL/소셜 로그인 타입별 필수값 검증 (5개 케이스)
+- `api/.../user/updater/UserUpdaterTest.kt` — updateMask별 필드 업데이트 (2개 케이스)
+- `api/.../user/image/service/UserImageServiceTest.kt` — 프로필 이미지 등록/삭제 (3개 케이스)
+- `api/.../auth/validator/AuthParameterValidatorTest.kt` — 로그인/이메일 인증 파라미터 검증 (8개 케이스)
+- `api/.../tag/validator/TagParameterValidatorTest.kt` — NAME/ORDER updateMask 파라미터 검증 (6개 케이스)
+- `api/.../tag/updater/TagUpdaterTest.kt` — updateMask별 필드 업데이트 (3개 케이스)
+- `api/.../post/validator/PostParameterValidatorTest.kt` — TAGS/TITLE/SUB_TITLE/CONTENT updateMask 검증 (8개 케이스)
+- `api/.../post/updater/PostUpdaterTest.kt` — updateMask별 필드 업데이트 (5개 케이스, PostTagRepository/TagRepository/PostImageConverter mock)
+- `api/.../post/comment/validator/PostCommentParameterValidatorTest.kt` — CONTENT updateMask 검증 (3개 케이스)
+- `api/.../post/comment/updater/PostCommentUpdaterTest.kt` — updateMask별 필드 업데이트 (2개 케이스)
+- `api/.../channel/validator/ChannelParameterValidatorTest.kt` — NAME/USERS updateMask 검증 (5개 케이스)
+- `api/.../channel/updater/ChannelUpdaterTest.kt` — NAME 업데이트, USERS 교체 시 기존 ChannelUser 삭제 처리 (2개 케이스)
+- `api/.../guest/validator/GuestBookParameterValidatorTest.kt` — CONTENT updateMask 검증 (3개 케이스)
+- `api/.../guest/updater/GuestBookUpdaterTest.kt` — updateMask별 필드 업데이트 (2개 케이스)
+- `api/.../upload/validator/UploadValidatorTest.kt` — 허용 prefix/extension 검증 (5개 케이스)
+
 **1단계 완료 — 다음은 2단계 진입**
 
 ---
