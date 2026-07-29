@@ -130,7 +130,10 @@ class PostJpaRepositoryContainerTest : AbstractMySQLContainerTest() {
         entityManager.clear()
 
         val queryFilter: PostQueryFilter = PostQueryFilter(
-            tagId = null, title = null, subTitle = null, userId = null
+            tagId = null,
+            title = null,
+            subTitle = null,
+            userId = null
         )
 
         // when

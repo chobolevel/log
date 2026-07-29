@@ -108,7 +108,7 @@ class ChannelMessageServiceTest : BehaviorSpec({
 
         `when`("작성자가 아닌 사용자가 삭제 요청을 하면") {
             then("ApiException이 발생한다") {
-                val worker: User = DummyUser.toEntity()  // id=1L
+                val worker: User = DummyUser.toEntity() // id=1L
                 val anotherUser: User = mockk()
                 every { anotherUser.id } returns 2L
                 val channelMessage: ChannelMessage = DummyChannelMessage.toEntity().also { it.writer = anotherUser }

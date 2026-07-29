@@ -138,7 +138,7 @@ class ChannelServiceTest : BehaviorSpec({
 
         `when`("채널 오너가 아닌 사용자가 수정 요청을 하면") {
             then("ApiException이 발생한다") {
-                val owner: User = DummyUser.toEntity()  // id=1L
+                val owner: User = DummyUser.toEntity() // id=1L
                 val worker: User = mockk()
                 every { worker.id } returns 2L
                 val channel: Channel = Channel(name = DummyChannel.NAME).also {
@@ -256,7 +256,7 @@ class ChannelServiceTest : BehaviorSpec({
 
         `when`("채널 오너가 아닌 사용자가 삭제 요청을 하면") {
             then("ApiException이 발생한다") {
-                val owner: User = DummyUser.toEntity()  // id=1L
+                val owner: User = DummyUser.toEntity() // id=1L
                 val worker: User = mockk()
                 every { worker.id } returns 2L
                 val channel: Channel = Channel(name = DummyChannel.NAME).also {
