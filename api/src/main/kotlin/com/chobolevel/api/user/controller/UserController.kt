@@ -17,7 +17,6 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -68,15 +67,15 @@ class UserController(
 
     @Operation(summary = "회원 본인 정보 조회 API")
     @HasAuthorityUser
-    @GetMapping("/users/me")
+    @GetMapping("/user/me")
     fun myUser(principal: Principal): ResponseEntity<ResultResponse> {
         val result: UserResponse = service.fetchUser(principal.getUserId())
         return ResponseEntity.ok(ResultResponse(result))
     }
 
-    @Operation(summary = "회원 정보 수정 API")
+    @Operation(summary = "회원 본인 정보 수정 API")
     @HasAuthorityUser
-    @PutMapping("/users/me")
+    @PutMapping("/user/me")
     fun updateUser(
         principal: Principal,
         @RequestBody @Valid
@@ -89,7 +88,7 @@ class UserController(
 
     @Operation(summary = "회원 비밀번호 변경 API")
     @HasAuthorityUser
-    @PutMapping("/users/change-password")
+    @PostMapping("/user/change-password")
     fun changePassword(
         principal: Principal,
         @RequestBody request: ChangeUserPasswordRequest
@@ -101,7 +100,7 @@ class UserController(
 
     @Operation(summary = "회원 탈퇴 API")
     @HasAuthorityUser
-    @DeleteMapping("/users/me")
+    @PostMapping("/user/resign")
     fun resignUser(principal: Principal): ResponseEntity<ResultResponse> {
         val result: Boolean = service.resignUser(principal.getUserId())
         return ResponseEntity.ok(ResultResponse(result))
