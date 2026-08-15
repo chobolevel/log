@@ -4,7 +4,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component
 
 @Component
-class PasswordProviderAdapter(
+class BCryptPasswordProvider(
     private val encoder: BCryptPasswordEncoder,
 ) : PasswordProvider {
 
