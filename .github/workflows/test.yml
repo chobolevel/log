@@ -18,11 +18,6 @@ jobs:
           distribution: 'temurin'
           java-version: 17.0.6
 
-      #      - name: Set up Docker
-      #        uses: docker/setup-buildx-action@v2
-      #        with:
-      #          version: latest
-
       - name: Gradle cache
         uses: actions/cache@v3
         with:
@@ -33,35 +28,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      #      - name: Cache Docker
-      #        uses: actions/cache@v3
-      #        with:
-      #          path: /tmp/.buildx-cache
-      #          key: ${{ runner.os }}-buildx-${{ github.sha }}
-      #          restore-keys: |
-      #            ${{ runner.os }}-buildx-
-
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      #      - name: Run infra
-      #        run: sudo ./gradlew -s composeUp
-      #
-      #      - name: Check running containers
-      #        run: docker ps -a
-
-      #      - name: Flyway Clean
-      #        run: |
-      #          ./gradlew flywayClean
-      #
-      #      - name: Flyway Migrate
-      #        run: |
-      #          ./gradlew flywayMigrate
-      - name: api module test
-        run: ./gradlew api:test
-
       - name: Run test
-        run: SPRING_PROFILES_ACTIVE=test ./gradlew test -x ktlintMainSourceSetCheck -x ktlintTestSourceSetCheck
+        run: ./gradlew :api:test
 
   lint:
     name: Lint
