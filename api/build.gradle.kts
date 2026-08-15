@@ -65,6 +65,9 @@ dependencies {
     // batch
     implementation("org.springframework.boot:spring-boot-starter-batch")
 
+    // Resend(sending email SDK)
+    implementation("com.resend:resend-java:+")
+
     // test: @WebMvcTest에서 MockK 기반 Bean 등록 지원
     testImplementation("com.ninja-squad:springmockk:4.0.2")
 

@@ -113,6 +113,8 @@ cloud:
       accessKey: ENC(GMumFZ/5G1XpFKj72WjhSqCJ3n5e5ifte+vJEvMLWU9o3AvSxFXpN6O5tsbfwKYpRq549fOg6ojgXsngKYKgrw==)
       secretKey: ENC(xPz8JOi1oc56tbbVa7R4lkYaPCcxxzuRu0eO3DHKzHd+KoYqUoRP8Adj9zMsT0D3iAu/8j6OBG7/kf2m7xJe3we+emtlf0pvERMr4I4ibBI=)
 
+resend:
+  api-key: ENC(xIuVp1noF1bvorsPRXxcGgA2zDOtBfIBshLc1l+CCly10ibBWnux4sjLdJRslWZRS8C1LAYSG3vIQvSV92vOeGq4j72HNuJSCE0p4kqwwuI=)
 
 management:
   info:
