@@ -61,8 +61,8 @@ class UserRepositoryAdapter(
         return userJpaRepository.findBySocialIdAndLoginTypeAndResignedFalse(socialId, loginType)
     }
 
-    override fun findByIds(ids: List<Long>): List<User> {
-        return userJpaRepository.findByIdInAndResignedFalse(ids)
+    override fun findAllByIds(ids: List<Long>): List<User> {
+        return userJpaRepository.findAllByIdInAndResignedFalse(ids)
     }
 
     override fun existsByEmail(email: String): Boolean {

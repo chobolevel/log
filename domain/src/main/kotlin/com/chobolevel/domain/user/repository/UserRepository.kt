@@ -24,7 +24,7 @@ interface UserRepository {
 
     fun findBySocialIdAndLoginType(socialId: String, loginType: UserLoginType): User?
 
-    fun findByIds(ids: List<Long>): List<User>
+    fun findAllByIds(ids: List<Long>): List<User>
 
     fun existsByEmail(email: String): Boolean
 

@@ -50,7 +50,7 @@ class ChannelService(
                 channelUser.setBy(owner)
             }
             // 참여자 생성
-            val participants: List<User> = userRepository.findByIds(request.userIds)
+            val participants: List<User> = userRepository.findAllByIds(request.userIds)
             participants.forEach { participant: User ->
                 ChannelUser().also { channelUser ->
                     channelUser.setBy(channel)
