@@ -100,7 +100,7 @@ class UserJpaRepositoryContainerTest : AbstractMySQLContainerTest() {
         entityManager.clear()
 
         // when
-        val results: List<User> = userJpaRepository.findByIdInAndResignedFalse(
+        val results: List<User> = userJpaRepository.findAllByIdInAndResignedFalse(
             ids = listOf(activeUser.id!!, resignedUser.id!!)
         )
 

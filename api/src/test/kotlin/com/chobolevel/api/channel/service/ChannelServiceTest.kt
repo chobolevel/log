@@ -54,7 +54,7 @@ class ChannelServiceTest : BehaviorSpec({
                 val channel: Channel = Channel(name = DummyChannel.NAME).also { it.id = DummyChannel.ID }
                 every { userRepository.findById(DummyUser.ID) } returns owner
                 every { converter.convert(DummyChannel.toCreateRequest()) } returns channel
-                every { userRepository.findByIds(any()) } returns emptyList()
+                every { userRepository.findAllByIds(any()) } returns emptyList()
                 every { repository.save(channel) } returns channel
 
                 val result: Long = service.create(DummyUser.ID, DummyChannel.toCreateRequest())
