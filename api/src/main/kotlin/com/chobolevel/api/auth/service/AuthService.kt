@@ -4,14 +4,14 @@ import com.chobolevel.api.auth.dto.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.auth.dto.JwtResponse
 import com.chobolevel.api.auth.dto.LoginRequest
 import com.chobolevel.api.auth.dto.SendEmailVerificationCodeRequest
+import com.chobolevel.api.common.provider.CacheProvider
+import com.chobolevel.api.common.provider.EmailProvider
 import com.chobolevel.api.common.security.CustomAuthenticationManager
 import com.chobolevel.api.common.security.TokenProvider
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
-import com.chobolevel.domain.common.utils.EmailUtils
 import com.chobolevel.domain.user.vo.UserLoginType
 import io.hypersistence.tsid.TSID
-import org.springframework.data.redis.core.HashOperations
 import org.springframework.http.HttpStatus
 import org.springframework.scheduling.annotation.Async
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -23,8 +23,8 @@ import org.springframework.transaction.annotation.Transactional
 class AuthService(
     private val tokenProvider: TokenProvider,
     private val authenticationManager: CustomAuthenticationManager,
-    private val opsForHash: HashOperations<String, String, String>,
-    private val emailUtils: EmailUtils
+    private val cacheProvider: CacheProvider,
+    private val emailProvider: EmailProvider,
 ) {
 
     @Transactional(readOnly = true)
@@ -67,16 +67,16 @@ class AuthService(
     @Async
     fun asyncSendEmailVerificationCode(request: SendEmailVerificationCodeRequest) {
         val authCode: String = TSID.fast().toString()
-        opsForHash.put("email", request.email, authCode)
-        emailUtils.sendEmail(
-            email = request.email,
+        cacheProvider.put("email:" + request.email, authCode)
+        emailProvider.sendEmail(
+            to = request.email,
             subject = "[초로 - 이메일 인증 코드]",
-            content = "초보 개발자의 로그 이메일 인증코드를 전송해드립니다.\n인증코드: [$authCode]"
+            content = "<p>초보 개발자의 로그 이메일 인증코드를 전송해드립니다.\n인증코드: [$authCode]</p>"
         )
     }
 
     fun checkEmailVerificationCode(request: CheckEmailVerificationCodeRequest): String {
-        val cachedVerificationCode: String = opsForHash.get("email", request.email) ?: throw ApiException(
+        val cachedVerificationCode: String = cacheProvider.get("email:" + request.email) ?: throw ApiException(
             errorCode = ErrorCode.A001,
             message = "이메일 인증 코드 전송 후 시도해 주세요."
         )
@@ -86,7 +86,7 @@ class AuthService(
                 message = "인증 코드가 일치하지 않습니다."
             )
         }
-        opsForHash.delete("email", request.email)
+        cacheProvider.delete("email:" + request.email)
         return request.email
     }
 
@@ -95,14 +95,14 @@ class AuthService(
     }
 
     private fun setRefreshToken(userId: String, refreshToken: String) {
-        opsForHash.put("refresh-token:v1", refreshToken, userId)
+        cacheProvider.put("refresh-token:v1:$refreshToken", userId)
     }
 
     private fun getUserIdByRefreshToken(refreshToken: String): String? {
-        return opsForHash.get("refresh-token:v1", refreshToken)
+        return cacheProvider.get("refresh-token:v1:$refreshToken")
     }
 
     private fun removeRefreshToken(refreshToken: String) {
-        opsForHash.delete("refresh-token:v1", refreshToken)
+        cacheProvider.delete("refresh-token:v1:$refreshToken")
     }
 }

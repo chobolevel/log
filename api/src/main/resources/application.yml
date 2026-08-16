@@ -9,8 +9,6 @@ server:
         secure: true
         http-only: true
         same-site: none
-        access-token-key: ENC(oBy2Wa/IBM6DbwxwFMQrCWYfl5oZ2BdLVsiurv3C3wBrnGMI701R3xoZScHDOJMv)
-        refresh-token-key: ENC(w3oBitWqxVPoN7pIawiKQF4BOkeLLrJeti8LH35UfyX87eAnHGl0n/i7q2oYKDSC)
 
 logging:
   level:
@@ -98,6 +96,8 @@ redis:
 jwt:
   issuer: ENC(cyIVjl7PIGwR3/yDARIOB56e0tUfQa5QQRIvwaYCma61C8I+Zzh8IuooBrQ/eq7t)
   secret: ENC(nS9O3l5DBtxsRuoT79sUDIU4KqjKfS0FsxmFUFuS6c1mS5PS1DbQfzltXbqzaqzF)
+  access-token-key: ENC(oBy2Wa/IBM6DbwxwFMQrCWYfl5oZ2BdLVsiurv3C3wBrnGMI701R3xoZScHDOJMv)
+  refresh-token-key: ENC(w3oBitWqxVPoN7pIawiKQF4BOkeLLrJeti8LH35UfyX87eAnHGl0n/i7q2oYKDSC)
 
 security:
   allow-origins: ENC(4K87xBn8UQLVcVfztebCtC+/jt2xtURHMjwbd3jE0X2Tns96uhZFlTX/E9sFEmlPvjyXxGLUVSrWkEg0GXvPFA==)

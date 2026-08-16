@@ -8,6 +8,7 @@ import com.chobolevel.api.auth.service.AuthService
 import com.chobolevel.api.auth.validator.AuthParameterValidator
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getCookie
+import com.chobolevel.api.common.properties.JwtProperties
 import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
 import io.swagger.v3.oas.annotations.Operation
@@ -16,7 +17,6 @@ import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.web.ServerProperties
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -30,12 +30,9 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/v1")
 class AuthController(
     private val validator: AuthParameterValidator,
-    @Value("\${server.reactive.session.cookie.access-token-key}")
-    private val accessTokenKey: String,
-    @Value("\${server.reactive.session.cookie.refresh-token-key}")
-    private val refreshTokenKey: String,
     private val service: AuthService,
-    private val serverProperties: ServerProperties
+    private val serverProperties: ServerProperties,
+    private val jwtProperties: JwtProperties
 ) {
 
     @Operation(summary = "회원 로그인 API")
@@ -48,11 +45,11 @@ class AuthController(
         validator.validate(request = request)
         val result: JwtResponse = service.login(request)
         val accessTokenCookie: Cookie = generateCookie(
-            key = accessTokenKey,
+            key = jwtProperties.accessTokenKey,
             value = result.accessToken
         )
         val refreshTokenCookie: Cookie = generateCookie(
-            key = refreshTokenKey,
+            key = jwtProperties.refreshTokenKey,
             value = result.refreshToken
         )
         res.addCookie(accessTokenCookie)
@@ -63,17 +60,17 @@ class AuthController(
     @Operation(summary = "로그아웃 API")
     @PostMapping("/logout")
     fun logout(req: HttpServletRequest, res: HttpServletResponse): ResponseEntity<ResultResponse> {
-        val refreshToken: String? = req.getCookie(refreshTokenKey)
+        val refreshToken: String? = req.getCookie(jwtProperties.refreshTokenKey)
         if (refreshToken != null) {
             service.logout(refreshToken)
         }
         val expiredAccessTokenCookie: Cookie = generateCookie(
-            key = "_cat",
+            key = jwtProperties.accessTokenKey,
             value = "",
             maxAge = 0
         )
         val expiredRefreshTokenCookie: Cookie = generateCookie(
-            key = "_crt",
+            key = jwtProperties.refreshTokenKey,
             value = "",
             maxAge = 0
         )
@@ -88,14 +85,14 @@ class AuthController(
         req: HttpServletRequest,
         res: HttpServletResponse,
     ): ResponseEntity<ResultResponse> {
-        val refreshToken: String = req.getCookie(refreshTokenKey) ?: throw ApiException(
+        val refreshToken: String = req.getCookie(jwtProperties.refreshTokenKey) ?: throw ApiException(
             errorCode = ErrorCode.INVALID_TOKEN,
             status = HttpStatus.UNAUTHORIZED,
             message = "토큰이 만료되었습니다. 재로그인 해주세요."
         )
         val result: JwtResponse = service.reissue(refreshToken)
         val newAccessTokenCookie: Cookie = generateCookie(
-            key = accessTokenKey,
+            key = jwtProperties.accessTokenKey,
             value = result.accessToken
         )
         res.addCookie(newAccessTokenCookie)
