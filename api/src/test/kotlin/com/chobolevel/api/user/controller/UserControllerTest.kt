@@ -134,7 +134,7 @@ class UserControllerTest {
         } returns DummyUser.toResponse()
 
         // when & then
-        mockMvc.perform(get("/api/v1/users/me"))
+        mockMvc.perform(get("/api/v1/user/me"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.data.id").value(DummyUser.ID))
     }
@@ -142,7 +142,7 @@ class UserControllerTest {
     @Test
     fun `미인증 사용자가 본인 회원 정보 조회 시독하면 401을 반환한다`() {
         // given & when & then
-        mockMvc.perform(get("/api/v1/users/me"))
+        mockMvc.perform(get("/api/v1/user/me"))
             .andExpect(status().isUnauthorized)
     }
 
@@ -160,7 +160,7 @@ class UserControllerTest {
 
         // when & then
         mockMvc.perform(
-            put("/api/v1/users/me")
+            put("/api/v1/user/me")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(DummyUser.toUpdateRequest()))
         )
@@ -172,7 +172,7 @@ class UserControllerTest {
     fun `미인증 사용자가 본인 회원 정보 수정 시도하면 401을 반환한다`() {
         // given & when & then
         mockMvc.perform(
-            put("/api/v1/users/me")
+            put("/api/v1/user/me")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(DummyUser.toUpdateRequest()))
         )
@@ -193,7 +193,7 @@ class UserControllerTest {
 
         // when & then
         mockMvc.perform(
-            put("/api/v1/users/change-password")
+            post("/api/v1/user/change-password")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(DummyUser.toChangePasswordRequest()))
         )
@@ -205,7 +205,7 @@ class UserControllerTest {
     fun `미인증 사용자가 본인 회원 비밀번호 변경 시도하면 401을 반환한다`() {
         // given & when & then
         mockMvc.perform(
-            put("/api/v1/users/change-password")
+            post("/api/v1/user/change-password")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(DummyUser.toChangePasswordRequest()))
         )
@@ -223,7 +223,7 @@ class UserControllerTest {
         } returns true
 
         // when & then
-        mockMvc.perform(delete("/api/v1/users/me"))
+        mockMvc.perform(post("/api/v1/user/resign"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.data").value(true))
     }
@@ -232,7 +232,7 @@ class UserControllerTest {
     fun `미인증 사용자가 본인 회원 탈퇴 시도하면 401을 반환한다`() {
         // given & when & then
         mockMvc.perform(
-            delete("/api/v1/users/me")
+            post("/api/v1/user/resign")
         )
             .andExpect(status().isUnauthorized)
     }
