@@ -5,10 +5,11 @@ import com.chobolevel.api.auth.dto.JwtResponse
 import com.chobolevel.api.auth.dto.SendEmailVerificationCodeRequest
 import com.chobolevel.api.common.dummy.DummyAuth
 import com.chobolevel.api.common.dummy.DummyUser
+import com.chobolevel.api.common.provider.RedisCacheProvider
+import com.chobolevel.api.common.provider.ResendEmailProvider
 import com.chobolevel.api.common.security.CustomAuthenticationManager
 import com.chobolevel.api.common.security.TokenProvider
 import com.chobolevel.domain.common.exception.ApiException
-import com.chobolevel.domain.common.utils.EmailUtils
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -19,7 +20,6 @@ import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import org.springframework.data.redis.core.HashOperations
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 
@@ -27,13 +27,13 @@ class AuthServiceTest : BehaviorSpec({
 
     val tokenProvider: TokenProvider = mockk()
     val authenticationManager: CustomAuthenticationManager = mockk()
-    val opsForHash: HashOperations<String, String, String> = mockk()
-    val emailUtils: EmailUtils = mockk()
+    val cacheProvider: RedisCacheProvider = mockk()
+    val emailProvider: ResendEmailProvider = mockk()
     val service: AuthService = AuthService(
         tokenProvider = tokenProvider,
         authenticationManager = authenticationManager,
-        opsForHash = opsForHash,
-        emailUtils = emailUtils
+        cacheProvider = cacheProvider,
+        emailProvider = emailProvider
     )
 
     beforeEach {
@@ -51,7 +51,7 @@ class AuthServiceTest : BehaviorSpec({
                 // slot으로 캡처해서 "email/loginType" 조합 포맷이 실제로 지켜지는지 검증한다.
                 every { authenticationManager.authenticate(capture(authSlot)) } returns authentication
                 every { tokenProvider.generateToken(authentication) } returns jwtResponse
-                every { opsForHash.put(any(), any(), any()) } returns Unit
+                every { cacheProvider.put(any(), any()) } returns Unit
 
                 // when
                 val result: JwtResponse = service.login(request)
@@ -60,7 +60,7 @@ class AuthServiceTest : BehaviorSpec({
                 result.accessToken shouldBe DummyAuth.ACCESS_TOKEN
                 result.refreshToken shouldBe DummyAuth.REFRESH_TOKEN
                 authSlot.captured.principal shouldBe "${DummyUser.EMAIL}/GENERAL"
-                verify(exactly = 1) { opsForHash.put("refresh-token:v1", DummyAuth.REFRESH_TOKEN, DummyUser.ID.toString()) }
+                verify(exactly = 1) { cacheProvider.put("refresh-token:v1:" + DummyAuth.REFRESH_TOKEN, DummyUser.ID.toString()) }
             }
         }
     }
@@ -75,7 +75,7 @@ class AuthServiceTest : BehaviorSpec({
                 val authSlot: CapturingSlot<Authentication> = slot()
                 every { authenticationManager.authenticate(capture(authSlot)) } returns authentication
                 every { tokenProvider.generateToken(authentication) } returns jwtResponse
-                every { opsForHash.put(any(), any(), any()) } returns Unit
+                every { cacheProvider.put(any(), any()) } returns Unit
 
                 // when
                 val result: JwtResponse = service.login(request)
@@ -84,7 +84,7 @@ class AuthServiceTest : BehaviorSpec({
                 result.accessToken shouldBe DummyAuth.ACCESS_TOKEN
                 result.refreshToken shouldBe DummyAuth.REFRESH_TOKEN
                 authSlot.captured.principal shouldBe "${DummyUser.EMAIL}/KAKAO"
-                verify(exactly = 1) { opsForHash.put("refresh-token:v1", DummyAuth.REFRESH_TOKEN, DummyUser.ID.toString()) }
+                verify(exactly = 1) { cacheProvider.put("refresh-token:v1:" + DummyAuth.REFRESH_TOKEN, DummyUser.ID.toString()) }
             }
         }
     }
@@ -97,7 +97,7 @@ class AuthServiceTest : BehaviorSpec({
                 val jwtResponse: JwtResponse = DummyAuth.toJwtResponse()
                 every { tokenProvider.validateToken(DummyAuth.REFRESH_TOKEN) } returns true
                 every { tokenProvider.getAuthentication(DummyAuth.REFRESH_TOKEN) } returns authentication
-                every { opsForHash.get("refresh-token:v1", DummyAuth.REFRESH_TOKEN) } returns DummyUser.ID.toString()
+                every { cacheProvider.get("refresh-token:v1:" + DummyAuth.REFRESH_TOKEN) } returns DummyUser.ID.toString()
                 every { tokenProvider.generateToken(authentication) } returns jwtResponse
 
                 // when
@@ -115,7 +115,7 @@ class AuthServiceTest : BehaviorSpec({
                 val authentication = UsernamePasswordAuthenticationToken(DummyUser.ID.toString(), null)
                 every { tokenProvider.validateToken(DummyAuth.REFRESH_TOKEN) } returns true
                 every { tokenProvider.getAuthentication(DummyAuth.REFRESH_TOKEN) } returns authentication
-                every { opsForHash.get("refresh-token:v1", DummyAuth.REFRESH_TOKEN) } returns null
+                every { cacheProvider.get("refresh-token:v1:" + DummyAuth.REFRESH_TOKEN) } returns null
 
                 // when & then
                 shouldThrow<ApiException> {
@@ -130,7 +130,7 @@ class AuthServiceTest : BehaviorSpec({
                 val authentication = UsernamePasswordAuthenticationToken(DummyUser.ID.toString(), null)
                 every { tokenProvider.validateToken(DummyAuth.REFRESH_TOKEN) } returns true
                 every { tokenProvider.getAuthentication(DummyAuth.REFRESH_TOKEN) } returns authentication
-                every { opsForHash.get("refresh-token:v1", DummyAuth.REFRESH_TOKEN) } returns "999"
+                every { cacheProvider.get("refresh-token:v1:" + DummyAuth.REFRESH_TOKEN) } returns "999"
 
                 // when & then
                 shouldThrow<ApiException> {
@@ -145,15 +145,15 @@ class AuthServiceTest : BehaviorSpec({
             then("Redis에 인증 코드를 저장하고 이메일을 발송한다") {
                 // given
                 val request: SendEmailVerificationCodeRequest = SendEmailVerificationCodeRequest(email = DummyUser.EMAIL)
-                every { opsForHash.put(eq("email"), eq(DummyUser.EMAIL), any()) } returns Unit
-                justRun { emailUtils.sendEmail(email = any(), subject = any(), content = any()) }
+                every { cacheProvider.put(eq("email:" + DummyUser.EMAIL), any()) } returns Unit
+                justRun { emailProvider.sendEmail(to = any(), subject = any(), content = any()) }
 
                 // when
                 service.asyncSendEmailVerificationCode(request)
 
                 // then
-                verify(exactly = 1) { opsForHash.put(eq("email"), eq(DummyUser.EMAIL), any()) }
-                verify(exactly = 1) { emailUtils.sendEmail(email = DummyUser.EMAIL, subject = any(), content = any()) }
+                verify(exactly = 1) { cacheProvider.put(eq("email:" + DummyUser.EMAIL), any()) }
+                verify(exactly = 1) { emailProvider.sendEmail(to = DummyUser.EMAIL, subject = any(), content = any()) }
             }
         }
     }
@@ -166,15 +166,15 @@ class AuthServiceTest : BehaviorSpec({
                     email = DummyUser.EMAIL,
                     verificationCode = DummyAuth.VERIFICATION_CODE
                 )
-                every { opsForHash.get("email", DummyUser.EMAIL) } returns DummyAuth.VERIFICATION_CODE
-                every { opsForHash.delete("email", DummyUser.EMAIL) } returns 1L
+                every { cacheProvider.get("email:" + DummyUser.EMAIL) } returns DummyAuth.VERIFICATION_CODE
+                every { cacheProvider.delete("email:" + DummyUser.EMAIL) } returns Unit
 
                 // when
                 val result: String = service.checkEmailVerificationCode(request)
 
                 // then
                 result shouldBe DummyUser.EMAIL
-                verify(exactly = 1) { opsForHash.delete("email", DummyUser.EMAIL) }
+                verify(exactly = 1) { cacheProvider.delete("email:" + DummyUser.EMAIL) }
             }
         }
 
@@ -185,7 +185,7 @@ class AuthServiceTest : BehaviorSpec({
                     email = DummyUser.EMAIL,
                     verificationCode = DummyAuth.VERIFICATION_CODE
                 )
-                every { opsForHash.get("email", DummyUser.EMAIL) } returns null
+                every { cacheProvider.get("email:" + DummyUser.EMAIL) } returns null
 
                 // when & then
                 shouldThrow<ApiException> {
@@ -201,7 +201,7 @@ class AuthServiceTest : BehaviorSpec({
                     email = DummyUser.EMAIL,
                     verificationCode = "wrongCode"
                 )
-                every { opsForHash.get("email", DummyUser.EMAIL) } returns DummyAuth.VERIFICATION_CODE
+                every { cacheProvider.get("email:" + DummyUser.EMAIL) } returns DummyAuth.VERIFICATION_CODE
 
                 // when & then
                 shouldThrow<ApiException> {
@@ -215,13 +215,13 @@ class AuthServiceTest : BehaviorSpec({
         `when`("유효한 refresh token이 주어지면") {
             then("Redis에서 refresh token을 삭제한다") {
                 // given
-                every { opsForHash.delete("refresh-token:v1", DummyAuth.REFRESH_TOKEN) } returns 1L
+                every { cacheProvider.delete("refresh-token:v1:" + DummyAuth.REFRESH_TOKEN) } returns Unit
 
                 // when
                 service.logout(DummyAuth.REFRESH_TOKEN)
 
                 // then
-                verify(exactly = 1) { opsForHash.delete("refresh-token:v1", DummyAuth.REFRESH_TOKEN) }
+                verify(exactly = 1) { cacheProvider.delete("refresh-token:v1:" + DummyAuth.REFRESH_TOKEN) }
             }
         }
     }
