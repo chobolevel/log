@@ -6,6 +6,7 @@ import com.chobolevel.api.auth.dto.SendEmailVerificationCodeRequest
 import com.chobolevel.api.auth.service.AuthService
 import com.chobolevel.api.auth.validator.AuthParameterValidator
 import com.chobolevel.api.common.dummy.DummyAuth
+import com.chobolevel.api.common.properties.JwtProperties
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.clearAllMocks
@@ -47,6 +48,9 @@ class AuthControllerTest {
     private lateinit var authService: AuthService
 
     @MockkBean
+    private lateinit var jwtProperties: JwtProperties
+
+    @MockkBean
     private lateinit var authParameterValidator: AuthParameterValidator
 
     @TestConfiguration
@@ -63,6 +67,8 @@ class AuthControllerTest {
     @BeforeEach
     fun setUp() {
         clearAllMocks()
+        every { jwtProperties.accessTokenKey } returns DummyAuth.ACCESS_TOKEN_COOKIE_KEY
+        every { jwtProperties.refreshTokenKey } returns DummyAuth.REFRESH_TOKEN_COOKIE_KEY
     }
 
     @Test
