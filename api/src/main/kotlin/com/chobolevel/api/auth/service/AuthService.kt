@@ -68,10 +68,15 @@ class AuthService(
     fun asyncSendEmailVerificationCode(request: SendEmailVerificationCodeRequest) {
         val authCode: String = TSID.fast().toString()
         cacheProvider.put("email:" + request.email, authCode)
+        val emailBody: String = javaClass.getResourceAsStream("/templates/email/verification-code.html")
+            ?.bufferedReader()
+            ?.readText()
+            ?.replace("{{code}}", authCode)
+            ?: authCode
         emailProvider.sendEmail(
             to = request.email,
-            subject = "[초로 - 이메일 인증 코드]",
-            content = "<p>초보 개발자의 로그 이메일 인증코드를 전송해드립니다.\n인증코드: [$authCode]</p>"
+            subject = "[초로] 이메일 인증 코드",
+            content = emailBody
         )
     }
 
