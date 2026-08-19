@@ -1,7 +1,7 @@
 package com.chobolevel.api.common.security
 
+import com.chobolevel.api.common.properties.JwtProperties
 import com.chobolevel.api.common.properties.SecurityProperties
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -18,10 +18,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 class WebConfiguration(
-    @Value("\${server.reactive.session.cookie.access-token-key}")
-    private val accessTokenKey: String,
     private val tokenProvider: TokenProvider,
-    private val securityProperties: SecurityProperties
+    private val securityProperties: SecurityProperties,
+    private val jwtProperties: JwtProperties,
 ) {
 
     @Bean
@@ -73,7 +72,7 @@ class WebConfiguration(
                     .anyRequest().permitAll()
             }
             .addFilterBefore(
-                OnceJwtAuthorizationFilter(accessTokenKey = accessTokenKey, tokenProvider = tokenProvider),
+                OnceJwtAuthorizationFilter(accessTokenKey = jwtProperties.accessTokenKey, tokenProvider = tokenProvider),
                 UsernamePasswordAuthenticationFilter::class.java
             )
             .build()
