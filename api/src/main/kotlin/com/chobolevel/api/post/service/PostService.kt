@@ -11,8 +11,8 @@ import com.chobolevel.api.post.dto.UpdatePostRequest
 import com.chobolevel.api.post.image.converter.PostImageConverter
 import com.chobolevel.api.post.updater.PostUpdatable
 import com.chobolevel.domain.common.dto.Paging
-import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.common.exception.ForbiddenException
 import com.chobolevel.domain.post.entity.Post
 import com.chobolevel.domain.post.image.entity.PostImage
 import com.chobolevel.domain.post.repository.PostRepository
@@ -126,9 +126,8 @@ class PostService(
 
     private fun validateWriter(userId: Long, post: Post) {
         if (post.user!!.id != userId) {
-            throw ApiException(
-                errorCode = ErrorCode.POST_ONLY_ACCESS_WRITER,
-                message = "작성자만 접근할 수 있습니다."
+            throw ForbiddenException(
+                errorCode = ErrorCode.RESTRICTED_TO_POST_WRITER
             )
         }
     }

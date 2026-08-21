@@ -5,10 +5,9 @@ import com.chobolevel.domain.channel.message.entity.QChannelMessage.channelMessa
 import com.chobolevel.domain.channel.message.vo.ChannelMessageOrderType
 import com.chobolevel.domain.channel.message.vo.ChannelMessageQueryFilter
 import com.chobolevel.domain.common.dto.Paging
-import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.DataNotFoundException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.querydsl.core.types.OrderSpecifier
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 
 @Component
@@ -22,10 +21,8 @@ class ChannelMessageRepositoryAdapter(
     }
 
     override fun findById(id: Long): ChannelMessage {
-        return channelMessageJpaRepository.findByIdAndDeletedFalse(id) ?: throw ApiException(
-            errorCode = ErrorCode.INVALID_PARAMETER,
-            status = HttpStatus.BAD_REQUEST,
-            message = "해당 채널 메시지를 찾을 수 없습니다."
+        return channelMessageJpaRepository.findByIdAndDeletedFalse(id) ?: throw DataNotFoundException(
+            errorCode = ErrorCode.CHANNEL_MESSAGE_NOT_FOUND
         )
     }
 

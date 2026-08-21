@@ -1,14 +1,13 @@
 package com.chobolevel.domain.post.comment.repository
 
 import com.chobolevel.domain.common.dto.Paging
-import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.DataNotFoundException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.post.comment.entity.PostComment
 import com.chobolevel.domain.post.comment.entity.QPostComment.postComment
 import com.chobolevel.domain.post.comment.vo.PostCommentOrderType
 import com.chobolevel.domain.post.comment.vo.PostCommentQueryFilter
 import com.querydsl.core.types.OrderSpecifier
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 
 @Component
@@ -22,10 +21,8 @@ class PostCommentRepositoryAdapter(
     }
 
     override fun findById(id: Long): PostComment {
-        return postCommentJpaRepository.findByIdAndDeletedFalse(id) ?: throw ApiException(
-            errorCode = ErrorCode.INVALID_PARAMETER,
-            status = HttpStatus.BAD_REQUEST,
-            message = "해당 댓글을 찾을 수 없습니다."
+        return postCommentJpaRepository.findByIdAndDeletedFalse(id) ?: throw DataNotFoundException(
+            errorCode = ErrorCode.POST_COMMENT_NOT_FOUND
         )
     }
 

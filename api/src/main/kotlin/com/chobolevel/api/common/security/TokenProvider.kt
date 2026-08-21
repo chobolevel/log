@@ -2,15 +2,14 @@ package com.chobolevel.api.common.security
 
 import com.chobolevel.api.auth.dto.JwtResponse
 import com.chobolevel.api.common.properties.JwtProperties
-import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.common.exception.UnAuthorizedException
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Header
 import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.userdetails.UserDetailsService
@@ -92,15 +91,13 @@ class TokenProvider(
                 .parseClaimsJws(token)
             true
         } catch (e: ExpiredJwtException) {
-            throw ApiException(
+            throw UnAuthorizedException(
                 errorCode = ErrorCode.EXPIRED_TOKEN,
-                status = HttpStatus.UNAUTHORIZED,
                 message = "토큰이 만료되었습니다."
             )
         } catch (e: JwtException) {
-            throw ApiException(
+            throw UnAuthorizedException(
                 errorCode = ErrorCode.INVALID_TOKEN,
-                status = HttpStatus.UNAUTHORIZED,
                 message = "유효하지 않은 토큰입니다."
             )
         }

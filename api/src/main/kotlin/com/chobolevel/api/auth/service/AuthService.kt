@@ -8,11 +8,11 @@ import com.chobolevel.api.common.provider.CacheProvider
 import com.chobolevel.api.common.provider.EmailProvider
 import com.chobolevel.api.common.security.CustomAuthenticationManager
 import com.chobolevel.api.common.security.TokenProvider
-import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.common.exception.PolicyViolationException
+import com.chobolevel.domain.common.exception.UnAuthorizedException
 import com.chobolevel.domain.user.vo.UserLoginType
 import io.hypersistence.tsid.TSID
-import org.springframework.http.HttpStatus
 import org.springframework.scheduling.annotation.Async
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
@@ -47,16 +47,14 @@ class AuthService(
     @Transactional(readOnly = true)
     fun reissue(refreshToken: String): JwtResponse {
         tokenProvider.validateToken(refreshToken)
-        val authentication: Authentication = tokenProvider.getAuthentication(refreshToken) ?: throw ApiException(
+        val authentication: Authentication = tokenProvider.getAuthentication(refreshToken) ?: throw UnAuthorizedException(
             errorCode = ErrorCode.INVALID_TOKEN,
-            status = HttpStatus.UNAUTHORIZED,
             message = "토큰이 만료되었습니다. 재로그인 해주세요."
         )
         val cachedUserId: String? = getUserIdByRefreshToken(refreshToken)
         if (cachedUserId == null || cachedUserId != authentication.name) {
-            throw ApiException(
+            throw UnAuthorizedException(
                 errorCode = ErrorCode.INVALID_TOKEN,
-                status = HttpStatus.UNAUTHORIZED,
                 message = "유효하지 않은 갱신 토큰입니다. 재로그인 해주세요."
             )
         }
@@ -81,14 +79,12 @@ class AuthService(
     }
 
     fun checkEmailVerificationCode(request: CheckEmailVerificationCodeRequest): String {
-        val cachedVerificationCode: String = cacheProvider.get("email:" + request.email) ?: throw ApiException(
-            errorCode = ErrorCode.A001,
-            message = "이메일 인증 코드 전송 후 시도해 주세요."
+        val cachedVerificationCode: String = cacheProvider.get("email:" + request.email) ?: throw PolicyViolationException(
+            errorCode = ErrorCode.EMAIL_VERIFICATION_CODE_NOT_SENT
         )
         if (request.verificationCode != cachedVerificationCode) {
-            throw ApiException(
-                errorCode = ErrorCode.A002,
-                message = "인증 코드가 일치하지 않습니다."
+            throw PolicyViolationException(
+                errorCode = ErrorCode.EMAIL_VERIFICATION_CODE_NOT_MATCHED,
             )
         }
         cacheProvider.delete("email:" + request.email)

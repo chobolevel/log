@@ -1,14 +1,13 @@
 package com.chobolevel.domain.post.repository
 
 import com.chobolevel.domain.common.dto.Paging
-import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.DataNotFoundException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.post.entity.Post
 import com.chobolevel.domain.post.entity.QPost.post
 import com.chobolevel.domain.post.vo.PostOrderType
 import com.chobolevel.domain.post.vo.PostQueryFilter
 import com.querydsl.core.types.OrderSpecifier
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 
 @Component
@@ -22,10 +21,8 @@ class PostRepositoryAdapter(
     }
 
     override fun findById(id: Long): Post {
-        return postJpaRepository.findByIdAndDeletedFalse(id) ?: throw ApiException(
-            errorCode = ErrorCode.INVALID_PARAMETER,
-            status = HttpStatus.BAD_REQUEST,
-            message = "해당 게시글을 찾을 수 없습니다."
+        return postJpaRepository.findByIdAndDeletedFalse(id) ?: throw DataNotFoundException(
+            errorCode = ErrorCode.POST_NOT_FOUND
         )
     }
 

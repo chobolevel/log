@@ -3,10 +3,9 @@ package com.chobolevel.api.auth.validator
 import com.chobolevel.api.auth.dto.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.auth.dto.LoginRequest
 import com.chobolevel.api.auth.dto.SendEmailVerificationCodeRequest
-import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.common.exception.InvalidParameterException
 import com.chobolevel.domain.user.vo.UserLoginType
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 
 @Component
@@ -18,9 +17,8 @@ class AuthParameterValidator {
         when (request.loginType) {
             UserLoginType.GENERAL -> {
                 if (request.password.isNullOrEmpty()) {
-                    throw ApiException(
+                    throw InvalidParameterException(
                         errorCode = ErrorCode.INVALID_PARAMETER,
-                        status = HttpStatus.BAD_REQUEST,
                         message = "로그인 시 비밀번호는 필수 값입니다."
                     )
                 }
@@ -28,9 +26,8 @@ class AuthParameterValidator {
 
             else -> {
                 if (request.socialId.isNullOrEmpty()) {
-                    throw ApiException(
+                    throw InvalidParameterException(
                         errorCode = ErrorCode.INVALID_PARAMETER,
-                        status = HttpStatus.BAD_REQUEST,
                         message = "소셜 로그인 시 소셜 아이디는 필수 값입니다."
                     )
                 }
@@ -45,7 +42,7 @@ class AuthParameterValidator {
     fun validate(request: CheckEmailVerificationCodeRequest) {
         validateEmail(request.email)
         if (request.verificationCode.length != 13) {
-            throw ApiException(
+            throw InvalidParameterException(
                 errorCode = ErrorCode.INVALID_PARAMETER,
                 message = "인증 코드는 13자리입니다."
             )
@@ -54,7 +51,7 @@ class AuthParameterValidator {
 
     private fun validateEmail(email: String) {
         if (!email.matches(emailRegexp)) {
-            throw ApiException(
+            throw InvalidParameterException(
                 errorCode = ErrorCode.INVALID_PARAMETER,
                 message = "이메일 형식이 올바르지 않습니다."
             )

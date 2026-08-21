@@ -1,12 +1,12 @@
 package com.chobolevel.api.common.security
 
 import com.chobolevel.api.common.provider.PasswordProvider
-import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.DataNotFoundException
 import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.common.exception.InvalidParameterException
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
 import com.chobolevel.domain.user.vo.UserLoginType
-import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -24,15 +24,13 @@ class CustomAuthenticationProvider(
     override fun authenticate(authentication: Authentication): Authentication? {
         val combine: List<String> = authentication.name.split("/")
         val email: String = combine[0]
-        val loginType: UserLoginType = UserLoginType.find(combine[1]) ?: throw ApiException(
+        val loginType: UserLoginType = UserLoginType.find(combine[1]) ?: throw InvalidParameterException(
             errorCode = ErrorCode.INVALID_PARAMETER,
-            status = HttpStatus.BAD_REQUEST,
             message = "유효하지 않은 회원 로그인 타입입니다."
         )
         val tokenCredentials: String = authentication.credentials.toString()
-        val user: User = userRepository.findByEmailAndLoginType(email, loginType) ?: throw ApiException(
+        val user: User = userRepository.findByEmailAndLoginType(email, loginType) ?: throw DataNotFoundException(
             errorCode = ErrorCode.USER_NOT_FOUND,
-            status = HttpStatus.BAD_REQUEST,
             message = "회원 정보를 찾을 수 없습니다."
         )
         when (user.loginType) {

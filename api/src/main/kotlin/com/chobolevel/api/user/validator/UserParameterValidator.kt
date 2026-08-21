@@ -3,11 +3,10 @@ package com.chobolevel.api.user.validator
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
-import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.common.exception.InvalidParameterException
 import com.chobolevel.domain.user.vo.UserLoginType
 import com.chobolevel.domain.user.vo.UserUpdateMask
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 
 @Component
@@ -32,9 +31,8 @@ class UserParameterValidator {
             when (it) {
                 UserUpdateMask.NICKNAME -> {
                     if (request.nickname.isNullOrEmpty()) {
-                        throw ApiException(
+                        throw InvalidParameterException(
                             errorCode = ErrorCode.INVALID_PARAMETER,
-                            status = HttpStatus.BAD_REQUEST,
                             message = "변경할 닉네임이 유효하지 않습니다."
                         )
                     }
@@ -50,9 +48,8 @@ class UserParameterValidator {
 
     private fun validateEmailFormat(email: String) {
         if (!email.matches(emailRegexp)) {
-            throw ApiException(
+            throw InvalidParameterException(
                 errorCode = ErrorCode.INVALID_PARAMETER,
-                status = HttpStatus.BAD_REQUEST,
                 message = "이메일 형식이 올바르지 않습니다."
             )
         }
@@ -60,9 +57,8 @@ class UserParameterValidator {
 
     private fun validateNicknameFormat(nickname: String) {
         if (!nickname.matches(nicknameRegexp)) {
-            throw ApiException(
+            throw InvalidParameterException(
                 errorCode = ErrorCode.INVALID_PARAMETER,
-                status = HttpStatus.BAD_REQUEST,
                 message = "닉네임은 영어 또는 한글만 사용할 수 있습니다."
             )
         }
@@ -70,9 +66,8 @@ class UserParameterValidator {
 
     private fun validatePasswordFormat(password: String) {
         if (!password.matches(passwordRegexp)) {
-            throw ApiException(
+            throw InvalidParameterException(
                 errorCode = ErrorCode.INVALID_PARAMETER,
-                status = HttpStatus.BAD_REQUEST,
                 message = "비밀번호는 영문 + 숫자 + 특수문자 조합으로 8자리 이상이어야 합니다."
             )
         }

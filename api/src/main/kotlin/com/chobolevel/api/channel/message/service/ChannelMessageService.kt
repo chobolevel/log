@@ -11,11 +11,10 @@ import com.chobolevel.domain.channel.message.vo.ChannelMessageOrderType
 import com.chobolevel.domain.channel.message.vo.ChannelMessageQueryFilter
 import com.chobolevel.domain.channel.repository.ChannelRepository
 import com.chobolevel.domain.common.dto.Paging
-import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.common.exception.PolicyViolationException
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
-import org.springframework.http.HttpStatus
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -81,9 +80,8 @@ class ChannelMessageService(
 
     private fun validateWorker(worker: User, channelMessage: ChannelMessage) {
         if (channelMessage.writer!!.id != worker.id) {
-            throw ApiException(
-                errorCode = ErrorCode.CHANNEL_MESSAGE_WRITER_DOES_NOT_MATCH,
-                status = HttpStatus.BAD_REQUEST,
+            throw PolicyViolationException(
+                errorCode = ErrorCode.CHANNEL_MESSAGE_WRITER_NOT_MATCHED,
                 message = "메세지 작성자가 아닙니다."
             )
         }

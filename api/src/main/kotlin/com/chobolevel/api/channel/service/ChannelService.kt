@@ -19,11 +19,11 @@ import com.chobolevel.domain.channel.user.entity.ChannelUser
 import com.chobolevel.domain.channel.vo.ChannelOrderType
 import com.chobolevel.domain.channel.vo.ChannelQueryFilter
 import com.chobolevel.domain.common.dto.Paging
-import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.common.exception.ForbiddenException
+import com.chobolevel.domain.common.exception.PolicyViolationException
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
-import org.springframework.http.HttpStatus
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -86,10 +86,8 @@ class ChannelService(
     @Transactional(readOnly = true)
     fun getChannel(userId: Long, channelId: Long): ChannelResponse {
         val channel: Channel = repository.findById(channelId)
-        channel.channelUsers.find { it.user?.id == userId } ?: throw ApiException(
-            errorCode = ErrorCode.NOT_INVITED_CHANNEL,
-            status = HttpStatus.BAD_REQUEST,
-            message = "초대받지 않은 채널입니다."
+        channel.channelUsers.find { it.user?.id == userId } ?: throw ForbiddenException(
+            errorCode = ErrorCode.UNINVITED_CHANNEL
         )
         return converter.convert(channel)
     }
@@ -115,10 +113,8 @@ class ChannelService(
         val channelUser: ChannelUser? = channel.channelUsers.find { it.user!!.id == userId }
         when (channelUser) {
             null -> {
-                throw ApiException(
-                    errorCode = ErrorCode.ALREADY_EXITED_CHANNEL,
-                    status = HttpStatus.BAD_REQUEST,
-                    message = "이미 떠난 채널입니다."
+                throw PolicyViolationException(
+                    errorCode = ErrorCode.ALREADY_EXITED_CHANNEL
                 )
             }
 
@@ -147,12 +143,11 @@ class ChannelService(
     fun invite(userId: Long, channelId: Long, request: InviteChannelRequest): Long {
         val channel = repository.findById(channelId)
         channel.channelUsers.filter { request.userIds.contains(it.user!!.id) }.takeIf { it.isNotEmpty() }?.let {
-            throw ApiException(
-                errorCode = ErrorCode.CHANNEL_MESSAGE_WRITER_DOES_NOT_MATCH,
-                status = HttpStatus.BAD_REQUEST,
-                message = "이미 채널에 초대되어있습니다."
+            throw PolicyViolationException(
+                errorCode = ErrorCode.ALREADY_INVITED_CHANNEL
             )
         }
+
         request.userIds.map { userId ->
             val user: User = userRepository.findById(userId)
             ChannelUser().also { channelUser ->
@@ -191,10 +186,8 @@ class ChannelService(
 
     private fun validateWorker(worker: User, channel: Channel) {
         if (channel.owner!!.id != worker.id) {
-            throw ApiException(
-                errorCode = ErrorCode.CHANNEL_OWNER_DOES_NOT_MATCH,
-                status = HttpStatus.BAD_REQUEST,
-                message = "채널 오너가 아닙니다."
+            throw ForbiddenException(
+                errorCode = ErrorCode.RESTRICTED_TO_CHANNEL_OWNER
             )
         }
     }

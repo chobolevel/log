@@ -1,10 +1,9 @@
 package com.chobolevel.api.common.config
 
 import com.chobolevel.api.common.extension.getUserId
-import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.common.exception.UnAuthorizedException
 import org.springframework.context.annotation.Primary
-import org.springframework.http.HttpStatus
 import org.springframework.messaging.Message
 import org.springframework.messaging.MessageChannel
 import org.springframework.messaging.simp.stomp.StompCommand
@@ -24,9 +23,8 @@ class CustomChannelInterceptor : ChannelInterceptor {
             if (user != null) {
                 accessor.sessionAttributes?.put("userId", user.getUserId())
             } else {
-                throw ApiException(
+                throw UnAuthorizedException(
                     errorCode = ErrorCode.INVALID_TOKEN,
-                    status = HttpStatus.UNAUTHORIZED,
                     message = "유효하지 않은 토큰입니다."
                 )
             }

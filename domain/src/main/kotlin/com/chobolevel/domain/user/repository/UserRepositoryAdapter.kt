@@ -1,7 +1,7 @@
 package com.chobolevel.domain.user.repository
 
 import com.chobolevel.domain.common.dto.Paging
-import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.DataNotFoundException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.user.entity.QUser.user
 import com.chobolevel.domain.user.entity.User
@@ -10,7 +10,6 @@ import com.chobolevel.domain.user.vo.UserOrderType
 import com.chobolevel.domain.user.vo.UserQueryFilter
 import com.querydsl.core.types.OrderSpecifier
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 
 @Component
@@ -40,10 +39,8 @@ class UserRepositoryAdapter(
     }
 
     override fun findById(id: Long): User {
-        return userJpaRepository.findByIdOrNull(id) ?: throw ApiException(
-            errorCode = ErrorCode.USER_NOT_FOUND,
-            status = HttpStatus.BAD_REQUEST,
-            message = "회원 정보를 찾을 수 없습니다."
+        return userJpaRepository.findByIdOrNull(id) ?: throw DataNotFoundException(
+            errorCode = ErrorCode.USER_NOT_FOUND
         )
     }
 

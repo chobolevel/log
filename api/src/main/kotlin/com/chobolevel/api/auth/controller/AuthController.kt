@@ -9,8 +9,8 @@ import com.chobolevel.api.auth.validator.AuthParameterValidator
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getCookie
 import com.chobolevel.api.common.properties.JwtProperties
-import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.common.exception.UnAuthorizedException
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.Cookie
@@ -18,7 +18,6 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
 import org.springframework.boot.autoconfigure.web.ServerProperties
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -85,9 +84,8 @@ class AuthController(
         req: HttpServletRequest,
         res: HttpServletResponse,
     ): ResponseEntity<ResultResponse> {
-        val refreshToken: String = req.getCookie(jwtProperties.refreshTokenKey) ?: throw ApiException(
+        val refreshToken: String = req.getCookie(jwtProperties.refreshTokenKey) ?: throw UnAuthorizedException(
             errorCode = ErrorCode.INVALID_TOKEN,
-            status = HttpStatus.UNAUTHORIZED,
             message = "토큰이 만료되었습니다. 재로그인 해주세요."
         )
         val result: JwtResponse = service.reissue(refreshToken)

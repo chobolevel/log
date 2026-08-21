@@ -5,10 +5,9 @@ import com.chobolevel.domain.channel.entity.QChannel.channel
 import com.chobolevel.domain.channel.vo.ChannelOrderType
 import com.chobolevel.domain.channel.vo.ChannelQueryFilter
 import com.chobolevel.domain.common.dto.Paging
-import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.DataNotFoundException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.querydsl.core.types.OrderSpecifier
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 
 @Component
@@ -22,10 +21,8 @@ class ChannelRepositoryAdapter(
     }
 
     override fun findById(id: Long): Channel {
-        return channelJpaRepository.findByIdAndDeletedFalse(id) ?: throw ApiException(
-            errorCode = ErrorCode.INVALID_PARAMETER,
-            status = HttpStatus.BAD_REQUEST,
-            message = "해당 채널을 찾을 수 없습니다."
+        return channelJpaRepository.findByIdAndDeletedFalse(id) ?: throw DataNotFoundException(
+            errorCode = ErrorCode.CHANNEL_NOT_FOUND
         )
     }
 

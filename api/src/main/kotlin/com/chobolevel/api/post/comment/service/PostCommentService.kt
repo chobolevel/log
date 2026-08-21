@@ -8,8 +8,8 @@ import com.chobolevel.api.post.comment.dto.SearchPostCommentRequest
 import com.chobolevel.api.post.comment.dto.UpdatePostCommentRequest
 import com.chobolevel.api.post.comment.updater.PostCommentUpdatable
 import com.chobolevel.domain.common.dto.Paging
-import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.common.exception.ForbiddenException
 import com.chobolevel.domain.post.comment.entity.PostComment
 import com.chobolevel.domain.post.comment.repository.PostCommentRepository
 import com.chobolevel.domain.post.comment.vo.PostCommentOrderType
@@ -87,9 +87,8 @@ class PostCommentService(
 
     private fun validateWriter(userId: Long, postComment: PostComment) {
         if (postComment.writer!!.id != userId) {
-            throw ApiException(
-                errorCode = ErrorCode.POST_COMMENT_ONLY_ACCESS_WRITER,
-                message = "작성자만 접근할 수 있습니다."
+            throw ForbiddenException(
+                errorCode = ErrorCode.RESTRICTED_TO_POST_COMMENT_WRITER
             )
         }
     }

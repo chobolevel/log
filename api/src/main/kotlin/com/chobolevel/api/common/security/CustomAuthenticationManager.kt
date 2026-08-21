@@ -1,8 +1,7 @@
 package com.chobolevel.api.common.security
 
-import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.BadCredentialException
 import com.chobolevel.domain.common.exception.ErrorCode
-import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.core.Authentication
@@ -17,9 +16,8 @@ class CustomAuthenticationManager(
         return authenticationProviders
             .find { it.supports(authentication::class.java) }
             ?.authenticate(authentication)
-            ?: throw ApiException(
+            ?: throw BadCredentialException(
                 errorCode = ErrorCode.BAD_CREDENTIALS,
-                status = HttpStatus.UNAUTHORIZED,
                 message = "there is no suitable authentication provider"
             )
     }

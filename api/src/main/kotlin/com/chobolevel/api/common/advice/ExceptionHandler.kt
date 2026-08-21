@@ -1,7 +1,6 @@
 package com.chobolevel.api.common.advice
 
 import com.chobolevel.api.common.dto.ErrorResponse
-import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
 import jakarta.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
@@ -51,32 +50,18 @@ class ExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
     fun httpMessageNotReadableExceptionHandler(e: HttpMessageNotReadableException): ResponseEntity<ErrorResponse> {
-        val errorCode: ErrorCode = ErrorCode.INVALID_FORMAT
-        val message = "요청 데이터 형식이 유효하지 않습니다."
+        val errorCode: ErrorCode = ErrorCode.INVALID_REQUEST_FORMAT
         return ResponseEntity.badRequest().body(
             ErrorResponse(
                 errorCode = errorCode,
-                errorMessage = message
-            )
-        )
-    }
-
-    @ExceptionHandler(ApiException::class)
-    fun apiExceptionHandler(e: ApiException): ResponseEntity<ErrorResponse> {
-        val errorCode: ErrorCode = e.errorCode!!
-        val status: HttpStatus = e.status!!
-        val errorMessage: String = e.message!!
-        return ResponseEntity.status(status).body(
-            ErrorResponse(
-                errorCode = errorCode,
-                errorMessage = errorMessage
+                errorMessage = errorCode.defaultMessage
             )
         )
     }
 
     @ExceptionHandler(Exception::class)
     fun handleException(e: Exception, request: HttpServletRequest): ResponseEntity<ErrorResponse> {
-        val error = ErrorResponse(errorCode = ErrorCode.UNKNOWN_ERROR, errorMessage = e.message ?: "알 수 없는 에러입니다.")
+        val error = ErrorResponse(errorCode = ErrorCode.INTERNAL_SERVER_ERROR, errorMessage = e.message ?: "알 수 없는 에러입니다.")
         logger.error("[(${request.method}) ${request.requestURL} ] Internal server error: ${e.message}", e)
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error)
     }

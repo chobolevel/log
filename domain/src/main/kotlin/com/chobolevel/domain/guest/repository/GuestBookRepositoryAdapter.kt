@@ -1,14 +1,13 @@
 package com.chobolevel.domain.guest.repository
 
 import com.chobolevel.domain.common.dto.Paging
-import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.DataNotFoundException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.guest.entity.GuestBook
 import com.chobolevel.domain.guest.entity.QGuestBook.guestBook
 import com.chobolevel.domain.guest.vo.GuestBookOrderType
 import com.chobolevel.domain.guest.vo.GuestBookQueryFilter
 import com.querydsl.core.types.OrderSpecifier
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 
 @Component
@@ -22,10 +21,8 @@ class GuestBookRepositoryAdapter(
     }
 
     override fun findById(id: Long): GuestBook {
-        return guestBookJpaRepository.findByIdAndDeletedFalse(id) ?: throw ApiException(
-            errorCode = ErrorCode.INVALID_PARAMETER,
-            status = HttpStatus.BAD_REQUEST,
-            message = "해당 방명록을 찾을 수 없습니다."
+        return guestBookJpaRepository.findByIdAndDeletedFalse(id) ?: throw DataNotFoundException(
+            errorCode = ErrorCode.GUEST_BOOK_NOT_FOUND
         )
     }
 

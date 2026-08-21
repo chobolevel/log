@@ -4,12 +4,12 @@ import com.chobolevel.api.common.provider.PasswordProvider
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
-import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.common.exception.InvalidParameterException
+import com.chobolevel.domain.common.exception.PolicyViolationException
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
 import com.chobolevel.domain.user.vo.UserUpdateMask
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 
 @Component
@@ -36,9 +36,8 @@ class UserBusinessValidator(
                 encodedText = user.password
             )
         ) {
-            throw ApiException(
-                errorCode = ErrorCode.USER_PASSWORD_NOT_MATCH,
-                message = "비밀번호가 일치하지 않습니다."
+            throw InvalidParameterException(
+                errorCode = ErrorCode.USER_PASSWORD_NOT_MATCHED
             )
         }
 
@@ -48,29 +47,24 @@ class UserBusinessValidator(
                 encodedText = user.password
             )
         ) {
-            throw ApiException(
-                errorCode = ErrorCode.USER_PASSWORD_REUSE_NOT_ALLOWED,
-                message = "동일한 비밀번호로 설정할 수 없습니다."
+            throw PolicyViolationException(
+                errorCode = ErrorCode.USER_PASSWORD_REUSING_NOT_ALLOWED
             )
         }
     }
 
     private fun validateEmailExists(email: String) {
         if (userRepository.existsByEmail(email = email)) {
-            throw ApiException(
-                errorCode = ErrorCode.USER_EMAIL_ALREADY_EXISTS,
-                status = HttpStatus.BAD_REQUEST,
-                message = "이미 존재하는 이메일입니다."
+            throw PolicyViolationException(
+                errorCode = ErrorCode.USER_EMAIL_ALREADY_EXISTS
             )
         }
     }
 
     private fun validateNicknameExists(nickname: String) {
         if (userRepository.existsByNickname(nickname = nickname)) {
-            throw ApiException(
-                errorCode = ErrorCode.USER_NICKNAME_ALREADY_EXISTS,
-                status = HttpStatus.BAD_REQUEST,
-                message = "이미 존재하는 닉네임입니다."
+            throw PolicyViolationException(
+                errorCode = ErrorCode.USER_NICKNAME_ALREADY_EXISTS
             )
         }
     }

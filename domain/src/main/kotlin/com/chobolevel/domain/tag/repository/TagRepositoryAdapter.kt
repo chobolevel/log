@@ -1,7 +1,7 @@
 package com.chobolevel.domain.tag.repository
 
 import com.chobolevel.domain.common.dto.Paging
-import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.DataNotFoundException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.tag.entity.QTag.tag
 import com.chobolevel.domain.tag.entity.Tag
@@ -9,7 +9,6 @@ import com.chobolevel.domain.tag.vo.TagOrderType
 import com.chobolevel.domain.tag.vo.TagQueryFilter
 import com.querydsl.core.types.OrderSpecifier
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 
 @Component
@@ -27,10 +26,8 @@ class TagRepositoryAdapter(
     }
 
     override fun findById(id: Long): Tag {
-        return tagJpaRepository.findByIdOrNull(id) ?: throw ApiException(
-            errorCode = ErrorCode.INVALID_PARAMETER,
-            status = HttpStatus.BAD_REQUEST,
-            message = "게시글 태그를 찾을 수 없습니다."
+        return tagJpaRepository.findByIdOrNull(id) ?: throw DataNotFoundException(
+            errorCode = ErrorCode.TAG_NOT_FOUND
         )
     }
 

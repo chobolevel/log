@@ -11,13 +11,12 @@ import com.chobolevel.api.guest.dto.SearchGuestBookRequest
 import com.chobolevel.api.guest.dto.UpdateGuestBookRequest
 import com.chobolevel.api.guest.updater.GuestBookUpdater
 import com.chobolevel.domain.common.dto.Paging
-import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.common.exception.PolicyViolationException
 import com.chobolevel.domain.guest.entity.GuestBook
 import com.chobolevel.domain.guest.repository.GuestBookRepository
 import com.chobolevel.domain.guest.vo.GuestBookOrderType
 import com.chobolevel.domain.guest.vo.GuestBookQueryFilter
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -87,10 +86,8 @@ class GuestBookService(
 
     private fun validatePassword(rawPassword: String, encodedPassword: String) {
         if (!passwordProvider.matches(rawPassword, encodedPassword)) {
-            throw ApiException(
-                errorCode = ErrorCode.INVALID_PARAMETER,
-                status = HttpStatus.BAD_REQUEST,
-                message = "방명록 비밀번호가 일치하지 않습니다."
+            throw PolicyViolationException(
+                errorCode = ErrorCode.GUEST_BOOK_PASSWORD_NOT_MATCHED
             )
         }
     }
