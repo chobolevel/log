@@ -15,8 +15,8 @@ import com.chobolevel.api.post.dto.UpdatePostRequest
 import com.chobolevel.api.post.image.converter.PostImageConverter
 import com.chobolevel.api.post.image.dto.CreatePostImageRequest
 import com.chobolevel.api.post.updater.PostUpdater
-import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.common.exception.LogException
 import com.chobolevel.domain.post.entity.Post
 import com.chobolevel.domain.post.image.entity.PostImage
 import com.chobolevel.domain.post.repository.PostRepository
@@ -278,10 +278,10 @@ class PostServiceTest : BehaviorSpec({
                 every { postRepository.findById(postId) } returns post
 
                 // when / then
-                val exception: ApiException = shouldThrow<ApiException> {
+                val exception: LogException = shouldThrow<LogException> {
                     postService.updatePost(userId = otherUserId, postId = postId, request = request)
                 }
-                exception.errorCode shouldBe ErrorCode.POST_ONLY_ACCESS_WRITER
+                exception.errorCode shouldBe ErrorCode.RESTRICTED_TO_POST_WRITER
                 verify(exactly = 0) { postUpdater.markAsUpdate(any(), any()) }
             }
         }
@@ -318,10 +318,10 @@ class PostServiceTest : BehaviorSpec({
                 every { postRepository.findById(postId) } returns post
 
                 // when / then
-                val exception: ApiException = shouldThrow<ApiException> {
+                val exception: LogException = shouldThrow<LogException> {
                     postService.deletePost(userId = otherUserId, postId = postId)
                 }
-                exception.errorCode shouldBe ErrorCode.POST_ONLY_ACCESS_WRITER
+                exception.errorCode shouldBe ErrorCode.RESTRICTED_TO_POST_WRITER
                 post.deleted shouldBe false
             }
         }

@@ -1,7 +1,7 @@
 package com.chobolevel.api.guest.validator
 
 import com.chobolevel.api.guest.dto.UpdateGuestBookRequest
-import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.LogException
 import com.chobolevel.domain.guest.vo.GuestBookUpdateMask
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
@@ -20,7 +20,7 @@ class GuestBookParameterValidatorTest : BehaviorSpec({
                     content = null,
                     updateMask = listOf(GuestBookUpdateMask.CONTENT)
                 )
-                shouldThrow<ApiException> { validator.validate(request) }
+                shouldThrow<LogException> { validator.validate(request) }
             }
         }
 
@@ -31,7 +31,7 @@ class GuestBookParameterValidatorTest : BehaviorSpec({
                     content = "",
                     updateMask = listOf(GuestBookUpdateMask.CONTENT)
                 )
-                shouldThrow<ApiException> { validator.validate(request) }
+                shouldThrow<LogException> { validator.validate(request) }
             }
         }
 

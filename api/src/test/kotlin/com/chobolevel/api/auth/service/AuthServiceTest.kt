@@ -9,7 +9,7 @@ import com.chobolevel.api.common.provider.RedisCacheProvider
 import com.chobolevel.api.common.provider.ResendEmailProvider
 import com.chobolevel.api.common.security.CustomAuthenticationManager
 import com.chobolevel.api.common.security.TokenProvider
-import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.LogException
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -118,7 +118,7 @@ class AuthServiceTest : BehaviorSpec({
                 every { cacheProvider.get("refresh-token:v1:" + DummyAuth.REFRESH_TOKEN) } returns null
 
                 // when & then
-                shouldThrow<ApiException> {
+                shouldThrow<LogException> {
                     service.reissue(DummyAuth.REFRESH_TOKEN)
                 }
             }
@@ -133,7 +133,7 @@ class AuthServiceTest : BehaviorSpec({
                 every { cacheProvider.get("refresh-token:v1:" + DummyAuth.REFRESH_TOKEN) } returns "999"
 
                 // when & then
-                shouldThrow<ApiException> {
+                shouldThrow<LogException> {
                     service.reissue(DummyAuth.REFRESH_TOKEN)
                 }
             }
@@ -188,7 +188,7 @@ class AuthServiceTest : BehaviorSpec({
                 every { cacheProvider.get("email:" + DummyUser.EMAIL) } returns null
 
                 // when & then
-                shouldThrow<ApiException> {
+                shouldThrow<LogException> {
                     service.checkEmailVerificationCode(request)
                 }
             }
@@ -204,7 +204,7 @@ class AuthServiceTest : BehaviorSpec({
                 every { cacheProvider.get("email:" + DummyUser.EMAIL) } returns DummyAuth.VERIFICATION_CODE
 
                 // when & then
-                shouldThrow<ApiException> {
+                shouldThrow<LogException> {
                     service.checkEmailVerificationCode(request)
                 }
             }

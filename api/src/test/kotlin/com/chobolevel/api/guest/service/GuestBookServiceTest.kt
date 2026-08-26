@@ -6,7 +6,7 @@ import com.chobolevel.api.common.provider.PasswordProvider
 import com.chobolevel.api.guest.converter.GuestBookConverter
 import com.chobolevel.api.guest.dto.GuestBookResponse
 import com.chobolevel.api.guest.updater.GuestBookUpdater
-import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.LogException
 import com.chobolevel.domain.guest.entity.GuestBook
 import com.chobolevel.domain.guest.repository.GuestBookRepository
 import io.kotest.assertions.throwables.shouldThrow
@@ -108,7 +108,7 @@ class GuestBookServiceTest : BehaviorSpec({
                 every { repository.findById(DummyGuestBook.ID) } returns guestBook
                 every { passwordProvider.matches(DummyGuestBook.PASSWORD, DummyGuestBook.ENCODED_PASSWORD) } returns false
 
-                shouldThrow<ApiException> {
+                shouldThrow<LogException> {
                     service.updateGuestBook(
                         id = DummyGuestBook.ID,
                         request = DummyGuestBook.toUpdateRequest()
@@ -141,7 +141,7 @@ class GuestBookServiceTest : BehaviorSpec({
                 every { repository.findById(DummyGuestBook.ID) } returns guestBook
                 every { passwordProvider.matches(DummyGuestBook.PASSWORD, DummyGuestBook.ENCODED_PASSWORD) } returns false
 
-                shouldThrow<ApiException> {
+                shouldThrow<LogException> {
                     service.deleteGuestBook(
                         id = DummyGuestBook.ID,
                         request = DummyGuestBook.toDeleteRequest()

@@ -3,7 +3,7 @@ package com.chobolevel.api.user.validator
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
-import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.LogException
 import com.chobolevel.domain.user.vo.UserLoginType
 import com.chobolevel.domain.user.vo.UserUpdateMask
 import io.kotest.assertions.throwables.shouldNotThrow
@@ -25,7 +25,7 @@ class UserParameterValidatorTest : BehaviorSpec({
                     loginType = UserLoginType.GENERAL,
                     nickname = "홍길동"
                 )
-                shouldThrow<ApiException> { validator.validate(request) }
+                shouldThrow<LogException> { validator.validate(request) }
             }
         }
 
@@ -38,7 +38,7 @@ class UserParameterValidatorTest : BehaviorSpec({
                     loginType = UserLoginType.GENERAL,
                     nickname = "nick123"
                 )
-                shouldThrow<ApiException> { validator.validate(request) }
+                shouldThrow<LogException> { validator.validate(request) }
             }
         }
 
@@ -51,7 +51,7 @@ class UserParameterValidatorTest : BehaviorSpec({
                     loginType = UserLoginType.GENERAL,
                     nickname = "홍길동"
                 )
-                shouldThrow<ApiException> { validator.validate(request) }
+                shouldThrow<LogException> { validator.validate(request) }
             }
         }
 
@@ -100,7 +100,7 @@ class UserParameterValidatorTest : BehaviorSpec({
                     nickname = null,
                     updateMask = listOf(UserUpdateMask.NICKNAME)
                 )
-                shouldThrow<ApiException> { validator.validate(request) }
+                shouldThrow<LogException> { validator.validate(request) }
             }
         }
 
@@ -110,7 +110,7 @@ class UserParameterValidatorTest : BehaviorSpec({
                     nickname = "nick123",
                     updateMask = listOf(UserUpdateMask.NICKNAME)
                 )
-                shouldThrow<ApiException> { validator.validate(request) }
+                shouldThrow<LogException> { validator.validate(request) }
             }
         }
 
@@ -133,7 +133,7 @@ class UserParameterValidatorTest : BehaviorSpec({
                     curPassword = "oldPass1!",
                     newPassword = "short"
                 )
-                shouldThrow<ApiException> { validator.validate(request) }
+                shouldThrow<LogException> { validator.validate(request) }
             }
         }
 

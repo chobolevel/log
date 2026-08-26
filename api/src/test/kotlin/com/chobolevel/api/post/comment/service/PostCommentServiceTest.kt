@@ -11,8 +11,8 @@ import com.chobolevel.api.post.comment.dto.PostCommentResponse
 import com.chobolevel.api.post.comment.dto.SearchPostCommentRequest
 import com.chobolevel.api.post.comment.dto.UpdatePostCommentRequest
 import com.chobolevel.api.post.comment.updater.PostCommentUpdater
-import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.common.exception.LogException
 import com.chobolevel.domain.post.comment.entity.PostComment
 import com.chobolevel.domain.post.comment.repository.PostCommentRepository
 import com.chobolevel.domain.post.comment.vo.PostCommentQueryFilter
@@ -174,10 +174,10 @@ class PostCommentServiceTest : BehaviorSpec({
                 every { repository.findById(postCommentId) } returns postComment
 
                 // when / then
-                val exception: ApiException = shouldThrow<ApiException> {
+                val exception: LogException = shouldThrow<LogException> {
                     postCommentService.updatePostComment(userId = otherUserId, postCommentId = postCommentId, request = request)
                 }
-                exception.errorCode shouldBe ErrorCode.POST_COMMENT_ONLY_ACCESS_WRITER
+                exception.errorCode shouldBe ErrorCode.RESTRICTED_TO_POST_COMMENT_WRITER
                 postComment.content shouldBe DummyPostComment.CONTENT
             }
         }
@@ -212,10 +212,10 @@ class PostCommentServiceTest : BehaviorSpec({
                 every { repository.findById(postCommentId) } returns postComment
 
                 // when / then
-                val exception: ApiException = shouldThrow<ApiException> {
+                val exception: LogException = shouldThrow<LogException> {
                     postCommentService.deletePostComment(userId = otherUserId, postCommentId = postCommentId)
                 }
-                exception.errorCode shouldBe ErrorCode.POST_COMMENT_ONLY_ACCESS_WRITER
+                exception.errorCode shouldBe ErrorCode.RESTRICTED_TO_POST_COMMENT_WRITER
                 postComment.deleted shouldBe false
             }
         }

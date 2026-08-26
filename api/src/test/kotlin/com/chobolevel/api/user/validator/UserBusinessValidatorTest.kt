@@ -5,8 +5,8 @@ import com.chobolevel.api.common.provider.PasswordProvider
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
-import com.chobolevel.domain.common.exception.ApiException
 import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.common.exception.LogException
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
 import com.chobolevel.domain.user.vo.UserLoginType
@@ -50,7 +50,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 every { userRepository.existsByEmail(DummyUser.EMAIL) } returns true
 
                 // when
-                val exception: ApiException = shouldThrow<ApiException> {
+                val exception: LogException = shouldThrow<LogException> {
                     validator.validate(request)
                 }
 
@@ -73,7 +73,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 every { userRepository.existsByNickname(DummyUser.NICKNAME) } returns true
 
                 // when
-                val exception: ApiException = shouldThrow<ApiException> {
+                val exception: LogException = shouldThrow<LogException> {
                     validator.validate(request)
                 }
 
@@ -127,7 +127,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 every { userRepository.existsByNickname(DummyUser.NICKNAME) } returns true
 
                 // when
-                val exception: ApiException = shouldThrow<ApiException> {
+                val exception: LogException = shouldThrow<LogException> {
                     validator.validate(request)
                 }
 
@@ -166,12 +166,12 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 } returns false
 
                 // when
-                val exception: ApiException = shouldThrow<ApiException> {
+                val exception: LogException = shouldThrow<LogException> {
                     validator.validate(user, request)
                 }
 
                 // then
-                exception.errorCode shouldBe ErrorCode.USER_PASSWORD_NOT_MATCH
+                exception.errorCode shouldBe ErrorCode.USER_PASSWORD_NOT_MATCHED
             }
         }
 
@@ -188,12 +188,12 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 } returns true
 
                 // when
-                val exception: ApiException = shouldThrow<ApiException> {
+                val exception: LogException = shouldThrow<LogException> {
                     validator.validate(user, request)
                 }
 
                 // then
-                exception.errorCode shouldBe ErrorCode.USER_PASSWORD_REUSE_NOT_ALLOWED
+                exception.errorCode shouldBe ErrorCode.USER_PASSWORD_REUSING_NOT_ALLOWED
             }
         }
 

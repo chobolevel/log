@@ -1,7 +1,7 @@
 package com.chobolevel.api.tag.validator
 
 import com.chobolevel.api.tag.dto.UpdateTagRequest
-import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.LogException
 import com.chobolevel.domain.tag.vo.TagUpdateMask
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
@@ -20,7 +20,7 @@ class TagParameterValidatorTest : BehaviorSpec({
                     order = null,
                     updateMask = listOf(TagUpdateMask.NAME)
                 )
-                shouldThrow<ApiException> { validator.validate(request) }
+                shouldThrow<LogException> { validator.validate(request) }
             }
         }
 
@@ -31,7 +31,7 @@ class TagParameterValidatorTest : BehaviorSpec({
                     order = null,
                     updateMask = listOf(TagUpdateMask.NAME)
                 )
-                shouldThrow<ApiException> { validator.validate(request) }
+                shouldThrow<LogException> { validator.validate(request) }
             }
         }
 
@@ -53,7 +53,7 @@ class TagParameterValidatorTest : BehaviorSpec({
                     order = null,
                     updateMask = listOf(TagUpdateMask.ORDER)
                 )
-                shouldThrow<ApiException> { validator.validate(request) }
+                shouldThrow<LogException> { validator.validate(request) }
             }
         }
 

@@ -1,7 +1,12 @@
 package com.chobolevel.api.common.advice
 
 import com.chobolevel.api.common.dto.ErrorResponse
+import com.chobolevel.domain.common.exception.DataNotFoundException
 import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.common.exception.ForbiddenException
+import com.chobolevel.domain.common.exception.InvalidParameterException
+import com.chobolevel.domain.common.exception.PolicyViolationException
+import com.chobolevel.domain.common.exception.UnAuthorizedException
 import jakarta.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -17,6 +22,41 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 class ExceptionHandler {
 
     private val logger = LoggerFactory.getLogger(ExceptionHandler::class.java)
+
+    @ExceptionHandler(UnAuthorizedException::class)
+    fun handleUnAuthorizedException(e: UnAuthorizedException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+            ErrorResponse(errorCode = e.errorCode, errorMessage = e.message ?: e.errorCode.defaultMessage)
+        )
+    }
+
+    @ExceptionHandler(ForbiddenException::class)
+    fun handleForbiddenException(e: ForbiddenException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+            ErrorResponse(errorCode = e.errorCode, errorMessage = e.message ?: e.errorCode.defaultMessage)
+        )
+    }
+
+    @ExceptionHandler(DataNotFoundException::class)
+    fun handleDataNotFoundException(e: DataNotFoundException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+            ErrorResponse(errorCode = e.errorCode, errorMessage = e.message ?: e.errorCode.defaultMessage)
+        )
+    }
+
+    @ExceptionHandler(PolicyViolationException::class)
+    fun handlePolicyViolationException(e: PolicyViolationException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.badRequest().body(
+            ErrorResponse(errorCode = e.errorCode, errorMessage = e.message ?: e.errorCode.defaultMessage)
+        )
+    }
+
+    @ExceptionHandler(InvalidParameterException::class)
+    fun handleInvalidParameterException(e: InvalidParameterException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.badRequest().body(
+            ErrorResponse(errorCode = e.errorCode, errorMessage = e.message ?: e.errorCode.defaultMessage)
+        )
+    }
 
     @ExceptionHandler(AccessDeniedException::class)
     fun handleAccessDeniedException(e: AccessDeniedException): ResponseEntity<ErrorResponse> {

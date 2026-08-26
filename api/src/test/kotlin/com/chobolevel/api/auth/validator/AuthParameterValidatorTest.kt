@@ -3,7 +3,7 @@ package com.chobolevel.api.auth.validator
 import com.chobolevel.api.auth.dto.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.auth.dto.LoginRequest
 import com.chobolevel.api.auth.dto.SendEmailVerificationCodeRequest
-import com.chobolevel.domain.common.exception.ApiException
+import com.chobolevel.domain.common.exception.LogException
 import com.chobolevel.domain.user.vo.UserLoginType
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
@@ -23,7 +23,7 @@ class AuthParameterValidatorTest : BehaviorSpec({
                     socialId = null,
                     loginType = UserLoginType.GENERAL
                 )
-                shouldThrow<ApiException> { validator.validate(request) }
+                shouldThrow<LogException> { validator.validate(request) }
             }
         }
 
@@ -35,7 +35,7 @@ class AuthParameterValidatorTest : BehaviorSpec({
                     socialId = null,
                     loginType = UserLoginType.GENERAL
                 )
-                shouldThrow<ApiException> { validator.validate(request) }
+                shouldThrow<LogException> { validator.validate(request) }
             }
         }
 
@@ -59,7 +59,7 @@ class AuthParameterValidatorTest : BehaviorSpec({
                     socialId = null,
                     loginType = UserLoginType.KAKAO
                 )
-                shouldThrow<ApiException> { validator.validate(request) }
+                shouldThrow<LogException> { validator.validate(request) }
             }
         }
 
@@ -83,7 +83,7 @@ class AuthParameterValidatorTest : BehaviorSpec({
                 val request: SendEmailVerificationCodeRequest = SendEmailVerificationCodeRequest(
                     email = "not-an-email"
                 )
-                shouldThrow<ApiException> { validator.validate(request) }
+                shouldThrow<LogException> { validator.validate(request) }
             }
         }
 
@@ -105,7 +105,7 @@ class AuthParameterValidatorTest : BehaviorSpec({
                     email = "not-an-email",
                     verificationCode = "1234567890123"
                 )
-                shouldThrow<ApiException> { validator.validate(request) }
+                shouldThrow<LogException> { validator.validate(request) }
             }
         }
 
@@ -115,7 +115,7 @@ class AuthParameterValidatorTest : BehaviorSpec({
                     email = "test@test.com",
                     verificationCode = "12345"
                 )
-                shouldThrow<ApiException> { validator.validate(request) }
+                shouldThrow<LogException> { validator.validate(request) }
             }
         }
 

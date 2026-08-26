@@ -3,6 +3,7 @@ package com.chobolevel.api.auth.validator
 import com.chobolevel.api.auth.dto.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.auth.dto.LoginRequest
 import com.chobolevel.api.auth.dto.SendEmailVerificationCodeRequest
+import com.chobolevel.api.common.constant.Regexp
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.InvalidParameterException
 import com.chobolevel.domain.user.vo.UserLoginType
@@ -10,8 +11,6 @@ import org.springframework.stereotype.Component
 
 @Component
 class AuthParameterValidator {
-
-    private final val emailRegexp = "^[a-zA-Z0-9+-\\_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+\$".toRegex()
 
     fun validate(request: LoginRequest) {
         when (request.loginType) {
@@ -50,7 +49,7 @@ class AuthParameterValidator {
     }
 
     private fun validateEmail(email: String) {
-        if (!email.matches(emailRegexp)) {
+        if (!email.matches(Regexp.EMAIL_REGEXP)) {
             throw InvalidParameterException(
                 errorCode = ErrorCode.INVALID_PARAMETER,
                 message = "이메일 형식이 올바르지 않습니다."

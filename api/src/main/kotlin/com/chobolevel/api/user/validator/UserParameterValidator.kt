@@ -1,5 +1,6 @@
 package com.chobolevel.api.user.validator
 
+import com.chobolevel.api.common.constant.Regexp
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
@@ -11,12 +12,6 @@ import org.springframework.stereotype.Component
 
 @Component
 class UserParameterValidator {
-
-    companion object {
-        private val emailRegexp = "^[a-zA-Z0-9+-\\_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+\$".toRegex()
-        private val passwordRegexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[!@#\$%^&*(),.?\":{}|<>]).{8,}\$".toRegex()
-        private val nicknameRegexp = "^[a-zA-Z가-힣]+\$".toRegex()
-    }
 
     fun validate(request: CreateUserRequest) {
         validateEmailFormat(email = request.email)
@@ -47,7 +42,7 @@ class UserParameterValidator {
     }
 
     private fun validateEmailFormat(email: String) {
-        if (!email.matches(emailRegexp)) {
+        if (!email.matches(Regexp.EMAIL_REGEXP)) {
             throw InvalidParameterException(
                 errorCode = ErrorCode.INVALID_PARAMETER,
                 message = "이메일 형식이 올바르지 않습니다."
@@ -56,7 +51,7 @@ class UserParameterValidator {
     }
 
     private fun validateNicknameFormat(nickname: String) {
-        if (!nickname.matches(nicknameRegexp)) {
+        if (!nickname.matches(Regexp.NICKNAME_REGEXP)) {
             throw InvalidParameterException(
                 errorCode = ErrorCode.INVALID_PARAMETER,
                 message = "닉네임은 영어 또는 한글만 사용할 수 있습니다."
@@ -65,7 +60,7 @@ class UserParameterValidator {
     }
 
     private fun validatePasswordFormat(password: String) {
-        if (!password.matches(passwordRegexp)) {
+        if (!password.matches(Regexp.PASSWORD_REGEXP)) {
             throw InvalidParameterException(
                 errorCode = ErrorCode.INVALID_PARAMETER,
                 message = "비밀번호는 영문 + 숫자 + 특수문자 조합으로 8자리 이상이어야 합니다."
