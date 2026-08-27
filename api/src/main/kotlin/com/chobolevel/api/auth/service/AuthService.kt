@@ -4,6 +4,7 @@ import com.chobolevel.api.auth.dto.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.auth.dto.JwtResponse
 import com.chobolevel.api.auth.dto.LoginRequest
 import com.chobolevel.api.auth.dto.SendEmailVerificationCodeRequest
+import com.chobolevel.api.common.constant.CacheKeyPrefix
 import com.chobolevel.api.common.provider.CacheProvider
 import com.chobolevel.api.common.provider.EmailProvider
 import com.chobolevel.api.common.security.CustomAuthenticationManager
@@ -18,6 +19,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.concurrent.TimeUnit
 
 @Service
 class AuthService(
@@ -65,7 +67,7 @@ class AuthService(
     @Async
     fun asyncSendEmailVerificationCode(request: SendEmailVerificationCodeRequest) {
         val authCode: String = TSID.fast().toString()
-        cacheProvider.put("email:" + request.email, authCode)
+        cacheProvider.put(CacheKeyPrefix.EMAIL + request.email, authCode, 5, TimeUnit.MINUTES)
         val emailBody: String = javaClass.getResourceAsStream("/templates/email/verification-code.html")
             ?.bufferedReader()
             ?.readText()
@@ -79,7 +81,7 @@ class AuthService(
     }
 
     fun checkEmailVerificationCode(request: CheckEmailVerificationCodeRequest): String {
-        val cachedVerificationCode: String = cacheProvider.get("email:" + request.email) ?: throw PolicyViolationException(
+        val cachedVerificationCode: String = cacheProvider.get(CacheKeyPrefix.EMAIL + request.email) ?: throw PolicyViolationException(
             errorCode = ErrorCode.EMAIL_VERIFICATION_CODE_NOT_SENT
         )
         if (request.verificationCode != cachedVerificationCode) {
@@ -87,7 +89,7 @@ class AuthService(
                 errorCode = ErrorCode.EMAIL_VERIFICATION_CODE_NOT_MATCHED,
             )
         }
-        cacheProvider.delete("email:" + request.email)
+        cacheProvider.delete(CacheKeyPrefix.EMAIL + request.email)
         return request.email
     }
 
