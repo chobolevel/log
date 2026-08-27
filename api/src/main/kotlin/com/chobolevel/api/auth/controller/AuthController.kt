@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @Tag(name = "Auth (인증)", description = "인증 관리 API")
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/auth")
 class AuthController(
     private val validator: AuthParameterValidator,
     private val service: AuthService,
@@ -98,7 +98,7 @@ class AuthController(
     }
 
     @Operation(summary = "이메일 인증 코드 전송 API")
-    @PostMapping("/send-verification-code/email")
+    @PostMapping("/email-verifications/send-code")
     fun sendEmailVerificationCode(
         @Valid @RequestBody
         request: SendEmailVerificationCodeRequest
@@ -109,8 +109,8 @@ class AuthController(
     }
 
     @Operation(summary = "이메일 인증 코드 확인 API")
-    @PostMapping("/check-verification-code/email")
-    fun checkEmailVerificationCode(
+    @PostMapping("/email-verifications/verify-code")
+    fun verifyEmailVerificationCode(
         @Valid @RequestBody
         request: CheckEmailVerificationCodeRequest
     ): ResponseEntity<ResultResponse> {
