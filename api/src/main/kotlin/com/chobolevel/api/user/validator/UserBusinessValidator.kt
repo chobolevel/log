@@ -1,8 +1,11 @@
 package com.chobolevel.api.user.validator
 
+import com.chobolevel.api.common.constant.CacheKeyPrefix
+import com.chobolevel.api.common.provider.CacheProvider
 import com.chobolevel.api.common.provider.PasswordProvider
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
+import com.chobolevel.api.user.dto.ResetUserPasswordRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.InvalidParameterException
@@ -15,7 +18,8 @@ import org.springframework.stereotype.Component
 @Component
 class UserBusinessValidator(
     private val userRepository: UserRepository,
-    private val passwordProvider: PasswordProvider
+    private val passwordProvider: PasswordProvider,
+    private val cacheProvider: CacheProvider
 ) {
 
     fun validate(request: CreateUserRequest) {
@@ -53,10 +57,31 @@ class UserBusinessValidator(
         }
     }
 
+    fun validate(request: ResetUserPasswordRequest) {
+        validateEmailNotExists(email = request.email)
+        // 비밀번호 초기화 코드 검증
+        val cachedCode: String = cacheProvider.get("${CacheKeyPrefix.RESET_PASSWORD}${request.email}") ?: throw InvalidParameterException(
+            errorCode = ErrorCode.RESET_USER_PASSWORD_CODE_NOT_EXISTS
+        )
+        if (cachedCode != request.code) {
+            throw InvalidParameterException(
+                errorCode = ErrorCode.USER_PASSWORD_NOT_MATCHED
+            )
+        }
+    }
+
     private fun validateEmailExists(email: String) {
         if (userRepository.existsByEmail(email = email)) {
             throw PolicyViolationException(
                 errorCode = ErrorCode.USER_EMAIL_ALREADY_EXISTS
+            )
+        }
+    }
+
+    private fun validateEmailNotExists(email: String) {
+        if (!userRepository.existsByEmail(email = email)) {
+            throw InvalidParameterException(
+                errorCode = ErrorCode.USER_EMAIL_NOT_EXISTS
             )
         }
     }

@@ -3,6 +3,7 @@ package com.chobolevel.api.user.validator
 import com.chobolevel.api.common.constant.Regexp
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
+import com.chobolevel.api.user.dto.ResetUserPasswordRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.InvalidParameterException
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Component
 class UserParameterValidator {
 
     fun validate(request: CreateUserRequest) {
-        validateEmailFormat(email = request.email)
         validateNicknameFormat(nickname = request.nickname)
         if (request.loginType == UserLoginType.GENERAL) {
             validatePasswordFormat(password = request.password!!)
@@ -41,13 +41,8 @@ class UserParameterValidator {
         validatePasswordFormat(password = request.newPassword)
     }
 
-    private fun validateEmailFormat(email: String) {
-        if (!email.matches(Regexp.EMAIL_REGEXP)) {
-            throw InvalidParameterException(
-                errorCode = ErrorCode.INVALID_PARAMETER,
-                message = "이메일 형식이 올바르지 않습니다."
-            )
-        }
+    fun validate(request: ResetUserPasswordRequest) {
+        validatePasswordFormat(password = request.password)
     }
 
     private fun validateNicknameFormat(nickname: String) {

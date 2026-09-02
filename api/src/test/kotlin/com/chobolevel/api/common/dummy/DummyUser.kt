@@ -2,6 +2,8 @@ package com.chobolevel.api.common.dummy
 
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
+import com.chobolevel.api.user.dto.ResetUserPasswordRequest
+import com.chobolevel.api.user.dto.SendUserPasswordResetEmailRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
 import com.chobolevel.api.user.dto.UserResponse
 import com.chobolevel.domain.user.entity.User
@@ -14,6 +16,7 @@ object DummyUser {
     const val EMAIL: String = "test@test.com"
     const val PASSWORD: String = "encodedPassword!"
     const val NICKNAME: String = "testUser"
+    const val RESET_CODE: String = "resetCode123"
 
     fun toEntity(): User = User(
         email = EMAIL,
@@ -40,6 +43,16 @@ object DummyUser {
     fun toChangePasswordRequest(): ChangeUserPasswordRequest = ChangeUserPasswordRequest(
         curPassword = PASSWORD,
         newPassword = "newPassword"
+    )
+
+    fun toSendResetPasswordEmailRequest(): SendUserPasswordResetEmailRequest = SendUserPasswordResetEmailRequest(
+        email = EMAIL
+    )
+
+    fun toResetPasswordRequest(): ResetUserPasswordRequest = ResetUserPasswordRequest(
+        email = EMAIL,
+        code = RESET_CODE,
+        password = "NewPassword123!"
     )
 
     fun toResponse(): UserResponse = UserResponse(

@@ -4,6 +4,7 @@ import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
+import com.chobolevel.api.user.dto.ResetUserPasswordRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
 import com.chobolevel.api.user.service.UserService
 import com.chobolevel.api.user.validator.UserParameterValidator
@@ -234,5 +235,36 @@ class UserControllerTest {
             post("/api/v1/user/resign")
         )
             .andExpect(status().isUnauthorized)
+    }
+
+    @Test
+    fun `비밀번호 초기화 코드 전송 요청 시 true를 반환한다`() {
+        // given
+        every { userService.sendResetPasswordEmail(request = any()) } returns true
+
+        // when & then
+        mockMvc.perform(
+            post("/api/v1/user/reset-password/send-code")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(DummyUser.toSendResetPasswordEmailRequest()))
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.data").value(true))
+    }
+
+    @Test
+    fun `비밀번호 초기화 요청 시 true를 반환한다`() {
+        // given
+        justRun { userParameterValidator.validate(request = any<ResetUserPasswordRequest>()) }
+        every { userService.resetPassword(request = any()) } returns true
+
+        // when & then
+        mockMvc.perform(
+            post("/api/v1/user/reset-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(DummyUser.toResetPasswordRequest()))
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.data").value(true))
     }
 }

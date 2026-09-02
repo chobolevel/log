@@ -44,6 +44,12 @@ class UserRepositoryAdapter(
         )
     }
 
+    override fun findByEmail(email: String): User {
+        return userJpaRepository.findByEmailAndResignedFalse(email) ?: throw DataNotFoundException(
+            errorCode = ErrorCode.USER_NOT_FOUND
+        )
+    }
+
     override fun findByEmailAndLoginType(
         email: String,
         loginType: UserLoginType

@@ -8,6 +8,8 @@ interface UserJpaRepository : JpaRepository<User, Long> {
 
     fun findByEmailAndLoginTypeAndResignedFalse(email: String, loginType: UserLoginType): User?
 
+    fun findByEmailAndResignedFalse(email: String): User?
+
     fun findBySocialIdAndLoginTypeAndResignedFalse(socialId: String, loginType: UserLoginType): User?
 
     fun findAllByIdInAndResignedFalse(ids: List<Long>): List<User>

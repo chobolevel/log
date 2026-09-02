@@ -7,7 +7,9 @@ import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getUserId
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
+import com.chobolevel.api.user.dto.ResetUserPasswordRequest
 import com.chobolevel.api.user.dto.SearchUserRequest
+import com.chobolevel.api.user.dto.SendUserPasswordResetEmailRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
 import com.chobolevel.api.user.dto.UserPagingRequest
 import com.chobolevel.api.user.dto.UserResponse
@@ -103,6 +105,27 @@ class UserController(
     @PostMapping("/user/resign")
     fun resignUser(principal: Principal): ResponseEntity<ResultResponse> {
         val result: Boolean = service.resignUser(principal.getUserId())
+        return ResponseEntity.ok(ResultResponse(result))
+    }
+
+    @Operation(summary = "비밀번호 초기화 요청 API")
+    @PostMapping("/user/reset-password/send-code")
+    fun sendResetPasswordEmail(
+        @Valid @RequestBody
+        request: SendUserPasswordResetEmailRequest
+    ): ResponseEntity<ResultResponse> {
+        val result: Boolean = service.sendResetPasswordEmail(request = request)
+        return ResponseEntity.ok(ResultResponse(result))
+    }
+
+    @Operation(summary = "비밀번호 초기화 API")
+    @PostMapping("/user/reset-password")
+    fun resetPassword(
+        @Valid @RequestBody
+        request: ResetUserPasswordRequest
+    ): ResponseEntity<ResultResponse> {
+        validator.validate(request = request)
+        val result: Boolean = service.resetPassword(request = request)
         return ResponseEntity.ok(ResultResponse(result))
     }
 }

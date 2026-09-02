@@ -1,9 +1,12 @@
 package com.chobolevel.api.user.validator
 
+import com.chobolevel.api.common.constant.CacheKeyPrefix
 import com.chobolevel.api.common.dummy.DummyUser
+import com.chobolevel.api.common.provider.CacheProvider
 import com.chobolevel.api.common.provider.PasswordProvider
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
+import com.chobolevel.api.user.dto.ResetUserPasswordRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.LogException
@@ -24,9 +27,11 @@ class UserBusinessValidatorTest : BehaviorSpec({
 
     val userRepository: UserRepository = mockk()
     val passwordProvider: PasswordProvider = mockk()
+    val cacheProvider: CacheProvider = mockk()
     val validator: UserBusinessValidator = UserBusinessValidator(
         userRepository = userRepository,
-        passwordProvider = passwordProvider
+        passwordProvider = passwordProvider,
+        cacheProvider = cacheProvider
     )
 
     // BehaviorSpec에서 given/when 블록 내 코드는 스펙 초기화 시 한 번만 실행되므로
@@ -214,6 +219,71 @@ class UserBusinessValidatorTest : BehaviorSpec({
 
                 // when + then
                 shouldNotThrow<Exception> { validator.validate(user, request) }
+            }
+        }
+    }
+
+    given("비밀번호 초기화 요청을 검증할 때") {
+
+        `when`("이메일이 존재하지 않으면") {
+            then("USER_EMAIL_NOT_EXISTS 예외가 발생한다") {
+                // given
+                val request: ResetUserPasswordRequest = DummyUser.toResetPasswordRequest()
+                every { userRepository.existsByEmail(DummyUser.EMAIL) } returns false
+
+                // when
+                val exception: LogException = shouldThrow<LogException> {
+                    validator.validate(request)
+                }
+
+                // then
+                exception.errorCode shouldBe ErrorCode.USER_EMAIL_NOT_EXISTS
+            }
+        }
+
+        `when`("이메일은 존재하지만 캐시에 초기화 코드가 없으면") {
+            then("RESET_USER_PASSWORD_CODE_NOT_EXISTS 예외가 발생한다") {
+                // given
+                val request: ResetUserPasswordRequest = DummyUser.toResetPasswordRequest()
+                every { userRepository.existsByEmail(DummyUser.EMAIL) } returns true
+                every { cacheProvider.get("${CacheKeyPrefix.RESET_PASSWORD}${DummyUser.EMAIL}") } returns null
+
+                // when
+                val exception: LogException = shouldThrow<LogException> {
+                    validator.validate(request)
+                }
+
+                // then
+                exception.errorCode shouldBe ErrorCode.RESET_USER_PASSWORD_CODE_NOT_EXISTS
+            }
+        }
+
+        `when`("이메일과 캐시 코드가 존재하지만 코드가 일치하지 않으면") {
+            then("USER_PASSWORD_NOT_MATCHED 예외가 발생한다") {
+                // given
+                val request: ResetUserPasswordRequest = DummyUser.toResetPasswordRequest()
+                every { userRepository.existsByEmail(DummyUser.EMAIL) } returns true
+                every { cacheProvider.get("${CacheKeyPrefix.RESET_PASSWORD}${DummyUser.EMAIL}") } returns "wrongCode"
+
+                // when
+                val exception: LogException = shouldThrow<LogException> {
+                    validator.validate(request)
+                }
+
+                // then
+                exception.errorCode shouldBe ErrorCode.USER_PASSWORD_NOT_MATCHED
+            }
+        }
+
+        `when`("이메일이 존재하고 코드가 일치하면") {
+            then("예외 없이 통과한다") {
+                // given
+                val request: ResetUserPasswordRequest = DummyUser.toResetPasswordRequest()
+                every { userRepository.existsByEmail(DummyUser.EMAIL) } returns true
+                every { cacheProvider.get("${CacheKeyPrefix.RESET_PASSWORD}${DummyUser.EMAIL}") } returns DummyUser.RESET_CODE
+
+                // when + then
+                shouldNotThrow<Exception> { validator.validate(request) }
             }
         }
     }

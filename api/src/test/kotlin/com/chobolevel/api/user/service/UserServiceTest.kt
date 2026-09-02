@@ -2,11 +2,16 @@ package com.chobolevel.api.user.service
 
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dummy.DummyUser
+import com.chobolevel.api.common.properties.FrontServerProperties
+import com.chobolevel.api.common.provider.CacheProvider
+import com.chobolevel.api.common.provider.EmailProvider
 import com.chobolevel.api.common.provider.PasswordProvider
 import com.chobolevel.api.user.converter.UserConverter
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
+import com.chobolevel.api.user.dto.ResetUserPasswordRequest
 import com.chobolevel.api.user.dto.SearchUserRequest
+import com.chobolevel.api.user.dto.SendUserPasswordResetEmailRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
 import com.chobolevel.api.user.dto.UserPagingRequest
 import com.chobolevel.api.user.dto.UserResponse
@@ -32,12 +37,18 @@ class UserServiceTest : BehaviorSpec({
     val validator: UserBusinessValidator = mockk()
     val updater: UserUpdater = mockk()
     val passwordProvider: PasswordProvider = mockk()
+    val cacheProvider: CacheProvider = mockk()
+    val emailProvider: EmailProvider = mockk()
+    val frontServerProperties: FrontServerProperties = mockk()
     val service: UserService = UserService(
         repository = repository,
         converter = converter,
         validator = validator,
         updater = updater,
-        passwordProvider = passwordProvider
+        passwordProvider = passwordProvider,
+        cacheProvider = cacheProvider,
+        emailProvider = emailProvider,
+        frontServerProperties = frontServerProperties,
     )
 
     beforeEach {
@@ -186,6 +197,50 @@ class UserServiceTest : BehaviorSpec({
                 // then
                 result shouldBe true
                 user.resigned shouldBe true
+            }
+        }
+    }
+
+    given("비밀번호 초기화 코드 전송 요청할 때") {
+        `when`("유효한 이메일이 들어오면") {
+            then("캐시에 코드를 저장하고 이메일을 발송한 뒤 true를 반환한다") {
+                // given
+                val request: SendUserPasswordResetEmailRequest = DummyUser.toSendResetPasswordEmailRequest()
+                every { frontServerProperties.host } returns "http://localhost:3000"
+                every { frontServerProperties.resetPasswordPath } returns "/reset-password"
+                justRun { cacheProvider.put(any(), any(), any(), any()) }
+                justRun { emailProvider.sendEmail(to = any(), subject = any(), content = any()) }
+
+                // when
+                val result: Boolean = service.sendResetPasswordEmail(request)
+
+                // then
+                result shouldBe true
+                verify(exactly = 1) { cacheProvider.put(any(), any(), any(), any()) }
+                verify(exactly = 1) { emailProvider.sendEmail(to = DummyUser.EMAIL, subject = any(), content = any()) }
+            }
+        }
+    }
+
+    given("비밀번호를 초기화할 때") {
+        `when`("유효한 이메일과 코드가 들어오면") {
+            then("비밀번호를 새 값으로 변경하고 true를 반환한다") {
+                // given
+                val request: ResetUserPasswordRequest = DummyUser.toResetPasswordRequest()
+                val user: User = DummyUser.toEntity()
+                val encodedPassword: String = "encodedNewPassword!"
+                justRun { validator.validate(request = request) }
+                every { repository.findByEmail(email = DummyUser.EMAIL) } returns user
+                every { passwordProvider.encode(plainText = request.password) } returns encodedPassword
+                justRun { cacheProvider.delete(any()) }
+
+                // when
+                val result: Boolean = service.resetPassword(request)
+
+                // then
+                result shouldBe true
+                user.password shouldBe encodedPassword
+                verify(exactly = 1) { cacheProvider.delete(any()) }
             }
         }
     }

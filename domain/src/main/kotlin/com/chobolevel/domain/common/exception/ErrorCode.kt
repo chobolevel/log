@@ -46,7 +46,10 @@ enum class ErrorCode(val defaultMessage: String) {
     USER_PASSWORD_NOT_MATCHED("비밀번호가 일치하지 않습니다."),
     USER_PASSWORD_REUSING_NOT_ALLOWED("동일한 비밀번호를 사용할 수 없습니다."),
     USER_EMAIL_ALREADY_EXISTS("이미 존재하는 이메일입니다."),
+    USER_EMAIL_NOT_EXISTS("존재하지 않는 이메일입니다."),
     USER_NICKNAME_ALREADY_EXISTS("이미 존재하는 닉네임입니다."),
+    RESET_USER_PASSWORD_CODE_NOT_EXISTS("비밀번호 초기화 코드가 없습니다."),
+    RESET_USER_PASSWORD_CODE_NOT_MATCHED("비밀번호 초기화 코드가 일치하지 않습니다."),
 
     // USER IMAGE
     USER_IMAGE_NOT_FOUND("회원 이미지를 찾을 수 없습니다.")

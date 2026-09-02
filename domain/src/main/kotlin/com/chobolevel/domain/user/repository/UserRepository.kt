@@ -20,6 +20,8 @@ interface UserRepository {
 
     fun findById(id: Long): User
 
+    fun findByEmail(email: String): User
+
     fun findByEmailAndLoginType(email: String, loginType: UserLoginType): User?
 
     fun findBySocialIdAndLoginType(socialId: String, loginType: UserLoginType): User?

@@ -57,4 +57,8 @@ class User(
     fun resign() {
         this.resigned = true
     }
+
+    fun changePassword(password: String) {
+        this.password = password
+    }
 }

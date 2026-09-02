@@ -2,6 +2,7 @@ package com.chobolevel.api.user.validator
 
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
+import com.chobolevel.api.user.dto.ResetUserPasswordRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
 import com.chobolevel.domain.common.exception.LogException
 import com.chobolevel.domain.user.vo.UserLoginType
@@ -15,19 +16,6 @@ class UserParameterValidatorTest : BehaviorSpec({
     val validator: UserParameterValidator = UserParameterValidator()
 
     given("회원가입 요청 파라미터를 검증할 때") {
-
-        `when`("이메일 형식이 올바르지 않으면") {
-            then("ApiException이 발생한다") {
-                val request: CreateUserRequest = CreateUserRequest(
-                    email = "not-an-email",
-                    password = "Pass1234!",
-                    socialId = null,
-                    loginType = UserLoginType.GENERAL,
-                    nickname = "홍길동"
-                )
-                shouldThrow<LogException> { validator.validate(request) }
-            }
-        }
 
         `when`("닉네임에 숫자가 포함되면") {
             then("ApiException이 발생한다") {
@@ -142,6 +130,31 @@ class UserParameterValidatorTest : BehaviorSpec({
                 val request: ChangeUserPasswordRequest = ChangeUserPasswordRequest(
                     curPassword = "oldPass1!",
                     newPassword = "NewPass1234!"
+                )
+                shouldNotThrow<Exception> { validator.validate(request) }
+            }
+        }
+    }
+
+    given("비밀번호 초기화 요청 파라미터를 검증할 때") {
+
+        `when`("초기화할 비밀번호가 규칙에 맞지 않으면") {
+            then("ApiException이 발생한다") {
+                val request: ResetUserPasswordRequest = ResetUserPasswordRequest(
+                    email = "test@test.com",
+                    code = "someCode",
+                    password = "short"
+                )
+                shouldThrow<LogException> { validator.validate(request) }
+            }
+        }
+
+        `when`("초기화할 비밀번호가 유효하면") {
+            then("예외 없이 통과한다") {
+                val request: ResetUserPasswordRequest = ResetUserPasswordRequest(
+                    email = "test@test.com",
+                    code = "someCode",
+                    password = "NewPass1234!"
                 )
                 shouldNotThrow<Exception> { validator.validate(request) }
             }

@@ -1,11 +1,17 @@
 package com.chobolevel.api.user.service
 
+import com.chobolevel.api.common.constant.CacheKeyPrefix
 import com.chobolevel.api.common.dto.PagingResponse
+import com.chobolevel.api.common.properties.FrontServerProperties
+import com.chobolevel.api.common.provider.CacheProvider
+import com.chobolevel.api.common.provider.EmailProvider
 import com.chobolevel.api.common.provider.PasswordProvider
 import com.chobolevel.api.user.converter.UserConverter
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
+import com.chobolevel.api.user.dto.ResetUserPasswordRequest
 import com.chobolevel.api.user.dto.SearchUserRequest
+import com.chobolevel.api.user.dto.SendUserPasswordResetEmailRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
 import com.chobolevel.api.user.dto.UserPagingRequest
 import com.chobolevel.api.user.dto.UserResponse
@@ -16,8 +22,10 @@ import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
 import com.chobolevel.domain.user.vo.UserOrderType
 import com.chobolevel.domain.user.vo.UserQueryFilter
+import io.hypersistence.tsid.TSID
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.concurrent.TimeUnit
 
 @Service
 class UserService(
@@ -25,7 +33,10 @@ class UserService(
     private val converter: UserConverter,
     private val validator: UserBusinessValidator,
     private val updater: UserUpdater,
-    private val passwordProvider: PasswordProvider
+    private val passwordProvider: PasswordProvider,
+    private val cacheProvider: CacheProvider,
+    private val emailProvider: EmailProvider,
+    private val frontServerProperties: FrontServerProperties,
 ) {
 
     @Transactional
@@ -91,6 +102,32 @@ class UserService(
     fun resignUser(id: Long): Boolean {
         val user: User = repository.findById(id)
         user.resign()
+        return true
+    }
+
+    @Transactional(readOnly = true)
+    fun sendResetPasswordEmail(request: SendUserPasswordResetEmailRequest): Boolean {
+        val code: String = TSID.fast().toString()
+        cacheProvider.put("${CacheKeyPrefix.RESET_PASSWORD}${request.email}", code, 10, TimeUnit.MINUTES)
+        val emailBody: String = javaClass.getResourceAsStream("/templates/email/reset-password.html")
+            ?.bufferedReader()
+            ?.readText()
+            ?.replace("{{resetPasswordUrl}}", "${frontServerProperties.host}${frontServerProperties.resetPasswordPath}?code=$code")
+            ?: code
+        emailProvider.sendEmail(
+            to = request.email,
+            subject = "[초로] 비밀번호 초기화",
+            content = emailBody
+        )
+        return true
+    }
+
+    @Transactional
+    fun resetPassword(request: ResetUserPasswordRequest): Boolean {
+        validator.validate(request = request)
+        val user: User = repository.findByEmail(email = request.email)
+        user.changePassword(password = passwordProvider.encode(plainText = request.password))
+        cacheProvider.delete("${CacheKeyPrefix.RESET_PASSWORD}${request.email}")
         return true
     }
 }
