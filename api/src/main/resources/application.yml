@@ -135,3 +135,7 @@ management:
       exposure:
         include: "*"
         exclude: "env, beans"
+
+front-server:
+  host: ENC(iIDc474VWyr0OeuqBtw75vX+5iz0jV7saAHU7yp54xZaopMpE1NFJeuBCEcre+CKCLvZafVB5rXl5OJHBDBEtg==)
+  reset-password-path: ENC(60AoXTy3ShObIRElkoGiGNrCHqs0WGQltKxi34eDx+Ck3FIKWkbeK06tDKnnbVJX)
