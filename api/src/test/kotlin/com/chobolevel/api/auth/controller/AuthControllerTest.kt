@@ -79,7 +79,7 @@ class AuthControllerTest {
 
         // when & then
         mockMvc.perform(
-            post("/api/v1/login")
+            post("/api/v1/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(DummyAuth.toGeneralLoginRequest()))
         )
@@ -96,7 +96,7 @@ class AuthControllerTest {
 
         // when & then
         mockMvc.perform(
-            post("/api/v1/login")
+            post("/api/v1/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(invalidRequest))
         )
@@ -111,7 +111,7 @@ class AuthControllerTest {
 
         // when & then
         mockMvc.perform(
-            post("/api/v1/logout")
+            post("/api/v1/auth/logout")
                 .cookie(Cookie(DummyAuth.REFRESH_TOKEN_COOKIE_KEY, DummyAuth.REFRESH_TOKEN))
         )
             .andExpect(status().isOk)
@@ -125,7 +125,7 @@ class AuthControllerTest {
         // given — 쿠키 없으면 service.logout 자체를 호출하지 않는다 (controller 분기)
 
         // when & then
-        mockMvc.perform(post("/api/v1/logout"))
+        mockMvc.perform(post("/api/v1/auth/logout"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.data").value(true))
     }
@@ -137,7 +137,7 @@ class AuthControllerTest {
 
         // when & then
         mockMvc.perform(
-            post("/api/v1/reissue")
+            post("/api/v1/auth/reissue")
                 .cookie(Cookie(DummyAuth.REFRESH_TOKEN_COOKIE_KEY, DummyAuth.REFRESH_TOKEN))
         )
             .andExpect(status().isOk)
@@ -150,7 +150,7 @@ class AuthControllerTest {
         // given — 쿠키 없음 → controller에서 ApiException(INVALID_TOKEN) 발생 → 401
 
         // when & then
-        mockMvc.perform(post("/api/v1/reissue"))
+        mockMvc.perform(post("/api/v1/auth/reissue"))
             .andExpect(status().isUnauthorized)
     }
 
@@ -158,11 +158,11 @@ class AuthControllerTest {
     fun `이메일 인증 코드 전송 요청 시 200을 반환한다`() {
         // given
         justRun { authParameterValidator.validate(request = any<SendEmailVerificationCodeRequest>()) }
-        justRun { authService.asyncSendEmailVerificationCode(request = any()) }
+        every { authService.sendEmailVerificationCode(request = any()) } returns true
 
         // when & then
         mockMvc.perform(
-            post("/api/v1/send-verification-code/email")
+            post("/api/v1/auth/email-verifications/send-code")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(DummyAuth.toSendEmailVerificationCodeRequest()))
         )
@@ -178,7 +178,7 @@ class AuthControllerTest {
 
         // when & then
         mockMvc.perform(
-            post("/api/v1/check-verification-code/email")
+            post("/api/v1/auth/email-verifications/verify-code")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(DummyAuth.toCheckEmailVerificationCodeRequest()))
         )

@@ -3,6 +3,7 @@ package com.chobolevel.api.auth.service
 import com.chobolevel.api.auth.dto.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.auth.dto.JwtResponse
 import com.chobolevel.api.auth.dto.SendEmailVerificationCodeRequest
+import com.chobolevel.api.common.constant.CacheKeyPrefix
 import com.chobolevel.api.common.dummy.DummyAuth
 import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.common.provider.RedisCacheProvider
@@ -145,14 +146,15 @@ class AuthServiceTest : BehaviorSpec({
             then("Redis에 인증 코드를 저장하고 이메일을 발송한다") {
                 // given
                 val request: SendEmailVerificationCodeRequest = SendEmailVerificationCodeRequest(email = DummyUser.EMAIL)
-                every { cacheProvider.put(eq("email:" + DummyUser.EMAIL), any()) } returns Unit
+                justRun { cacheProvider.put(any(), any(), any(), any()) }
                 justRun { emailProvider.sendEmail(to = any(), subject = any(), content = any()) }
 
                 // when
-                service.asyncSendEmailVerificationCode(request)
+                val result: Boolean = service.sendEmailVerificationCode(request)
 
                 // then
-                verify(exactly = 1) { cacheProvider.put(eq("email:" + DummyUser.EMAIL), any()) }
+                result shouldBe true
+                verify(exactly = 1) { cacheProvider.put(eq("${CacheKeyPrefix.EMAIL}${DummyUser.EMAIL}"), any(), any(), any()) }
                 verify(exactly = 1) { emailProvider.sendEmail(to = DummyUser.EMAIL, subject = any(), content = any()) }
             }
         }
@@ -166,15 +168,15 @@ class AuthServiceTest : BehaviorSpec({
                     email = DummyUser.EMAIL,
                     verificationCode = DummyAuth.VERIFICATION_CODE
                 )
-                every { cacheProvider.get("email:" + DummyUser.EMAIL) } returns DummyAuth.VERIFICATION_CODE
-                every { cacheProvider.delete("email:" + DummyUser.EMAIL) } returns Unit
+                every { cacheProvider.get("${CacheKeyPrefix.EMAIL}${DummyUser.EMAIL}") } returns DummyAuth.VERIFICATION_CODE
+                justRun { cacheProvider.delete("${CacheKeyPrefix.EMAIL}${DummyUser.EMAIL}") }
 
                 // when
                 val result: String = service.checkEmailVerificationCode(request)
 
                 // then
                 result shouldBe DummyUser.EMAIL
-                verify(exactly = 1) { cacheProvider.delete("email:" + DummyUser.EMAIL) }
+                verify(exactly = 1) { cacheProvider.delete("${CacheKeyPrefix.EMAIL}${DummyUser.EMAIL}") }
             }
         }
 
@@ -185,7 +187,7 @@ class AuthServiceTest : BehaviorSpec({
                     email = DummyUser.EMAIL,
                     verificationCode = DummyAuth.VERIFICATION_CODE
                 )
-                every { cacheProvider.get("email:" + DummyUser.EMAIL) } returns null
+                every { cacheProvider.get("${CacheKeyPrefix.EMAIL}${DummyUser.EMAIL}") } returns null
 
                 // when & then
                 shouldThrow<LogException> {
@@ -201,7 +203,7 @@ class AuthServiceTest : BehaviorSpec({
                     email = DummyUser.EMAIL,
                     verificationCode = "wrongCode"
                 )
-                every { cacheProvider.get("email:" + DummyUser.EMAIL) } returns DummyAuth.VERIFICATION_CODE
+                every { cacheProvider.get("${CacheKeyPrefix.EMAIL}${DummyUser.EMAIL}") } returns DummyAuth.VERIFICATION_CODE
 
                 // when & then
                 shouldThrow<LogException> {

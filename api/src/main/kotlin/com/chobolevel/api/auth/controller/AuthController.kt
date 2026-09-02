@@ -104,8 +104,8 @@ class AuthController(
         request: SendEmailVerificationCodeRequest
     ): ResponseEntity<ResultResponse> {
         validator.validate(request = request)
-        service.asyncSendEmailVerificationCode(request)
-        return ResponseEntity.ok(ResultResponse(true))
+        val result: Boolean = service.sendEmailVerificationCode(request)
+        return ResponseEntity.ok(ResultResponse(result))
     }
 
     @Operation(summary = "이메일 인증 코드 확인 API")

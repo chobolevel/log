@@ -41,3 +41,9 @@ open class DataNotFoundException(
     override val message: String? = null,
     override val throwable: Throwable? = null
 ) : LogException(errorCode, message ?: errorCode.defaultMessage, throwable)
+
+open class ExternalApiException(
+    override val errorCode: ErrorCode,
+    override val message: String? = null,
+    override val throwable: Throwable? = null
+) : LogException(errorCode, message ?: errorCode.defaultMessage, throwable)

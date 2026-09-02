@@ -14,7 +14,6 @@ import com.chobolevel.domain.common.exception.PolicyViolationException
 import com.chobolevel.domain.common.exception.UnAuthorizedException
 import com.chobolevel.domain.user.vo.UserLoginType
 import io.hypersistence.tsid.TSID
-import org.springframework.scheduling.annotation.Async
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
@@ -64,8 +63,7 @@ class AuthService(
         return result
     }
 
-    @Async
-    fun asyncSendEmailVerificationCode(request: SendEmailVerificationCodeRequest) {
+    fun sendEmailVerificationCode(request: SendEmailVerificationCodeRequest): Boolean {
         val authCode: String = TSID.fast().toString()
         cacheProvider.put(CacheKeyPrefix.EMAIL + request.email, authCode, 5, TimeUnit.MINUTES)
         val emailBody: String = javaClass.getResourceAsStream("/templates/email/verification-code.html")
@@ -78,6 +76,7 @@ class AuthService(
             subject = "[초로] 이메일 인증 코드",
             content = emailBody
         )
+        return true
     }
 
     fun checkEmailVerificationCode(request: CheckEmailVerificationCodeRequest): String {

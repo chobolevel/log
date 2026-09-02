@@ -3,6 +3,7 @@ package com.chobolevel.api.common.advice
 import com.chobolevel.api.common.dto.ErrorResponse
 import com.chobolevel.domain.common.exception.DataNotFoundException
 import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.common.exception.ExternalApiException
 import com.chobolevel.domain.common.exception.ForbiddenException
 import com.chobolevel.domain.common.exception.InvalidParameterException
 import com.chobolevel.domain.common.exception.PolicyViolationException
@@ -96,6 +97,14 @@ class ExceptionHandler {
                 errorCode = errorCode,
                 errorMessage = errorCode.defaultMessage
             )
+        )
+    }
+
+    @ExceptionHandler(ExternalApiException::class)
+    fun handleExternalApiException(e: ExternalApiException, request: HttpServletRequest): ResponseEntity<ErrorResponse> {
+        logger.error("[(${request.method}) ${request.requestURL}] External API error: ${e.message}", e.throwable ?: e)
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(
+            ErrorResponse(errorCode = e.errorCode, errorMessage = e.message ?: e.errorCode.defaultMessage)
         )
     }
 

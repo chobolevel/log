@@ -52,5 +52,8 @@ enum class ErrorCode(val defaultMessage: String) {
     RESET_USER_PASSWORD_CODE_NOT_MATCHED("비밀번호 초기화 코드가 일치하지 않습니다."),
 
     // USER IMAGE
-    USER_IMAGE_NOT_FOUND("회원 이미지를 찾을 수 없습니다.")
+    USER_IMAGE_NOT_FOUND("회원 이미지를 찾을 수 없습니다."),
+
+    // EXTERNAL API
+    EMAIL_SEND_FAILED("이메일 발송에 실패했습니다.")
 }
