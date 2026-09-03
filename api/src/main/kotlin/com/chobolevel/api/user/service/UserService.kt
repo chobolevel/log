@@ -112,7 +112,7 @@ class UserService(
         val emailBody: String = javaClass.getResourceAsStream("/templates/email/reset-password.html")
             ?.bufferedReader()
             ?.readText()
-            ?.replace("{{resetPasswordUrl}}", "${frontServerProperties.host}${frontServerProperties.resetPasswordPath}?code=$code")
+            ?.replace("{{resetPasswordUrl}}", "${frontServerProperties.host}${frontServerProperties.resetPasswordPath}?email=${request.email}&code=$code")
             ?: code
         emailProvider.sendEmail(
             to = request.email,
