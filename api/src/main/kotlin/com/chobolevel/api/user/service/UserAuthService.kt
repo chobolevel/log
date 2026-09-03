@@ -93,6 +93,7 @@ class UserAuthService(
     }
 
     fun sendEmailVerificationCode(request: SendEmailVerificationCodeRequest): Boolean {
+        validateEmailExists(email = request.email)
         val authCode: String = TSID.fast().toString()
         cacheProvider.put(CacheKeyPrefix.EMAIL + request.email, authCode, 5, TimeUnit.MINUTES)
         val emailBody: String = javaClass.getResourceAsStream("/templates/email/verification-code.html")
@@ -135,5 +136,14 @@ class UserAuthService(
 
     private fun removeRefreshToken(refreshToken: String) {
         cacheProvider.delete("refresh-token:v1:$refreshToken")
+    }
+
+    private fun validateEmailExists(email: String) {
+        if (userRepository.existsByEmail(email = email)) {
+            throw InvalidParameterException(
+                errorCode = ErrorCode.USER_EMAIL_ALREADY_EXISTS,
+                message = "이미 사용중인 이메일입니다."
+            )
+        }
     }
 }

@@ -256,6 +256,7 @@ class UserAuthServiceTest : BehaviorSpec({
             then("Redis에 인증 코드를 저장하고 이메일을 발송한다") {
                 // given
                 val request: SendEmailVerificationCodeRequest = SendEmailVerificationCodeRequest(email = DummyUser.EMAIL)
+                every { userRepository.existsByEmail(email = request.email) } returns false
                 justRun { cacheProvider.put(any(), any(), any(), any()) }
                 justRun { emailProvider.sendEmail(to = any(), subject = any(), content = any()) }
 
@@ -266,6 +267,19 @@ class UserAuthServiceTest : BehaviorSpec({
                 result shouldBe true
                 verify(exactly = 1) { cacheProvider.put(eq("${CacheKeyPrefix.EMAIL}${DummyUser.EMAIL}"), any(), any(), any()) }
                 verify(exactly = 1) { emailProvider.sendEmail(to = DummyUser.EMAIL, subject = any(), content = any()) }
+            }
+        }
+
+        `when`("이미 존재하는 이메일이라면") {
+            then("InvalidParameterException이 발생한다") {
+                // given
+                val request: SendEmailVerificationCodeRequest = SendEmailVerificationCodeRequest(email = DummyUser.EMAIL)
+                every { userRepository.existsByEmail(email = request.email) } returns true
+
+                // when & then
+                shouldThrow<InvalidParameterException> {
+                    service.sendEmailVerificationCode(request)
+                }
             }
         }
     }
