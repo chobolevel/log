@@ -13,6 +13,8 @@ import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest
 import com.chobolevel.domain.common.exception.LogException
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
+import com.chobolevel.domain.user.vo.UserLoginType
+import com.chobolevel.domain.user.vo.UserRoleType
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -20,6 +22,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 
@@ -75,6 +78,106 @@ class UserAuthServiceTest : BehaviorSpec({
                 // when & then
                 shouldThrow<LogException> {
                     service.login(request)
+                }
+            }
+        }
+    }
+
+    given("소셜 로그인 요청이 들어올 때") {
+        `when`("이메일이 존재하지 않으면") {
+            then("신규 유저를 생성하고 JWT 토큰을 반환한다") {
+                // given
+                val request = DummyAuth.toGithubSocialLoginRequest()
+                val savedUser: User = User(
+                    email = DummyUser.EMAIL,
+                    password = "",
+                    socialId = DummyAuth.GITHUB_SOCIAL_ID,
+                    loginType = UserLoginType.GITHUB,
+                    nickname = DummyUser.NICKNAME,
+                    role = UserRoleType.ROLE_USER
+                ).also { it.id = DummyUser.ID }
+                val jwtResponse: JwtResponse = DummyAuth.toJwtResponse()
+                val savedUserSlot = slot<User>()
+                every { userRepository.findByEmailOrNull(request.email) } returns null
+                every { userRepository.save(capture(savedUserSlot)) } returns savedUser
+                every { tokenProvider.generateToken(any()) } returns jwtResponse
+                every { cacheProvider.put(any(), any()) } returns Unit
+
+                // when
+                val result: JwtResponse = service.socialLogin(request)
+
+                // then
+                result.accessToken shouldBe DummyAuth.ACCESS_TOKEN
+                result.refreshToken shouldBe DummyAuth.REFRESH_TOKEN
+                savedUserSlot.captured.email shouldBe DummyUser.EMAIL
+                savedUserSlot.captured.loginType shouldBe UserLoginType.GITHUB
+                verify(exactly = 1) { cacheProvider.put("refresh-token:v1:" + DummyAuth.REFRESH_TOKEN, DummyUser.ID.toString()) }
+            }
+        }
+
+        `when`("이메일이 존재하고 소셜 아이디가 일치하면") {
+            then("JWT 토큰을 반환하고 Redis에 refresh token을 저장한다") {
+                // given
+                val request = DummyAuth.toGithubSocialLoginRequest()
+                val user: User = User(
+                    email = DummyUser.EMAIL,
+                    password = "",
+                    socialId = DummyAuth.GITHUB_SOCIAL_ID,
+                    loginType = UserLoginType.GITHUB,
+                    nickname = DummyUser.NICKNAME,
+                    role = UserRoleType.ROLE_USER
+                ).also { it.id = DummyUser.ID }
+                val jwtResponse: JwtResponse = DummyAuth.toJwtResponse()
+                every { userRepository.findByEmailOrNull(request.email) } returns user
+                every { tokenProvider.generateToken(any()) } returns jwtResponse
+                every { cacheProvider.put(any(), any()) } returns Unit
+
+                // when
+                val result: JwtResponse = service.socialLogin(request)
+
+                // then
+                result.accessToken shouldBe DummyAuth.ACCESS_TOKEN
+                result.refreshToken shouldBe DummyAuth.REFRESH_TOKEN
+                verify(exactly = 1) { cacheProvider.put("refresh-token:v1:" + DummyAuth.REFRESH_TOKEN, DummyUser.ID.toString()) }
+            }
+        }
+
+        `when`("이메일이 존재하고 소셜 아이디가 변경되었으면") {
+            then("소셜 아이디를 업데이트하고 JWT 토큰을 반환한다") {
+                // given
+                val request = DummyAuth.toGithubSocialLoginRequest()
+                val user: User = User(
+                    email = DummyUser.EMAIL,
+                    password = "",
+                    socialId = "old_social_id",
+                    loginType = UserLoginType.GITHUB,
+                    nickname = DummyUser.NICKNAME,
+                    role = UserRoleType.ROLE_USER
+                ).also { it.id = DummyUser.ID }
+                val jwtResponse: JwtResponse = DummyAuth.toJwtResponse()
+                every { userRepository.findByEmailOrNull(request.email) } returns user
+                every { tokenProvider.generateToken(any()) } returns jwtResponse
+                every { cacheProvider.put(any(), any()) } returns Unit
+
+                // when
+                val result: JwtResponse = service.socialLogin(request)
+
+                // then
+                result.accessToken shouldBe DummyAuth.ACCESS_TOKEN
+                user.socialId shouldBe DummyAuth.GITHUB_SOCIAL_ID
+            }
+        }
+
+        `when`("이메일이 GENERAL 타입으로 이미 가입되어 있으면") {
+            then("InvalidParameterException이 발생한다") {
+                // given
+                val request = DummyAuth.toGithubSocialLoginRequest()
+                val user: User = DummyUser.toEntity()
+                every { userRepository.findByEmailOrNull(request.email) } returns user
+
+                // when & then
+                shouldThrow<LogException> {
+                    service.socialLogin(request)
                 }
             }
         }

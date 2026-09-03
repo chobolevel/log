@@ -3,7 +3,9 @@ package com.chobolevel.api.user.validator
 import com.chobolevel.api.user.dto.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.user.dto.LoginRequest
 import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest
+import com.chobolevel.api.user.dto.SocialLoginRequest
 import com.chobolevel.domain.common.exception.LogException
+import com.chobolevel.domain.user.vo.UserLoginType
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -29,6 +31,45 @@ class UserAuthParameterValidatorTest : BehaviorSpec({
                 val request: LoginRequest = LoginRequest(
                     email = "test@test.com",
                     password = "Pass1234!"
+                )
+                shouldNotThrow<Exception> { validator.validate(request) }
+            }
+        }
+    }
+
+    given("소셜 로그인 요청 파라미터를 검증할 때") {
+
+        `when`("이메일 형식이 올바르지 않으면") {
+            then("ApiException이 발생한다") {
+                val request: SocialLoginRequest = SocialLoginRequest(
+                    email = "not-an-email",
+                    socialId = "github_12345",
+                    loginType = UserLoginType.GITHUB,
+                    nickname = "홍길동"
+                )
+                shouldThrow<LogException> { validator.validate(request) }
+            }
+        }
+
+        `when`("loginType이 GENERAL이면") {
+            then("ApiException이 발생한다") {
+                val request: SocialLoginRequest = SocialLoginRequest(
+                    email = "test@test.com",
+                    socialId = "github_12345",
+                    loginType = UserLoginType.GENERAL,
+                    nickname = "홍길동"
+                )
+                shouldThrow<LogException> { validator.validate(request) }
+            }
+        }
+
+        `when`("이메일 형식이 올바르고 loginType이 소셜 타입이면") {
+            then("예외 없이 통과한다") {
+                val request: SocialLoginRequest = SocialLoginRequest(
+                    email = "test@test.com",
+                    socialId = "github_12345",
+                    loginType = UserLoginType.GITHUB,
+                    nickname = "홍길동"
                 )
                 shouldNotThrow<Exception> { validator.validate(request) }
             }

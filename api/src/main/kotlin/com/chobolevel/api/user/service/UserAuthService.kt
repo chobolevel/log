@@ -9,12 +9,15 @@ import com.chobolevel.api.user.dto.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.user.dto.JwtResponse
 import com.chobolevel.api.user.dto.LoginRequest
 import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest
+import com.chobolevel.api.user.dto.SocialLoginRequest
 import com.chobolevel.domain.common.exception.BadCredentialException
 import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.common.exception.InvalidParameterException
 import com.chobolevel.domain.common.exception.PolicyViolationException
 import com.chobolevel.domain.common.exception.UnAuthorizedException
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
+import com.chobolevel.domain.user.vo.UserRoleType
 import io.hypersistence.tsid.TSID
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.GrantedAuthority
@@ -40,6 +43,36 @@ class UserAuthService(
                 errorCode = ErrorCode.BAD_CREDENTIALS,
                 message = "아이디 또는 비밀번호가 일치하지 않습니다."
             )
+        }
+        val authorities: List<GrantedAuthority> = AuthorityUtils.createAuthorityList(user.role.name)
+        val authentication: UsernamePasswordAuthenticationToken = UsernamePasswordAuthenticationToken(user.id, user.password, authorities)
+        val result: JwtResponse = tokenProvider.generateToken(authentication).also {
+            setRefreshToken(authentication.name, it.refreshToken)
+        }
+        return result
+    }
+
+    @Transactional
+    fun socialLogin(request: SocialLoginRequest): JwtResponse {
+        val user: User = userRepository.findByEmailOrNull(request.email)
+            ?: userRepository.save(
+                User(
+                    email = request.email,
+                    password = "",
+                    socialId = request.socialId,
+                    loginType = request.loginType,
+                    nickname = request.nickname,
+                    role = UserRoleType.ROLE_USER
+                )
+            )
+        if (user.loginType != request.loginType) {
+            throw InvalidParameterException(
+                errorCode = ErrorCode.INVALID_PARAMETER,
+                message = "해당 이메일은 다른 로그인 타입으로 가입된 계정입니다."
+            )
+        }
+        if (user.socialId != request.socialId) {
+            user.socialId = request.socialId
         }
         val authorities: List<GrantedAuthority> = AuthorityUtils.createAuthorityList(user.role.name)
         val authentication: UsernamePasswordAuthenticationToken = UsernamePasswordAuthenticationToken(user.id, user.password, authorities)

@@ -4,6 +4,8 @@ import com.chobolevel.api.user.dto.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.user.dto.JwtResponse
 import com.chobolevel.api.user.dto.LoginRequest
 import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest
+import com.chobolevel.api.user.dto.SocialLoginRequest
+import com.chobolevel.domain.user.vo.UserLoginType
 
 object DummyAuth {
     const val ACCESS_TOKEN: String = "dummy.access.token"
@@ -21,6 +23,13 @@ object DummyAuth {
     fun toGeneralLoginRequest(): LoginRequest = LoginRequest(
         email = DummyUser.EMAIL,
         password = "password123!"
+    )
+
+    fun toGithubSocialLoginRequest(): SocialLoginRequest = SocialLoginRequest(
+        email = DummyUser.EMAIL,
+        socialId = GITHUB_SOCIAL_ID,
+        loginType = UserLoginType.GITHUB,
+        nickname = DummyUser.NICKNAME
     )
 
     fun toSendEmailVerificationCodeRequest(): SendEmailVerificationCodeRequest = SendEmailVerificationCodeRequest(

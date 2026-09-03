@@ -7,6 +7,7 @@ import com.chobolevel.api.user.dto.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.user.dto.JwtResponse
 import com.chobolevel.api.user.dto.LoginRequest
 import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest
+import com.chobolevel.api.user.dto.SocialLoginRequest
 import com.chobolevel.api.user.service.UserAuthService
 import com.chobolevel.api.user.validator.UserAuthParameterValidator
 import com.chobolevel.domain.common.exception.ErrorCode
@@ -43,6 +44,28 @@ class UserAuthController(
     ): ResponseEntity<ResultResponse> {
         validator.validate(request = request)
         val result: JwtResponse = service.login(request)
+        val accessTokenCookie: Cookie = generateCookie(
+            key = jwtProperties.accessTokenKey,
+            value = result.accessToken
+        )
+        val refreshTokenCookie: Cookie = generateCookie(
+            key = jwtProperties.refreshTokenKey,
+            value = result.refreshToken
+        )
+        res.addCookie(accessTokenCookie)
+        res.addCookie(refreshTokenCookie)
+        return ResponseEntity.ok(ResultResponse(true))
+    }
+
+    @Operation(summary = "소셜 로그인 API")
+    @PostMapping("/social-login")
+    fun socialLoginUser(
+        res: HttpServletResponse,
+        @Valid @RequestBody
+        request: SocialLoginRequest
+    ): ResponseEntity<ResultResponse> {
+        validator.validate(request = request)
+        val result: JwtResponse = service.socialLogin(request)
         val accessTokenCookie: Cookie = generateCookie(
             key = jwtProperties.accessTokenKey,
             value = result.accessToken

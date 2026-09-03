@@ -5,6 +5,7 @@ import com.chobolevel.api.common.properties.JwtProperties
 import com.chobolevel.api.user.dto.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.user.dto.LoginRequest
 import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest
+import com.chobolevel.api.user.dto.SocialLoginRequest
 import com.chobolevel.api.user.service.UserAuthService
 import com.chobolevel.api.user.validator.UserAuthParameterValidator
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -117,6 +118,24 @@ class UserAuthControllerTest {
         )
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath("$.error_message").value("비밀번호는 필수 값입니다."))
+    }
+
+    @Test
+    fun `유효한 소셜 로그인 요청 시 200을 반환하고 응답 쿠키에 토큰이 담긴다`() {
+        // given
+        justRun { userAuthParameterValidator.validate(request = any<SocialLoginRequest>()) }
+        every { userAuthService.socialLogin(request = any()) } returns DummyAuth.toJwtResponse()
+
+        // when & then
+        mockMvc.perform(
+            post("/api/v1/users/social-login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(DummyAuth.toGithubSocialLoginRequest()))
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.data").value(true))
+            .andExpect(cookie().value(DummyAuth.ACCESS_TOKEN_COOKIE_KEY, DummyAuth.ACCESS_TOKEN))
+            .andExpect(cookie().value(DummyAuth.REFRESH_TOKEN_COOKIE_KEY, DummyAuth.REFRESH_TOKEN))
     }
 
     @Test
