@@ -1,4 +1,4 @@
-package com.chobolevel.api.auth.dto
+package com.chobolevel.api.user.dto
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming

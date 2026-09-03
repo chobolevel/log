@@ -1,44 +1,48 @@
-package com.chobolevel.api.auth.service
+package com.chobolevel.api.user.service
 
-import com.chobolevel.api.auth.dto.CheckEmailVerificationCodeRequest
-import com.chobolevel.api.auth.dto.JwtResponse
-import com.chobolevel.api.auth.dto.LoginRequest
-import com.chobolevel.api.auth.dto.SendEmailVerificationCodeRequest
 import com.chobolevel.api.common.constant.CacheKeyPrefix
 import com.chobolevel.api.common.provider.CacheProvider
 import com.chobolevel.api.common.provider.EmailProvider
-import com.chobolevel.api.common.security.CustomAuthenticationManager
+import com.chobolevel.api.common.provider.PasswordProvider
 import com.chobolevel.api.common.security.TokenProvider
+import com.chobolevel.api.user.dto.CheckEmailVerificationCodeRequest
+import com.chobolevel.api.user.dto.JwtResponse
+import com.chobolevel.api.user.dto.LoginRequest
+import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest
+import com.chobolevel.domain.common.exception.BadCredentialException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.PolicyViolationException
 import com.chobolevel.domain.common.exception.UnAuthorizedException
-import com.chobolevel.domain.user.vo.UserLoginType
+import com.chobolevel.domain.user.entity.User
+import com.chobolevel.domain.user.repository.UserRepository
 import io.hypersistence.tsid.TSID
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.Authentication
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.concurrent.TimeUnit
 
 @Service
-class AuthService(
+class UserAuthService(
     private val tokenProvider: TokenProvider,
-    private val authenticationManager: CustomAuthenticationManager,
+    private val userRepository: UserRepository,
+    private val passwordProvider: PasswordProvider,
     private val cacheProvider: CacheProvider,
     private val emailProvider: EmailProvider,
 ) {
 
     @Transactional(readOnly = true)
     fun login(request: LoginRequest): JwtResponse {
-        val authenticationToken: UsernamePasswordAuthenticationToken = when (request.loginType) {
-            UserLoginType.GENERAL -> UsernamePasswordAuthenticationToken(
-                "${request.email}/${request.loginType}",
-                request.password
+        val user: User = userRepository.findByEmail(request.email)
+        if (!passwordProvider.matches(request.password, user.password)) {
+            throw BadCredentialException(
+                errorCode = ErrorCode.BAD_CREDENTIALS,
+                message = "아이디 또는 비밀번호가 일치하지 않습니다."
             )
-
-            else -> UsernamePasswordAuthenticationToken("${request.email}/${request.loginType}", request.socialId)
         }
-        val authentication: Authentication = authenticationManager.authenticate(authenticationToken)
+        val authorities: List<GrantedAuthority> = AuthorityUtils.createAuthorityList(user.role.name)
+        val authentication: UsernamePasswordAuthenticationToken = UsernamePasswordAuthenticationToken(user.id, user.password, authorities)
         val result: JwtResponse = tokenProvider.generateToken(authentication).also {
             setRefreshToken(authentication.name, it.refreshToken)
         }
@@ -48,7 +52,7 @@ class AuthService(
     @Transactional(readOnly = true)
     fun reissue(refreshToken: String): JwtResponse {
         tokenProvider.validateToken(refreshToken)
-        val authentication: Authentication = tokenProvider.getAuthentication(refreshToken) ?: throw UnAuthorizedException(
+        val authentication: UsernamePasswordAuthenticationToken = tokenProvider.getAuthentication(refreshToken) as? UsernamePasswordAuthenticationToken ?: throw UnAuthorizedException(
             errorCode = ErrorCode.INVALID_TOKEN,
             message = "토큰이 만료되었습니다. 재로그인 해주세요."
         )

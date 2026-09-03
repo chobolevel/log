@@ -2,7 +2,6 @@ package com.chobolevel.domain.user.repository
 
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.user.entity.User
-import com.chobolevel.domain.user.vo.UserLoginType
 import com.chobolevel.domain.user.vo.UserOrderType
 import com.chobolevel.domain.user.vo.UserQueryFilter
 
@@ -22,9 +21,7 @@ interface UserRepository {
 
     fun findByEmail(email: String): User
 
-    fun findByEmailAndLoginType(email: String, loginType: UserLoginType): User?
-
-    fun findBySocialIdAndLoginType(socialId: String, loginType: UserLoginType): User?
+    fun findByEmailOrNull(email: String): User?
 
     fun findAllByIds(ids: List<Long>): List<User>
 

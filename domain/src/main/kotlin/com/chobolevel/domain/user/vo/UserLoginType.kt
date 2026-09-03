@@ -2,9 +2,7 @@ package com.chobolevel.domain.user.vo
 
 enum class UserLoginType {
     GENERAL,
-    KAKAO,
-    NAVER,
-    GOOGLE;
+    GITHUB;
 
     // equal to java static method
     companion object {

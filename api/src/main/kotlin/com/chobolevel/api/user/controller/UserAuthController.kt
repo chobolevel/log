@@ -1,14 +1,14 @@
-package com.chobolevel.api.auth.controller
+package com.chobolevel.api.user.controller
 
-import com.chobolevel.api.auth.dto.CheckEmailVerificationCodeRequest
-import com.chobolevel.api.auth.dto.JwtResponse
-import com.chobolevel.api.auth.dto.LoginRequest
-import com.chobolevel.api.auth.dto.SendEmailVerificationCodeRequest
-import com.chobolevel.api.auth.service.AuthService
-import com.chobolevel.api.auth.validator.AuthParameterValidator
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getCookie
 import com.chobolevel.api.common.properties.JwtProperties
+import com.chobolevel.api.user.dto.CheckEmailVerificationCodeRequest
+import com.chobolevel.api.user.dto.JwtResponse
+import com.chobolevel.api.user.dto.LoginRequest
+import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest
+import com.chobolevel.api.user.service.UserAuthService
+import com.chobolevel.api.user.validator.UserAuthParameterValidator
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.UnAuthorizedException
 import io.swagger.v3.oas.annotations.Operation
@@ -26,15 +26,15 @@ import org.springframework.web.bind.annotation.RestController
 
 @Tag(name = "Auth (인증)", description = "인증 관리 API")
 @RestController
-@RequestMapping("/api/v1/auth")
-class AuthController(
-    private val validator: AuthParameterValidator,
-    private val service: AuthService,
+@RequestMapping("/api/v1/users")
+class UserAuthController(
+    private val validator: UserAuthParameterValidator,
+    private val service: UserAuthService,
     private val serverProperties: ServerProperties,
     private val jwtProperties: JwtProperties
 ) {
 
-    @Operation(summary = "회원 로그인 API")
+    @Operation(summary = "일반 로그인 API")
     @PostMapping("/login")
     fun loginUser(
         res: HttpServletResponse,

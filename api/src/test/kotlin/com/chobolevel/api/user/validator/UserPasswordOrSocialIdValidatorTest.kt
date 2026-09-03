@@ -51,7 +51,7 @@ class UserPasswordOrSocialIdValidatorTest : BehaviorSpec({
         }
     }
 
-    given("소셜 로그인 타입(KAKAO)일 때") {
+    given("소셜 로그인 타입(GITHUB)일 때") {
 
         `when`("socialId가 null이면") {
             then("false를 반환한다") {
@@ -59,7 +59,7 @@ class UserPasswordOrSocialIdValidatorTest : BehaviorSpec({
                     email = "test@test.com",
                     password = null,
                     socialId = null,
-                    loginType = UserLoginType.KAKAO,
+                    loginType = UserLoginType.GITHUB,
                     nickname = "홍길동"
                 )
                 validator.isValid(request, null) shouldBe false
@@ -71,8 +71,8 @@ class UserPasswordOrSocialIdValidatorTest : BehaviorSpec({
                 val request: CreateUserRequest = CreateUserRequest(
                     email = "test@test.com",
                     password = null,
-                    socialId = "kakao_12345",
-                    loginType = UserLoginType.KAKAO,
+                    socialId = "github_12345",
+                    loginType = UserLoginType.GITHUB,
                     nickname = "홍길동"
                 )
                 validator.isValid(request, null) shouldBe true

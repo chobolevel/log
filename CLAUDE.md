@@ -26,7 +26,7 @@
 - **언어**: Kotlin
 - **프레임워크**: Spring Boot 3.1.0
 - **멀티 모듈 구조**:
-  - `domain` — 엔티티, Repository, Finder, QueryFilter 등 도메인 핵심 로직
+  - `domain` — 엔티티, Repository 인터페이스/구현체, QueryFilter 등 도메인 핵심 로직
   - `api` — Controller, Service, Converter, Validator, Updater, DTO 등 API 계층
 - **빌드 도구**: Gradle (Kotlin DSL)
 - **테스트**: Kotest + MockK
@@ -73,31 +73,28 @@ for (post in posts) { ... }
 
 최상위는 도메인, 그 아래 서브도메인, 그 아래 레이어 순서로 구성한다.
 
-**domain 모듈** — 각 도메인/서브도메인 내에 `entity/`, `repository/`, `vo/` 레이어 패키지를 추가한다. Finder(도메인 서비스)는 레이어 구분 없이 도메인 루트에 둔다.
+**domain 모듈** — 각 도메인/서브도메인 내에 `entity/`, `repository/`, `vo/` 레이어 패키지를 둔다.
 
 ```
 domain/
-  post/
-    entity/        ← JPA 엔티티 및 관련 enum
-      Post.kt
-      PostOrderType.kt (Post.kt 내부 정의)
+  user/
+    entity/
+      User.kt
     repository/
-      PostRepository.kt
-      PostCustomRepository.kt
+      UserRepository.kt          ← 인터페이스 (api 계층이 의존하는 공개 API)
+      UserRepositoryAdapter.kt   ← 구현체 (JpaRepository + QuerydslRepository 조합)
+      UserJpaRepository.kt       ← Spring Data JPA (단순 쿼리)
+      UserQuerydslRepository.kt  ← QueryDSL (동적/복잡 쿼리)
     vo/
-      PostQueryFilter.kt
-    PostFinder.kt  ← 도메인 서비스는 루트
-    comment/       ← 서브도메인
+      UserLoginType.kt
+      UserQueryFilter.kt
+    image/                       ← 서브도메인
       entity/
-        PostComment.kt
+        UserImage.kt
       repository/
-        PostCommentRepository.kt
+        ...
       vo/
-        PostCommentQueryFilter.kt
-      PostCommentFinder.kt
-    image/
-      entity/
-        PostImage.kt
+        ...
 ```
 
 **api 모듈** — 서브도메인은 별도 디렉토리로 분리하고, 그 안에서 레이어를 나눈다.
@@ -105,7 +102,7 @@ domain/
 ```
 api/
   post/
-    controller/    ← Post 관련 레이어
+    controller/
     service/
     dto/
     converter/
@@ -121,7 +118,37 @@ api/
       dto/
 ```
 
-### 3. 테스트 작성 원칙
+### 3. Repository 계층 패턴
+
+`UserRepository` 인터페이스가 api 계층의 의존 대상이다. `UserRepositoryAdapter`가 구현을 담당하며, JPA/QueryDSL 세부사항을 api 계층으로부터 격리한다. 새 조회 메서드가 필요하면 인터페이스에 먼저 정의하고 Adapter에서 구현한다.
+
+```kotlin
+// domain/user/repository/UserRepository.kt (인터페이스)
+interface UserRepository {
+    fun findByEmail(email: String): User        // 없으면 DataNotFoundException
+    fun findByEmailOrNull(email: String): User? // 없으면 null
+    fun existsByEmail(email: String): Boolean
+}
+
+// api/service에서는 인터페이스에만 의존
+class AuthService(private val userRepository: UserRepository)
+```
+
+### 4. 도메인 간 의존 원칙
+
+`api/service` 계층은 여러 도메인을 조율하는 역할이므로 타 도메인의 Repository를 직접 참조하는 것을 허용한다. 단, `domain` 계층 내부에서 타 도메인 Repository를 참조하는 것은 격리 위반이다.
+
+```
+// 허용: api/service → 타 도메인 repository
+AuthService → UserRepository (O)
+ChannelService → UserRepository (O)
+
+// 금지: domain 내부에서 타 도메인 참조
+PostEntity → UserRepository (X)
+PostQuerydslRepository → UserRepository (X)
+```
+
+### 5. 테스트 작성 원칙
 
 - 서비스 계층 테스트는 외부 의존성을 모두 MockK로 대체하여 비즈니스 로직만 검증한다.
 - 성공 케이스와 실패 케이스를 반드시 함께 작성한다.
@@ -131,26 +158,26 @@ api/
 ```kotlin
 // 의존성 선언 시 타입 명시
 private val repository: PostRepository = mockk()
-private val finder: PostFinder = mockk()
+private val cacheProvider: CacheProvider = mockk()
 
 // given/when/then 구조 준수
 @Test
 fun `게시글_등록_성공`() {
     // given
-    val userId: Long = DummyUser.id
+    val userId: Long = DummyUser.ID
     val post: Post = DummyPost.toEntity()
-    every { repository.save(post) } returns post
+    every { repository.save(any()) } returns post
 
     // when
     val result: Long = postService.createPost(userId, request)
 
     // then
     result shouldBe DummyPost.ID
-    verify { repository.save(post) }
+    verify(exactly = 1) { repository.save(any()) }
 }
 ```
 
-### 4. 엔티티를 API 응답으로 직접 반환 금지
+### 6. 엔티티를 API 응답으로 직접 반환 금지
 
 JPA 엔티티를 Jackson이 직렬화하면 양방향 연관관계로 인한 **무한 참조(StackOverflowError)**가 발생할 수 있다.
 
@@ -166,9 +193,7 @@ return PagingResponse(data = users)
 return PagingResponse(data = converter.convert(entities = users))
 ```
 
-DTO는 연관 엔티티를 다시 상위 DTO로 참조하지 않으므로 순환이 끊긴다.
-
-### 5. 예시 코드 작성 시
+### 7. 예시 코드 작성 시
 
 Claude가 이 프로젝트에서 예시 코드를 작성할 때는 반드시 위의 타입 명시 규칙을 따른다. 타입 추론에 의존하는 코틀린 관용구(`val x = someFunction()`) 스타일은 사용하지 않는다.
 
@@ -187,9 +212,9 @@ Claude가 이 프로젝트에서 예시 코드를 작성할 때는 반드시 위
 | 포맷터 | ktlint 11.3.1 |
 | 컨테이너 빌드 | Jib 3.4.4 |
 
-# 테스트 코드 학습 컨텍스트 (Java/Kotlin + Spring Boot)
+---
 
-> 이 파일을 프로젝트 루트의 `CLAUDE.md`에 붙여넣거나, Claude Code 세션 시작 시 그대로 프롬프트로 붙여넣어 사용한다.
+# 테스트 코드 학습 컨텍스트 (Java/Kotlin + Spring Boot)
 
 ## 배경
 
@@ -233,8 +258,30 @@ Claude가 이 프로젝트에서 예시 코드를 작성할 때는 반드시 위
 **작성 완료된 테스트 파일**
 - `api/src/test/kotlin/com/chobolevel/api/common/dummy/DummyUser.kt` — 테스트용 User 더미 객체
 - `api/src/test/kotlin/com/chobolevel/api/user/validator/UserBusinessValidatorTest.kt` — `UserBusinessValidator` 단위 테스트 (9개 케이스, 전부 통과)
+- `api/src/test/kotlin/com/chobolevel/api/user/service/UserServiceTest.kt` — `UserService` 단위 테스트 (6개 케이스, 전부 통과)
+- `api/src/test/kotlin/com/chobolevel/api/common/dummy/DummyAuth.kt` — 테스트용 Auth 더미 객체
+- `api/src/test/kotlin/com/chobolevel/api/auth/service/AuthServiceTest.kt` — `AuthService` 단위 테스트
 
-**이번 세션에서 배운 것**
+**4단계 사전 보완 — 작성 완료된 테스트 파일**
+
+- `api/.../user/validator/UserParameterValidatorTest.kt` — 이메일/닉네임/비밀번호 형식 검증
+- `api/.../user/validator/UserPasswordOrSocialIdValidatorTest.kt` — GENERAL/소셜 로그인 타입별 필수값 검증
+- `api/.../user/updater/UserUpdaterTest.kt` — updateMask별 필드 업데이트
+- `api/.../user/image/service/UserImageServiceTest.kt` — 프로필 이미지 등록/삭제
+- `api/.../auth/validator/AuthParameterValidatorTest.kt` — 일반/소셜 로그인, 이메일 인증 파라미터 검증
+- `api/.../tag/validator/TagParameterValidatorTest.kt` — NAME/ORDER updateMask 파라미터 검증
+- `api/.../tag/updater/TagUpdaterTest.kt` — updateMask별 필드 업데이트
+- `api/.../post/validator/PostParameterValidatorTest.kt` — TAGS/TITLE/SUB_TITLE/CONTENT updateMask 검증
+- `api/.../post/updater/PostUpdaterTest.kt` — updateMask별 필드 업데이트
+- `api/.../post/comment/validator/PostCommentParameterValidatorTest.kt` — CONTENT updateMask 검증
+- `api/.../post/comment/updater/PostCommentUpdaterTest.kt` — updateMask별 필드 업데이트
+- `api/.../channel/validator/ChannelParameterValidatorTest.kt` — NAME/USERS updateMask 검증
+- `api/.../channel/updater/ChannelUpdaterTest.kt` — NAME 업데이트, USERS 교체 시 기존 ChannelUser 삭제 처리
+- `api/.../guest/validator/GuestBookParameterValidatorTest.kt` — CONTENT updateMask 검증
+- `api/.../guest/updater/GuestBookUpdaterTest.kt` — updateMask별 필드 업데이트
+- `api/.../upload/validator/UploadValidatorTest.kt` — 허용 prefix/extension 검증
+
+**이번 단계에서 배운 것**
 
 1. **Kotest BehaviorSpec 실행 모델 주의사항**
    - `given` / `when` 블록 안의 코드(예: `every { }`)는 스펙 초기화 시 **한 번만** 실행된다.
@@ -251,53 +298,31 @@ Claude가 이 프로젝트에서 예시 코드를 작성할 때는 반드시 위
    ```
    결과 리포트: `api/build/reports/tests/test/index.html`
 
-**작성 완료된 테스트 파일 (추가)**
-- `api/src/test/kotlin/com/chobolevel/api/user/service/UserServiceTest.kt` — `UserService` 단위 테스트 (6개 케이스, 전부 통과)
-
-**이번 세션에서 추가로 배운 것**
-
-3. **Object Mother 패턴** (`DummyUser`)
+4. **Object Mother 패턴** (`DummyUser`)
    - 테스트마다 엔티티를 직접 생성하면 생성자 변경 시 모든 테스트 수정 필요 → 한 곳에 모아두는 패턴
    - `toEntity()`: 엔티티 생성, `toResponseDto()`: DTO 생성 — 테스트 성격에 맞게 분리
 
-4. **justRun**: Unit(void) 반환 메서드를 mock할 때 사용 (`every { } returns Unit` 대신)
+5. **justRun**: Unit(void) 반환 메서드를 mock할 때 사용 (`every { } returns Unit` 대신)
 
-5. **반환값 + 상태 변화 모두 검증**
+6. **반환값 + 상태 변화 모두 검증**
    - `resignUser`: `result shouldBe true` (반환값) + `user.resigned shouldBe true` (사이드 이펙트)
    - `changePassword`: `user.password shouldBe encodedNewPassword` (상태 변화)
 
-6. **mock 5개 = 설계 신호**: 서비스가 많은 협력 객체를 가질 때 자연히 발생. API 계층 조율자 역할이므로 허용되지만, "이 서비스가 너무 많은 것을 알고 있지 않은가?" 체크 기준으로 삼는다.
+7. **mock 5개 = 설계 신호**: 서비스가 많은 협력 객체를 가질 때 자연히 발생. API 계층 조율자 역할이므로 허용되지만, "이 서비스가 너무 많은 것을 알고 있지 않은가?" 체크 기준으로 삼는다.
 
-**작성 완료된 테스트 파일 (추가)**
-- `api/src/test/kotlin/com/chobolevel/api/common/dummy/DummyAuth.kt` — 테스트용 Auth 더미 객체
-- `api/src/test/kotlin/com/chobolevel/api/auth/service/AuthServiceTest.kt` — `AuthService` 단위 테스트 (11개 케이스, 전부 통과)
+8. **slot + capture로 인수 검증**: `any()`는 "호출됐는가"만 확인하지만, `slot<T>()`과 `capture(slot)`을 조합하면 실제 전달된 인수 값까지 검증할 수 있다.
+   ```kotlin
+   // 소셜 로그인 upsert 테스트: 신규 생성 시 올바른 필드로 save가 호출되는지 검증
+   val savedUserSlot: CapturingSlot<User> = slot()
+   every { userRepository.save(capture(savedUserSlot)) } returns savedUser
+   // ...
+   savedUserSlot.captured.email shouldBe DummyUser.EMAIL
+   savedUserSlot.captured.loginType shouldBe UserLoginType.GITHUB
+   ```
 
-**이번 세션에서 추가로 배운 것**
+9. **MockK DSL 스코프 함수**: `match { }`, `capture(slot)` 같은 인수 매처는 `MockKMatcherScope`의 멤버 함수라 `import` 없이 `every { }` 블록 안에서 자동으로 사용 가능하다. `CapturingSlot<T>`은 `io.mockk.CapturingSlot`으로 import 후 타입으로 명시한다.
 
-7. **slot + capture로 인수 검증**: `any()`는 "호출됐는가"만 확인하지만, `slot<T>()`과 `capture(slot)`을 조합하면 실제 전달된 인수 값까지 검증할 수 있다. `authSlot.captured.principal shouldBe "email/GENERAL"` 처럼 분기 로직의 출력값 자체를 단언한다.
-
-8. **MockK DSL 스코프 함수**: `match { }`, `capture(slot)` 같은 인수 매처는 `MockKMatcherScope`의 멤버 함수라 `import` 없이 `every { }` 블록 안에서 자동으로 사용 가능하다. `CapturingSlot<T>`은 `io.mockk.CapturingSlot`으로 import 후 타입으로 명시한다.
-
-9. **@Async 메서드의 단위 테스트**: `@Async`는 Spring 컨텍스트 없이 단위 테스트할 때 동기로 실행된다. 동작 자체(Redis 저장, 이메일 발송)는 `verify`로 검증 가능하지만, 실제 비동기 동작은 2단계 슬라이스 테스트에서 별도로 확인해야 한다.
-
-**작성 완료된 테스트 파일 (4단계 사전 보완)**
-
-- `api/.../user/validator/UserParameterValidatorTest.kt` — 이메일/닉네임/비밀번호 형식 검증 (10개 케이스)
-- `api/.../user/validator/UserPasswordOrSocialIdValidatorTest.kt` — GENERAL/소셜 로그인 타입별 필수값 검증 (5개 케이스)
-- `api/.../user/updater/UserUpdaterTest.kt` — updateMask별 필드 업데이트 (2개 케이스)
-- `api/.../user/image/service/UserImageServiceTest.kt` — 프로필 이미지 등록/삭제 (3개 케이스)
-- `api/.../auth/validator/AuthParameterValidatorTest.kt` — 로그인/이메일 인증 파라미터 검증 (8개 케이스)
-- `api/.../tag/validator/TagParameterValidatorTest.kt` — NAME/ORDER updateMask 파라미터 검증 (6개 케이스)
-- `api/.../tag/updater/TagUpdaterTest.kt` — updateMask별 필드 업데이트 (3개 케이스)
-- `api/.../post/validator/PostParameterValidatorTest.kt` — TAGS/TITLE/SUB_TITLE/CONTENT updateMask 검증 (8개 케이스)
-- `api/.../post/updater/PostUpdaterTest.kt` — updateMask별 필드 업데이트 (5개 케이스, PostTagRepository/TagRepository/PostImageConverter mock)
-- `api/.../post/comment/validator/PostCommentParameterValidatorTest.kt` — CONTENT updateMask 검증 (3개 케이스)
-- `api/.../post/comment/updater/PostCommentUpdaterTest.kt` — updateMask별 필드 업데이트 (2개 케이스)
-- `api/.../channel/validator/ChannelParameterValidatorTest.kt` — NAME/USERS updateMask 검증 (5개 케이스)
-- `api/.../channel/updater/ChannelUpdaterTest.kt` — NAME 업데이트, USERS 교체 시 기존 ChannelUser 삭제 처리 (2개 케이스)
-- `api/.../guest/validator/GuestBookParameterValidatorTest.kt` — CONTENT updateMask 검증 (3개 케이스)
-- `api/.../guest/updater/GuestBookUpdaterTest.kt` — updateMask별 필드 업데이트 (2개 케이스)
-- `api/.../upload/validator/UploadValidatorTest.kt` — 허용 prefix/extension 검증 (5개 케이스)
+10. **@Async 메서드의 단위 테스트**: `@Async`는 Spring 컨텍스트 없이 단위 테스트할 때 동기로 실행된다. 동작 자체(Redis 저장, 이메일 발송)는 `verify`로 검증 가능하지만, 실제 비동기 동작은 2단계 슬라이스 테스트에서 별도로 확인해야 한다.
 
 **1단계 완료 — 다음은 2단계 진입**
 
@@ -362,21 +387,21 @@ spring:
       ddl-auto: create-drop
 ```
 
-**이번 세션에서 배운 것**
+**이번 단계에서 배운 것**
 
-10. **`@WebMvcTest` + `TestSecurityConfig` 패턴**: `@WebMvcTest`는 `@EnableWebSecurity`를 로드하지 않아 기본 Spring Security 설정(CSRF, 모든 요청 인증 필요)이 적용된다. 프로덕션과 동일한 조건으로 테스트하려면 `@TestConfiguration`으로 FilterChain을 직접 정의해야 한다.
+11. **`@WebMvcTest` + `TestSecurityConfig` 패턴**: `@WebMvcTest`는 `@EnableWebSecurity`를 로드하지 않아 기본 Spring Security 설정(CSRF, 모든 요청 인증 필요)이 적용된다. 프로덕션과 동일한 조건으로 테스트하려면 `@TestConfiguration`으로 FilterChain을 직접 정의해야 한다.
 
-11. **`@WithMockUser`**: JWT 필터 없이 특정 유저로 인증된 요청을 시뮬레이션한다. `username = "1"` → `principal.name = "1"` → `getUserId() = 1L`.
+12. **`@WithMockUser`**: JWT 필터 없이 특정 유저로 인증된 요청을 시뮬레이션한다. `username = "1"` → `principal.name = "1"` → `getUserId() = 1L`.
 
-12. **`@DataJpaTest`의 멀티 모듈 함정**: `@DataJpaTest`는 `@SpringBootApplication`의 base package(`com.chobolevel.api`)만 스캔한다. domain 리포지토리(`com.chobolevel.domain`)를 찾으려면 `@TestConfiguration`에 `@EnableJpaRepositories`와 `@EntityScan`을 명시적으로 지정해야 한다. `DomainConfigurationLoader`를 직접 import하면 `@ComponentScan`이 `EmailUtils` 등 비JPA 빈도 로드해 `JavaMailSender` 의존성 에러가 발생한다.
+13. **`@DataJpaTest`의 멀티 모듈 함정**: `@DataJpaTest`는 `@SpringBootApplication`의 base package(`com.chobolevel.api`)만 스캔한다. domain 리포지토리(`com.chobolevel.domain`)를 찾으려면 `@TestConfiguration`에 `@EnableJpaRepositories`와 `@EntityScan`을 명시적으로 지정해야 한다. `DomainConfigurationLoader`를 직접 import하면 `@ComponentScan`이 `EmailUtils` 등 비JPA 빈도 로드해 `JavaMailSender` 의존성 에러가 발생한다.
 
-13. **H2 + `@Where` 충돌 해결**: `globally_quoted_identifiers: true`로 Hibernate가 SELECT에서 `"deleted"`처럼 쌍따옴표로 인용하지만, `@Where(clause = "deleted = false")`는 unquoted raw SQL이라 H2가 `DELETED` != `"deleted"`로 처리해 "Column not found" 에러가 발생한다. H2 URL에 `CASE_INSENSITIVE_IDENTIFIERS=TRUE`를 추가하면 두 형태가 대소문자 무감각하게 동일시된다. 단, `@DataJpaTest`의 `replace=ANY`가 URL을 무시하므로, `spring.test.database.replace: none` + 명시적 H2 datasource 설정이 함께 필요하다.
+14. **H2 + `@Where` 충돌 해결**: `globally_quoted_identifiers: true`로 Hibernate가 SELECT에서 `"deleted"`처럼 쌍따옴표로 인용하지만, `@Where(clause = "deleted = false")`는 unquoted raw SQL이라 H2가 `DELETED` != `"deleted"`로 처리해 "Column not found" 에러가 발생한다. H2 URL에 `CASE_INSENSITIVE_IDENTIFIERS=TRUE`를 추가하면 두 형태가 대소문자 무감각하게 동일시된다. 단, `@DataJpaTest`의 `replace=ANY`가 URL을 무시하므로, `spring.test.database.replace: none` + 명시적 H2 datasource 설정이 함께 필요하다.
 
-14. **`TestEntityManager` 활용**: `@DataJpaTest`에서 테스트 데이터 셋업은 `TestEntityManager.persistAndFlush()`로 한다. `entityManager.clear()` 후 조회하면 1차 캐시를 우회해 실제 DB에서 읽히는지 검증할 수 있다.
+15. **`TestEntityManager` 활용**: `@DataJpaTest`에서 테스트 데이터 셋업은 `TestEntityManager.persistAndFlush()`로 한다. `entityManager.clear()` 후 조회하면 1차 캐시를 우회해 실제 DB에서 읽히는지 검증할 수 있다.
 
-15. **cascade + `deleteByPostId` 함정**: `post.addTags()`로 PostTag를 cascade 삽입한 후 `deleteByPostId()`를 호출하면, `entityManager.flush()` 시점에 `post.postTags` 컬렉션이 cascade로 PostTag를 재삽입한다. 해결: cascade 우회(`entityManager.persistAndFlush(PostTag())` 직접 사용) + `entityManager.clear()` 없이 `count()` 호출(FlushMode.AUTO가 쿼리 전 자동 flush).
+16. **cascade + `deleteByPostId` 함정**: `post.addTags()`로 PostTag를 cascade 삽입한 후 `deleteByPostId()`를 호출하면, `entityManager.flush()` 시점에 `post.postTags` 컬렉션이 cascade로 PostTag를 재삽입한다. 해결: cascade 우회(`entityManager.persistAndFlush(PostTag())` 직접 사용) + `entityManager.clear()` 없이 `count()` 호출(FlushMode.AUTO가 쿼리 전 자동 flush).
 
-16. **`entityManager.clear()` 주의**: `clear()`는 REMOVED 상태의 엔티티도 함께 날린다. 삭제 후 `clear()`를 먼저 호출하면 DELETE SQL이 실행되지 않는다. 검증 쿼리(`count()`, `findAll()`)가 FlushMode.AUTO로 flush를 트리거하도록 두는 것이 안전하다.
+17. **`entityManager.clear()` 주의**: `clear()`는 REMOVED 상태의 엔티티도 함께 날린다. 삭제 후 `clear()`를 먼저 호출하면 DELETE SQL이 실행되지 않는다. 검증 쿼리(`count()`, `findAll()`)가 FlushMode.AUTO로 flush를 트리거하도록 두는 것이 안전하다.
 
 **2단계 완료 — 다음은 3단계 진입**
 
@@ -401,14 +426,15 @@ spring:
 **작성 완료된 파일**
 - `api/.../common/container/AbstractMySQLContainerTest.kt` — Singleton Container 패턴 기반 클래스
 - `api/.../tag/repository/TagJpaRepositoryContainerTest.kt` — MySQL 8.0 컨테이너로 실행하는 리포지토리 슬라이스 테스트 (3개 케이스)
+- `api/.../user/repository/UserJpaRepositoryContainerTest.kt` — MySQL 8.0 컨테이너로 실행하는 리포지토리 슬라이스 테스트
 
-**이번 세션에서 배운 것**
+**이번 단계에서 배운 것**
 
-17. **Singleton Container 패턴**: `companion object` + `@JvmField`로 JVM 당 하나의 컨테이너만 기동한다. 인스턴스 필드에 `@Container`를 달면 클래스마다 재기동되어 전체 테스트 시간이 클래스 수 × 기동 시간만큼 늘어난다.
+18. **Singleton Container 패턴**: `companion object` + `@JvmField`로 JVM 당 하나의 컨테이너만 기동한다. 인스턴스 필드에 `@Container`를 달면 클래스마다 재기동되어 전체 테스트 시간이 클래스 수 × 기동 시간만큼 늘어난다.
 
-18. **`@DynamicPropertySource`**: Testcontainers의 포트는 실행 시점에 결정된다. `@DynamicPropertySource`는 Spring 컨텍스트 생성 직전에 람다로 프로퍼티를 주입할 수 있어, `application-test.yml`보다 높은 우선순위로 MySQL URL과 dialect를 덮어쓴다.
+19. **`@DynamicPropertySource`**: Testcontainers의 포트는 실행 시점에 결정된다. `@DynamicPropertySource`는 Spring 컨텍스트 생성 직전에 람다로 프로퍼티를 주입할 수 있어, `application-test.yml`보다 높은 우선순위로 MySQL URL과 dialect를 덮어쓴다.
 
-19. **H2 vs MySQL 동작 차이 — 실제로 발견된 것**
+20. **H2 vs MySQL 동작 차이 — 실제로 발견된 것**
 
     | 항목 | H2 | MySQL |
     |------|-----|-------|

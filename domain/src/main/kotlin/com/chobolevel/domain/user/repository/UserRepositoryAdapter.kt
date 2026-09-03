@@ -5,7 +5,6 @@ import com.chobolevel.domain.common.exception.DataNotFoundException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.user.entity.QUser.user
 import com.chobolevel.domain.user.entity.User
-import com.chobolevel.domain.user.vo.UserLoginType
 import com.chobolevel.domain.user.vo.UserOrderType
 import com.chobolevel.domain.user.vo.UserQueryFilter
 import com.querydsl.core.types.OrderSpecifier
@@ -50,18 +49,8 @@ class UserRepositoryAdapter(
         )
     }
 
-    override fun findByEmailAndLoginType(
-        email: String,
-        loginType: UserLoginType
-    ): User? {
-        return userJpaRepository.findByEmailAndLoginTypeAndResignedFalse(email, loginType)
-    }
-
-    override fun findBySocialIdAndLoginType(
-        socialId: String,
-        loginType: UserLoginType
-    ): User? {
-        return userJpaRepository.findBySocialIdAndLoginTypeAndResignedFalse(socialId, loginType)
+    override fun findByEmailOrNull(email: String): User? {
+        return userJpaRepository.findByEmailAndResignedFalse(email)
     }
 
     override fun findAllByIds(ids: List<Long>): List<User> {

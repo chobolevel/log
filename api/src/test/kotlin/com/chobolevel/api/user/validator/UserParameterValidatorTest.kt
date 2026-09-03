@@ -56,13 +56,13 @@ class UserParameterValidatorTest : BehaviorSpec({
             }
         }
 
-        `when`("KAKAO 타입이면 비밀번호 검증을 건너뛴다") {
+        `when`("GITHUB 타입이면 비밀번호 검증을 건너뛴다") {
             then("예외 없이 통과한다") {
                 val request: CreateUserRequest = CreateUserRequest(
                     email = "test@test.com",
                     password = null,
-                    socialId = "kakaoSocialId",
-                    loginType = UserLoginType.KAKAO,
+                    socialId = "github_12345",
+                    loginType = UserLoginType.GITHUB,
                     nickname = "홍길동"
                 )
                 shouldNotThrow<Exception> { validator.validate(request) }

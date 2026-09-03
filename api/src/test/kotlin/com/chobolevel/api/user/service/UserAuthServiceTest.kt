@@ -1,38 +1,39 @@
-package com.chobolevel.api.auth.service
+package com.chobolevel.api.user.service
 
-import com.chobolevel.api.auth.dto.CheckEmailVerificationCodeRequest
-import com.chobolevel.api.auth.dto.JwtResponse
-import com.chobolevel.api.auth.dto.SendEmailVerificationCodeRequest
 import com.chobolevel.api.common.constant.CacheKeyPrefix
 import com.chobolevel.api.common.dummy.DummyAuth
 import com.chobolevel.api.common.dummy.DummyUser
+import com.chobolevel.api.common.provider.PasswordProvider
 import com.chobolevel.api.common.provider.RedisCacheProvider
 import com.chobolevel.api.common.provider.ResendEmailProvider
-import com.chobolevel.api.common.security.CustomAuthenticationManager
 import com.chobolevel.api.common.security.TokenProvider
+import com.chobolevel.api.user.dto.CheckEmailVerificationCodeRequest
+import com.chobolevel.api.user.dto.JwtResponse
+import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest
 import com.chobolevel.domain.common.exception.LogException
+import com.chobolevel.domain.user.entity.User
+import com.chobolevel.domain.user.repository.UserRepository
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.CapturingSlot
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
-import io.mockk.slot
 import io.mockk.verify
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.Authentication
 
-class AuthServiceTest : BehaviorSpec({
+class UserAuthServiceTest : BehaviorSpec({
 
     val tokenProvider: TokenProvider = mockk()
-    val authenticationManager: CustomAuthenticationManager = mockk()
+    val userRepository: UserRepository = mockk()
+    val passwordProvider: PasswordProvider = mockk()
     val cacheProvider: RedisCacheProvider = mockk()
     val emailProvider: ResendEmailProvider = mockk()
-    val service: AuthService = AuthService(
+    val service: UserAuthService = UserAuthService(
         tokenProvider = tokenProvider,
-        authenticationManager = authenticationManager,
+        userRepository = userRepository,
+        passwordProvider = passwordProvider,
         cacheProvider = cacheProvider,
         emailProvider = emailProvider
     )
@@ -46,12 +47,11 @@ class AuthServiceTest : BehaviorSpec({
             then("JWT 토큰을 반환하고 Redis에 refresh token을 저장한다") {
                 // given
                 val request = DummyAuth.toGeneralLoginRequest()
-                val authentication = UsernamePasswordAuthenticationToken(DummyUser.ID.toString(), null)
+                val user: User = DummyUser.toEntity()
                 val jwtResponse: JwtResponse = DummyAuth.toJwtResponse()
-                val authSlot: CapturingSlot<Authentication> = slot()
-                // slot으로 캡처해서 "email/loginType" 조합 포맷이 실제로 지켜지는지 검증한다.
-                every { authenticationManager.authenticate(capture(authSlot)) } returns authentication
-                every { tokenProvider.generateToken(authentication) } returns jwtResponse
+                every { userRepository.findByEmail(request.email) } returns user
+                every { passwordProvider.matches(request.password, user.password) } returns true
+                every { tokenProvider.generateToken(any()) } returns jwtResponse
                 every { cacheProvider.put(any(), any()) } returns Unit
 
                 // when
@@ -60,32 +60,22 @@ class AuthServiceTest : BehaviorSpec({
                 // then
                 result.accessToken shouldBe DummyAuth.ACCESS_TOKEN
                 result.refreshToken shouldBe DummyAuth.REFRESH_TOKEN
-                authSlot.captured.principal shouldBe "${DummyUser.EMAIL}/GENERAL"
                 verify(exactly = 1) { cacheProvider.put("refresh-token:v1:" + DummyAuth.REFRESH_TOKEN, DummyUser.ID.toString()) }
             }
         }
-    }
 
-    given("카카오 소셜 로그인 요청이 들어올 때") {
-        `when`("이메일과 소셜 id가 유효하면") {
-            then("JWT 토큰을 반환하고 Redis에 refresh token을 저장한다") {
+        `when`("비밀번호가 일치하지 않으면") {
+            then("BadCredentialException이 발생한다") {
                 // given
-                val request = DummyAuth.toKakaoLoginRequest()
-                val authentication = UsernamePasswordAuthenticationToken(DummyUser.ID.toString(), null)
-                val jwtResponse: JwtResponse = DummyAuth.toJwtResponse()
-                val authSlot: CapturingSlot<Authentication> = slot()
-                every { authenticationManager.authenticate(capture(authSlot)) } returns authentication
-                every { tokenProvider.generateToken(authentication) } returns jwtResponse
-                every { cacheProvider.put(any(), any()) } returns Unit
+                val request = DummyAuth.toGeneralLoginRequest()
+                val user: User = DummyUser.toEntity()
+                every { userRepository.findByEmail(request.email) } returns user
+                every { passwordProvider.matches(request.password, user.password) } returns false
 
-                // when
-                val result: JwtResponse = service.login(request)
-
-                // then
-                result.accessToken shouldBe DummyAuth.ACCESS_TOKEN
-                result.refreshToken shouldBe DummyAuth.REFRESH_TOKEN
-                authSlot.captured.principal shouldBe "${DummyUser.EMAIL}/KAKAO"
-                verify(exactly = 1) { cacheProvider.put("refresh-token:v1:" + DummyAuth.REFRESH_TOKEN, DummyUser.ID.toString()) }
+                // when & then
+                shouldThrow<LogException> {
+                    service.login(request)
+                }
             }
         }
     }

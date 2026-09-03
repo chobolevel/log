@@ -37,7 +37,6 @@ class UserJpaRepositoryTest {
 
     private fun savedUser(
         email: String = "test@test.com",
-        loginType: UserLoginType = UserLoginType.GENERAL,
         nickname: String = "testUser"
     ): User {
         return entityManager.persistAndFlush(
@@ -45,7 +44,7 @@ class UserJpaRepositoryTest {
                 email = email,
                 password = "password",
                 socialId = null,
-                loginType = loginType,
+                loginType = UserLoginType.GENERAL,
                 nickname = nickname,
                 role = UserRoleType.ROLE_USER
             )
@@ -53,16 +52,13 @@ class UserJpaRepositoryTest {
     }
 
     @Test
-    fun `이메일과 로그인 타입으로 탈퇴하지 않은 사용자를 조회하면 사용자를 반환한다`() {
+    fun `이메일로 탈퇴하지 않은 사용자를 조회하면 사용자를 반환한다`() {
         // given
         val user: User = savedUser()
         entityManager.clear()
 
         // when
-        val result: User? = userJpaRepository.findByEmailAndLoginTypeAndResignedFalse(
-            email = "test@test.com",
-            loginType = UserLoginType.GENERAL
-        )
+        val result: User? = userJpaRepository.findByEmailAndResignedFalse(email = "test@test.com")
 
         // then
         assertThat(result).isNotNull
@@ -78,10 +74,7 @@ class UserJpaRepositoryTest {
         entityManager.clear()
 
         // when
-        val result: User? = userJpaRepository.findByEmailAndLoginTypeAndResignedFalse(
-            email = "test@test.com",
-            loginType = UserLoginType.GENERAL
-        )
+        val result: User? = userJpaRepository.findByEmailAndResignedFalse(email = "test@test.com")
 
         // then
         assertThat(result).isNull()

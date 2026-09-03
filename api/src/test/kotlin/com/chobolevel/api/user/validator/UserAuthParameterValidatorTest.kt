@@ -1,75 +1,34 @@
-package com.chobolevel.api.auth.validator
+package com.chobolevel.api.user.validator
 
-import com.chobolevel.api.auth.dto.CheckEmailVerificationCodeRequest
-import com.chobolevel.api.auth.dto.LoginRequest
-import com.chobolevel.api.auth.dto.SendEmailVerificationCodeRequest
+import com.chobolevel.api.user.dto.CheckEmailVerificationCodeRequest
+import com.chobolevel.api.user.dto.LoginRequest
+import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest
 import com.chobolevel.domain.common.exception.LogException
-import com.chobolevel.domain.user.vo.UserLoginType
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 
-class AuthParameterValidatorTest : BehaviorSpec({
+class UserAuthParameterValidatorTest : BehaviorSpec({
 
-    val validator: AuthParameterValidator = AuthParameterValidator()
+    val validator: UserAuthParameterValidator = UserAuthParameterValidator()
 
-    given("로그인 요청 파라미터를 검증할 때") {
+    given("일반 로그인 요청 파라미터를 검증할 때") {
 
-        `when`("GENERAL 타입인데 password가 null이면") {
+        `when`("이메일 형식이 올바르지 않으면") {
             then("ApiException이 발생한다") {
                 val request: LoginRequest = LoginRequest(
-                    email = "test@test.com",
-                    password = null,
-                    socialId = null,
-                    loginType = UserLoginType.GENERAL
+                    email = "not-an-email",
+                    password = "Pass1234!"
                 )
                 shouldThrow<LogException> { validator.validate(request) }
             }
         }
 
-        `when`("GENERAL 타입인데 password가 비어 있으면") {
-            then("ApiException이 발생한다") {
-                val request: LoginRequest = LoginRequest(
-                    email = "test@test.com",
-                    password = "",
-                    socialId = null,
-                    loginType = UserLoginType.GENERAL
-                )
-                shouldThrow<LogException> { validator.validate(request) }
-            }
-        }
-
-        `when`("GENERAL 타입이고 password가 있으면") {
+        `when`("이메일 형식이 올바르면") {
             then("예외 없이 통과한다") {
                 val request: LoginRequest = LoginRequest(
                     email = "test@test.com",
-                    password = "Pass1234!",
-                    socialId = null,
-                    loginType = UserLoginType.GENERAL
-                )
-                shouldNotThrow<Exception> { validator.validate(request) }
-            }
-        }
-
-        `when`("KAKAO 타입인데 socialId가 null이면") {
-            then("ApiException이 발생한다") {
-                val request: LoginRequest = LoginRequest(
-                    email = "test@test.com",
-                    password = null,
-                    socialId = null,
-                    loginType = UserLoginType.KAKAO
-                )
-                shouldThrow<LogException> { validator.validate(request) }
-            }
-        }
-
-        `when`("KAKAO 타입이고 socialId가 있으면") {
-            then("예외 없이 통과한다") {
-                val request: LoginRequest = LoginRequest(
-                    email = "test@test.com",
-                    password = null,
-                    socialId = "kakao_12345",
-                    loginType = UserLoginType.KAKAO
+                    password = "Pass1234!"
                 )
                 shouldNotThrow<Exception> { validator.validate(request) }
             }

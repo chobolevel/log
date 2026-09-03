@@ -1,7 +1,7 @@
 package com.chobolevel.api.common.security
 
-import com.chobolevel.api.auth.dto.JwtResponse
 import com.chobolevel.api.common.properties.JwtProperties
+import com.chobolevel.api.user.dto.JwtResponse
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.UnAuthorizedException
 import io.jsonwebtoken.ExpiredJwtException

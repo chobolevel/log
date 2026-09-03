@@ -22,7 +22,7 @@ import org.hibernate.envers.Audited
 @Audited
 @SQLDelete(sql = "UPDATE users SET resigned = true WHERE id = ?")
 class User(
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     var email: String,
     @Column(nullable = false)
     var password: String,
