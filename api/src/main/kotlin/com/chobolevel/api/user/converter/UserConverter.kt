@@ -19,15 +19,11 @@ class UserConverter(
 ) {
 
     fun convert(request: CreateUserRequest): User {
-        val password: String = when (request.loginType) {
-            UserLoginType.GENERAL -> passwordProvider.encode(request.password)
-            else -> passwordProvider.encode(request.socialId)
-        }
         return User(
             email = request.email,
-            password = password,
-            socialId = request.socialId,
-            loginType = request.loginType,
+            password = passwordProvider.encode(plainText = request.password),
+            socialId = null,
+            loginType = UserLoginType.GENERAL,
             nickname = request.nickname,
             role = UserRoleType.ROLE_USER
         )
@@ -36,7 +32,7 @@ class UserConverter(
     fun convert(request: SocialLoginRequest): User {
         return User(
             email = request.email,
-            password = "",
+            password = null,
             socialId = request.socialId,
             loginType = request.loginType,
             nickname = request.nickname,

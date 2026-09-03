@@ -7,7 +7,6 @@ import com.chobolevel.api.user.dto.ResetUserPasswordRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.InvalidParameterException
-import com.chobolevel.domain.user.vo.UserLoginType
 import com.chobolevel.domain.user.vo.UserUpdateMask
 import org.springframework.stereotype.Component
 
@@ -15,10 +14,8 @@ import org.springframework.stereotype.Component
 class UserParameterValidator {
 
     fun validate(request: CreateUserRequest) {
+        validatePasswordFormat(password = request.password)
         validateNicknameFormat(nickname = request.nickname)
-        if (request.loginType == UserLoginType.GENERAL) {
-            validatePasswordFormat(password = request.password!!)
-        }
     }
 
     fun validate(request: UpdateUserRequest) {

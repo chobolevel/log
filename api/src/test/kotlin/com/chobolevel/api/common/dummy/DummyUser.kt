@@ -30,8 +30,6 @@ object DummyUser {
     fun toCreateRequest(): CreateUserRequest = CreateUserRequest(
         email = EMAIL,
         password = PASSWORD,
-        socialId = null,
-        loginType = UserLoginType.GENERAL,
         nickname = NICKNAME,
     )
 

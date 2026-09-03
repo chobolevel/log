@@ -19,7 +19,6 @@ import com.chobolevel.api.user.updater.UserUpdater
 import com.chobolevel.api.user.validator.UserBusinessValidator
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
-import com.chobolevel.domain.user.vo.UserLoginType
 import com.chobolevel.domain.user.vo.UserQueryFilter
 import com.chobolevel.domain.user.vo.UserUpdateMask
 import io.kotest.core.spec.style.BehaviorSpec
@@ -62,8 +61,6 @@ class UserServiceTest : BehaviorSpec({
                 val request: CreateUserRequest = CreateUserRequest(
                     email = DummyUser.EMAIL,
                     password = "password123!",
-                    socialId = null,
-                    loginType = UserLoginType.GENERAL,
                     nickname = DummyUser.NICKNAME
                 )
                 val user: User = DummyUser.toEntity()

@@ -24,8 +24,8 @@ import org.hibernate.envers.Audited
 class User(
     @Column(nullable = false, unique = true)
     var email: String,
-    @Column(nullable = false)
-    var password: String,
+    @Column(nullable = true)
+    var password: String?,
     @Column(nullable = true)
     var socialId: String?,
     @Enumerated(EnumType.STRING)

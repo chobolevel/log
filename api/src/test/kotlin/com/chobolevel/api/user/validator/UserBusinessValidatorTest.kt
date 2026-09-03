@@ -13,7 +13,6 @@ import com.chobolevel.domain.common.exception.InvalidParameterException
 import com.chobolevel.domain.common.exception.PolicyViolationException
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
-import com.chobolevel.domain.user.vo.UserLoginType
 import com.chobolevel.domain.user.vo.UserUpdateMask
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
@@ -49,8 +48,6 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 val request: CreateUserRequest = CreateUserRequest(
                     email = DummyUser.EMAIL,
                     password = "password123!",
-                    socialId = null,
-                    loginType = UserLoginType.GENERAL,
                     nickname = DummyUser.NICKNAME
                 )
                 every { userRepository.existsByEmail(DummyUser.EMAIL) } returns true
@@ -71,8 +68,6 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 val request: CreateUserRequest = CreateUserRequest(
                     email = DummyUser.EMAIL,
                     password = "password123!",
-                    socialId = null,
-                    loginType = UserLoginType.GENERAL,
                     nickname = DummyUser.NICKNAME
                 )
                 every { userRepository.existsByEmail(DummyUser.EMAIL) } returns false
@@ -94,8 +89,6 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 val request: CreateUserRequest = CreateUserRequest(
                     email = DummyUser.EMAIL,
                     password = "password123!",
-                    socialId = null,
-                    loginType = UserLoginType.GENERAL,
                     nickname = DummyUser.NICKNAME
                 )
                 every { userRepository.existsByEmail(DummyUser.EMAIL) } returns false

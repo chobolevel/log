@@ -1,6 +1,7 @@
 package com.chobolevel.api.common.security
 
 import com.chobolevel.domain.user.entity.User
+import com.chobolevel.domain.user.vo.UserLoginType
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.userdetails.UserDetails
@@ -14,7 +15,10 @@ class UserDetailsImpl(
     }
 
     override fun getPassword(): String {
-        return user.password
+        return when (user.loginType) {
+            UserLoginType.GENERAL -> user.password!!
+            else -> user.socialId!!
+        }
     }
 
     override fun getUsername(): String {

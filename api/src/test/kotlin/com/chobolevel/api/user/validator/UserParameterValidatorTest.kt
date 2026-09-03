@@ -5,7 +5,6 @@ import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.ResetUserPasswordRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
 import com.chobolevel.domain.common.exception.InvalidParameterException
-import com.chobolevel.domain.user.vo.UserLoginType
 import com.chobolevel.domain.user.vo.UserUpdateMask
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
@@ -22,8 +21,6 @@ class UserParameterValidatorTest : BehaviorSpec({
                 val request: CreateUserRequest = CreateUserRequest(
                     email = "test@test.com",
                     password = "Pass1234!",
-                    socialId = null,
-                    loginType = UserLoginType.GENERAL,
                     nickname = "nick123"
                 )
                 shouldThrow<InvalidParameterException> { validator.validate(request) }
@@ -35,8 +32,6 @@ class UserParameterValidatorTest : BehaviorSpec({
                 val request: CreateUserRequest = CreateUserRequest(
                     email = "test@test.com",
                     password = "tooshort",
-                    socialId = null,
-                    loginType = UserLoginType.GENERAL,
                     nickname = "홍길동"
                 )
                 shouldThrow<InvalidParameterException> { validator.validate(request) }
@@ -48,21 +43,6 @@ class UserParameterValidatorTest : BehaviorSpec({
                 val request: CreateUserRequest = CreateUserRequest(
                     email = "test@test.com",
                     password = "Pass1234!",
-                    socialId = null,
-                    loginType = UserLoginType.GENERAL,
-                    nickname = "홍길동"
-                )
-                shouldNotThrow<Exception> { validator.validate(request) }
-            }
-        }
-
-        `when`("GITHUB 타입이면 비밀번호 검증을 건너뛴다") {
-            then("예외 없이 통과한다") {
-                val request: CreateUserRequest = CreateUserRequest(
-                    email = "test@test.com",
-                    password = null,
-                    socialId = "github_12345",
-                    loginType = UserLoginType.GITHUB,
                     nickname = "홍길동"
                 )
                 shouldNotThrow<Exception> { validator.validate(request) }
