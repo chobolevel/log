@@ -4,7 +4,7 @@ import com.chobolevel.api.user.dto.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.user.dto.LoginRequest
 import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest
 import com.chobolevel.api.user.dto.SocialLoginRequest
-import com.chobolevel.domain.common.exception.LogException
+import com.chobolevel.domain.common.exception.InvalidParameterException
 import com.chobolevel.domain.user.vo.UserLoginType
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
@@ -22,7 +22,7 @@ class UserAuthParameterValidatorTest : BehaviorSpec({
                     email = "not-an-email",
                     password = "Pass1234!"
                 )
-                shouldThrow<LogException> { validator.validate(request) }
+                shouldThrow<InvalidParameterException> { validator.validate(request) }
             }
         }
 
@@ -47,7 +47,7 @@ class UserAuthParameterValidatorTest : BehaviorSpec({
                     loginType = UserLoginType.GITHUB,
                     nickname = "홍길동"
                 )
-                shouldThrow<LogException> { validator.validate(request) }
+                shouldThrow<InvalidParameterException> { validator.validate(request) }
             }
         }
 
@@ -59,7 +59,7 @@ class UserAuthParameterValidatorTest : BehaviorSpec({
                     loginType = UserLoginType.GENERAL,
                     nickname = "홍길동"
                 )
-                shouldThrow<LogException> { validator.validate(request) }
+                shouldThrow<InvalidParameterException> { validator.validate(request) }
             }
         }
 
@@ -83,7 +83,7 @@ class UserAuthParameterValidatorTest : BehaviorSpec({
                 val request: SendEmailVerificationCodeRequest = SendEmailVerificationCodeRequest(
                     email = "not-an-email"
                 )
-                shouldThrow<LogException> { validator.validate(request) }
+                shouldThrow<InvalidParameterException> { validator.validate(request) }
             }
         }
 
@@ -105,7 +105,7 @@ class UserAuthParameterValidatorTest : BehaviorSpec({
                     email = "not-an-email",
                     verificationCode = "1234567890123"
                 )
-                shouldThrow<LogException> { validator.validate(request) }
+                shouldThrow<InvalidParameterException> { validator.validate(request) }
             }
         }
 
@@ -115,7 +115,7 @@ class UserAuthParameterValidatorTest : BehaviorSpec({
                     email = "test@test.com",
                     verificationCode = "12345"
                 )
-                shouldThrow<LogException> { validator.validate(request) }
+                shouldThrow<InvalidParameterException> { validator.validate(request) }
             }
         }
 

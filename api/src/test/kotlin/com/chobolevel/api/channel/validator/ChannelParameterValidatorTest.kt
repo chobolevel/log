@@ -2,7 +2,7 @@ package com.chobolevel.api.channel.validator
 
 import com.chobolevel.api.channel.dto.UpdateChannelRequest
 import com.chobolevel.domain.channel.vo.ChannelUpdateMask
-import com.chobolevel.domain.common.exception.LogException
+import com.chobolevel.domain.common.exception.InvalidParameterException
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -20,7 +20,7 @@ class ChannelParameterValidatorTest : BehaviorSpec({
                     userIds = null,
                     updateMask = listOf(ChannelUpdateMask.NAME)
                 )
-                shouldThrow<LogException> { validator.validate(request) }
+                shouldThrow<InvalidParameterException> { validator.validate(request) }
             }
         }
 
@@ -31,7 +31,7 @@ class ChannelParameterValidatorTest : BehaviorSpec({
                     userIds = null,
                     updateMask = listOf(ChannelUpdateMask.NAME)
                 )
-                shouldThrow<LogException> { validator.validate(request) }
+                shouldThrow<InvalidParameterException> { validator.validate(request) }
             }
         }
 
@@ -53,7 +53,7 @@ class ChannelParameterValidatorTest : BehaviorSpec({
                     userIds = null,
                     updateMask = listOf(ChannelUpdateMask.USERS)
                 )
-                shouldThrow<LogException> { validator.validate(request) }
+                shouldThrow<InvalidParameterException> { validator.validate(request) }
             }
         }
 

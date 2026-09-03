@@ -1,7 +1,7 @@
 package com.chobolevel.api.post.validator
 
 import com.chobolevel.api.post.dto.UpdatePostRequest
-import com.chobolevel.domain.common.exception.LogException
+import com.chobolevel.domain.common.exception.InvalidParameterException
 import com.chobolevel.domain.post.vo.PostUpdateMask
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
@@ -23,7 +23,7 @@ class PostParameterValidatorTest : BehaviorSpec({
                     thumbnailImage = null,
                     updateMask = listOf(PostUpdateMask.TAGS)
                 )
-                shouldThrow<LogException> { validator.validate(request) }
+                shouldThrow<InvalidParameterException> { validator.validate(request) }
             }
         }
 
@@ -37,7 +37,7 @@ class PostParameterValidatorTest : BehaviorSpec({
                     thumbnailImage = null,
                     updateMask = listOf(PostUpdateMask.TAGS)
                 )
-                shouldThrow<LogException> { validator.validate(request) }
+                shouldThrow<InvalidParameterException> { validator.validate(request) }
             }
         }
 
@@ -65,7 +65,7 @@ class PostParameterValidatorTest : BehaviorSpec({
                     thumbnailImage = null,
                     updateMask = listOf(PostUpdateMask.TITLE)
                 )
-                shouldThrow<LogException> { validator.validate(request) }
+                shouldThrow<InvalidParameterException> { validator.validate(request) }
             }
         }
 
@@ -93,7 +93,7 @@ class PostParameterValidatorTest : BehaviorSpec({
                     thumbnailImage = null,
                     updateMask = listOf(PostUpdateMask.SUB_TITLE)
                 )
-                shouldThrow<LogException> { validator.validate(request) }
+                shouldThrow<InvalidParameterException> { validator.validate(request) }
             }
         }
 
@@ -121,7 +121,7 @@ class PostParameterValidatorTest : BehaviorSpec({
                     thumbnailImage = null,
                     updateMask = listOf(PostUpdateMask.CONTENT)
                 )
-                shouldThrow<LogException> { validator.validate(request) }
+                shouldThrow<InvalidParameterException> { validator.validate(request) }
             }
         }
 

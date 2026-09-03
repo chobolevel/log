@@ -1,7 +1,7 @@
 package com.chobolevel.api.post.comment.validator
 
 import com.chobolevel.api.post.comment.dto.UpdatePostCommentRequest
-import com.chobolevel.domain.common.exception.LogException
+import com.chobolevel.domain.common.exception.InvalidParameterException
 import com.chobolevel.domain.post.comment.vo.PostCommentUpdateMask
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
@@ -19,7 +19,7 @@ class PostCommentParameterValidatorTest : BehaviorSpec({
                     content = null,
                     updateMask = listOf(PostCommentUpdateMask.CONTENT)
                 )
-                shouldThrow<LogException> { validator.validate(request) }
+                shouldThrow<InvalidParameterException> { validator.validate(request) }
             }
         }
 
@@ -29,7 +29,7 @@ class PostCommentParameterValidatorTest : BehaviorSpec({
                     content = "",
                     updateMask = listOf(PostCommentUpdateMask.CONTENT)
                 )
-                shouldThrow<LogException> { validator.validate(request) }
+                shouldThrow<InvalidParameterException> { validator.validate(request) }
             }
         }
 
