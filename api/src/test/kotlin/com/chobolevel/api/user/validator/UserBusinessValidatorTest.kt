@@ -9,7 +9,8 @@ import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.ResetUserPasswordRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
 import com.chobolevel.domain.common.exception.ErrorCode
-import com.chobolevel.domain.common.exception.LogException
+import com.chobolevel.domain.common.exception.InvalidParameterException
+import com.chobolevel.domain.common.exception.PolicyViolationException
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
 import com.chobolevel.domain.user.vo.UserLoginType
@@ -55,7 +56,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 every { userRepository.existsByEmail(DummyUser.EMAIL) } returns true
 
                 // when
-                val exception: LogException = shouldThrow<LogException> {
+                val exception: PolicyViolationException = shouldThrow<PolicyViolationException> {
                     validator.validate(request)
                 }
 
@@ -78,7 +79,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 every { userRepository.existsByNickname(DummyUser.NICKNAME) } returns true
 
                 // when
-                val exception: LogException = shouldThrow<LogException> {
+                val exception: PolicyViolationException = shouldThrow<PolicyViolationException> {
                     validator.validate(request)
                 }
 
@@ -132,7 +133,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 every { userRepository.existsByNickname(DummyUser.NICKNAME) } returns true
 
                 // when
-                val exception: LogException = shouldThrow<LogException> {
+                val exception: PolicyViolationException = shouldThrow<PolicyViolationException> {
                     validator.validate(request)
                 }
 
@@ -171,7 +172,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 } returns false
 
                 // when
-                val exception: LogException = shouldThrow<LogException> {
+                val exception: InvalidParameterException = shouldThrow<InvalidParameterException> {
                     validator.validate(user, request)
                 }
 
@@ -193,7 +194,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 } returns true
 
                 // when
-                val exception: LogException = shouldThrow<LogException> {
+                val exception: PolicyViolationException = shouldThrow<PolicyViolationException> {
                     validator.validate(user, request)
                 }
 
@@ -232,7 +233,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 every { userRepository.existsByEmail(DummyUser.EMAIL) } returns false
 
                 // when
-                val exception: LogException = shouldThrow<LogException> {
+                val exception: InvalidParameterException = shouldThrow<InvalidParameterException> {
                     validator.validate(request)
                 }
 
@@ -249,7 +250,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 every { cacheProvider.get("${CacheKeyPrefix.RESET_PASSWORD}${DummyUser.EMAIL}") } returns null
 
                 // when
-                val exception: LogException = shouldThrow<LogException> {
+                val exception: InvalidParameterException = shouldThrow<InvalidParameterException> {
                     validator.validate(request)
                 }
 
@@ -266,7 +267,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 every { cacheProvider.get("${CacheKeyPrefix.RESET_PASSWORD}${DummyUser.EMAIL}") } returns "wrongCode"
 
                 // when
-                val exception: LogException = shouldThrow<LogException> {
+                val exception: InvalidParameterException = shouldThrow<InvalidParameterException> {
                     validator.validate(request)
                 }
 

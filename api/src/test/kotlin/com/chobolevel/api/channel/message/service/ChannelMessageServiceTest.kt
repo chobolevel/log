@@ -11,7 +11,7 @@ import com.chobolevel.domain.channel.entity.Channel
 import com.chobolevel.domain.channel.message.entity.ChannelMessage
 import com.chobolevel.domain.channel.message.repository.ChannelMessageRepository
 import com.chobolevel.domain.channel.repository.ChannelRepository
-import com.chobolevel.domain.common.exception.LogException
+import com.chobolevel.domain.common.exception.PolicyViolationException
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
 import io.kotest.assertions.throwables.shouldThrow
@@ -115,7 +115,7 @@ class ChannelMessageServiceTest : BehaviorSpec({
                 every { userRepository.findById(DummyUser.ID) } returns worker
                 every { repository.findById(DummyChannelMessage.ID) } returns channelMessage
 
-                shouldThrow<LogException> {
+                shouldThrow<PolicyViolationException> {
                     service.delete(workerId = DummyUser.ID, channelMessageId = DummyChannelMessage.ID)
                 }
             }

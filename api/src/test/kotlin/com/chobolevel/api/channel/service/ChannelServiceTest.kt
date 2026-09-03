@@ -13,7 +13,8 @@ import com.chobolevel.domain.channel.message.entity.ChannelMessage
 import com.chobolevel.domain.channel.message.repository.ChannelMessageRepository
 import com.chobolevel.domain.channel.repository.ChannelRepository
 import com.chobolevel.domain.channel.user.entity.ChannelUser
-import com.chobolevel.domain.common.exception.LogException
+import com.chobolevel.domain.common.exception.ForbiddenException
+import com.chobolevel.domain.common.exception.PolicyViolationException
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
 import io.kotest.assertions.throwables.shouldThrow
@@ -107,7 +108,7 @@ class ChannelServiceTest : BehaviorSpec({
                 // channelUsers 비어있음 → find 결과 null
                 every { repository.findById(DummyChannel.ID) } returns channel
 
-                shouldThrow<LogException> {
+                shouldThrow<ForbiddenException> {
                     service.getChannel(userId = DummyUser.ID, channelId = DummyChannel.ID)
                 }
             }
@@ -148,7 +149,7 @@ class ChannelServiceTest : BehaviorSpec({
                 every { userRepository.findById(2L) } returns worker
                 every { repository.findById(DummyChannel.ID) } returns channel
 
-                shouldThrow<LogException> {
+                shouldThrow<ForbiddenException> {
                     service.update(workerId = 2L, channelId = DummyChannel.ID, request = DummyChannel.toUpdateRequest())
                 }
             }
@@ -183,7 +184,7 @@ class ChannelServiceTest : BehaviorSpec({
                 // channelUsers 비어있음
                 every { repository.findById(DummyChannel.ID) } returns channel
 
-                shouldThrow<LogException> {
+                shouldThrow<PolicyViolationException> {
                     service.exit(userId = DummyUser.ID, channelId = DummyChannel.ID)
                 }
             }
@@ -225,7 +226,7 @@ class ChannelServiceTest : BehaviorSpec({
                 channel.channelUsers.add(channelUser)
                 every { repository.findById(DummyChannel.ID) } returns channel
 
-                shouldThrow<LogException> {
+                shouldThrow<PolicyViolationException> {
                     service.invite(
                         userId = DummyUser.ID,
                         channelId = DummyChannel.ID,
@@ -266,7 +267,7 @@ class ChannelServiceTest : BehaviorSpec({
                 every { userRepository.findById(2L) } returns worker
                 every { repository.findById(DummyChannel.ID) } returns channel
 
-                shouldThrow<LogException> {
+                shouldThrow<ForbiddenException> {
                     service.delete(workerId = 2L, channelId = DummyChannel.ID)
                 }
             }

@@ -11,7 +11,10 @@ import com.chobolevel.api.user.converter.UserConverter
 import com.chobolevel.api.user.dto.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.user.dto.JwtResponse
 import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest
-import com.chobolevel.domain.common.exception.LogException
+import com.chobolevel.domain.common.exception.BadCredentialException
+import com.chobolevel.domain.common.exception.InvalidParameterException
+import com.chobolevel.domain.common.exception.PolicyViolationException
+import com.chobolevel.domain.common.exception.UnAuthorizedException
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
 import com.chobolevel.domain.user.vo.UserLoginType
@@ -54,7 +57,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 val request = DummyAuth.toGeneralLoginRequest()
                 val user: User = DummyUser.toEntity()
                 val jwtResponse: JwtResponse = DummyAuth.toJwtResponse()
-                every { userRepository.findByEmail(request.email) } returns user
+                every { userRepository.findByEmailOrNull(request.email) } returns user
                 every { passwordProvider.matches(request.password, user.password) } returns true
                 every { tokenProvider.generateToken(any()) } returns jwtResponse
                 every { cacheProvider.put(any(), any()) } returns Unit
@@ -69,16 +72,29 @@ class UserAuthServiceTest : BehaviorSpec({
             }
         }
 
+        `when`("회원이 존재하지 않으면") {
+            then("BadCredentialException이 발생한다") {
+                // given
+                val request = DummyAuth.toGeneralLoginRequest()
+                every { userRepository.findByEmailOrNull(request.email) } returns null
+
+                // when & then
+                shouldThrow<BadCredentialException> {
+                    service.login(request)
+                }
+            }
+        }
+
         `when`("비밀번호가 일치하지 않으면") {
             then("BadCredentialException이 발생한다") {
                 // given
                 val request = DummyAuth.toGeneralLoginRequest()
                 val user: User = DummyUser.toEntity()
-                every { userRepository.findByEmail(request.email) } returns user
+                every { userRepository.findByEmailOrNull(request.email) } returns user
                 every { passwordProvider.matches(request.password, user.password) } returns false
 
                 // when & then
-                shouldThrow<LogException> {
+                shouldThrow<BadCredentialException> {
                     service.login(request)
                 }
             }
@@ -177,7 +193,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 every { userRepository.findByEmailOrNull(request.email) } returns user
 
                 // when & then
-                shouldThrow<LogException> {
+                shouldThrow<InvalidParameterException> {
                     service.socialLogin(request)
                 }
             }
@@ -213,7 +229,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 every { cacheProvider.get("refresh-token:v1:" + DummyAuth.REFRESH_TOKEN) } returns null
 
                 // when & then
-                shouldThrow<LogException> {
+                shouldThrow<UnAuthorizedException> {
                     service.reissue(DummyAuth.REFRESH_TOKEN)
                 }
             }
@@ -228,7 +244,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 every { cacheProvider.get("refresh-token:v1:" + DummyAuth.REFRESH_TOKEN) } returns "999"
 
                 // when & then
-                shouldThrow<LogException> {
+                shouldThrow<UnAuthorizedException> {
                     service.reissue(DummyAuth.REFRESH_TOKEN)
                 }
             }
@@ -284,7 +300,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 every { cacheProvider.get("${CacheKeyPrefix.EMAIL}${DummyUser.EMAIL}") } returns null
 
                 // when & then
-                shouldThrow<LogException> {
+                shouldThrow<PolicyViolationException> {
                     service.checkEmailVerificationCode(request)
                 }
             }
@@ -300,7 +316,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 every { cacheProvider.get("${CacheKeyPrefix.EMAIL}${DummyUser.EMAIL}") } returns DummyAuth.VERIFICATION_CODE
 
                 // when & then
-                shouldThrow<LogException> {
+                shouldThrow<PolicyViolationException> {
                     service.checkEmailVerificationCode(request)
                 }
             }

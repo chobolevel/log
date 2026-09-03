@@ -12,7 +12,7 @@ import com.chobolevel.api.post.comment.dto.SearchPostCommentRequest
 import com.chobolevel.api.post.comment.dto.UpdatePostCommentRequest
 import com.chobolevel.api.post.comment.updater.PostCommentUpdater
 import com.chobolevel.domain.common.exception.ErrorCode
-import com.chobolevel.domain.common.exception.LogException
+import com.chobolevel.domain.common.exception.ForbiddenException
 import com.chobolevel.domain.post.comment.entity.PostComment
 import com.chobolevel.domain.post.comment.repository.PostCommentRepository
 import com.chobolevel.domain.post.comment.vo.PostCommentQueryFilter
@@ -174,7 +174,7 @@ class PostCommentServiceTest : BehaviorSpec({
                 every { repository.findById(postCommentId) } returns postComment
 
                 // when / then
-                val exception: LogException = shouldThrow<LogException> {
+                val exception: ForbiddenException = shouldThrow<ForbiddenException> {
                     postCommentService.updatePostComment(userId = otherUserId, postCommentId = postCommentId, request = request)
                 }
                 exception.errorCode shouldBe ErrorCode.RESTRICTED_TO_POST_COMMENT_WRITER
@@ -212,7 +212,7 @@ class PostCommentServiceTest : BehaviorSpec({
                 every { repository.findById(postCommentId) } returns postComment
 
                 // when / then
-                val exception: LogException = shouldThrow<LogException> {
+                val exception: ForbiddenException = shouldThrow<ForbiddenException> {
                     postCommentService.deletePostComment(userId = otherUserId, postCommentId = postCommentId)
                 }
                 exception.errorCode shouldBe ErrorCode.RESTRICTED_TO_POST_COMMENT_WRITER

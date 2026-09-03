@@ -1,6 +1,7 @@
 package com.chobolevel.api.common.advice
 
 import com.chobolevel.api.common.dto.ErrorResponse
+import com.chobolevel.domain.common.exception.BadCredentialException
 import com.chobolevel.domain.common.exception.DataNotFoundException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.ExternalApiException
@@ -23,6 +24,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 class ExceptionHandler {
 
     private val logger = LoggerFactory.getLogger(ExceptionHandler::class.java)
+
+    @ExceptionHandler(BadCredentialException::class)
+    fun handleBadCredentialException(e: BadCredentialException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+            ErrorResponse(errorCode = e.errorCode, errorMessage = e.message ?: e.errorCode.defaultMessage)
+        )
+    }
 
     @ExceptionHandler(UnAuthorizedException::class)
     fun handleUnAuthorizedException(e: UnAuthorizedException): ResponseEntity<ErrorResponse> {
