@@ -3,6 +3,7 @@ package com.chobolevel.api.user.converter
 import com.chobolevel.api.common.provider.PasswordProvider
 import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.SearchUserRequest
+import com.chobolevel.api.user.dto.SocialLoginRequest
 import com.chobolevel.api.user.dto.UserResponse
 import com.chobolevel.api.user.image.converter.UserImageConverter
 import com.chobolevel.domain.user.entity.User
@@ -25,6 +26,17 @@ class UserConverter(
         return User(
             email = request.email,
             password = password,
+            socialId = request.socialId,
+            loginType = request.loginType,
+            nickname = request.nickname,
+            role = UserRoleType.ROLE_USER
+        )
+    }
+
+    fun convert(request: SocialLoginRequest): User {
+        return User(
+            email = request.email,
+            password = "",
             socialId = request.socialId,
             loginType = request.loginType,
             nickname = request.nickname,

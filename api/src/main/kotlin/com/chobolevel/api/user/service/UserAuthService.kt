@@ -5,6 +5,7 @@ import com.chobolevel.api.common.provider.CacheProvider
 import com.chobolevel.api.common.provider.EmailProvider
 import com.chobolevel.api.common.provider.PasswordProvider
 import com.chobolevel.api.common.security.TokenProvider
+import com.chobolevel.api.user.converter.UserConverter
 import com.chobolevel.api.user.dto.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.user.dto.JwtResponse
 import com.chobolevel.api.user.dto.LoginRequest
@@ -17,7 +18,6 @@ import com.chobolevel.domain.common.exception.PolicyViolationException
 import com.chobolevel.domain.common.exception.UnAuthorizedException
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
-import com.chobolevel.domain.user.vo.UserRoleType
 import io.hypersistence.tsid.TSID
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.GrantedAuthority
@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit
 class UserAuthService(
     private val tokenProvider: TokenProvider,
     private val userRepository: UserRepository,
+    private val userConverter: UserConverter,
     private val passwordProvider: PasswordProvider,
     private val cacheProvider: CacheProvider,
     private val emailProvider: EmailProvider,
@@ -54,23 +55,14 @@ class UserAuthService(
 
     @Transactional
     fun socialLogin(request: SocialLoginRequest): JwtResponse {
-        val user: User = userRepository.findByEmailOrNull(request.email)
-            ?: userRepository.save(
-                User(
-                    email = request.email,
-                    password = "",
-                    socialId = request.socialId,
-                    loginType = request.loginType,
-                    nickname = request.nickname,
-                    role = UserRoleType.ROLE_USER
-                )
-            )
-        if (user.loginType != request.loginType) {
+        val existingUser: User? = userRepository.findByEmailOrNull(request.email)
+        if (existingUser != null && existingUser.loginType != request.loginType) {
             throw InvalidParameterException(
                 errorCode = ErrorCode.INVALID_PARAMETER,
-                message = "해당 이메일은 다른 로그인 타입으로 가입된 계정입니다."
+                message = "소셜 로그인에 실패했습니다."
             )
         }
+        val user: User = existingUser ?: userRepository.save(userConverter.convert(request))
         if (user.socialId != request.socialId) {
             user.socialId = request.socialId
         }

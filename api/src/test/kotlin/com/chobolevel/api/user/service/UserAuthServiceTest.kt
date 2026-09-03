@@ -7,6 +7,7 @@ import com.chobolevel.api.common.provider.PasswordProvider
 import com.chobolevel.api.common.provider.RedisCacheProvider
 import com.chobolevel.api.common.provider.ResendEmailProvider
 import com.chobolevel.api.common.security.TokenProvider
+import com.chobolevel.api.user.converter.UserConverter
 import com.chobolevel.api.user.dto.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.user.dto.JwtResponse
 import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest
@@ -22,7 +23,6 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
-import io.mockk.slot
 import io.mockk.verify
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 
@@ -30,12 +30,14 @@ class UserAuthServiceTest : BehaviorSpec({
 
     val tokenProvider: TokenProvider = mockk()
     val userRepository: UserRepository = mockk()
+    val userConverter: UserConverter = mockk()
     val passwordProvider: PasswordProvider = mockk()
     val cacheProvider: RedisCacheProvider = mockk()
     val emailProvider: ResendEmailProvider = mockk()
     val service: UserAuthService = UserAuthService(
         tokenProvider = tokenProvider,
         userRepository = userRepository,
+        userConverter = userConverter,
         passwordProvider = passwordProvider,
         cacheProvider = cacheProvider,
         emailProvider = emailProvider
@@ -85,10 +87,10 @@ class UserAuthServiceTest : BehaviorSpec({
 
     given("소셜 로그인 요청이 들어올 때") {
         `when`("이메일이 존재하지 않으면") {
-            then("신규 유저를 생성하고 JWT 토큰을 반환한다") {
+            then("converter로 신규 유저를 생성하고 JWT 토큰을 반환한다") {
                 // given
                 val request = DummyAuth.toGithubSocialLoginRequest()
-                val savedUser: User = User(
+                val newUser: User = User(
                     email = DummyUser.EMAIL,
                     password = "",
                     socialId = DummyAuth.GITHUB_SOCIAL_ID,
@@ -97,9 +99,9 @@ class UserAuthServiceTest : BehaviorSpec({
                     role = UserRoleType.ROLE_USER
                 ).also { it.id = DummyUser.ID }
                 val jwtResponse: JwtResponse = DummyAuth.toJwtResponse()
-                val savedUserSlot = slot<User>()
                 every { userRepository.findByEmailOrNull(request.email) } returns null
-                every { userRepository.save(capture(savedUserSlot)) } returns savedUser
+                every { userConverter.convert(request) } returns newUser
+                every { userRepository.save(newUser) } returns newUser
                 every { tokenProvider.generateToken(any()) } returns jwtResponse
                 every { cacheProvider.put(any(), any()) } returns Unit
 
@@ -109,8 +111,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 // then
                 result.accessToken shouldBe DummyAuth.ACCESS_TOKEN
                 result.refreshToken shouldBe DummyAuth.REFRESH_TOKEN
-                savedUserSlot.captured.email shouldBe DummyUser.EMAIL
-                savedUserSlot.captured.loginType shouldBe UserLoginType.GITHUB
+                verify(exactly = 1) { userConverter.convert(request) }
                 verify(exactly = 1) { cacheProvider.put("refresh-token:v1:" + DummyAuth.REFRESH_TOKEN, DummyUser.ID.toString()) }
             }
         }
