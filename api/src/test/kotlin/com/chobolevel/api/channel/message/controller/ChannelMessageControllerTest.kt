@@ -1,5 +1,6 @@
 package com.chobolevel.api.channel.message.controller
 
+import com.chobolevel.api.channel.message.dto.ChannelMessageResponse
 import com.chobolevel.api.channel.message.service.ChannelMessageService
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dummy.DummyChannel
@@ -66,7 +67,7 @@ class ChannelMessageControllerTest {
         } returns PagingResponse(
             page = 1L,
             size = 50L,
-            data = listOf(DummyChannelMessage.toResponse()),
+            data = listOf<ChannelMessageResponse>(DummyChannelMessage.toResponse()),
             totalCount = 1L
         )
 

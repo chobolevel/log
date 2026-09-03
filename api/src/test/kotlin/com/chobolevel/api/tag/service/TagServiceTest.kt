@@ -79,7 +79,7 @@ class TagServiceTest : BehaviorSpec({
                 every { tagConverter.convert(entities = tags) } returns tagResponses
 
                 // when
-                val result: PagingResponse = tagService.searchTags(
+                val result: PagingResponse<TagResponse> = tagService.searchTags(
                     filter = filter,
                     pageRequest = pageRequest,
                 )
@@ -125,7 +125,7 @@ class TagServiceTest : BehaviorSpec({
                 every { tagConverter.convert(entities = emptyTags) } returns emptyTagResponses
 
                 // when
-                val result: PagingResponse = tagService.searchTags(
+                val result: PagingResponse<TagResponse> = tagService.searchTags(
                     filter = filter,
                     pageRequest = pageRequest,
                 )

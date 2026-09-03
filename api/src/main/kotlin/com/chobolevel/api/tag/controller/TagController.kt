@@ -7,6 +7,7 @@ import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.tag.dto.CreateTagRequest
 import com.chobolevel.api.tag.dto.SearchTagRequest
 import com.chobolevel.api.tag.dto.TagPagingRequest
+import com.chobolevel.api.tag.dto.TagResponse
 import com.chobolevel.api.tag.dto.UpdateTagRequest
 import com.chobolevel.api.tag.service.TagService
 import com.chobolevel.api.tag.validator.TagParameterValidator
@@ -37,7 +38,7 @@ class TagController(
     fun createTag(
         @Valid @RequestBody
         request: CreateTagRequest
-    ): ResponseEntity<ResultResponse> {
+    ): ResponseEntity<ResultResponse<Long>> {
         val result: Long = service.createTag(request)
         return ResponseEntity.ok(ResultResponse(result))
     }
@@ -47,8 +48,8 @@ class TagController(
     fun searchTags(
         @QueryObject filter: SearchTagRequest,
         @QueryObject pageRequest: TagPagingRequest
-    ): ResponseEntity<ResultResponse> {
-        val result: PagingResponse = service.searchTags(
+    ): ResponseEntity<ResultResponse<PagingResponse<TagResponse>>> {
+        val result: PagingResponse<TagResponse> = service.searchTags(
             filter = filter,
             pageRequest = pageRequest
         )
@@ -62,7 +63,7 @@ class TagController(
         @PathVariable id: Long,
         @Valid @RequestBody
         request: UpdateTagRequest
-    ): ResponseEntity<ResultResponse> {
+    ): ResponseEntity<ResultResponse<Long>> {
         validator.validate(request = request)
         val result: Long = service.updateTag(
             tagId = id,
@@ -74,7 +75,7 @@ class TagController(
     @Operation(summary = "게시글 태그 삭제 API")
     @HasAuthorityAdmin
     @DeleteMapping("/tags/{id}")
-    fun deleteTag(@PathVariable id: Long): ResponseEntity<ResultResponse> {
+    fun deleteTag(@PathVariable id: Long): ResponseEntity<ResultResponse<Boolean>> {
         val result: Boolean = service.deleteTag(
             tagId = id
         )

@@ -41,7 +41,7 @@ class PostController(
         principal: Principal,
         @Valid @RequestBody
         request: CreatePostRequest
-    ): ResponseEntity<ResultResponse> {
+    ): ResponseEntity<ResultResponse<Long>> {
         val result: Long = service.createPost(
             userId = principal.getUserId(),
             request = request
@@ -54,8 +54,8 @@ class PostController(
     fun searchPosts(
         @QueryObject filter: SearchPostRequest,
         @QueryObject pageRequest: PostPagingRequest
-    ): ResponseEntity<ResultResponse> {
-        val result: PagingResponse = service.searchPosts(
+    ): ResponseEntity<ResultResponse<PagingResponse<PostResponse>>> {
+        val result: PagingResponse<PostResponse> = service.searchPosts(
             filter = filter,
             pageRequest = pageRequest
         )
@@ -64,7 +64,7 @@ class PostController(
 
     @Operation(summary = "게시글 단건 조회 API")
     @GetMapping("/posts/{id}")
-    fun fetchPost(@PathVariable id: Long): ResponseEntity<ResultResponse> {
+    fun fetchPost(@PathVariable id: Long): ResponseEntity<ResultResponse<PostResponse>> {
         val result: PostResponse = service.fetchPost(
             postId = id
         )
@@ -79,7 +79,7 @@ class PostController(
         @PathVariable id: Long,
         @Valid @RequestBody
         request: UpdatePostRequest
-    ): ResponseEntity<ResultResponse> {
+    ): ResponseEntity<ResultResponse<Long>> {
         validator.validate(request = request)
         val result: Long = service.updatePost(
             userId = principal.getUserId(),
@@ -92,7 +92,7 @@ class PostController(
     @Operation(summary = "게시글 삭제 API")
     @HasAuthorityUser
     @DeleteMapping("/posts/{id}")
-    fun deletePost(principal: Principal, @PathVariable id: Long): ResponseEntity<ResultResponse> {
+    fun deletePost(principal: Principal, @PathVariable id: Long): ResponseEntity<ResultResponse<Boolean>> {
         val result: Boolean = service.deletePost(
             userId = principal.getUserId(),
             postId = id

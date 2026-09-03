@@ -3,6 +3,7 @@ package com.chobolevel.api.post.controller
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dummy.DummyPost
 import com.chobolevel.api.common.dummy.DummyUser
+import com.chobolevel.api.post.dto.PostResponse
 import com.chobolevel.api.post.service.PostService
 import com.chobolevel.api.post.validator.PostParameterValidator
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -128,7 +129,7 @@ class PostControllerTest {
             PagingResponse(
                 page = 1L,
                 size = 20L,
-                data = listOf(DummyPost.toResponse()),
+                data = listOf<PostResponse>(DummyPost.toResponse()),
                 totalCount = 1L
             )
 

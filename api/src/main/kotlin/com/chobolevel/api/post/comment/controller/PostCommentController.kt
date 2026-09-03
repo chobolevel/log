@@ -8,6 +8,7 @@ import com.chobolevel.api.common.extension.getUserId
 import com.chobolevel.api.common.posttask.CreatePostCommentPostTask
 import com.chobolevel.api.post.comment.dto.CreatePostCommentRequest
 import com.chobolevel.api.post.comment.dto.PostCommentPagingRequest
+import com.chobolevel.api.post.comment.dto.PostCommentResponse
 import com.chobolevel.api.post.comment.dto.SearchPostCommentRequest
 import com.chobolevel.api.post.comment.dto.UpdatePostCommentRequest
 import com.chobolevel.api.post.comment.service.PostCommentService
@@ -42,7 +43,7 @@ class PostCommentController(
         principal: Principal,
         @Valid @RequestBody
         request: CreatePostCommentRequest
-    ): ResponseEntity<ResultResponse> {
+    ): ResponseEntity<ResultResponse<Long>> {
         val result: Long = service.createPostComment(
             userId = principal.getUserId(),
             request = request
@@ -56,8 +57,8 @@ class PostCommentController(
     fun searchPostComments(
         @QueryObject filter: SearchPostCommentRequest,
         @QueryObject pageRequest: PostCommentPagingRequest
-    ): ResponseEntity<ResultResponse> {
-        val result: PagingResponse = service.searchPostComments(
+    ): ResponseEntity<ResultResponse<PagingResponse<PostCommentResponse>>> {
+        val result: PagingResponse<PostCommentResponse> = service.searchPostComments(
             filter = filter,
             pageRequest = pageRequest
         )
@@ -72,7 +73,7 @@ class PostCommentController(
         @PathVariable id: Long,
         @Valid @RequestBody
         request: UpdatePostCommentRequest
-    ): ResponseEntity<ResultResponse> {
+    ): ResponseEntity<ResultResponse<Long>> {
         validator.validate(request = request)
         val result: Long = service.updatePostComment(
             userId = principal.getUserId(),
@@ -88,7 +89,7 @@ class PostCommentController(
     fun deletePostComment(
         principal: Principal,
         @PathVariable("id") postCommentId: Long,
-    ): ResponseEntity<ResultResponse> {
+    ): ResponseEntity<ResultResponse<Boolean>> {
         val result: Boolean = service.deletePostComment(
             userId = principal.getUserId(),
             postCommentId = postCommentId,

@@ -151,7 +151,7 @@ class PostServiceTest : BehaviorSpec({
                 every { postConverter.convert(entities = posts) } returns postResponses
 
                 // when
-                val result: PagingResponse = postService.searchPosts(filter = filter, pageRequest = pageRequest)
+                val result: PagingResponse<PostResponse> = postService.searchPosts(filter = filter, pageRequest = pageRequest)
 
                 // then
                 result.page shouldBe pageRequest.page
@@ -185,7 +185,7 @@ class PostServiceTest : BehaviorSpec({
                 every { postConverter.convert(entities = emptyPosts) } returns emptyResponses
 
                 // when
-                val result: PagingResponse = postService.searchPosts(filter = filter, pageRequest = pageRequest)
+                val result: PagingResponse<PostResponse> = postService.searchPosts(filter = filter, pageRequest = pageRequest)
 
                 // then
                 result.totalCount shouldBe 0L

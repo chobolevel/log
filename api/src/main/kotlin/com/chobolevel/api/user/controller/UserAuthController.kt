@@ -41,7 +41,7 @@ class UserAuthController(
         res: HttpServletResponse,
         @Valid @RequestBody
         request: LoginRequest
-    ): ResponseEntity<ResultResponse> {
+    ): ResponseEntity<ResultResponse<Boolean>> {
         validator.validate(request = request)
         val result: JwtResponse = service.login(request)
         val accessTokenCookie: Cookie = generateCookie(
@@ -63,7 +63,7 @@ class UserAuthController(
         res: HttpServletResponse,
         @Valid @RequestBody
         request: SocialLoginRequest
-    ): ResponseEntity<ResultResponse> {
+    ): ResponseEntity<ResultResponse<Boolean>> {
         validator.validate(request = request)
         val result: JwtResponse = service.socialLogin(request)
         val accessTokenCookie: Cookie = generateCookie(
@@ -81,7 +81,7 @@ class UserAuthController(
 
     @Operation(summary = "로그아웃 API")
     @PostMapping("/logout")
-    fun logout(req: HttpServletRequest, res: HttpServletResponse): ResponseEntity<ResultResponse> {
+    fun logout(req: HttpServletRequest, res: HttpServletResponse): ResponseEntity<ResultResponse<Boolean>> {
         val refreshToken: String? = req.getCookie(jwtProperties.refreshTokenKey)
         if (refreshToken != null) {
             service.logout(refreshToken)
@@ -106,7 +106,7 @@ class UserAuthController(
     fun reissueToken(
         req: HttpServletRequest,
         res: HttpServletResponse,
-    ): ResponseEntity<ResultResponse> {
+    ): ResponseEntity<ResultResponse<Boolean>> {
         val refreshToken: String = req.getCookie(jwtProperties.refreshTokenKey) ?: throw UnAuthorizedException(
             errorCode = ErrorCode.INVALID_TOKEN,
             message = "토큰이 만료되었습니다. 재로그인 해주세요."
@@ -125,7 +125,7 @@ class UserAuthController(
     fun sendEmailVerificationCode(
         @Valid @RequestBody
         request: SendEmailVerificationCodeRequest
-    ): ResponseEntity<ResultResponse> {
+    ): ResponseEntity<ResultResponse<Boolean>> {
         validator.validate(request = request)
         val result: Boolean = service.sendEmailVerificationCode(request)
         return ResponseEntity.ok(ResultResponse(result))
@@ -136,7 +136,7 @@ class UserAuthController(
     fun verifyEmailVerificationCode(
         @Valid @RequestBody
         request: CheckEmailVerificationCodeRequest
-    ): ResponseEntity<ResultResponse> {
+    ): ResponseEntity<ResultResponse<String>> {
         validator.validate(request = request)
         val result: String = service.checkEmailVerificationCode(request)
         return ResponseEntity.ok(ResultResponse(result))

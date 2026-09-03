@@ -41,7 +41,7 @@ class ChannelController(
         principal: Principal,
         @Valid @RequestBody
         request: CreateChannelRequest
-    ): ResponseEntity<ResultResponse> {
+    ): ResponseEntity<ResultResponse<Long>> {
         val result: Long = service.create(
             ownerId = principal.getUserId(),
             request = request
@@ -55,8 +55,8 @@ class ChannelController(
     fun getChannels(
         principal: Principal,
         @QueryObject pageRequest: ChannelPagingRequest
-    ): ResponseEntity<ResultResponse> {
-        val result: PagingResponse = service.getChannels(
+    ): ResponseEntity<ResultResponse<PagingResponse<ChannelResponse>>> {
+        val result: PagingResponse<ChannelResponse> = service.getChannels(
             userId = principal.getUserId(),
             pageRequest = pageRequest
         )
@@ -66,7 +66,7 @@ class ChannelController(
     @Operation(summary = "채널 단건 조회 API")
     @HasAuthorityUser
     @GetMapping("/channels/{id}")
-    fun getChannel(principal: Principal, @PathVariable("id") channelId: Long): ResponseEntity<ResultResponse> {
+    fun getChannel(principal: Principal, @PathVariable("id") channelId: Long): ResponseEntity<ResultResponse<ChannelResponse>> {
         val result: ChannelResponse = service.getChannel(
             userId = principal.getUserId(),
             channelId = channelId
@@ -82,7 +82,7 @@ class ChannelController(
         @PathVariable("id") channelId: Long,
         @Valid @RequestBody
         request: UpdateChannelRequest
-    ): ResponseEntity<ResultResponse> {
+    ): ResponseEntity<ResultResponse<Long>> {
         validator.validate(request = request)
         val result: Long = service.update(
             workerId = principal.getUserId(),
@@ -95,7 +95,7 @@ class ChannelController(
     @Operation(summary = "채널 떠나기 API")
     @HasAuthorityUser
     @PutMapping("/channels/{id}/exit")
-    fun exitChannel(principal: Principal, @PathVariable("id") channelId: Long): ResponseEntity<ResultResponse> {
+    fun exitChannel(principal: Principal, @PathVariable("id") channelId: Long): ResponseEntity<ResultResponse<Long>> {
         val result: Long = service.exit(
             userId = principal.getUserId(),
             channelId = channelId
@@ -111,7 +111,7 @@ class ChannelController(
         @PathVariable("id") channelId: Long,
         @Valid @RequestBody
         request: InviteChannelRequest
-    ): ResponseEntity<ResultResponse> {
+    ): ResponseEntity<ResultResponse<Long>> {
         val result: Long = service.invite(
             userId = principal.getUserId(),
             channelId = channelId,
@@ -123,7 +123,7 @@ class ChannelController(
     @Operation(summary = "채널 삭제 API")
     @HasAuthorityUser
     @DeleteMapping("/channels/{id}")
-    fun deleteChannel(principal: Principal, @PathVariable("id") channelId: Long): ResponseEntity<ResultResponse> {
+    fun deleteChannel(principal: Principal, @PathVariable("id") channelId: Long): ResponseEntity<ResultResponse<Boolean>> {
         val result: Boolean = service.delete(
             workerId = principal.getUserId(),
             channelId = channelId

@@ -2,6 +2,7 @@ package com.chobolevel.api.channel.message.service
 
 import com.chobolevel.api.channel.message.converter.ChannelMessageConverter
 import com.chobolevel.api.channel.message.dto.ChannelMessagePagingRequest
+import com.chobolevel.api.channel.message.dto.ChannelMessageResponse
 import com.chobolevel.api.channel.message.dto.CreateChannelMessageRequest
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.domain.channel.entity.Channel
@@ -48,7 +49,7 @@ class ChannelMessageService(
     fun getChannelMessages(
         channelId: Long,
         pageRequest: ChannelMessagePagingRequest
-    ): PagingResponse {
+    ): PagingResponse<ChannelMessageResponse> {
         val queryFilter = ChannelMessageQueryFilter(channelId = channelId)
         val paging = Paging(page = pageRequest.page, size = pageRequest.size)
         val orderTypes: List<ChannelMessageOrderType> = listOf(ChannelMessageOrderType.CREATED_AT_DESC)

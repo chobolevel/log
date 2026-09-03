@@ -60,7 +60,7 @@ class PostService(
     fun searchPosts(
         filter: SearchPostRequest,
         pageRequest: PostPagingRequest
-    ): PagingResponse {
+    ): PagingResponse<PostResponse> {
         val queryFilter: PostQueryFilter = postConverter.convert(request = filter)
         val paging = Paging(page = pageRequest.page, size = pageRequest.size)
         val orderTypes: List<PostOrderType> = pageRequest.orderTypes

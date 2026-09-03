@@ -100,7 +100,7 @@ class PostCommentServiceTest : BehaviorSpec({
                 every { converter.convert(entities = postComments) } returns postCommentResponses
 
                 // when
-                val result: PagingResponse = postCommentService.searchPostComments(filter = filter, pageRequest = pageRequest)
+                val result: PagingResponse<PostCommentResponse> = postCommentService.searchPostComments(filter = filter, pageRequest = pageRequest)
 
                 // then
                 result.page shouldBe pageRequest.page
@@ -132,7 +132,7 @@ class PostCommentServiceTest : BehaviorSpec({
                 every { converter.convert(entities = emptyComments) } returns emptyResponses
 
                 // when
-                val result: PagingResponse = postCommentService.searchPostComments(filter = filter, pageRequest = pageRequest)
+                val result: PagingResponse<PostCommentResponse> = postCommentService.searchPostComments(filter = filter, pageRequest = pageRequest)
 
                 // then
                 result.totalCount shouldBe 0L

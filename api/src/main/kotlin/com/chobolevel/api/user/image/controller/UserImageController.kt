@@ -31,7 +31,7 @@ class UserImageController(
         principal: Principal,
         @Valid @RequestBody
         request: CreateUserImageRequest
-    ): ResponseEntity<ResultResponse> {
+    ): ResponseEntity<ResultResponse<Long>> {
         val result: Long = service.createUserImage(principal.getUserId(), request)
         return ResponseEntity.ok(ResultResponse(result))
     }
@@ -39,7 +39,7 @@ class UserImageController(
     @Operation(summary = "회원 프로필 이미지 삭제 API")
     @HasAuthorityUser
     @DeleteMapping("/users/images/{userImageId}")
-    fun deleteUserImage(principal: Principal, @PathVariable userImageId: Long): ResponseEntity<ResultResponse> {
+    fun deleteUserImage(principal: Principal, @PathVariable userImageId: Long): ResponseEntity<ResultResponse<Boolean>> {
         val result: Boolean = service.deleteUserImage(principal.getUserId(), userImageId)
         return ResponseEntity.ok(ResultResponse(result))
     }

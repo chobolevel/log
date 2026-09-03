@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController
 class CrawlingController {
 
     @GetMapping("/crawling")
-    fun crawling(@RequestParam url: String, @RequestParam classNames: List<String>): ResponseEntity<ResultResponse> {
+    fun crawling(@RequestParam url: String, @RequestParam classNames: List<String>): ResponseEntity<ResultResponse<List<String>>> {
         val doc: Document = Jsoup.connect(url).get()
         val result: Elements = doc.getElementsByClass(classNames.joinToString(", "))
         return ResponseEntity.ok(ResultResponse(result.map { it.text() }))

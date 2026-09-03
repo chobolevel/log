@@ -6,6 +6,7 @@ import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.ResetUserPasswordRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
+import com.chobolevel.api.user.dto.UserResponse
 import com.chobolevel.api.user.service.UserService
 import com.chobolevel.api.user.validator.UserParameterValidator
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -97,7 +98,7 @@ class UserControllerTest {
         } returns PagingResponse(
             page = 1L,
             size = 20L,
-            data = listOf(DummyUser.toResponse()),
+            data = listOf<UserResponse>(DummyUser.toResponse()),
             totalCount = 1L
         )
 

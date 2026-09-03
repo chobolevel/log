@@ -1,6 +1,7 @@
 package com.chobolevel.api.channel.message.controller
 
 import com.chobolevel.api.channel.message.dto.ChannelMessagePagingRequest
+import com.chobolevel.api.channel.message.dto.ChannelMessageResponse
 import com.chobolevel.api.channel.message.service.ChannelMessageService
 import com.chobolevel.api.common.annotation.HasAuthorityUser
 import com.chobolevel.api.common.annotation.QueryObject
@@ -30,8 +31,8 @@ class ChannelMessageController(
     fun getChannelMessages(
         @PathVariable("id") channelId: Long,
         @QueryObject pageRequest: ChannelMessagePagingRequest
-    ): ResponseEntity<ResultResponse> {
-        val result: PagingResponse = service.getChannelMessages(
+    ): ResponseEntity<ResultResponse<PagingResponse<ChannelMessageResponse>>> {
+        val result: PagingResponse<ChannelMessageResponse> = service.getChannelMessages(
             channelId = channelId,
             pageRequest = pageRequest
         )
@@ -45,7 +46,7 @@ class ChannelMessageController(
         principal: Principal,
         @PathVariable channelId: Long,
         @PathVariable channelMessageId: Long,
-    ): ResponseEntity<ResultResponse> {
+    ): ResponseEntity<ResultResponse<Boolean>> {
         val result: Boolean = service.delete(
             workerId = principal.getUserId(),
             channelMessageId = channelMessageId,

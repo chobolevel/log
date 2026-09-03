@@ -4,6 +4,7 @@ import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.post.comment.converter.PostCommentConverter
 import com.chobolevel.api.post.comment.dto.CreatePostCommentRequest
 import com.chobolevel.api.post.comment.dto.PostCommentPagingRequest
+import com.chobolevel.api.post.comment.dto.PostCommentResponse
 import com.chobolevel.api.post.comment.dto.SearchPostCommentRequest
 import com.chobolevel.api.post.comment.dto.UpdatePostCommentRequest
 import com.chobolevel.api.post.comment.updater.PostCommentUpdatable
@@ -45,7 +46,7 @@ class PostCommentService(
     fun searchPostComments(
         filter: SearchPostCommentRequest,
         pageRequest: PostCommentPagingRequest
-    ): PagingResponse {
+    ): PagingResponse<PostCommentResponse> {
         val queryFilter: PostCommentQueryFilter = converter.convert(request = filter)
         val paging = Paging(page = pageRequest.page, size = pageRequest.size)
         val orderTypes: List<PostCommentOrderType> = pageRequest.orderTypes

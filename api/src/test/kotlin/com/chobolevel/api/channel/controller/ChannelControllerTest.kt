@@ -1,5 +1,6 @@
 package com.chobolevel.api.channel.controller
 
+import com.chobolevel.api.channel.dto.ChannelResponse
 import com.chobolevel.api.channel.dto.UpdateChannelRequest
 import com.chobolevel.api.channel.service.ChannelService
 import com.chobolevel.api.channel.validator.ChannelParameterValidator
@@ -119,7 +120,7 @@ class ChannelControllerTest {
             PagingResponse(
                 page = 1L,
                 size = 50L,
-                data = listOf(DummyChannel.toResponse()),
+                data = listOf<ChannelResponse>(DummyChannel.toResponse()),
                 totalCount = 1L
             )
 

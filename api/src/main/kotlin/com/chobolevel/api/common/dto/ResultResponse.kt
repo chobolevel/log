@@ -4,6 +4,6 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
-data class ResultResponse(
-    val data: Any
+data class ResultResponse<T>(
+    val data: T
 )

@@ -65,7 +65,7 @@ class ChannelService(
     fun getChannels(
         userId: Long,
         pageRequest: ChannelPagingRequest
-    ): PagingResponse {
+    ): PagingResponse<ChannelResponse> {
         val queryFilter = ChannelQueryFilter(userId = userId)
         val paging = Paging(page = pageRequest.page, size = pageRequest.size)
         val orderTypes: List<ChannelOrderType> = pageRequest.orderTypes

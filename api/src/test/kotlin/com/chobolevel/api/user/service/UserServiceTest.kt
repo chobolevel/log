@@ -108,7 +108,7 @@ class UserServiceTest : BehaviorSpec({
                 every { converter.convert(entities = users) } returns userResponses
 
                 // when
-                val result: PagingResponse = service.searchUsers(filter, pageRequest)
+                val result: PagingResponse<UserResponse> = service.searchUsers(filter, pageRequest)
 
                 // then
                 result.page shouldBe 1L

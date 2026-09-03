@@ -75,7 +75,7 @@ class ChannelServiceTest : BehaviorSpec({
                 every { repository.searchChannelsCount(queryFilter = any()) } returns 1L
                 every { converter.convert(entities = channels) } returns channelResponses
 
-                val result: PagingResponse = service.getChannels(
+                val result: PagingResponse<ChannelResponse> = service.getChannels(
                     userId = DummyUser.ID,
                     pageRequest = com.chobolevel.api.channel.dto.ChannelPagingRequest()
                 )

@@ -3,6 +3,7 @@ package com.chobolevel.api.tag.controller
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dummy.DummyTag
 import com.chobolevel.api.common.dummy.DummyUser
+import com.chobolevel.api.tag.dto.TagResponse
 import com.chobolevel.api.tag.service.TagService
 import com.chobolevel.api.tag.validator.TagParameterValidator
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -107,7 +108,7 @@ class TagControllerTest {
         } returns PagingResponse(
             page = 1L,
             size = 20L,
-            data = listOf(DummyTag.toResponse()),
+            data = listOf<TagResponse>(DummyTag.toResponse()),
             totalCount = 1L
         )
 

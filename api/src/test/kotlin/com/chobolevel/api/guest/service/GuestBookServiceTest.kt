@@ -59,7 +59,7 @@ class GuestBookServiceTest : BehaviorSpec({
                 every { repository.searchGuestBooksCount(queryFilter = any()) } returns 1L
                 every { converter.convert(entities = guestBookList) } returns guestBookResponses
 
-                val result: PagingResponse = service.searchGuestBooks(
+                val result: PagingResponse<GuestBookResponse> = service.searchGuestBooks(
                     filter = com.chobolevel.api.guest.dto.SearchGuestBookRequest(guestName = null),
                     pageRequest = com.chobolevel.api.guest.dto.GuestBookPagingRequest()
                 )

@@ -3,6 +3,7 @@ package com.chobolevel.api.upload.controller
 import com.chobolevel.api.common.annotation.HasAuthorityUser
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.upload.dto.UploadRequest
+import com.chobolevel.api.upload.dto.UploadResponse
 import com.chobolevel.api.upload.service.UploadService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -22,8 +23,8 @@ class UploadController(
     @Operation(summary = "파일 업로드용 경로 발급 API")
     @HasAuthorityUser
     @PostMapping("/upload/presigned-url")
-    fun issuePresignedUrl(@RequestBody request: UploadRequest): ResponseEntity<ResultResponse> {
-        val result = service.getPresignedUrl(request)
+    fun issuePresignedUrl(@RequestBody request: UploadRequest): ResponseEntity<ResultResponse<UploadResponse>> {
+        val result: UploadResponse = service.getPresignedUrl(request)
         return ResponseEntity.ok(ResultResponse(result))
     }
 }

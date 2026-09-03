@@ -50,7 +50,7 @@ class UserService(
     fun searchUsers(
         filter: SearchUserRequest,
         pageRequest: UserPagingRequest
-    ): PagingResponse {
+    ): PagingResponse<UserResponse> {
         val queryFilter: UserQueryFilter = converter.convert(request = filter)
         val paging = Paging(page = pageRequest.page, size = pageRequest.size)
         val orderTypes: List<UserOrderType> = pageRequest.orderTypes

@@ -4,6 +4,7 @@ import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dummy.DummyPostComment
 import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.common.posttask.CreatePostCommentPostTask
+import com.chobolevel.api.post.comment.dto.PostCommentResponse
 import com.chobolevel.api.post.comment.service.PostCommentService
 import com.chobolevel.api.post.comment.validator.PostCommentParameterValidator
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -120,7 +121,7 @@ class PostCommentControllerTest {
             PagingResponse(
                 page = 1L,
                 size = 50L,
-                data = listOf(DummyPostComment.toResponse()),
+                data = listOf<PostCommentResponse>(DummyPostComment.toResponse()),
                 totalCount = 1L
             )
 

@@ -38,7 +38,7 @@ class GuestBookController(
     fun createGuestBook(
         @Valid @RequestBody
         request: CreateGuestBookRequest
-    ): ResponseEntity<ResultResponse> {
+    ): ResponseEntity<ResultResponse<Long>> {
         val result: Long = service.createGuestBook(request)
         createPostTask.invoke()
         return ResponseEntity.ok(ResultResponse(result))
@@ -49,8 +49,8 @@ class GuestBookController(
     fun searchGuestBooks(
         @QueryObject filter: SearchGuestBookRequest,
         @QueryObject pageRequest: GuestBookPagingRequest
-    ): ResponseEntity<ResultResponse> {
-        val result: PagingResponse = service.searchGuestBooks(
+    ): ResponseEntity<ResultResponse<PagingResponse<GuestBookResponse>>> {
+        val result: PagingResponse<GuestBookResponse> = service.searchGuestBooks(
             filter = filter,
             pageRequest = pageRequest
         )
@@ -59,7 +59,7 @@ class GuestBookController(
 
     @Operation(summary = "방명록 단건 조회 API")
     @GetMapping("/guest-books/{id}")
-    fun fetchGuestBook(@PathVariable id: Long): ResponseEntity<ResultResponse> {
+    fun fetchGuestBook(@PathVariable id: Long): ResponseEntity<ResultResponse<GuestBookResponse>> {
         val result: GuestBookResponse = service.fetchGuestBook(id)
         return ResponseEntity.ok(ResultResponse(result))
     }
@@ -70,7 +70,7 @@ class GuestBookController(
         @PathVariable id: Long,
         @Valid @RequestBody
         request: UpdateGuestBookRequest
-    ): ResponseEntity<ResultResponse> {
+    ): ResponseEntity<ResultResponse<Long>> {
         validator.validate(request = request)
         val result: Long = service.updateGuestBook(
             id = id,
@@ -85,7 +85,7 @@ class GuestBookController(
         @PathVariable id: Long,
         @Valid @RequestBody
         request: DeleteGuestBookRequest
-    ): ResponseEntity<ResultResponse> {
+    ): ResponseEntity<ResultResponse<Boolean>> {
         val result: Boolean = service.deleteGuestBook(
             id = id,
             request = request

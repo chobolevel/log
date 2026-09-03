@@ -41,7 +41,7 @@ class UserController(
     fun createUser(
         @Valid @RequestBody
         request: CreateUserRequest
-    ): ResponseEntity<ResultResponse> {
+    ): ResponseEntity<ResultResponse<Long>> {
         validator.validate(request = request)
         val result: Long = service.createUser(request)
         return ResponseEntity.ok(ResultResponse(result))
@@ -52,8 +52,8 @@ class UserController(
     fun searchUsers(
         @QueryObject filter: SearchUserRequest,
         @QueryObject pageRequest: UserPagingRequest
-    ): ResponseEntity<ResultResponse> {
-        val result: PagingResponse = service.searchUsers(
+    ): ResponseEntity<ResultResponse<PagingResponse<UserResponse>>> {
+        val result: PagingResponse<UserResponse> = service.searchUsers(
             filter = filter,
             pageRequest = pageRequest,
         )
@@ -62,7 +62,7 @@ class UserController(
 
     @Operation(summary = "회원 단건 조회 API")
     @GetMapping("/users/{id}")
-    fun fetchUser(@PathVariable id: Long): ResponseEntity<ResultResponse> {
+    fun fetchUser(@PathVariable id: Long): ResponseEntity<ResultResponse<UserResponse>> {
         val result: UserResponse = service.fetchUser(id)
         return ResponseEntity.ok(ResultResponse(result))
     }
@@ -70,7 +70,7 @@ class UserController(
     @Operation(summary = "회원 본인 정보 조회 API")
     @HasAuthorityUser
     @GetMapping("/user/me")
-    fun myUser(principal: Principal): ResponseEntity<ResultResponse> {
+    fun myUser(principal: Principal): ResponseEntity<ResultResponse<UserResponse>> {
         val result: UserResponse = service.fetchUser(principal.getUserId())
         return ResponseEntity.ok(ResultResponse(result))
     }
@@ -82,7 +82,7 @@ class UserController(
         principal: Principal,
         @RequestBody @Valid
         request: UpdateUserRequest
-    ): ResponseEntity<ResultResponse> {
+    ): ResponseEntity<ResultResponse<Long>> {
         validator.validate(request = request)
         val result: Long = service.updateUser(principal.getUserId(), request)
         return ResponseEntity.ok(ResultResponse(result))
@@ -94,7 +94,7 @@ class UserController(
     fun changePassword(
         principal: Principal,
         @RequestBody request: ChangeUserPasswordRequest
-    ): ResponseEntity<ResultResponse> {
+    ): ResponseEntity<ResultResponse<Long>> {
         validator.validate(request = request)
         val result: Long = service.changePassword(principal.getUserId(), request)
         return ResponseEntity.ok(ResultResponse(result))
@@ -103,7 +103,7 @@ class UserController(
     @Operation(summary = "회원 탈퇴 API")
     @HasAuthorityUser
     @PostMapping("/user/resign")
-    fun resignUser(principal: Principal): ResponseEntity<ResultResponse> {
+    fun resignUser(principal: Principal): ResponseEntity<ResultResponse<Boolean>> {
         val result: Boolean = service.resignUser(principal.getUserId())
         return ResponseEntity.ok(ResultResponse(result))
     }
@@ -113,7 +113,7 @@ class UserController(
     fun sendResetPasswordEmail(
         @Valid @RequestBody
         request: SendUserPasswordResetEmailRequest
-    ): ResponseEntity<ResultResponse> {
+    ): ResponseEntity<ResultResponse<Boolean>> {
         val result: Boolean = service.sendResetPasswordEmail(request = request)
         return ResponseEntity.ok(ResultResponse(result))
     }
@@ -123,7 +123,7 @@ class UserController(
     fun resetPassword(
         @Valid @RequestBody
         request: ResetUserPasswordRequest
-    ): ResponseEntity<ResultResponse> {
+    ): ResponseEntity<ResultResponse<Boolean>> {
         validator.validate(request = request)
         val result: Boolean = service.resetPassword(request = request)
         return ResponseEntity.ok(ResultResponse(result))

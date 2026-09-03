@@ -38,7 +38,7 @@ class GuestBookService(
     fun searchGuestBooks(
         filter: SearchGuestBookRequest,
         pageRequest: GuestBookPagingRequest
-    ): PagingResponse {
+    ): PagingResponse<GuestBookResponse> {
         val queryFilter: GuestBookQueryFilter = converter.convert(request = filter)
         val paging = Paging(page = pageRequest.page, size = pageRequest.size)
         val orderTypes: List<GuestBookOrderType> = pageRequest.orderTypes

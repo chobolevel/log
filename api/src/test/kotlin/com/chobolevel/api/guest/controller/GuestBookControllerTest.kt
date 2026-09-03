@@ -3,6 +3,7 @@ package com.chobolevel.api.guest.controller
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dummy.DummyGuestBook
 import com.chobolevel.api.common.posttask.CreateGuestBookPostTask
+import com.chobolevel.api.guest.dto.GuestBookResponse
 import com.chobolevel.api.guest.dto.UpdateGuestBookRequest
 import com.chobolevel.api.guest.service.GuestBookService
 import com.chobolevel.api.guest.validator.GuestBookParameterValidator
@@ -109,7 +110,7 @@ class GuestBookControllerTest {
         } returns PagingResponse(
             page = 1L,
             size = 10L,
-            data = listOf(DummyGuestBook.toResponse()),
+            data = listOf<GuestBookResponse>(DummyGuestBook.toResponse()),
             totalCount = 1L
         )
 

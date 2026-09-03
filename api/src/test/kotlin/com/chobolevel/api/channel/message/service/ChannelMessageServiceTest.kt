@@ -2,6 +2,7 @@ package com.chobolevel.api.channel.message.service
 
 import com.chobolevel.api.channel.message.converter.ChannelMessageConverter
 import com.chobolevel.api.channel.message.dto.ChannelMessagePagingRequest
+import com.chobolevel.api.channel.message.dto.ChannelMessageResponse
 import com.chobolevel.api.channel.message.dto.CreateChannelMessageRequest
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dummy.DummyChannel
@@ -77,7 +78,7 @@ class ChannelMessageServiceTest : BehaviorSpec({
                 every { repository.searchChannelMessagesCount(queryFilter = any()) } returns 1L
                 every { converter.convert(any<ChannelMessage>()) } returns DummyChannelMessage.toResponse()
 
-                val result: PagingResponse = service.getChannelMessages(
+                val result: PagingResponse<ChannelMessageResponse> = service.getChannelMessages(
                     channelId = DummyChannel.ID,
                     pageRequest = ChannelMessagePagingRequest()
                 )
