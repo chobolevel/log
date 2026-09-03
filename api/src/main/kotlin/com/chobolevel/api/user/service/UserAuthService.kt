@@ -38,8 +38,8 @@ class UserAuthService(
 
     @Transactional(readOnly = true)
     fun login(request: LoginRequest): JwtResponse {
-        val user: User = userRepository.findByEmail(request.email)
-        if (!passwordProvider.matches(request.password, user.password)) {
+        val user: User? = userRepository.findByEmailOrNull(request.email)
+        if (user == null || !passwordProvider.matches(request.password, user.password)) {
             throw BadCredentialException(
                 errorCode = ErrorCode.BAD_CREDENTIALS,
                 message = "아이디 또는 비밀번호가 일치하지 않습니다."
