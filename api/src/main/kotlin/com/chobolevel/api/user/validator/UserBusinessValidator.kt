@@ -6,6 +6,7 @@ import com.chobolevel.api.common.provider.PasswordProvider
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.ResetUserPasswordRequest
+import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.InvalidParameterException
@@ -68,6 +69,10 @@ class UserBusinessValidator(
                 errorCode = ErrorCode.USER_PASSWORD_NOT_MATCHED
             )
         }
+    }
+
+    fun validate(request: SendEmailVerificationCodeRequest) {
+        validateEmailNotExists(email = request.email)
     }
 
     private fun validateEmailExists(email: String) {
