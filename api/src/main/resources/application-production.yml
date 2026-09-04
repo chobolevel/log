@@ -45,8 +45,9 @@ spring:
     password: ENC(d53owQb+sOmtsZT6jXiANrjNT8qZNIiks8eZTirjebQnEJxyUX9ZhMsvDDmzquDp)
   flyway:
     enabled: true
-    baseline-version: 0
-    out-of-order: true
+    baseline-on-migrate: true
+    baseline-version: 1
+    out-of-order: false
 
 jasypt:
   encryptor:

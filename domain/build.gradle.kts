@@ -9,7 +9,6 @@ jar.enabled = true
 plugins {
     kotlin("kapt")
     kotlin("plugin.jpa")
-    id("org.flywaydb.flyway")
     id("kotlin-allopen")
 }
 
@@ -39,6 +38,10 @@ dependencies {
     // mysql
     runtimeOnly("com.mysql:mysql-connector-j")
 
+    // flyway
+    implementation("org.flywaydb:flyway-core")
+    implementation("org.flywaydb:flyway-mysql")
+
     // devtools
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
@@ -52,10 +55,3 @@ dependencies {
     kapt("org.springframework.boot:spring-boot-configuration-processor")
 }
 
-flyway {
-    url = "jdbc:mysql://localhost:3306/log"
-    user = "root"
-    password = "1234"
-    baselineVersion = "0"
-    outOfOrder = true
-}
