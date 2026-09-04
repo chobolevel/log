@@ -116,7 +116,12 @@ class UserAuthController(
             key = jwtProperties.accessTokenKey,
             value = result.accessToken
         )
+        val newRefreshTokenCookie: Cookie = generateCookie(
+            key = jwtProperties.refreshTokenKey,
+            value = result.refreshToken
+        )
         res.addCookie(newAccessTokenCookie)
+        res.addCookie(newRefreshTokenCookie)
         return ResponseEntity.ok(ResultResponse(true))
     }
 
