@@ -70,6 +70,14 @@ class UserAuthControllerTest {
         clearAllMocks()
         every { jwtProperties.accessTokenKey } returns DummyAuth.ACCESS_TOKEN_COOKIE_KEY
         every { jwtProperties.refreshTokenKey } returns DummyAuth.REFRESH_TOKEN_COOKIE_KEY
+        every { jwtProperties.cookie } returns JwtProperties.Cookie(
+            path = "/",
+            maxAge = 3600,
+            domain = "localhost",
+            secure = false,
+            httpOnly = true,
+            sameSite = "none"
+        )
     }
 
     @Test

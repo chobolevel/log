@@ -6,6 +6,8 @@ import com.chobolevel.api.user.dto.LoginRequest
 import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest
 import com.chobolevel.api.user.dto.SocialLoginRequest
 import com.chobolevel.domain.user.vo.UserLoginType
+import java.util.Date
+import java.util.concurrent.TimeUnit
 
 object DummyAuth {
     const val ACCESS_TOKEN: String = "dummy.access.token"
@@ -17,7 +19,9 @@ object DummyAuth {
 
     fun toJwtResponse(): JwtResponse = JwtResponse(
         accessToken = ACCESS_TOKEN,
-        refreshToken = REFRESH_TOKEN
+        accessTokenExpiredAt = Date(System.currentTimeMillis() + TimeUnit.HOURS.toMillis(1)),
+        refreshToken = REFRESH_TOKEN,
+        refreshTokenExpiredAt = Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(30)),
     )
 
     fun toGeneralLoginRequest(): LoginRequest = LoginRequest(
