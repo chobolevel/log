@@ -1,14 +1,5 @@
 server:
   port: 9565
-  reactive:
-    session:
-      cookie:
-        path: "/"
-        max-age: 31536000
-        domain: localhost
-        secure: true
-        http-only: true
-        same-site: none
 
 logging:
   level:
@@ -98,6 +89,13 @@ jwt:
   secret: ENC(nS9O3l5DBtxsRuoT79sUDIU4KqjKfS0FsxmFUFuS6c1mS5PS1DbQfzltXbqzaqzF)
   access-token-key: ENC(oBy2Wa/IBM6DbwxwFMQrCWYfl5oZ2BdLVsiurv3C3wBrnGMI701R3xoZScHDOJMv)
   refresh-token-key: ENC(w3oBitWqxVPoN7pIawiKQF4BOkeLLrJeti8LH35UfyX87eAnHGl0n/i7q2oYKDSC)
+  cookie:
+    path: "/"
+    max-age: 31536000
+    domain: localhost
+    secure: true
+    http-only: true
+    same-site: none
 
 security:
   allow-origins: ENC(4K87xBn8UQLVcVfztebCtC+/jt2xtURHMjwbd3jE0X2Tns96uhZFlTX/E9sFEmlPvjyXxGLUVSrWkEg0GXvPFA==)

@@ -18,7 +18,6 @@ import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
-import org.springframework.boot.autoconfigure.web.ServerProperties
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -31,7 +30,6 @@ import org.springframework.web.bind.annotation.RestController
 class UserAuthController(
     private val validator: UserAuthParameterValidator,
     private val service: UserAuthService,
-    private val serverProperties: ServerProperties,
     private val jwtProperties: JwtProperties
 ) {
 
@@ -150,15 +148,16 @@ class UserAuthController(
     private fun generateCookie(
         key: String,
         value: String,
-        maxAge: Int = serverProperties.reactive.session.cookie.maxAge.toSeconds().toInt()
+        maxAge: Int = jwtProperties.cookie.maxAge
     ): Cookie {
+        val cookieConfig: JwtProperties.Cookie = jwtProperties.cookie
         return Cookie(key, value).also {
-            it.path = serverProperties.reactive.session.cookie.path
+            it.path = cookieConfig.path
             it.maxAge = maxAge
-            it.domain = serverProperties.reactive.session.cookie.domain
-            it.secure = serverProperties.reactive.session.cookie.secure
-            it.isHttpOnly = serverProperties.reactive.session.cookie.httpOnly
-            it.setAttribute("SameSite", serverProperties.reactive.session.cookie.sameSite.attributeValue())
+            it.domain = cookieConfig.domain
+            it.secure = cookieConfig.secure
+            it.isHttpOnly = cookieConfig.httpOnly
+            it.setAttribute("SameSite", cookieConfig.sameSite)
         }
     }
 }

@@ -1,14 +1,5 @@
 server:
   port: 9565
-  reactive:
-    session:
-      cookie:
-        path: /
-        max-age: 31536000
-        domain: chobolevel.co.kr
-        secure: true
-        http-only: true
-        same-site: none
 
 logging:
   level:
@@ -78,6 +69,13 @@ jwt:
   secret: ENC(nS9O3l5DBtxsRuoT79sUDIU4KqjKfS0FsxmFUFuS6c1mS5PS1DbQfzltXbqzaqzF)
   access-token-key: ENC(oBy2Wa/IBM6DbwxwFMQrCWYfl5oZ2BdLVsiurv3C3wBrnGMI701R3xoZScHDOJMv)
   refresh-token-key: ENC(w3oBitWqxVPoN7pIawiKQF4BOkeLLrJeti8LH35UfyX87eAnHGl0n/i7q2oYKDSC)
+  cookie:
+    path: /
+    max-age: 31536000
+    domain: chobolevel.co.kr
+    secure: true
+    http-only: true
+    same-site: none
 
 security:
   allow-origins: ENC(dky71ZJgcztIQJcEcHSfDXvQQCW7SJumNxDq5yAbo3/io37UF1pV1F3jVMpp9mvhTW7HSz3pIhuA9xm/eSX6Hw==)
