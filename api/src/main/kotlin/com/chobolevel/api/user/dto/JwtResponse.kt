@@ -1,10 +1,10 @@
 package com.chobolevel.api.user.dto
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies
-import com.fasterxml.jackson.databind.annotation.JsonNaming
+import java.util.Date
 
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class JwtResponse(
     val accessToken: String,
+    val accessTokenExpiredAt: Date,
     val refreshToken: String,
+    val refreshTokenExpiredAt: Date,
 )

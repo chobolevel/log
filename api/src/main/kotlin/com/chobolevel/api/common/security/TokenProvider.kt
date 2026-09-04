@@ -25,39 +25,29 @@ class TokenProvider(
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
-    fun generateToken(authentication: Authentication): JwtResponse {
+    fun generateTokenPair(authentication: Authentication): JwtResponse {
         val now = Date()
         val accessTokenExpiredAt = Date(now.time + TimeUnit.HOURS.toMillis(1))
         val refreshTokenExpiredAt = Date(now.time + TimeUnit.DAYS.toMillis(30))
-        val accessToken = issueAccessToken(
+        val accessToken = generateToken(
             issuedAt = now,
             expiration = accessTokenExpiredAt,
             authentication = authentication
         )
-        val refreshToken = issueRefreshToken(
+        val refreshToken = generateToken(
             issuedAt = now,
             expiration = refreshTokenExpiredAt,
             authentication = authentication
         )
         return JwtResponse(
             accessToken = accessToken,
+            accessTokenExpiredAt = accessTokenExpiredAt,
             refreshToken = refreshToken,
+            refreshTokenExpiredAt = refreshTokenExpiredAt,
         )
     }
 
-    private fun issueAccessToken(issuedAt: Date, expiration: Date, authentication: Authentication): String {
-        return Jwts.builder()
-            .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
-            .setIssuer(jwtProperties.issuer)
-            .setIssuedAt(issuedAt)
-            .setExpiration(expiration)
-            .setSubject(authentication.name)
-            .claim("authorities", authentication.authorities)
-            .signWith(SignatureAlgorithm.HS256, jwtProperties.secret)
-            .compact()
-    }
-
-    private fun issueRefreshToken(issuedAt: Date, expiration: Date, authentication: Authentication): String {
+    private fun generateToken(issuedAt: Date, expiration: Date, authentication: Authentication): String {
         return Jwts.builder()
             .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
             .setIssuer(jwtProperties.issuer)
