@@ -54,6 +54,17 @@ enum class ErrorCode(val defaultMessage: String) {
     // USER IMAGE
     USER_IMAGE_NOT_FOUND("회원 이미지를 찾을 수 없습니다."),
 
+    // RECORD
+    RECORD_NOT_FOUND("기록을 찾을 수 없습니다."),
+    RESTRICTED_TO_RECORD_WRITER("기록 작성자만 접근 가능합니다."),
+
+    // RECORD REVIEW
+    RECORD_REVIEW_NOT_FOUND("기록 리뷰를 찾을 수 없습니다."),
+    RECORD_REVIEW_ALREADY_EXISTS("이미 등록된 리뷰가 있습니다."),
+
+    // SUBJECT
+    SUBJECT_NOT_FOUND("주제를 찾을 수 없습니다."),
+
     // EXTERNAL API
     EMAIL_SEND_FAILED("이메일 발송에 실패했습니다.")
 }

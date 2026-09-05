@@ -1,0 +1,43 @@
+package com.chobolevel.api.record.converter
+
+import com.chobolevel.api.record.dto.RecordResponse
+import com.chobolevel.api.record.dto.SearchRecordRequest
+import com.chobolevel.api.record.review.converter.RecordReviewConverter
+import com.chobolevel.api.user.converter.UserConverter
+import com.chobolevel.domain.record.entity.Record
+import com.chobolevel.domain.record.vo.RecordQueryFilter
+import org.springframework.stereotype.Component
+
+@Component
+class RecordConverter(
+    private val userConverter: UserConverter,
+    private val recordReviewConverter: RecordReviewConverter
+) {
+
+    fun convert(request: SearchRecordRequest, excludePrivate: Boolean): RecordQueryFilter {
+        return RecordQueryFilter(
+            userId = request.userId,
+            type = request.type,
+            title = request.title,
+            excludePrivate = excludePrivate
+        )
+    }
+
+    fun convert(entity: Record): RecordResponse {
+        return RecordResponse(
+            id = entity.id!!,
+            writer = userConverter.convert(entity.user!!),
+            type = entity.type,
+            title = entity.title,
+            content = entity.content,
+            isPrivate = entity.isPrivate,
+            review = entity.recordReview?.let { recordReviewConverter.convert(it) },
+            createdAt = entity.createdAt.toInstant().toEpochMilli(),
+            updatedAt = entity.updatedAt.toInstant().toEpochMilli()
+        )
+    }
+
+    fun convert(entities: List<Record>): List<RecordResponse> {
+        return entities.map { convert(it) }
+    }
+}
