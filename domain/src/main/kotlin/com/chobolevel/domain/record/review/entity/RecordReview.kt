@@ -52,10 +52,10 @@ class RecordReview(
             val recordReview: RecordReview = RecordReview(
                 rating = rating
             )
-            if(recordReview.record != record) {
+            if (recordReview.record != record) {
                 recordReview.record = record
             }
-            if(recordReview.subject != subject) {
+            if (recordReview.subject != subject) {
                 recordReview.subject = subject
             }
             return recordReview
