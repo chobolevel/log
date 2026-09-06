@@ -26,6 +26,7 @@ spring:
       hibernate.physical_naming_strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
       hibernate.globally_quoted_identifiers: true
       hibernate.globally_quoted_identifiers_skip_column_definitions: true
+      # N+1 문제 일부 해결(옵션 값이 1000 관행으로 굳어진 이유는 Oracle IN절 1000개 제한이 있기 때문이며 옵션 값 계산은 페이지 크기 기준으로 최대 레코드 수)
       hibernate.default_batch_fetch_size: 1000
       org:
         hibernate:
