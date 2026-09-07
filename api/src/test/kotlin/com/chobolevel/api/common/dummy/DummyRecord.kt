@@ -12,6 +12,7 @@ import com.chobolevel.domain.record.review.entity.RecordReview
 import com.chobolevel.domain.record.review.vo.RecordReviewUpdateMask
 import com.chobolevel.domain.record.vo.RecordType
 import com.chobolevel.domain.record.vo.RecordUpdateMask
+import org.springframework.test.util.ReflectionTestUtils
 import java.math.BigDecimal
 
 object DummyRecord {
@@ -21,35 +22,34 @@ object DummyRecord {
     val CONTENT: String = "테스트 기록 내용"
     val IS_PRIVATE: Boolean = false
 
-    val REVIEW_ID: Long = 1L
+    val REVIEW_ID: Long = 2L
     val RATING: BigDecimal = BigDecimal("4.5")
 
-    fun toEntity(): Record = Record(
+    fun toEntity(): Record = Record.create(
+        user = DummyUser.toEntity(),
         type = TYPE,
         title = TITLE,
         content = CONTENT,
-        isPrivate = IS_PRIVATE
+        isPrivate = IS_PRIVATE,
+        reviewSubject = null,
+        reviewRating = null
     ).also {
-        it.id = ID
-        it.user = DummyUser.toEntity()
+        ReflectionTestUtils.setField(it, "id", ID)
     }
 
     fun toEntityWithReview(): Record {
-        val record: Record = Record(
+        val record: Record = Record.create(
+            user = DummyUser.toEntity(),
             type = RecordType.REVIEW,
             title = TITLE,
             content = CONTENT,
-            isPrivate = IS_PRIVATE
-        ).also {
-            it.id = ID
-            it.user = DummyUser.toEntity()
-        }
-        val review: RecordReview = RecordReview(rating = RATING).also {
-            it.id = REVIEW_ID
-            it.subject = DummySubject.toEntity()
-            it.record = record
-        }
-        record.recordReview = review
+            isPrivate = IS_PRIVATE,
+            reviewSubject = DummySubject.toEntity(),
+            reviewRating = RATING
+        )
+        ReflectionTestUtils.setField(record, "id", ID)
+        val review: RecordReview = record.recordReview!!
+        ReflectionTestUtils.setField(review, "id", REVIEW_ID)
         return record
     }
 
@@ -74,6 +74,7 @@ object DummyRecord {
         title = "새 제목",
         content = null,
         isPrivate = null,
+        review = null,
         updateMask = listOf(RecordUpdateMask.TITLE)
     )
 

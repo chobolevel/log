@@ -14,12 +14,11 @@ class RecordConverter(
     private val recordReviewConverter: RecordReviewConverter
 ) {
 
-    fun convert(request: SearchRecordRequest, excludePrivate: Boolean): RecordQueryFilter {
+    fun convert(request: SearchRecordRequest): RecordQueryFilter {
         return RecordQueryFilter(
             userId = request.userId,
             type = request.type,
             title = request.title,
-            excludePrivate = excludePrivate
         )
     }
 

@@ -19,25 +19,36 @@ import java.math.BigDecimal
 @Entity
 @Table(name = "record_reviews")
 @Audited
-class RecordReview(
-    @Column(nullable = false, precision = 2, scale = 1)
-    var rating: BigDecimal
+class RecordReview private constructor(
+    record: Record,
+    subject: Subject,
+    rating: BigDecimal,
 ) : Audit() {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null
+    val id: Long? = null
 
     @OneToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "record_id")
-    var record: Record? = null
+    @JoinColumn(name = "record_id", nullable = false, updatable = false)
+    val record: Record = record
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "subject_id")
-    var subject: Subject? = null
+    @JoinColumn(name = "subject_id", nullable = false, updatable = false)
+    var subject: Subject = subject
+        protected set
+
+    @Column(nullable = false, precision = 2, scale = 1)
+    var rating: BigDecimal = rating
+        protected set
 
     @Column(nullable = false)
     var isDeleted: Boolean = false
+        protected set
+
+    fun changeSubject(subject: Subject) {
+        this.subject = subject
+    }
 
     fun changeRating(rating: BigDecimal) {
         this.rating = rating
@@ -48,17 +59,12 @@ class RecordReview(
     }
 
     companion object {
-        fun create(record: Record, subject: Subject, rating: BigDecimal): RecordReview {
-            val recordReview: RecordReview = RecordReview(
+        internal fun create(record: Record, subject: Subject, rating: BigDecimal): RecordReview {
+            return RecordReview(
+                record = record,
+                subject = subject,
                 rating = rating
             )
-            if (recordReview.record != record) {
-                recordReview.record = record
-            }
-            if (recordReview.subject != subject) {
-                recordReview.subject = subject
-            }
-            return recordReview
         }
     }
 }

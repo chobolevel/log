@@ -28,6 +28,7 @@ import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
+import org.springframework.test.util.ReflectionTestUtils
 
 class RecordServiceTest : BehaviorSpec({
 
@@ -91,22 +92,20 @@ class RecordServiceTest : BehaviorSpec({
     }
 
     given("기록 목록을 조회할 때") {
-        `when`("요청자가 조회 대상 작성자 본인이면") {
-            then("비공개 기록을 포함한 목록을 반환한다") {
+        `when`("유효한 요청이 들어오면") {
+            then("기록 목록을 반환한다") {
                 // given
-                val userId: Long = DummyUser.ID
-                val filter: SearchRecordRequest = SearchRecordRequest(userId = userId, type = null, title = null)
+                val filter: SearchRecordRequest = SearchRecordRequest(userId = DummyUser.ID, type = null, title = null)
                 val pageRequest: RecordPagingRequest = RecordPagingRequest()
                 val queryFilter: RecordQueryFilter = RecordQueryFilter(
-                    userId = userId,
+                    userId = DummyUser.ID,
                     type = null,
-                    title = null,
-                    excludePrivate = false
+                    title = null
                 )
                 val records: List<Record> = listOf(DummyRecord.toEntity())
                 val recordResponses: List<RecordResponse> = listOf(DummyRecord.toResponse())
                 val totalCount: Long = 1L
-                every { recordConverter.convert(filter, false) } returns queryFilter
+                every { recordConverter.convert(filter) } returns queryFilter
                 every {
                     recordRepository.searchRecords(
                         queryFilter = queryFilter,
@@ -119,7 +118,6 @@ class RecordServiceTest : BehaviorSpec({
 
                 // when
                 val result: PagingResponse<RecordResponse> = recordService.searchRecords(
-                    requesterId = userId,
                     filter = filter,
                     pageRequest = pageRequest
                 )
@@ -127,46 +125,7 @@ class RecordServiceTest : BehaviorSpec({
                 // then
                 result.data shouldBe recordResponses
                 result.totalCount shouldBe totalCount
-                verify { recordConverter.convert(filter, false) }
-            }
-        }
-
-        `when`("요청자가 조회 대상 작성자가 아니면") {
-            then("비공개 기록을 제외한 목록을 반환한다") {
-                // given
-                val requesterId: Long = DummyUser.ID + 1L
-                val filter: SearchRecordRequest = SearchRecordRequest(userId = DummyUser.ID, type = null, title = null)
-                val pageRequest: RecordPagingRequest = RecordPagingRequest()
-                val queryFilter: RecordQueryFilter = RecordQueryFilter(
-                    userId = DummyUser.ID,
-                    type = null,
-                    title = null,
-                    excludePrivate = true
-                )
-                val records: List<Record> = listOf(DummyRecord.toEntity())
-                val recordResponses: List<RecordResponse> = listOf(DummyRecord.toResponse())
-                val totalCount: Long = 1L
-                every { recordConverter.convert(filter, true) } returns queryFilter
-                every {
-                    recordRepository.searchRecords(
-                        queryFilter = queryFilter,
-                        paging = any(),
-                        orderTypes = any()
-                    )
-                } returns records
-                every { recordRepository.searchRecordsCount(queryFilter) } returns totalCount
-                every { recordConverter.convert(records) } returns recordResponses
-
-                // when
-                val result: PagingResponse<RecordResponse> = recordService.searchRecords(
-                    requesterId = requesterId,
-                    filter = filter,
-                    pageRequest = pageRequest
-                )
-
-                // then
-                result.data shouldBe recordResponses
-                verify { recordConverter.convert(filter, true) }
+                verify { recordConverter.convert(filter) }
             }
         }
     }
@@ -193,7 +152,7 @@ class RecordServiceTest : BehaviorSpec({
             then("기록 응답을 반환한다") {
                 // given
                 val userId: Long = DummyUser.ID
-                val record: Record = DummyRecord.toEntity().also { it.isPrivate = true }
+                val record: Record = DummyRecord.toEntity().also { ReflectionTestUtils.setField(it, "isPrivate", true) }
                 val response: RecordResponse = DummyRecord.toResponse()
                 every { recordRepository.findById(DummyRecord.ID) } returns record
                 every { recordConverter.convert(record) } returns response
@@ -213,7 +172,7 @@ class RecordServiceTest : BehaviorSpec({
             then("ForbiddenException이 발생한다") {
                 // given
                 val otherUserId: Long = DummyUser.ID + 1L
-                val record: Record = DummyRecord.toEntity().also { it.isPrivate = true }
+                val record: Record = DummyRecord.toEntity().also { ReflectionTestUtils.setField(it, "isPrivate", true) }
                 every { recordRepository.findById(DummyRecord.ID) } returns record
 
                 // when & then
@@ -235,6 +194,7 @@ class RecordServiceTest : BehaviorSpec({
                     title = "새 제목",
                     content = null,
                     isPrivate = null,
+                    review = null,
                     updateMask = listOf(RecordUpdateMask.TITLE)
                 )
                 val record: Record = DummyRecord.toEntity()

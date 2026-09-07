@@ -57,7 +57,6 @@ class RecordController(
         @QueryObject pageRequest: RecordPagingRequest
     ): ResponseEntity<ResultResponse<PagingResponse<RecordResponse>>> {
         val result: PagingResponse<RecordResponse> = service.searchRecords(
-            requesterId = authentication?.getUserId(),
             filter = filter,
             pageRequest = pageRequest
         )

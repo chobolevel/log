@@ -27,34 +27,76 @@ import java.math.BigDecimal
 @Entity
 @Table(name = "records")
 @Audited
-class Record(
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    var type: RecordType,
-    @Column(nullable = false)
-    var title: String,
-    @Column(nullable = false, columnDefinition = "text")
-    var content: String,
-    @Column(nullable = false)
-    var isPrivate: Boolean = false
+class Record private constructor(
+    user: User,
+    type: RecordType,
+    title: String,
+    content: String,
+    isPrivate: Boolean = false,
 ) : Audit() {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null
+    val id: Long? = null
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    var user: User? = null
+    @JoinColumn(name = "user_id", nullable = false, updatable = false)
+    val user: User = user
 
-    @Where(clause = "is_deleted = false")
-    @OneToOne(mappedBy = "record", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    var recordReview: RecordReview? = null
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    var type: RecordType = type
+        protected set
+
+    @Column(nullable = false)
+    var title: String = title
+        protected set
+
+    @Column(nullable = false, columnDefinition = "text")
+    var content: String = content
+        protected set
+
+    @Column(nullable = false)
+    var isPrivate: Boolean = isPrivate
+        protected set
 
     @Column(nullable = false)
     var isDeleted: Boolean = false
+        protected set
 
-    fun changeType(type: RecordType) {
+    @Where(clause = "is_deleted = false")
+    @OneToOne(mappedBy = "record", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    private var _recordReview: RecordReview? = null
+
+    val recordReview: RecordReview? get() = _recordReview
+
+    fun changeType(type: RecordType, reviewSubject: Subject? = null, reviewRating: BigDecimal? = null) {
+        when (type) {
+            RecordType.REVIEW -> {
+                if (reviewSubject == null || reviewRating == null) {
+                    throw InvalidParameterException(
+                        errorCode = ErrorCode.INVALID_PARAMETER,
+                        message = "리뷰 유형의 기록은 리뷰 정보가 필수입니다."
+                    )
+                }
+                if (_recordReview == null) {
+                    val recordReview: RecordReview = RecordReview.create(
+                        record = this,
+                        subject = reviewSubject,
+                        rating = reviewRating
+                    )
+                    this._recordReview = recordReview
+                } else {
+                    this._recordReview!!.let {
+                        it.changeSubject(subject = reviewSubject)
+                        it.changeRating(rating = reviewRating)
+                    }
+                }
+            }
+            else -> {
+                _recordReview?.delete()
+            }
+        }
         this.type = type
     }
 
@@ -72,7 +114,7 @@ class Record(
 
     fun delete() {
         this.isDeleted = true
-        this.recordReview?.delete()
+        this._recordReview?.delete()
     }
 
     companion object {
@@ -92,13 +134,12 @@ class Record(
                 )
             }
             val record: Record = Record(
+                user = user,
                 type = type,
                 title = title,
                 content = content,
                 isPrivate = isPrivate
             )
-
-            record.user = user
 
             if (record.type == RecordType.REVIEW) {
                 val recordReview: RecordReview = RecordReview.create(
@@ -106,7 +147,7 @@ class Record(
                     subject = reviewSubject!!,
                     rating = reviewRating!!
                 )
-                record.recordReview = recordReview
+                record._recordReview = recordReview
             }
 
             return record

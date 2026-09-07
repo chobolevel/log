@@ -49,13 +49,10 @@ class RecordService(
 
     @Transactional(readOnly = true)
     fun searchRecords(
-        requesterId: Long?,
         filter: SearchRecordRequest,
         pageRequest: RecordPagingRequest
     ): PagingResponse<RecordResponse> {
-        // 요청자가 조회 대상 작성자 본인인 경우에만 비공개 기록 포함
-        val excludePrivate: Boolean = filter.userId == null || filter.userId != requesterId
-        val queryFilter: RecordQueryFilter = recordConverter.convert(filter, excludePrivate)
+        val queryFilter: RecordQueryFilter = recordConverter.convert(filter)
         val paging: Paging = Paging(page = pageRequest.page, size = pageRequest.size)
         val records: List<Record> = recordRepository.searchRecords(
             queryFilter = queryFilter,
@@ -74,7 +71,7 @@ class RecordService(
     @Transactional(readOnly = true)
     fun fetchRecord(requesterId: Long?, recordId: Long): RecordResponse {
         val record: Record = recordRepository.findById(recordId)
-        if (record.isPrivate && record.user?.id != requesterId) {
+        if (record.isPrivate && record.user.id != requesterId) {
             throw ForbiddenException(errorCode = ErrorCode.ACCESS_DENIED)
         }
         return recordConverter.convert(record)
@@ -86,7 +83,11 @@ class RecordService(
         recordBusinessValidator.validateWriter(userId, record)
         request.updateMask.forEach { mask: RecordUpdateMask ->
             when (mask) {
-                RecordUpdateMask.TYPE -> record.changeType(request.type!!)
+                RecordUpdateMask.TYPE -> record.changeType(
+                    type = request.type!!,
+                    reviewSubject = request.review?.subjectId?.let { subjectRepository.findById(it) },
+                    reviewRating = request.review?.rating
+                )
                 RecordUpdateMask.TITLE -> record.changeTitle(request.title!!)
                 RecordUpdateMask.CONTENT -> record.changeContent(request.content!!)
                 RecordUpdateMask.IS_PRIVATE -> record.changePrivacy(request.isPrivate!!)

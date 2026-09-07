@@ -18,7 +18,7 @@ abstract class AbstractMySQLContainerTest {
     companion object {
 
         private val mysql: MySQLContainer<*> = MySQLContainer("mysql:8.0")
-            .withDatabaseName("log_test")
+            .withDatabaseName("log")
             .withUsername("test")
             .withPassword("test")
 
@@ -34,6 +34,8 @@ abstract class AbstractMySQLContainerTest {
             registry.add("spring.datasource.password", mysql::getPassword)
             registry.add("spring.datasource.driver-class-name") { "com.mysql.cj.jdbc.Driver" }
             registry.add("spring.jpa.database-platform") { "org.hibernate.dialect.MySQL8Dialect" }
+            registry.add("spring.jpa.hibernate.ddl-auto") { "none" }
+            registry.add("spring.flyway.enabled") { "true" }
         }
     }
 }

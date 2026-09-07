@@ -33,3 +33,7 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: create-drop
+  flyway:
+    # H2는 마이그레이션 SQL의 log. 스키마 참조를 지원하지 않는다.
+    # ddl-auto: create-drop으로 Hibernate가 스키마를 생성하므로 Flyway는 비활성화한다.
+    enabled: false

@@ -35,17 +35,5 @@ class RecordBusinessValidatorTest : BehaviorSpec({
                 }
             }
         }
-
-        `when`("record가 null이면") {
-            then("ForbiddenException이 발생한다") {
-                // given
-                val userId: Long = DummyUser.ID
-
-                // when & then
-                shouldThrow<ForbiddenException> {
-                    validator.validateWriter(userId = userId, record = null)
-                }
-            }
-        }
     }
 })

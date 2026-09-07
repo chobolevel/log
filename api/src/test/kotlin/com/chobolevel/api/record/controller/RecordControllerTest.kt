@@ -100,7 +100,7 @@ class RecordControllerTest {
     fun `인증 없이 기록 목록을 조회할 수 있다`() {
         // given
         every {
-            recordService.searchRecords(requesterId = null, filter = any(), pageRequest = any())
+            recordService.searchRecords(filter = any(), pageRequest = any())
         } returns PagingResponse(
             page = 1L,
             size = 20L,
@@ -120,7 +120,7 @@ class RecordControllerTest {
     fun `인증된 사용자가 기록 목록을 조회할 수 있다`() {
         // given
         every {
-            recordService.searchRecords(requesterId = DummyUser.ID, filter = any(), pageRequest = any())
+            recordService.searchRecords(filter = any(), pageRequest = any())
         } returns PagingResponse(
             page = 1L,
             size = 20L,
