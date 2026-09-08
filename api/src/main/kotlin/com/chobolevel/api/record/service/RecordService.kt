@@ -72,7 +72,7 @@ class RecordService(
     fun fetchRecord(requesterId: Long?, recordId: Long): RecordResponse {
         val record: Record = recordRepository.findById(recordId)
         if (record.isPrivate && record.user.id != requesterId) {
-            throw ForbiddenException(errorCode = ErrorCode.ACCESS_DENIED)
+            throw ForbiddenException(errorCode = ErrorCode.PRIVATE_RECORD)
         }
         return recordConverter.convert(record)
     }

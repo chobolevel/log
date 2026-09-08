@@ -57,6 +57,7 @@ enum class ErrorCode(val defaultMessage: String) {
     // RECORD
     RECORD_NOT_FOUND("기록을 찾을 수 없습니다."),
     RESTRICTED_TO_RECORD_WRITER("기록 작성자만 접근 가능합니다."),
+    PRIVATE_RECORD("비밀 기록입니다."),
 
     // RECORD REVIEW
     RECORD_REVIEW_NOT_FOUND("기록 리뷰를 찾을 수 없습니다."),
