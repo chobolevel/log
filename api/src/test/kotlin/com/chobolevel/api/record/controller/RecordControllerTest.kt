@@ -97,7 +97,7 @@ class RecordControllerTest {
     }
 
     @Test
-    fun `인증 없이 기록 목록을 조회할 수 있다`() {
+    fun `기록 목록을 조회할 수 있다`() {
         // given
         every {
             recordService.searchRecords(filter = any(), pageRequest = any())
@@ -113,25 +113,6 @@ class RecordControllerTest {
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.data.data").isArray)
             .andExpect(jsonPath("$.data.total_count").value(1L))
-    }
-
-    @Test
-    @WithMockUser(username = "${DummyUser.ID}", roles = ["USER"])
-    fun `인증된 사용자가 기록 목록을 조회할 수 있다`() {
-        // given
-        every {
-            recordService.searchRecords(filter = any(), pageRequest = any())
-        } returns PagingResponse(
-            page = 1L,
-            size = 20L,
-            data = listOf<RecordResponse>(DummyRecord.toResponse()),
-            totalCount = 1L
-        )
-
-        // when & then
-        mockMvc.perform(get("/api/v1/records"))
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.data.data").isArray)
     }
 
     @Test

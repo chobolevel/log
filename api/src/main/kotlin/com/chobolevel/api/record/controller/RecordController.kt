@@ -52,7 +52,6 @@ class RecordController(
     @Operation(summary = "기록 목록 조회 API")
     @GetMapping("/records")
     fun searchRecords(
-        authentication: Authentication?,
         @QueryObject filter: SearchRecordRequest,
         @QueryObject pageRequest: RecordPagingRequest
     ): ResponseEntity<ResultResponse<PagingResponse<RecordResponse>>> {
