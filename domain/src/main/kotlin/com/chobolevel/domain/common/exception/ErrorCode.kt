@@ -66,6 +66,9 @@ enum class ErrorCode(val defaultMessage: String) {
     // SUBJECT
     SUBJECT_NOT_FOUND("주제를 찾을 수 없습니다."),
 
+    // SUBJECT IMAGE
+    SUBJECT_IMAGE_NOT_FOUND("주제 이미지를 찾을 수 없습니다."),
+
     // EXTERNAL API
     EMAIL_SEND_FAILED("이메일 발송에 실패했습니다.")
 }
