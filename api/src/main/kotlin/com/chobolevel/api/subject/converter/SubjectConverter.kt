@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 class SubjectConverter {
 
     fun convert(request: CreateSubjectRequest): Subject {
-        return Subject(
+        return Subject.create(
             type = request.type,
             title = request.title,
             description = request.description,

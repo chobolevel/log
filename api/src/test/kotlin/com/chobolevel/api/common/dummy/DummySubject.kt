@@ -7,6 +7,7 @@ import com.chobolevel.api.subject.dto.UpdateSubjectRequest
 import com.chobolevel.domain.subject.entity.Subject
 import com.chobolevel.domain.subject.vo.SubjectType
 import com.chobolevel.domain.subject.vo.SubjectUpdateMask
+import org.springframework.test.util.ReflectionTestUtils
 
 object DummySubject {
     val ID: Long = 1L
@@ -14,11 +15,11 @@ object DummySubject {
     val TITLE: String = "테스트 책 제목"
     val DESCRIPTION: String = "테스트 책 설명"
 
-    fun toEntity(): Subject = Subject(
+    fun toEntity(): Subject = Subject.create(
         type = TYPE,
         title = TITLE,
         description = DESCRIPTION
-    ).also { it.id = ID }
+    ).also { ReflectionTestUtils.setField(it, "id", DummyRecord.ID) }
 
     fun toCreateRequest(): CreateSubjectRequest = CreateSubjectRequest(
         type = TYPE,

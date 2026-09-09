@@ -11,9 +11,9 @@ class SubjectUpdater : SubjectUpdatable {
     override fun markAsUpdate(request: UpdateSubjectRequest, entity: Subject): Subject {
         request.updateMask.forEach {
             when (it) {
-                SubjectUpdateMask.TYPE -> entity.type = request.type!!
-                SubjectUpdateMask.TITLE -> entity.title = request.title!!
-                SubjectUpdateMask.DESCRIPTION -> entity.description = request.description
+                SubjectUpdateMask.TYPE -> entity.changeType(type = request.type!!)
+                SubjectUpdateMask.TITLE -> entity.changeTitle(request.title!!)
+                SubjectUpdateMask.DESCRIPTION -> entity.changeDescription(request.description)
             }
         }
         return entity
