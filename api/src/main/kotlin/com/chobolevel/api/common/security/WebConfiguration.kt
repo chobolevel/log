@@ -5,6 +5,10 @@ import com.chobolevel.api.common.properties.SecurityProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -22,6 +26,16 @@ class WebConfiguration(
     private val securityProperties: SecurityProperties,
     private val jwtProperties: JwtProperties,
 ) {
+
+    @Bean
+    fun roleHierarchy(): RoleHierarchy = RoleHierarchyImpl().also {
+        // 역할 추가 시: "ROLE_ADMIN > ROLE_MANAGER\nROLE_MANAGER > ROLE_USER" 형식으로 확장
+        it.setHierarchy("ROLE_ADMIN > ROLE_USER")
+    }
+
+    @Bean
+    fun methodSecurityExpressionHandler(roleHierarchy: RoleHierarchy): MethodSecurityExpressionHandler =
+        DefaultMethodSecurityExpressionHandler().also { it.setRoleHierarchy(roleHierarchy) }
 
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
