@@ -4,6 +4,8 @@ import com.chobolevel.api.subject.dto.CreateSubjectRequest
 import com.chobolevel.api.subject.dto.SearchSubjectRequest
 import com.chobolevel.api.subject.dto.SubjectResponse
 import com.chobolevel.api.subject.dto.UpdateSubjectRequest
+import com.chobolevel.api.subject.image.dto.SubjectImageResponse
+import com.chobolevel.domain.subject.dto.CreateSubjectCommand
 import com.chobolevel.domain.subject.entity.Subject
 import com.chobolevel.domain.subject.vo.SubjectType
 import com.chobolevel.domain.subject.vo.SubjectUpdateMask
@@ -16,15 +18,17 @@ object DummySubject {
     val DESCRIPTION: String = "테스트 책 설명"
 
     fun toEntity(): Subject = Subject.create(
-        type = TYPE,
-        title = TITLE,
-        description = DESCRIPTION
-    ).also { ReflectionTestUtils.setField(it, "id", DummyRecord.ID) }
+        command = CreateSubjectCommand(
+            type = TYPE,
+            title = TITLE,
+            description = DESCRIPTION,
+        )
+    ).also { ReflectionTestUtils.setField(it, "id", ID) }
 
     fun toCreateRequest(): CreateSubjectRequest = CreateSubjectRequest(
         type = TYPE,
         title = TITLE,
-        description = DESCRIPTION
+        description = DESCRIPTION,
     )
 
     fun toSearchRequest(): SearchSubjectRequest = SearchSubjectRequest(
@@ -36,6 +40,7 @@ object DummySubject {
         type = null,
         title = "새 제목",
         description = null,
+        images = null,
         updateMask = listOf(SubjectUpdateMask.TITLE)
     )
 
@@ -44,6 +49,7 @@ object DummySubject {
         type = TYPE,
         title = TITLE,
         description = DESCRIPTION,
+        images = emptyList<SubjectImageResponse>(),
         createdAt = 0L,
         updatedAt = 0L
     )

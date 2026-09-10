@@ -21,6 +21,7 @@ class SubjectParameterValidatorTest : BehaviorSpec({
                     type = SubjectType.MOVIE,
                     title = null,
                     description = null,
+                    images = null,
                     updateMask = listOf(SubjectUpdateMask.TYPE)
                 )
 
@@ -36,6 +37,7 @@ class SubjectParameterValidatorTest : BehaviorSpec({
                     type = null,
                     title = null,
                     description = null,
+                    images = null,
                     updateMask = listOf(SubjectUpdateMask.TYPE)
                 )
 
@@ -66,6 +68,7 @@ class SubjectParameterValidatorTest : BehaviorSpec({
                     type = null,
                     title = null,
                     description = null,
+                    images = null,
                     updateMask = listOf(SubjectUpdateMask.TITLE)
                 )
 
@@ -84,6 +87,7 @@ class SubjectParameterValidatorTest : BehaviorSpec({
                     type = null,
                     title = "",
                     description = null,
+                    images = null,
                     updateMask = listOf(SubjectUpdateMask.TITLE)
                 )
 
@@ -104,11 +108,49 @@ class SubjectParameterValidatorTest : BehaviorSpec({
                     type = null,
                     title = null,
                     description = null,
+                    images = null,
                     updateMask = listOf(SubjectUpdateMask.DESCRIPTION)
                 )
 
                 // when & then
                 validator.validate(request)
+            }
+        }
+    }
+
+    given("IMAGES updateMask를 검증할 때") {
+        `when`("images 목록이 있으면") {
+            then("예외가 발생하지 않는다") {
+                // given
+                val request: UpdateSubjectRequest = UpdateSubjectRequest(
+                    type = null,
+                    title = null,
+                    description = null,
+                    images = emptyList(),
+                    updateMask = listOf(SubjectUpdateMask.IMAGES)
+                )
+
+                // when & then
+                validator.validate(request)
+            }
+        }
+
+        `when`("images 값이 null이면") {
+            then("InvalidParameterException이 발생한다") {
+                // given
+                val request: UpdateSubjectRequest = UpdateSubjectRequest(
+                    type = null,
+                    title = null,
+                    description = null,
+                    images = null,
+                    updateMask = listOf(SubjectUpdateMask.IMAGES)
+                )
+
+                // when & then
+                val ex: InvalidParameterException = shouldThrow {
+                    validator.validate(request)
+                }
+                ex.message shouldBe "변경할 이미지 목록 파라미터가 유효하지 않습니다."
             }
         }
     }

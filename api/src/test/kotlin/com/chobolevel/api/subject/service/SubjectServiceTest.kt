@@ -8,15 +8,18 @@ import com.chobolevel.api.subject.dto.SearchSubjectRequest
 import com.chobolevel.api.subject.dto.SubjectPagingRequest
 import com.chobolevel.api.subject.dto.SubjectResponse
 import com.chobolevel.api.subject.dto.UpdateSubjectRequest
-import com.chobolevel.api.subject.updater.SubjectUpdatable
-import com.chobolevel.api.subject.updater.SubjectUpdater
+import com.chobolevel.domain.subject.dto.CreateSubjectCommand
+import com.chobolevel.domain.subject.dto.UpdateSubjectCommand
 import com.chobolevel.domain.subject.entity.Subject
 import com.chobolevel.domain.subject.repository.SubjectRepository
 import com.chobolevel.domain.subject.vo.SubjectQueryFilter
+import com.chobolevel.domain.subject.vo.SubjectType
+import com.chobolevel.domain.subject.vo.SubjectUpdateMask
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.every
+import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
 
@@ -24,32 +27,34 @@ class SubjectServiceTest : BehaviorSpec({
 
     val subjectRepository: SubjectRepository = mockk()
     val subjectConverter: SubjectConverter = mockk()
-    val subjectUpdater: SubjectUpdater = mockk()
-    val subjectUpdaters: List<SubjectUpdatable> = listOf(subjectUpdater)
     val subjectService: SubjectService = SubjectService(
         subjectRepository = subjectRepository,
         subjectConverter = subjectConverter,
-        subjectUpdaters = subjectUpdaters
     )
 
     beforeEach { clearAllMocks() }
 
-    given("주제 등록할 때") {
+    given("주제를 등록할 때") {
         `when`("유효한 요청이 들어오면") {
             then("저장된 주제의 id를 반환한다") {
                 // given
                 val request: CreateSubjectRequest = DummySubject.toCreateRequest()
+                val command: CreateSubjectCommand = CreateSubjectCommand(
+                    type = DummySubject.TYPE,
+                    title = DummySubject.TITLE,
+                    description = DummySubject.DESCRIPTION,
+                )
                 val subject: Subject = DummySubject.toEntity()
-                every { subjectConverter.convert(request = request) } returns subject
-                every { subjectRepository.save(subject = subject) } returns subject
+                every { subjectConverter.convert(request = request) } returns command
+                every { subjectRepository.save(subject = any()) } returns subject
 
                 // when
                 val result: Long = subjectService.createSubject(request = request)
 
                 // then
                 result shouldBe DummySubject.ID
-                verify { subjectConverter.convert(request = request) }
-                verify { subjectRepository.save(subject = subject) }
+                verify(exactly = 1) { subjectConverter.convert(request = request) }
+                verify(exactly = 1) { subjectRepository.save(subject = any()) }
             }
         }
     }
@@ -149,35 +154,41 @@ class SubjectServiceTest : BehaviorSpec({
                 // given
                 val subjectId: Long = DummySubject.ID
                 val request: UpdateSubjectRequest = DummySubject.toUpdateRequest()
+                val command: UpdateSubjectCommand = UpdateSubjectCommand(
+                    type = null,
+                    title = "새 제목",
+                    description = null,
+                    updateMask = listOf(SubjectUpdateMask.TITLE),
+                )
                 val subject: Subject = DummySubject.toEntity()
+                every { subjectConverter.convert(request = request) } returns command
                 every { subjectRepository.findById(id = subjectId) } returns subject
-                every { subjectUpdater.order() } returns 0
-                every { subjectUpdater.markAsUpdate(request = request, entity = subject) } returns subject
 
                 // when
                 val result: Long = subjectService.updateSubject(subjectId = subjectId, request = request)
 
                 // then
                 result shouldBe DummySubject.ID
-                verify { subjectUpdater.markAsUpdate(request = request, entity = subject) }
+                subject.title shouldBe "새 제목"
             }
         }
     }
 
     given("주제를 삭제할 때") {
         `when`("유효한 요청이 들어오면") {
-            then("true를 반환하고 주제는 삭제 처리된다") {
+            then("true를 반환하고 repository.delete가 호출된다") {
                 // given
                 val subjectId: Long = DummySubject.ID
                 val subject: Subject = DummySubject.toEntity()
                 every { subjectRepository.findById(subjectId) } returns subject
+                justRun { subjectRepository.delete(subject) }
 
                 // when
                 val result: Boolean = subjectService.deleteSubject(subjectId = subjectId)
 
                 // then
                 result shouldBe true
-                subject.isDeleted shouldBe true
+                verify(exactly = 1) { subjectRepository.delete(subject) }
             }
         }
     }
