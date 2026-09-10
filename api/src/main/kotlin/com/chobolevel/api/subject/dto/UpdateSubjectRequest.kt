@@ -11,6 +11,7 @@ data class UpdateSubjectRequest(
     val type: SubjectType?,
     val title: String?,
     val description: String?,
+    val images: List<SyncSubjectImageRequest>?,
     @field:Size(min = 1, message = "update_mask는 필수 값입니다.")
     val updateMask: List<SubjectUpdateMask>
 )

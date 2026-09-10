@@ -7,8 +7,9 @@ import com.chobolevel.api.subject.dto.SearchSubjectRequest
 import com.chobolevel.api.subject.dto.SubjectPagingRequest
 import com.chobolevel.api.subject.dto.SubjectResponse
 import com.chobolevel.api.subject.dto.UpdateSubjectRequest
-import com.chobolevel.api.subject.updater.SubjectUpdatable
 import com.chobolevel.domain.common.dto.Paging
+import com.chobolevel.domain.subject.dto.CreateSubjectCommand
+import com.chobolevel.domain.subject.dto.UpdateSubjectCommand
 import com.chobolevel.domain.subject.entity.Subject
 import com.chobolevel.domain.subject.repository.SubjectRepository
 import com.chobolevel.domain.subject.vo.SubjectOrderType
@@ -20,12 +21,12 @@ import org.springframework.transaction.annotation.Transactional
 class SubjectService(
     private val subjectRepository: SubjectRepository,
     private val subjectConverter: SubjectConverter,
-    private val subjectUpdaters: List<SubjectUpdatable>
 ) {
 
     @Transactional
     fun createSubject(request: CreateSubjectRequest): Long {
-        val subject: Subject = subjectConverter.convert(request)
+        val command: CreateSubjectCommand = subjectConverter.convert(request = request)
+        val subject: Subject = Subject.create(command = command)
         return subjectRepository.save(subject).id!!
     }
 
@@ -59,15 +60,16 @@ class SubjectService(
 
     @Transactional
     fun updateSubject(subjectId: Long, request: UpdateSubjectRequest): Long {
+        val command: UpdateSubjectCommand = subjectConverter.convert(request = request)
         val subject: Subject = subjectRepository.findById(subjectId)
-        subjectUpdaters.sortedBy { it.order() }.forEach { it.markAsUpdate(request, subject) }
+        subject.update(command = command)
         return subject.id!!
     }
 
     @Transactional
     fun deleteSubject(subjectId: Long): Boolean {
         val subject: Subject = subjectRepository.findById(subjectId)
-        subject.delete()
+        subjectRepository.delete(subject)
         return true
     }
 }

@@ -68,7 +68,7 @@ spring:
           starttls:
             enable: true
   jackson:
-    property-naming-strategy: SNAKE_CASE
+    property-naming-str ategy: SNAKE_CASE
 
 jasypt:
   encryptor:

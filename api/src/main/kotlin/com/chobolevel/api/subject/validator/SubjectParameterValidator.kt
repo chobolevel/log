@@ -31,6 +31,15 @@ class SubjectParameterValidator {
                 }
 
                 SubjectUpdateMask.DESCRIPTION -> Unit
+
+                SubjectUpdateMask.IMAGES -> {
+                    if (request.images == null) {
+                        throw InvalidParameterException(
+                            errorCode = ErrorCode.INVALID_PARAMETER,
+                            message = "변경할 이미지 목록 파라미터가 유효하지 않습니다."
+                        )
+                    }
+                }
             }
         }
     }
