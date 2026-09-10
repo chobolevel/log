@@ -6,7 +6,6 @@ import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.subject.dto.CreateSubjectRequest
 import com.chobolevel.api.subject.dto.SearchSubjectRequest
-import com.chobolevel.api.subject.dto.SubjectPagingRequest
 import com.chobolevel.api.subject.dto.SubjectResponse
 import com.chobolevel.api.subject.dto.UpdateSubjectRequest
 import com.chobolevel.api.subject.service.SubjectService
@@ -46,13 +45,9 @@ class SubjectController(
     @Operation(summary = "주제 목록 조회 API")
     @GetMapping("/subjects")
     fun searchSubjects(
-        @QueryObject filter: SearchSubjectRequest,
-        @QueryObject pageRequest: SubjectPagingRequest
+        @QueryObject request: SearchSubjectRequest
     ): ResponseEntity<ResultResponse<PagingResponse<SubjectResponse>>> {
-        val result: PagingResponse<SubjectResponse> = service.searchSubjects(
-            filter = filter,
-            pageRequest = pageRequest
-        )
+        val result: PagingResponse<SubjectResponse> = service.searchSubjects(request = request)
         return ResponseEntity.ok(ResultResponse(result))
     }
 

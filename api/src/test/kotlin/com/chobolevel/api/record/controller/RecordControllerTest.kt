@@ -100,7 +100,7 @@ class RecordControllerTest {
     fun `기록 목록을 조회할 수 있다`() {
         // given
         every {
-            recordService.searchRecords(filter = any(), pageRequest = any())
+            recordService.searchRecords(request = any())
         } returns PagingResponse(
             page = 1L,
             size = 20L,

@@ -3,7 +3,6 @@ package com.chobolevel.api.record.service
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.record.converter.RecordConverter
 import com.chobolevel.api.record.dto.CreateRecordRequest
-import com.chobolevel.api.record.dto.RecordPagingRequest
 import com.chobolevel.api.record.dto.RecordResponse
 import com.chobolevel.api.record.dto.SearchRecordRequest
 import com.chobolevel.api.record.dto.UpdateRecordRequest
@@ -48,16 +47,13 @@ class RecordService(
     }
 
     @Transactional(readOnly = true)
-    fun searchRecords(
-        filter: SearchRecordRequest,
-        pageRequest: RecordPagingRequest
-    ): PagingResponse<RecordResponse> {
-        val queryFilter: RecordQueryFilter = recordConverter.convert(filter)
-        val paging: Paging = Paging(page = pageRequest.page, size = pageRequest.size)
+    fun searchRecords(request: SearchRecordRequest): PagingResponse<RecordResponse> {
+        val queryFilter: RecordQueryFilter = recordConverter.convert(request)
+        val paging: Paging = Paging(page = request.page, size = request.size)
         val records: List<Record> = recordRepository.searchRecords(
             queryFilter = queryFilter,
             paging = paging,
-            orderTypes = pageRequest.orderTypes
+            orderTypes = request.orderTypes
         )
         val totalCount: Long = recordRepository.searchRecordsCount(queryFilter)
         return PagingResponse(

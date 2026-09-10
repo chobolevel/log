@@ -4,14 +4,12 @@ import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.tag.converter.TagConverter
 import com.chobolevel.api.tag.dto.CreateTagRequest
 import com.chobolevel.api.tag.dto.SearchTagRequest
-import com.chobolevel.api.tag.dto.TagPagingRequest
 import com.chobolevel.api.tag.dto.TagResponse
 import com.chobolevel.api.tag.dto.UpdateTagRequest
 import com.chobolevel.api.tag.updater.TagUpdatable
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.tag.entity.Tag
 import com.chobolevel.domain.tag.repository.TagRepository
-import com.chobolevel.domain.tag.vo.TagOrderType
 import com.chobolevel.domain.tag.vo.TagQueryFilter
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -30,13 +28,10 @@ class TagService(
     }
 
     @Transactional(readOnly = true)
-    fun searchTags(
-        filter: SearchTagRequest,
-        pageRequest: TagPagingRequest
-    ): PagingResponse<TagResponse> {
-        val queryFilter: TagQueryFilter = tagConverter.convert(request = filter)
-        val paging = Paging(page = pageRequest.page, size = pageRequest.size)
-        val orderTypes: List<TagOrderType> = pageRequest.orderTypes
+    fun searchTags(request: SearchTagRequest): PagingResponse<TagResponse> {
+        val queryFilter: TagQueryFilter = tagConverter.convert(request = request)
+        val paging = Paging(page = request.page, size = request.size)
+        val orderTypes = request.orderTypes
         val tags: List<Tag> = tagRepository.searchTags(
             queryFilter = queryFilter,
             paging = paging,

@@ -6,7 +6,6 @@ import com.chobolevel.api.common.dummy.DummyPostComment
 import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.post.comment.converter.PostCommentConverter
 import com.chobolevel.api.post.comment.dto.CreatePostCommentRequest
-import com.chobolevel.api.post.comment.dto.PostCommentPagingRequest
 import com.chobolevel.api.post.comment.dto.PostCommentResponse
 import com.chobolevel.api.post.comment.dto.SearchPostCommentRequest
 import com.chobolevel.api.post.comment.dto.UpdatePostCommentRequest
@@ -83,9 +82,7 @@ class PostCommentServiceTest : BehaviorSpec({
         `when`("댓글이 존재하면") {
             then("페이징 정보와 댓글 목록을 반환한다") {
                 // given
-                val filter: SearchPostCommentRequest = DummyPostComment.toSearchRequest()
-                val pageRequest: PostCommentPagingRequest = PostCommentPagingRequest()
-
+                val request: SearchPostCommentRequest = DummyPostComment.toSearchRequest()
                 val queryFilter: PostCommentQueryFilter = PostCommentQueryFilter(
                     postId = null,
                     writerId = null
@@ -94,17 +91,17 @@ class PostCommentServiceTest : BehaviorSpec({
                 val postCommentResponses: List<PostCommentResponse> = listOf(DummyPostComment.toResponse())
                 val totalCount: Long = 1L
 
-                every { converter.convert(request = filter) } returns queryFilter
+                every { converter.convert(request = request) } returns queryFilter
                 every { repository.searchPostComments(queryFilter = queryFilter, paging = any(), orderTypes = any()) } returns postComments
                 every { repository.searchPostCommentsCount(queryFilter) } returns totalCount
                 every { converter.convert(entities = postComments) } returns postCommentResponses
 
                 // when
-                val result: PagingResponse<PostCommentResponse> = postCommentService.searchPostComments(filter = filter, pageRequest = pageRequest)
+                val result: PagingResponse<PostCommentResponse> = postCommentService.searchPostComments(request = request)
 
                 // then
-                result.page shouldBe pageRequest.page
-                result.size shouldBe pageRequest.size
+                result.page shouldBe request.page
+                result.size shouldBe request.size
                 result.totalCount shouldBe totalCount
                 result.data shouldBe postCommentResponses
                 verify { repository.searchPostComments(queryFilter = queryFilter, paging = any(), orderTypes = any()) }
@@ -115,9 +112,7 @@ class PostCommentServiceTest : BehaviorSpec({
         `when`("검색 결과가 없으면") {
             then("빈 목록과 totalCount 0을 반환한다") {
                 // given
-                val filter: SearchPostCommentRequest = DummyPostComment.toSearchRequest()
-                val pageRequest: PostCommentPagingRequest = PostCommentPagingRequest()
-
+                val request: SearchPostCommentRequest = DummyPostComment.toSearchRequest()
                 val queryFilter: PostCommentQueryFilter = PostCommentQueryFilter(
                     postId = null,
                     writerId = null
@@ -126,13 +121,13 @@ class PostCommentServiceTest : BehaviorSpec({
                 val emptyResponses: List<PostCommentResponse> = emptyList()
                 val totalCount: Long = 0L
 
-                every { converter.convert(request = filter) } returns queryFilter
+                every { converter.convert(request = request) } returns queryFilter
                 every { repository.searchPostComments(queryFilter = queryFilter, paging = any(), orderTypes = any()) } returns emptyComments
                 every { repository.searchPostCommentsCount(queryFilter) } returns totalCount
                 every { converter.convert(entities = emptyComments) } returns emptyResponses
 
                 // when
-                val result: PagingResponse<PostCommentResponse> = postCommentService.searchPostComments(filter = filter, pageRequest = pageRequest)
+                val result: PagingResponse<PostCommentResponse> = postCommentService.searchPostComments(request = request)
 
                 // then
                 result.totalCount shouldBe 0L

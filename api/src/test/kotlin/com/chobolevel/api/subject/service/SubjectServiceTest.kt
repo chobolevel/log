@@ -5,7 +5,6 @@ import com.chobolevel.api.common.dummy.DummySubject
 import com.chobolevel.api.subject.converter.SubjectConverter
 import com.chobolevel.api.subject.dto.CreateSubjectRequest
 import com.chobolevel.api.subject.dto.SearchSubjectRequest
-import com.chobolevel.api.subject.dto.SubjectPagingRequest
 import com.chobolevel.api.subject.dto.SubjectResponse
 import com.chobolevel.api.subject.dto.UpdateSubjectRequest
 import com.chobolevel.domain.subject.dto.CreateSubjectCommand
@@ -13,7 +12,6 @@ import com.chobolevel.domain.subject.dto.UpdateSubjectCommand
 import com.chobolevel.domain.subject.entity.Subject
 import com.chobolevel.domain.subject.repository.SubjectRepository
 import com.chobolevel.domain.subject.vo.SubjectQueryFilter
-import com.chobolevel.domain.subject.vo.SubjectType
 import com.chobolevel.domain.subject.vo.SubjectUpdateMask
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -63,14 +61,13 @@ class SubjectServiceTest : BehaviorSpec({
         `when`("주제가 존재하면") {
             then("페이징 정보와 주제 목록을 반환한다") {
                 // given
-                val filter: SearchSubjectRequest = DummySubject.toSearchRequest()
-                val pageRequest: SubjectPagingRequest = SubjectPagingRequest()
+                val request: SearchSubjectRequest = DummySubject.toSearchRequest()
                 val queryFilter: SubjectQueryFilter = SubjectQueryFilter(type = null, title = null)
                 val subjects: List<Subject> = listOf(DummySubject.toEntity())
                 val subjectResponses: List<SubjectResponse> = listOf(DummySubject.toResponse())
                 val totalCount: Long = 1L
 
-                every { subjectConverter.convert(request = filter) } returns queryFilter
+                every { subjectConverter.convert(request = request) } returns queryFilter
                 every {
                     subjectRepository.searchSubjects(
                         queryFilter = queryFilter,
@@ -82,14 +79,11 @@ class SubjectServiceTest : BehaviorSpec({
                 every { subjectConverter.convert(entities = subjects) } returns subjectResponses
 
                 // when
-                val result: PagingResponse<SubjectResponse> = subjectService.searchSubjects(
-                    filter = filter,
-                    pageRequest = pageRequest
-                )
+                val result: PagingResponse<SubjectResponse> = subjectService.searchSubjects(request = request)
 
                 // then
-                result.page shouldBe pageRequest.page
-                result.size shouldBe pageRequest.size
+                result.page shouldBe request.page
+                result.size shouldBe request.size
                 result.data shouldBe subjectResponses
                 result.totalCount shouldBe totalCount
             }
@@ -98,14 +92,13 @@ class SubjectServiceTest : BehaviorSpec({
         `when`("검색 결과가 없으면") {
             then("빈 목록과 totalCount 0을 반환한다") {
                 // given
-                val filter: SearchSubjectRequest = DummySubject.toSearchRequest()
-                val pageRequest: SubjectPagingRequest = SubjectPagingRequest()
+                val request: SearchSubjectRequest = DummySubject.toSearchRequest()
                 val queryFilter: SubjectQueryFilter = SubjectQueryFilter(type = null, title = null)
                 val emptySubjects: List<Subject> = emptyList()
                 val emptyResponses: List<SubjectResponse> = emptyList()
                 val totalCount: Long = 0L
 
-                every { subjectConverter.convert(request = filter) } returns queryFilter
+                every { subjectConverter.convert(request = request) } returns queryFilter
                 every {
                     subjectRepository.searchSubjects(
                         queryFilter = queryFilter,
@@ -117,10 +110,7 @@ class SubjectServiceTest : BehaviorSpec({
                 every { subjectConverter.convert(entities = emptySubjects) } returns emptyResponses
 
                 // when
-                val result: PagingResponse<SubjectResponse> = subjectService.searchSubjects(
-                    filter = filter,
-                    pageRequest = pageRequest
-                )
+                val result: PagingResponse<SubjectResponse> = subjectService.searchSubjects(request = request)
 
                 // then
                 result.data shouldBe emptyResponses

@@ -101,10 +101,7 @@ class TagControllerTest {
     fun `인증 없이 태그 목록을 조회할 수 있다`() {
         // given
         every {
-            tagService.searchTags(
-                filter = any(),
-                pageRequest = any()
-            )
+            tagService.searchTags(request = any())
         } returns PagingResponse(
             page = 1L,
             size = 20L,

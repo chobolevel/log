@@ -106,7 +106,7 @@ class GuestBookControllerTest {
     fun `방명록 목록 조회 시 200과 PagingResponse를 반환한다`() {
         // given
         every {
-            guestBookService.searchGuestBooks(filter = any(), pageRequest = any())
+            guestBookService.searchGuestBooks(request = any())
         } returns PagingResponse(
             page = 1L,
             size = 10L,

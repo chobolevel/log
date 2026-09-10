@@ -8,7 +8,6 @@ import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.post.assembler.PostAssembler
 import com.chobolevel.api.post.converter.PostConverter
 import com.chobolevel.api.post.dto.CreatePostRequest
-import com.chobolevel.api.post.dto.PostPagingRequest
 import com.chobolevel.api.post.dto.PostResponse
 import com.chobolevel.api.post.dto.SearchPostRequest
 import com.chobolevel.api.post.dto.UpdatePostRequest
@@ -132,9 +131,7 @@ class PostServiceTest : BehaviorSpec({
         `when`("게시글이 존재하면") {
             then("페이징 정보와 게시글 목록을 반환한다") {
                 // given
-                val filter: SearchPostRequest = DummyPost.toSearchRequest()
-                val pageRequest: PostPagingRequest = PostPagingRequest()
-
+                val request: SearchPostRequest = DummyPost.toSearchRequest()
                 val queryFilter: PostQueryFilter = PostQueryFilter(
                     tagId = null,
                     title = null,
@@ -145,17 +142,17 @@ class PostServiceTest : BehaviorSpec({
                 val postResponses: List<PostResponse> = listOf(DummyPost.toResponse())
                 val totalCount: Long = 1L
 
-                every { postConverter.convert(request = filter) } returns queryFilter
+                every { postConverter.convert(request = request) } returns queryFilter
                 every { postRepository.searchPosts(queryFilter = queryFilter, paging = any(), orderTypes = any()) } returns posts
                 every { postRepository.searchPostsCount(queryFilter) } returns totalCount
                 every { postConverter.convert(entities = posts) } returns postResponses
 
                 // when
-                val result: PagingResponse<PostResponse> = postService.searchPosts(filter = filter, pageRequest = pageRequest)
+                val result: PagingResponse<PostResponse> = postService.searchPosts(request = request)
 
                 // then
-                result.page shouldBe pageRequest.page
-                result.size shouldBe pageRequest.size
+                result.page shouldBe request.page
+                result.size shouldBe request.size
                 result.totalCount shouldBe totalCount
                 result.data shouldBe postResponses
                 verify { postRepository.searchPosts(queryFilter = queryFilter, paging = any(), orderTypes = any()) }
@@ -166,9 +163,7 @@ class PostServiceTest : BehaviorSpec({
         `when`("검색 결과가 없으면") {
             then("빈 목록과 totalCount 0을 반환한다") {
                 // given
-                val filter: SearchPostRequest = DummyPost.toSearchRequest()
-                val pageRequest: PostPagingRequest = PostPagingRequest()
-
+                val request: SearchPostRequest = DummyPost.toSearchRequest()
                 val queryFilter: PostQueryFilter = PostQueryFilter(
                     tagId = null,
                     title = null,
@@ -179,13 +174,13 @@ class PostServiceTest : BehaviorSpec({
                 val emptyResponses: List<PostResponse> = emptyList()
                 val totalCount: Long = 0L
 
-                every { postConverter.convert(request = filter) } returns queryFilter
+                every { postConverter.convert(request = request) } returns queryFilter
                 every { postRepository.searchPosts(queryFilter = queryFilter, paging = any(), orderTypes = any()) } returns emptyPosts
                 every { postRepository.searchPostsCount(queryFilter) } returns totalCount
                 every { postConverter.convert(entities = emptyPosts) } returns emptyResponses
 
                 // when
-                val result: PagingResponse<PostResponse> = postService.searchPosts(filter = filter, pageRequest = pageRequest)
+                val result: PagingResponse<PostResponse> = postService.searchPosts(request = request)
 
                 // then
                 result.totalCount shouldBe 0L

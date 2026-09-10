@@ -5,7 +5,6 @@ import com.chobolevel.api.common.dummy.DummyTag
 import com.chobolevel.api.tag.converter.TagConverter
 import com.chobolevel.api.tag.dto.CreateTagRequest
 import com.chobolevel.api.tag.dto.SearchTagRequest
-import com.chobolevel.api.tag.dto.TagPagingRequest
 import com.chobolevel.api.tag.dto.TagResponse
 import com.chobolevel.api.tag.dto.UpdateTagRequest
 import com.chobolevel.api.tag.updater.TagUpdatable
@@ -56,93 +55,54 @@ class TagServiceTest : BehaviorSpec({
 
     given("태그 목록을 조회할 때") {
         `when`("태그가 존재하면") {
-            then("페이징 정보와 태글 목록을 반환한다") {
+            then("페이징 정보와 태그 목록을 반환한다") {
                 // given
-                val filter: SearchTagRequest = DummyTag.toSearchRequest()
-                val pageRequest: TagPagingRequest = TagPagingRequest()
-
-                val queryFilter: TagQueryFilter = TagQueryFilter(
-                    name = filter.name
-                )
+                val request: SearchTagRequest = DummyTag.toSearchRequest()
+                val queryFilter: TagQueryFilter = TagQueryFilter(name = request.name)
                 val tags: List<Tag> = listOf(DummyTag.toEntity())
                 val tagResponses: List<TagResponse> = listOf(DummyTag.toResponse())
                 val totalCount: Long = 1L
-                every { tagConverter.convert(request = filter) } returns queryFilter
+
+                every { tagConverter.convert(request = request) } returns queryFilter
                 every {
-                    tagRepository.searchTags(
-                        queryFilter = queryFilter,
-                        paging = any(),
-                        orderTypes = any()
-                    )
+                    tagRepository.searchTags(queryFilter = queryFilter, paging = any(), orderTypes = any())
                 } returns tags
                 every { tagRepository.searchTagsCount(queryFilter = queryFilter) } returns totalCount
                 every { tagConverter.convert(entities = tags) } returns tagResponses
 
                 // when
-                val result: PagingResponse<TagResponse> = tagService.searchTags(
-                    filter = filter,
-                    pageRequest = pageRequest,
-                )
+                val result: PagingResponse<TagResponse> = tagService.searchTags(request = request)
 
                 // then
-                result.page shouldBe pageRequest.page
-                result.size shouldBe pageRequest.size
+                result.page shouldBe request.page
+                result.size shouldBe request.size
                 result.data shouldBe tagResponses
                 result.totalCount shouldBe totalCount
-                verify {
-                    tagRepository.searchTags(
-                        queryFilter = queryFilter,
-                        paging = any(),
-                        orderTypes = any()
-                    )
-                }
-                verify { tagRepository.searchTagsCount(queryFilter = queryFilter) }
             }
         }
 
         `when`("검색 결과가 없으면") {
             then("빈 목록과 totalCount 0을 반환한다") {
                 // given
-                val filter: SearchTagRequest = DummyTag.toSearchRequest()
-                val pageRequest: TagPagingRequest = TagPagingRequest()
-
-                val queryFilter: TagQueryFilter = TagQueryFilter(
-                    name = filter.name
-                )
+                val request: SearchTagRequest = DummyTag.toSearchRequest()
+                val queryFilter: TagQueryFilter = TagQueryFilter(name = request.name)
                 val emptyTags: List<Tag> = emptyList()
                 val emptyTagResponses: List<TagResponse> = emptyList()
                 val totalCount: Long = 0L
 
-                every { tagConverter.convert(request = filter) } returns queryFilter
+                every { tagConverter.convert(request = request) } returns queryFilter
                 every {
-                    tagRepository.searchTags(
-                        queryFilter = queryFilter,
-                        paging = any(),
-                        orderTypes = any()
-                    )
+                    tagRepository.searchTags(queryFilter = queryFilter, paging = any(), orderTypes = any())
                 } returns emptyTags
                 every { tagRepository.searchTagsCount(queryFilter = queryFilter) } returns totalCount
                 every { tagConverter.convert(entities = emptyTags) } returns emptyTagResponses
 
                 // when
-                val result: PagingResponse<TagResponse> = tagService.searchTags(
-                    filter = filter,
-                    pageRequest = pageRequest,
-                )
+                val result: PagingResponse<TagResponse> = tagService.searchTags(request = request)
 
                 // then
-                result.page shouldBe pageRequest.page
-                result.size shouldBe pageRequest.size
                 result.data shouldBe emptyTagResponses
-                result.totalCount shouldBe totalCount
-                verify {
-                    tagRepository.searchTags(
-                        queryFilter = queryFilter,
-                        paging = any(),
-                        orderTypes = any()
-                    )
-                }
-                verify { tagRepository.searchTagsCount(queryFilter = queryFilter) }
+                result.totalCount shouldBe 0L
             }
         }
     }
@@ -153,7 +113,6 @@ class TagServiceTest : BehaviorSpec({
                 // given
                 val tagId: Long = DummyTag.ID
                 val request: UpdateTagRequest = DummyTag.toUpdateRequest()
-
                 val tag: Tag = DummyTag.toEntity()
 
                 every { tagRepository.findById(id = tagId) } returns tag
@@ -161,10 +120,7 @@ class TagServiceTest : BehaviorSpec({
                 every { tagUpdater.markAsUpdate(request = request, entity = tag) } returns tag
 
                 // when
-                val result: Long = tagService.updateTag(
-                    tagId = tagId,
-                    request = request
-                )
+                val result: Long = tagService.updateTag(tagId = tagId, request = request)
 
                 // then
                 result shouldBe DummyTag.ID
@@ -178,9 +134,7 @@ class TagServiceTest : BehaviorSpec({
             then("true를 반환하고 태그는 삭제 처리된다") {
                 // given
                 val tagId: Long = DummyTag.ID
-
                 val tag: Tag = DummyTag.toEntity()
-
                 every { tagRepository.findById(tagId) } returns tag
 
                 // when

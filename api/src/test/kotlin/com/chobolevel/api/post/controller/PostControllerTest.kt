@@ -125,7 +125,7 @@ class PostControllerTest {
     @Test
     fun `인증 없이 게시글 목록을 조회할 수 있다`() {
         // given
-        every { postService.searchPosts(filter = any(), pageRequest = any()) } returns
+        every { postService.searchPosts(request = any()) } returns
             PagingResponse(
                 page = 1L,
                 size = 20L,

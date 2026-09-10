@@ -6,7 +6,6 @@ import com.chobolevel.api.common.dummy.DummySubject
 import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.record.converter.RecordConverter
 import com.chobolevel.api.record.dto.CreateRecordRequest
-import com.chobolevel.api.record.dto.RecordPagingRequest
 import com.chobolevel.api.record.dto.RecordResponse
 import com.chobolevel.api.record.dto.SearchRecordRequest
 import com.chobolevel.api.record.dto.UpdateRecordRequest
@@ -95,8 +94,7 @@ class RecordServiceTest : BehaviorSpec({
         `when`("유효한 요청이 들어오면") {
             then("기록 목록을 반환한다") {
                 // given
-                val filter: SearchRecordRequest = SearchRecordRequest(userId = DummyUser.ID, type = null, title = null)
-                val pageRequest: RecordPagingRequest = RecordPagingRequest()
+                val request: SearchRecordRequest = SearchRecordRequest(userId = DummyUser.ID, type = null, title = null)
                 val queryFilter: RecordQueryFilter = RecordQueryFilter(
                     userId = DummyUser.ID,
                     type = null,
@@ -105,7 +103,7 @@ class RecordServiceTest : BehaviorSpec({
                 val records: List<Record> = listOf(DummyRecord.toEntity())
                 val recordResponses: List<RecordResponse> = listOf(DummyRecord.toResponse())
                 val totalCount: Long = 1L
-                every { recordConverter.convert(filter) } returns queryFilter
+                every { recordConverter.convert(request) } returns queryFilter
                 every {
                     recordRepository.searchRecords(
                         queryFilter = queryFilter,
@@ -117,15 +115,12 @@ class RecordServiceTest : BehaviorSpec({
                 every { recordConverter.convert(records) } returns recordResponses
 
                 // when
-                val result: PagingResponse<RecordResponse> = recordService.searchRecords(
-                    filter = filter,
-                    pageRequest = pageRequest
-                )
+                val result: PagingResponse<RecordResponse> = recordService.searchRecords(request = request)
 
                 // then
                 result.data shouldBe recordResponses
                 result.totalCount shouldBe totalCount
-                verify { recordConverter.convert(filter) }
+                verify { recordConverter.convert(request) }
             }
         }
     }

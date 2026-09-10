@@ -4,7 +4,6 @@ import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.post.assembler.PostAssembler
 import com.chobolevel.api.post.converter.PostConverter
 import com.chobolevel.api.post.dto.CreatePostRequest
-import com.chobolevel.api.post.dto.PostPagingRequest
 import com.chobolevel.api.post.dto.PostResponse
 import com.chobolevel.api.post.dto.SearchPostRequest
 import com.chobolevel.api.post.dto.UpdatePostRequest
@@ -16,7 +15,6 @@ import com.chobolevel.domain.common.exception.ForbiddenException
 import com.chobolevel.domain.post.entity.Post
 import com.chobolevel.domain.post.image.entity.PostImage
 import com.chobolevel.domain.post.repository.PostRepository
-import com.chobolevel.domain.post.vo.PostOrderType
 import com.chobolevel.domain.post.vo.PostQueryFilter
 import com.chobolevel.domain.tag.entity.Tag
 import com.chobolevel.domain.tag.repository.TagRepository
@@ -57,13 +55,10 @@ class PostService(
     }
 
     @Transactional(readOnly = true)
-    fun searchPosts(
-        filter: SearchPostRequest,
-        pageRequest: PostPagingRequest
-    ): PagingResponse<PostResponse> {
-        val queryFilter: PostQueryFilter = postConverter.convert(request = filter)
-        val paging = Paging(page = pageRequest.page, size = pageRequest.size)
-        val orderTypes: List<PostOrderType> = pageRequest.orderTypes
+    fun searchPosts(request: SearchPostRequest): PagingResponse<PostResponse> {
+        val queryFilter: PostQueryFilter = postConverter.convert(request = request)
+        val paging = Paging(page = request.page, size = request.size)
+        val orderTypes = request.orderTypes
         val posts: List<Post> = postRepository.searchPosts(
             queryFilter = queryFilter,
             paging = paging,

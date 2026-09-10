@@ -101,7 +101,7 @@ class SubjectControllerTest {
     fun `인증 없이 주제 목록을 조회할 수 있다`() {
         // given
         every {
-            subjectService.searchSubjects(filter = any(), pageRequest = any())
+            subjectService.searchSubjects(request = any())
         } returns PagingResponse(
             page = 1L,
             size = 20L,

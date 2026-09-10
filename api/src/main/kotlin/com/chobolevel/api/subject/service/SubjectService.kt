@@ -4,7 +4,6 @@ import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.subject.converter.SubjectConverter
 import com.chobolevel.api.subject.dto.CreateSubjectRequest
 import com.chobolevel.api.subject.dto.SearchSubjectRequest
-import com.chobolevel.api.subject.dto.SubjectPagingRequest
 import com.chobolevel.api.subject.dto.SubjectResponse
 import com.chobolevel.api.subject.dto.UpdateSubjectRequest
 import com.chobolevel.domain.common.dto.Paging
@@ -12,7 +11,6 @@ import com.chobolevel.domain.subject.dto.CreateSubjectCommand
 import com.chobolevel.domain.subject.dto.UpdateSubjectCommand
 import com.chobolevel.domain.subject.entity.Subject
 import com.chobolevel.domain.subject.repository.SubjectRepository
-import com.chobolevel.domain.subject.vo.SubjectOrderType
 import com.chobolevel.domain.subject.vo.SubjectQueryFilter
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -31,13 +29,10 @@ class SubjectService(
     }
 
     @Transactional(readOnly = true)
-    fun searchSubjects(
-        filter: SearchSubjectRequest,
-        pageRequest: SubjectPagingRequest
-    ): PagingResponse<SubjectResponse> {
-        val queryFilter: SubjectQueryFilter = subjectConverter.convert(request = filter)
-        val paging = Paging(page = pageRequest.page, size = pageRequest.size)
-        val orderTypes: List<SubjectOrderType> = pageRequest.orderTypes
+    fun searchSubjects(request: SearchSubjectRequest): PagingResponse<SubjectResponse> {
+        val queryFilter: SubjectQueryFilter = subjectConverter.convert(request = request)
+        val paging = Paging(page = request.page, size = request.size)
+        val orderTypes = request.orderTypes
         val subjects: List<Subject> = subjectRepository.searchSubjects(
             queryFilter = queryFilter,
             paging = paging,

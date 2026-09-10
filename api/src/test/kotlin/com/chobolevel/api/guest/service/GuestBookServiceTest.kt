@@ -5,6 +5,7 @@ import com.chobolevel.api.common.dummy.DummyGuestBook
 import com.chobolevel.api.common.provider.PasswordProvider
 import com.chobolevel.api.guest.converter.GuestBookConverter
 import com.chobolevel.api.guest.dto.GuestBookResponse
+import com.chobolevel.api.guest.dto.SearchGuestBookRequest
 import com.chobolevel.api.guest.updater.GuestBookUpdater
 import com.chobolevel.domain.common.exception.PolicyViolationException
 import com.chobolevel.domain.guest.entity.GuestBook
@@ -52,17 +53,15 @@ class GuestBookServiceTest : BehaviorSpec({
     given("방명록 목록을 조회할 때") {
         `when`("유효한 필터와 페이징 요청이 들어오면") {
             then("PagingResponse를 반환한다") {
+                val request: SearchGuestBookRequest = SearchGuestBookRequest(guestName = null)
                 val guestBookList: List<GuestBook> = listOf(DummyGuestBook.toEntity())
                 val guestBookResponses: List<GuestBookResponse> = listOf(DummyGuestBook.toResponse())
-                every { converter.convert(request = any<com.chobolevel.api.guest.dto.SearchGuestBookRequest>()) } returns mockk()
+                every { converter.convert(request = request) } returns mockk()
                 every { repository.searchGuestBooks(queryFilter = any(), paging = any(), orderTypes = any()) } returns guestBookList
                 every { repository.searchGuestBooksCount(queryFilter = any()) } returns 1L
                 every { converter.convert(entities = guestBookList) } returns guestBookResponses
 
-                val result: PagingResponse<GuestBookResponse> = service.searchGuestBooks(
-                    filter = com.chobolevel.api.guest.dto.SearchGuestBookRequest(guestName = null),
-                    pageRequest = com.chobolevel.api.guest.dto.GuestBookPagingRequest()
-                )
+                val result: PagingResponse<GuestBookResponse> = service.searchGuestBooks(request = request)
 
                 result.totalCount shouldBe 1L
                 result.data.size shouldBe 1

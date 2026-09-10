@@ -3,7 +3,6 @@ package com.chobolevel.api.post.comment.service
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.post.comment.converter.PostCommentConverter
 import com.chobolevel.api.post.comment.dto.CreatePostCommentRequest
-import com.chobolevel.api.post.comment.dto.PostCommentPagingRequest
 import com.chobolevel.api.post.comment.dto.PostCommentResponse
 import com.chobolevel.api.post.comment.dto.SearchPostCommentRequest
 import com.chobolevel.api.post.comment.dto.UpdatePostCommentRequest
@@ -13,7 +12,6 @@ import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.ForbiddenException
 import com.chobolevel.domain.post.comment.entity.PostComment
 import com.chobolevel.domain.post.comment.repository.PostCommentRepository
-import com.chobolevel.domain.post.comment.vo.PostCommentOrderType
 import com.chobolevel.domain.post.comment.vo.PostCommentQueryFilter
 import com.chobolevel.domain.post.entity.Post
 import com.chobolevel.domain.post.repository.PostRepository
@@ -43,13 +41,10 @@ class PostCommentService(
     }
 
     @Transactional(readOnly = true)
-    fun searchPostComments(
-        filter: SearchPostCommentRequest,
-        pageRequest: PostCommentPagingRequest
-    ): PagingResponse<PostCommentResponse> {
-        val queryFilter: PostCommentQueryFilter = converter.convert(request = filter)
-        val paging = Paging(page = pageRequest.page, size = pageRequest.size)
-        val orderTypes: List<PostCommentOrderType> = pageRequest.orderTypes
+    fun searchPostComments(request: SearchPostCommentRequest): PagingResponse<PostCommentResponse> {
+        val queryFilter: PostCommentQueryFilter = converter.convert(request = request)
+        val paging = Paging(page = request.page, size = request.size)
+        val orderTypes = request.orderTypes
         val postComments: List<PostComment> = repository.searchPostComments(
             queryFilter = queryFilter,
             paging = paging,

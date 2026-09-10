@@ -13,7 +13,6 @@ import com.chobolevel.api.user.dto.ResetUserPasswordRequest
 import com.chobolevel.api.user.dto.SearchUserRequest
 import com.chobolevel.api.user.dto.SendUserPasswordResetEmailRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
-import com.chobolevel.api.user.dto.UserPagingRequest
 import com.chobolevel.api.user.dto.UserResponse
 import com.chobolevel.api.user.updater.UserUpdater
 import com.chobolevel.api.user.validator.UserBusinessValidator
@@ -82,7 +81,7 @@ class UserServiceTest : BehaviorSpec({
         `when`("검색 조건과 페이징 정보가 들어오면") {
             then("PagingResponse를 반환한다") {
                 // given
-                val filter: SearchUserRequest = SearchUserRequest(
+                val request: SearchUserRequest = SearchUserRequest(
                     email = null,
                     loginType = null,
                     nickname = null,
@@ -90,26 +89,21 @@ class UserServiceTest : BehaviorSpec({
                     resigned = null,
                     excludeUserIds = null
                 )
-                val pageRequest: UserPagingRequest = UserPagingRequest(
-                    page = 1,
-                    size = 20,
-                    orderTypes = emptyList()
-                )
                 val queryFilter: UserQueryFilter = mockk()
                 val users: List<User> = listOf(DummyUser.toEntity())
                 val userResponses: List<UserResponse> = listOf(DummyUser.toResponse())
                 val totalCount: Long = 1L
-                every { converter.convert(request = filter) } returns queryFilter
+                every { converter.convert(request = request) } returns queryFilter
                 every { repository.searchUsers(queryFilter = queryFilter, paging = any(), orderTypes = any()) } returns users
                 every { repository.searchUsersCount(queryFilter = queryFilter) } returns totalCount
                 every { converter.convert(entities = users) } returns userResponses
 
                 // when
-                val result: PagingResponse<UserResponse> = service.searchUsers(filter, pageRequest)
+                val result: PagingResponse<UserResponse> = service.searchUsers(request = request)
 
                 // then
-                result.page shouldBe 1L
-                result.size shouldBe 20L
+                result.page shouldBe request.page
+                result.size shouldBe request.size
                 result.totalCount shouldBe totalCount
                 result.data shouldBe userResponses
             }

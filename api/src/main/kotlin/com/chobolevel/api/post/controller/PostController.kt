@@ -6,7 +6,6 @@ import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getUserId
 import com.chobolevel.api.post.dto.CreatePostRequest
-import com.chobolevel.api.post.dto.PostPagingRequest
 import com.chobolevel.api.post.dto.PostResponse
 import com.chobolevel.api.post.dto.SearchPostRequest
 import com.chobolevel.api.post.dto.UpdatePostRequest
@@ -52,13 +51,9 @@ class PostController(
     @Operation(summary = "게시글 목록 조회 API")
     @GetMapping("/posts")
     fun searchPosts(
-        @QueryObject filter: SearchPostRequest,
-        @QueryObject pageRequest: PostPagingRequest
+        @QueryObject request: SearchPostRequest
     ): ResponseEntity<ResultResponse<PagingResponse<PostResponse>>> {
-        val result: PagingResponse<PostResponse> = service.searchPosts(
-            filter = filter,
-            pageRequest = pageRequest
-        )
+        val result: PagingResponse<PostResponse> = service.searchPosts(request = request)
         return ResponseEntity.ok(ResultResponse(result))
     }
 

@@ -7,7 +7,6 @@ import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getUserId
 import com.chobolevel.api.common.posttask.CreatePostCommentPostTask
 import com.chobolevel.api.post.comment.dto.CreatePostCommentRequest
-import com.chobolevel.api.post.comment.dto.PostCommentPagingRequest
 import com.chobolevel.api.post.comment.dto.PostCommentResponse
 import com.chobolevel.api.post.comment.dto.SearchPostCommentRequest
 import com.chobolevel.api.post.comment.dto.UpdatePostCommentRequest
@@ -55,13 +54,9 @@ class PostCommentController(
     @Operation(summary = "게시글 댓글 목록 조회 API")
     @GetMapping("/posts/comments")
     fun searchPostComments(
-        @QueryObject filter: SearchPostCommentRequest,
-        @QueryObject pageRequest: PostCommentPagingRequest
+        @QueryObject request: SearchPostCommentRequest
     ): ResponseEntity<ResultResponse<PagingResponse<PostCommentResponse>>> {
-        val result: PagingResponse<PostCommentResponse> = service.searchPostComments(
-            filter = filter,
-            pageRequest = pageRequest
-        )
+        val result: PagingResponse<PostCommentResponse> = service.searchPostComments(request = request)
         return ResponseEntity.ok(ResultResponse(result))
     }
 

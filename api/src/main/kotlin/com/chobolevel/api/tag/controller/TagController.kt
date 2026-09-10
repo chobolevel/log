@@ -6,7 +6,6 @@ import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.tag.dto.CreateTagRequest
 import com.chobolevel.api.tag.dto.SearchTagRequest
-import com.chobolevel.api.tag.dto.TagPagingRequest
 import com.chobolevel.api.tag.dto.TagResponse
 import com.chobolevel.api.tag.dto.UpdateTagRequest
 import com.chobolevel.api.tag.service.TagService
@@ -46,13 +45,9 @@ class TagController(
     @Operation(summary = "게시글 태그 목록 조회 API")
     @GetMapping("/tags")
     fun searchTags(
-        @QueryObject filter: SearchTagRequest,
-        @QueryObject pageRequest: TagPagingRequest
+        @QueryObject request: SearchTagRequest
     ): ResponseEntity<ResultResponse<PagingResponse<TagResponse>>> {
-        val result: PagingResponse<TagResponse> = service.searchTags(
-            filter = filter,
-            pageRequest = pageRequest
-        )
+        val result: PagingResponse<TagResponse> = service.searchTags(request = request)
         return ResponseEntity.ok(ResultResponse(result))
     }
 

@@ -91,10 +91,7 @@ class UserControllerTest {
     fun `인증 없이 회원 목록을 조회할 수 있다`() {
         // given
         every {
-            userService.searchUsers(
-                filter = any(),
-                pageRequest = any()
-            )
+            userService.searchUsers(request = any())
         } returns PagingResponse(
             page = 1L,
             size = 20L,

@@ -117,7 +117,7 @@ class PostCommentControllerTest {
     @Test
     fun `인증 없이 댓글 목록을 조회할 수 있다`() {
         // given
-        every { postCommentService.searchPostComments(filter = any(), pageRequest = any()) } returns
+        every { postCommentService.searchPostComments(request = any()) } returns
             PagingResponse(
                 page = 1L,
                 size = 50L,

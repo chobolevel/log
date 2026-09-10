@@ -6,7 +6,6 @@ import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.posttask.CreateGuestBookPostTask
 import com.chobolevel.api.guest.dto.CreateGuestBookRequest
 import com.chobolevel.api.guest.dto.DeleteGuestBookRequest
-import com.chobolevel.api.guest.dto.GuestBookPagingRequest
 import com.chobolevel.api.guest.dto.GuestBookResponse
 import com.chobolevel.api.guest.dto.SearchGuestBookRequest
 import com.chobolevel.api.guest.dto.UpdateGuestBookRequest
@@ -47,13 +46,9 @@ class GuestBookController(
     @Operation(summary = "방명록 목록 조회 API")
     @GetMapping("/guest-books")
     fun searchGuestBooks(
-        @QueryObject filter: SearchGuestBookRequest,
-        @QueryObject pageRequest: GuestBookPagingRequest
+        @QueryObject request: SearchGuestBookRequest
     ): ResponseEntity<ResultResponse<PagingResponse<GuestBookResponse>>> {
-        val result: PagingResponse<GuestBookResponse> = service.searchGuestBooks(
-            filter = filter,
-            pageRequest = pageRequest
-        )
+        val result: PagingResponse<GuestBookResponse> = service.searchGuestBooks(request = request)
         return ResponseEntity.ok(ResultResponse(result))
     }
 

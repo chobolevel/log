@@ -6,7 +6,6 @@ import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getUserId
 import com.chobolevel.api.record.dto.CreateRecordRequest
-import com.chobolevel.api.record.dto.RecordPagingRequest
 import com.chobolevel.api.record.dto.RecordResponse
 import com.chobolevel.api.record.dto.SearchRecordRequest
 import com.chobolevel.api.record.dto.UpdateRecordRequest
@@ -52,13 +51,9 @@ class RecordController(
     @Operation(summary = "기록 목록 조회 API")
     @GetMapping("/records")
     fun searchRecords(
-        @QueryObject filter: SearchRecordRequest,
-        @QueryObject pageRequest: RecordPagingRequest
+        @QueryObject request: SearchRecordRequest
     ): ResponseEntity<ResultResponse<PagingResponse<RecordResponse>>> {
-        val result: PagingResponse<RecordResponse> = service.searchRecords(
-            filter = filter,
-            pageRequest = pageRequest
-        )
+        val result: PagingResponse<RecordResponse> = service.searchRecords(request = request)
         return ResponseEntity.ok(ResultResponse(result))
     }
 

@@ -11,7 +11,6 @@ import com.chobolevel.api.user.dto.ResetUserPasswordRequest
 import com.chobolevel.api.user.dto.SearchUserRequest
 import com.chobolevel.api.user.dto.SendUserPasswordResetEmailRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
-import com.chobolevel.api.user.dto.UserPagingRequest
 import com.chobolevel.api.user.dto.UserResponse
 import com.chobolevel.api.user.service.UserService
 import com.chobolevel.api.user.validator.UserParameterValidator
@@ -50,13 +49,9 @@ class UserController(
     @Operation(summary = "회원 목록 조회 API")
     @GetMapping("/users")
     fun searchUsers(
-        @QueryObject filter: SearchUserRequest,
-        @QueryObject pageRequest: UserPagingRequest
+        @QueryObject request: SearchUserRequest
     ): ResponseEntity<ResultResponse<PagingResponse<UserResponse>>> {
-        val result: PagingResponse<UserResponse> = service.searchUsers(
-            filter = filter,
-            pageRequest = pageRequest,
-        )
+        val result: PagingResponse<UserResponse> = service.searchUsers(request = request)
         return ResponseEntity.ok(ResultResponse(result))
     }
 

@@ -13,14 +13,12 @@ import com.chobolevel.api.user.dto.ResetUserPasswordRequest
 import com.chobolevel.api.user.dto.SearchUserRequest
 import com.chobolevel.api.user.dto.SendUserPasswordResetEmailRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
-import com.chobolevel.api.user.dto.UserPagingRequest
 import com.chobolevel.api.user.dto.UserResponse
 import com.chobolevel.api.user.updater.UserUpdater
 import com.chobolevel.api.user.validator.UserBusinessValidator
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
-import com.chobolevel.domain.user.vo.UserOrderType
 import com.chobolevel.domain.user.vo.UserQueryFilter
 import io.hypersistence.tsid.TSID
 import org.springframework.stereotype.Service
@@ -47,17 +45,13 @@ class UserService(
     }
 
     @Transactional(readOnly = true)
-    fun searchUsers(
-        filter: SearchUserRequest,
-        pageRequest: UserPagingRequest
-    ): PagingResponse<UserResponse> {
-        val queryFilter: UserQueryFilter = converter.convert(request = filter)
-        val paging = Paging(page = pageRequest.page, size = pageRequest.size)
-        val orderTypes: List<UserOrderType> = pageRequest.orderTypes
+    fun searchUsers(request: SearchUserRequest): PagingResponse<UserResponse> {
+        val queryFilter: UserQueryFilter = converter.convert(request = request)
+        val paging = Paging(page = request.page, size = request.size)
         val users: List<User> = repository.searchUsers(
             queryFilter = queryFilter,
             paging = paging,
-            orderTypes = orderTypes
+            orderTypes = request.orderTypes
         )
         val usersCount: Long = repository.searchUsersCount(
             queryFilter = queryFilter,

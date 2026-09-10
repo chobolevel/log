@@ -5,7 +5,6 @@ import com.chobolevel.api.common.provider.PasswordProvider
 import com.chobolevel.api.guest.converter.GuestBookConverter
 import com.chobolevel.api.guest.dto.CreateGuestBookRequest
 import com.chobolevel.api.guest.dto.DeleteGuestBookRequest
-import com.chobolevel.api.guest.dto.GuestBookPagingRequest
 import com.chobolevel.api.guest.dto.GuestBookResponse
 import com.chobolevel.api.guest.dto.SearchGuestBookRequest
 import com.chobolevel.api.guest.dto.UpdateGuestBookRequest
@@ -15,7 +14,6 @@ import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.PolicyViolationException
 import com.chobolevel.domain.guest.entity.GuestBook
 import com.chobolevel.domain.guest.repository.GuestBookRepository
-import com.chobolevel.domain.guest.vo.GuestBookOrderType
 import com.chobolevel.domain.guest.vo.GuestBookQueryFilter
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -35,13 +33,10 @@ class GuestBookService(
     }
 
     @Transactional(readOnly = true)
-    fun searchGuestBooks(
-        filter: SearchGuestBookRequest,
-        pageRequest: GuestBookPagingRequest
-    ): PagingResponse<GuestBookResponse> {
-        val queryFilter: GuestBookQueryFilter = converter.convert(request = filter)
-        val paging = Paging(page = pageRequest.page, size = pageRequest.size)
-        val orderTypes: List<GuestBookOrderType> = pageRequest.orderTypes
+    fun searchGuestBooks(request: SearchGuestBookRequest): PagingResponse<GuestBookResponse> {
+        val queryFilter: GuestBookQueryFilter = converter.convert(request = request)
+        val paging = Paging(page = request.page, size = request.size)
+        val orderTypes = request.orderTypes
         val guestBookList: List<GuestBook> = repository.searchGuestBooks(
             queryFilter = queryFilter,
             paging = paging,
