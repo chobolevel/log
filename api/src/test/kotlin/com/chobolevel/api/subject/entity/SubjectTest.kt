@@ -81,7 +81,9 @@ class SubjectTest : BehaviorSpec({
                     command = CreateSubjectCommand(type = SubjectType.BOOK, title = "주제")
                 )
                 val command: UpdateSubjectCommand = UpdateSubjectCommand(
-                    type = null, title = null, description = null,
+                    type = null,
+                    title = null,
+                    description = null,
                     images = listOf(
                         SyncSubjectImageCommand(id = null, path = "/new.jpg", name = "신규", sortOrder = 1)
                     ),
@@ -106,7 +108,9 @@ class SubjectTest : BehaviorSpec({
                 // given
                 val subject: Subject = makeSubjectWithImages(10L)
                 val command: UpdateSubjectCommand = UpdateSubjectCommand(
-                    type = null, title = null, description = null,
+                    type = null,
+                    title = null,
+                    description = null,
                     images = listOf(
                         SyncSubjectImageCommand(id = 10L, path = "/updated.jpg", name = "수정됨", sortOrder = 5)
                     ),
@@ -131,7 +135,9 @@ class SubjectTest : BehaviorSpec({
                 // given
                 val subject: Subject = makeSubjectWithImages(1L, 2L)
                 val command: UpdateSubjectCommand = UpdateSubjectCommand(
-                    type = null, title = null, description = null,
+                    type = null,
+                    title = null,
+                    description = null,
                     images = listOf(
                         SyncSubjectImageCommand(id = 1L, path = "/img1.jpg", name = "img1", sortOrder = 1)
                     ),
@@ -152,7 +158,9 @@ class SubjectTest : BehaviorSpec({
                 // given
                 val subject: Subject = makeSubjectWithImages(1L, 2L, 3L)
                 val command: UpdateSubjectCommand = UpdateSubjectCommand(
-                    type = null, title = null, description = null,
+                    type = null,
+                    title = null,
+                    description = null,
                     images = emptyList(),
                     updateMask = listOf(SubjectUpdateMask.IMAGES)
                 )
@@ -172,7 +180,9 @@ class SubjectTest : BehaviorSpec({
                 // given — id=1L, id=2L 이미지 보유
                 val subject: Subject = makeSubjectWithImages(1L, 2L)
                 val command: UpdateSubjectCommand = UpdateSubjectCommand(
-                    type = null, title = null, description = null,
+                    type = null,
+                    title = null,
+                    description = null,
                     images = listOf(
                         SyncSubjectImageCommand(id = 1L, path = "/updated1.jpg", name = "수정1", sortOrder = 1),
                         SyncSubjectImageCommand(id = null, path = "/new.jpg", name = "신규", sortOrder = 3),
@@ -257,7 +267,9 @@ class SubjectTest : BehaviorSpec({
                     command = CreateSubjectCommand(type = SubjectType.BOOK, title = "주제")
                 )
                 val command: UpdateSubjectCommand = UpdateSubjectCommand(
-                    type = null, title = null, description = null,
+                    type = null,
+                    title = null,
+                    description = null,
                     images = listOf(
                         SyncSubjectImageCommand(id = 999L, path = "/img.jpg", name = "img", sortOrder = 1)
                     ),

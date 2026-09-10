@@ -53,7 +53,7 @@ class Subject private constructor(
 
     @Column(nullable = false)
     var isDeleted: Boolean = false
-    protected set
+        protected set
 
     @Where(clause = "is_deleted = false")
     @OneToMany(mappedBy = "subject", cascade = [(CascadeType.ALL)], orphanRemoval = true)
