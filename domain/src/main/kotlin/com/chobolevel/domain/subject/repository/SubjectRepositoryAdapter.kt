@@ -20,6 +20,10 @@ class SubjectRepositoryAdapter(
         return subjectJpaRepository.save(subject)
     }
 
+    override fun delete(subject: Subject) {
+        subjectJpaRepository.delete(subject)
+    }
+
     override fun findById(id: Long): Subject {
         return subjectJpaRepository.findByIdAndIsDeletedFalse(id) ?: throw DataNotFoundException(
             errorCode = ErrorCode.SUBJECT_NOT_FOUND

@@ -3,7 +3,6 @@ create table log.subjects_images
   id         bigint auto_increment comment '아이디'
         primary key,
   subject_id bigint                              not null comment '주제 아이디',
-  type       varchar(100)                        not null comment '이미지 유형',
   path       varchar(255)                        not null comment '이미지 경로',
   name       varchar(255)                        not null comment '이미지 파일명',
   sort_order int                                 not null comment '이미지 정렬 순서',
@@ -24,7 +23,6 @@ create table log.subjects_images_histories
   rev_id      bigint       not null,
   revtype     tinyint      not null,
   subject_id  bigint       not null,
-  type        varchar(100) not null,
   path        varchar(255) not null,
   name        varchar(255) not null,
   sort_order  int          not null,

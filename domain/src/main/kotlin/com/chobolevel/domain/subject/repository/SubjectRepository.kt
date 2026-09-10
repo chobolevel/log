@@ -9,6 +9,8 @@ interface SubjectRepository {
 
     fun save(subject: Subject): Subject
 
+    fun delete(subject: Subject)
+
     fun findById(id: Long): Subject
 
     fun searchSubjects(
