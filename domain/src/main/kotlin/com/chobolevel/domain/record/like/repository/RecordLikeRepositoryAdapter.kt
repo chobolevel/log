@@ -13,13 +13,6 @@ class RecordLikeRepositoryAdapter(
         return recordLikeJpaRepository.save(recordLike)
     }
 
-    override fun findByRecordIdAndUserId(recordId: Long, userId: Long): RecordLike? {
-        return recordLikeJpaRepository.findByRecordIdAndUserId(
-            recordId = recordId,
-            userId = userId
-        )
-    }
-
     override fun findAllByRecordId(recordId: Long): List<RecordLike> {
         return recordLikeJpaRepository.findAllByRecordId(recordId = recordId)
     }
@@ -27,13 +20,6 @@ class RecordLikeRepositoryAdapter(
     @Transactional
     override fun deleteByRecordIdAndUserId(recordId: Long, userId: Long) {
         recordLikeJpaRepository.deleteByRecordIdAndUserId(
-            recordId = recordId,
-            userId = userId
-        )
-    }
-
-    override fun existsByRecordIdAndUserId(recordId: Long, userId: Long): Boolean {
-        return recordLikeJpaRepository.existsByRecordIdAndUserId(
             recordId = recordId,
             userId = userId
         )

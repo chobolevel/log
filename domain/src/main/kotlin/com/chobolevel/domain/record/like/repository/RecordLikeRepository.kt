@@ -6,11 +6,7 @@ interface RecordLikeRepository {
 
     fun save(recordLike: RecordLike): RecordLike
 
-    fun findByRecordIdAndUserId(recordId: Long, userId: Long): RecordLike?
-
     fun findAllByRecordId(recordId: Long): List<RecordLike>
 
     fun deleteByRecordIdAndUserId(recordId: Long, userId: Long)
-
-    fun existsByRecordIdAndUserId(recordId: Long, userId: Long): Boolean
 }
