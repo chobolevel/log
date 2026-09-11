@@ -25,7 +25,7 @@ class RecordConverter(
     fun convert(entity: Record): RecordResponse {
         return RecordResponse(
             id = entity.id!!,
-            writer = userConverter.convert(entity.user!!),
+            writer = userConverter.convertToSummary(entity.user!!),
             type = entity.type,
             title = entity.title,
             content = entity.content,

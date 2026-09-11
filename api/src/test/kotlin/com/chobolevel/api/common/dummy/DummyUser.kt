@@ -6,6 +6,7 @@ import com.chobolevel.api.user.dto.ResetUserPasswordRequest
 import com.chobolevel.api.user.dto.SendUserPasswordResetEmailRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
 import com.chobolevel.api.user.dto.UserResponse
+import com.chobolevel.api.user.dto.UserSummaryResponse
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.vo.UserLoginType
 import com.chobolevel.domain.user.vo.UserRoleType
@@ -62,5 +63,11 @@ object DummyUser {
         profileImage = null,
         createdAt = 0L,
         updatedAt = 0L
+    )
+
+    fun toSummaryResponse(): UserSummaryResponse = UserSummaryResponse(
+        id = ID,
+        nickname = NICKNAME,
+        profileImage = null
     )
 }

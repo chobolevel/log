@@ -2,12 +2,9 @@ package com.chobolevel.api.record.dto
 
 import com.chobolevel.api.record.review.dto.CreateRecordReviewRequest
 import com.chobolevel.domain.record.vo.RecordType
-import com.fasterxml.jackson.databind.PropertyNamingStrategies
-import com.fasterxml.jackson.databind.annotation.JsonNaming
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class CreateRecordRequest(
     @field:NotNull(message = "기록 유형은 필수 값입니다.")
     val type: RecordType,

@@ -36,7 +36,7 @@ object DummyChannel {
     fun toResponse(): ChannelResponse = ChannelResponse(
         id = ID,
         name = NAME,
-        participants = listOf(DummyUser.toResponse()),
+        participants = listOf(DummyUser.toSummaryResponse()),
         createdAt = 0L,
         updatedAt = 0L
     )

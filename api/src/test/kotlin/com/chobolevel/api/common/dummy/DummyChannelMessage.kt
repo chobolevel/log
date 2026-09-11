@@ -25,7 +25,7 @@ object DummyChannelMessage {
 
     fun toResponse(): ChannelMessageResponse = ChannelMessageResponse(
         id = ID,
-        writer = DummyUser.toResponse(),
+        writer = DummyUser.toSummaryResponse(),
         type = TYPE,
         content = CONTENT,
         createdAt = 0L,

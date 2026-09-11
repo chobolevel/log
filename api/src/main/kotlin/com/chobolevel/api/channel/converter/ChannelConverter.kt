@@ -21,7 +21,7 @@ class ChannelConverter(
         return ChannelResponse(
             id = entity.id!!,
             name = entity.name,
-            participants = entity.channelUsers.map { userConverter.convert(it.user!!) },
+            participants = entity.channelUsers.map { userConverter.convertToSummary(it.user!!) },
             createdAt = entity.createdAt.toInstant().toEpochMilli(),
             updatedAt = entity.updatedAt.toInstant().toEpochMilli()
         )

@@ -37,7 +37,7 @@ class PostConverter(
     fun convert(entity: Post): PostResponse {
         return PostResponse(
             id = entity.id!!,
-            writer = userConverter.convert(entity.user!!),
+            writer = userConverter.convertToSummary(entity.user!!),
             tags = entity.postTags.map { tagConverter.convert(it.tag!!) },
             title = entity.title,
             subTitle = entity.subTitle,

@@ -91,7 +91,7 @@ object DummyRecord {
 
     fun toResponse(): RecordResponse = RecordResponse(
         id = ID,
-        writer = DummyUser.toResponse(),
+        writer = DummyUser.toSummaryResponse(),
         type = TYPE,
         title = TITLE,
         content = CONTENT,

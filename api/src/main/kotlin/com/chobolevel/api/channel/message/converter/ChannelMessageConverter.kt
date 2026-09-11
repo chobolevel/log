@@ -21,7 +21,7 @@ class ChannelMessageConverter(
     fun convert(entity: ChannelMessage): ChannelMessageResponse {
         return ChannelMessageResponse(
             id = entity.id!!,
-            writer = userConverter.convert(entity.writer!!),
+            writer = userConverter.convertToSummary(entity.writer!!),
             type = entity.type,
             content = entity.content,
             createdAt = entity.createdAt.toInstant().toEpochMilli(),

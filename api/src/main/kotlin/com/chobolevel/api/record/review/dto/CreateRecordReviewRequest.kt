@@ -1,13 +1,10 @@
 package com.chobolevel.api.record.review.dto
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies
-import com.fasterxml.jackson.databind.annotation.JsonNaming
 import jakarta.validation.constraints.DecimalMax
 import jakarta.validation.constraints.DecimalMin
 import jakarta.validation.constraints.NotNull
 import java.math.BigDecimal
 
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class CreateRecordReviewRequest(
     @field:NotNull(message = "리뷰 대상 아이디는 필수 값입니다.")
     val subjectId: Long,

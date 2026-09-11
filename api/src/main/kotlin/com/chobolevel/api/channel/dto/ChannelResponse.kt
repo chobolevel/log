@@ -1,14 +1,11 @@
 package com.chobolevel.api.channel.dto
 
-import com.chobolevel.api.user.dto.UserResponse
-import com.fasterxml.jackson.databind.PropertyNamingStrategies
-import com.fasterxml.jackson.databind.annotation.JsonNaming
+import com.chobolevel.api.user.dto.UserSummaryResponse
 
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class ChannelResponse(
     val id: Long,
     val name: String,
-    val participants: List<UserResponse>,
+    val participants: List<UserSummaryResponse>,
     val createdAt: Long,
     val updatedAt: Long
 )

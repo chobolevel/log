@@ -35,7 +35,7 @@ object DummyPostComment {
 
     fun toResponse(): PostCommentResponse = PostCommentResponse(
         id = ID,
-        writer = DummyUser.toResponse(),
+        writer = DummyUser.toSummaryResponse(),
         content = CONTENT,
         createdAt = 0L,
         updatedAt = 0L

@@ -5,6 +5,7 @@ import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.SearchUserRequest
 import com.chobolevel.api.user.dto.SocialLoginRequest
 import com.chobolevel.api.user.dto.UserResponse
+import com.chobolevel.api.user.dto.UserSummaryResponse
 import com.chobolevel.api.user.image.converter.UserImageConverter
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.vo.UserLoginType
@@ -66,5 +67,17 @@ class UserConverter(
 
     fun convert(entities: List<User>): List<UserResponse> {
         return entities.map { convert(it) }
+    }
+
+    fun convertToSummary(entity: User): UserSummaryResponse {
+        return UserSummaryResponse(
+            id = entity.id!!,
+            nickname = entity.nickname,
+            profileImage = entity.profileImage?.let { userImageConverter.convert(it) }
+        )
+    }
+
+    fun convertToSummary(entities: List<User>): List<UserSummaryResponse> {
+        return entities.map { convertToSummary(it) }
     }
 }

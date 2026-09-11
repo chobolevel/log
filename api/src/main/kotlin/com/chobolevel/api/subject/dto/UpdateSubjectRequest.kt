@@ -2,11 +2,8 @@ package com.chobolevel.api.subject.dto
 
 import com.chobolevel.domain.subject.vo.SubjectType
 import com.chobolevel.domain.subject.vo.SubjectUpdateMask
-import com.fasterxml.jackson.databind.PropertyNamingStrategies
-import com.fasterxml.jackson.databind.annotation.JsonNaming
 import jakarta.validation.constraints.Size
 
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class UpdateSubjectRequest(
     val type: SubjectType?,
     val title: String?,

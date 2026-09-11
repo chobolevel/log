@@ -1,13 +1,10 @@
 package com.chobolevel.api.post.comment.dto
 
-import com.chobolevel.api.user.dto.UserResponse
-import com.fasterxml.jackson.databind.PropertyNamingStrategies
-import com.fasterxml.jackson.databind.annotation.JsonNaming
+import com.chobolevel.api.user.dto.UserSummaryResponse
 
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class PostCommentResponse(
     val id: Long,
-    val writer: UserResponse,
+    val writer: UserSummaryResponse,
     val content: String,
     val createdAt: Long,
     val updatedAt: Long

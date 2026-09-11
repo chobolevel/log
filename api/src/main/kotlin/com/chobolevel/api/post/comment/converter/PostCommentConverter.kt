@@ -29,7 +29,7 @@ class PostCommentConverter(
     fun convert(entity: PostComment): PostCommentResponse {
         return PostCommentResponse(
             id = entity.id!!,
-            writer = userConverter.convert(entity.writer!!),
+            writer = userConverter.convertToSummary(entity.writer!!),
             content = entity.content,
             createdAt = entity.createdAt.toInstant().toEpochMilli(),
             updatedAt = entity.updatedAt.toInstant().toEpochMilli()
