@@ -1,6 +1,5 @@
 package com.chobolevel.api.guest.dto
 
-
 data class GuestBookResponse(
     val id: Long,
     val guestName: String,

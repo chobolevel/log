@@ -1,6 +1,5 @@
 package com.chobolevel.api.upload.dto
 
-
 data class UploadResponse(
     val presignedUrl: String,
     val host: String,

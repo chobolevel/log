@@ -26,6 +26,10 @@ class RecordRepositoryAdapter(
         )
     }
 
+    override fun existsById(id: Long): Boolean {
+        return recordJpaRepository.existsByIdAndIsDeletedFalse(id)
+    }
+
     override fun searchRecords(
         queryFilter: RecordQueryFilter,
         paging: Paging,

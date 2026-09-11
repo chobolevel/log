@@ -4,4 +4,9 @@ object CacheKeyPrefix {
     const val EMAIL = "user:email-verification:v1:"
     const val RESET_PASSWORD = "user:reset-password:v1:"
     const val REFRESH_TOKEN = "user:refresh-token:v1:"
+
+    private const val RECORD_LIKES_PREFIX = "record:likes:"
+    const val RECORD_LIKES_DIRTY = "record:likes:dirty"
+
+    fun recordLikes(recordId: Long): String = "$RECORD_LIKES_PREFIX$recordId"
 }

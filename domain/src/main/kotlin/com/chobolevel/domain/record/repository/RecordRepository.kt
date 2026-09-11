@@ -11,6 +11,8 @@ interface RecordRepository {
 
     fun findById(id: Long): Record
 
+    fun existsById(id: Long): Boolean
+
     fun searchRecords(
         queryFilter: RecordQueryFilter,
         paging: Paging,

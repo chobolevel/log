@@ -24,4 +24,28 @@ class RedisCacheProvider(
     override fun delete(key: String) {
         redisTemplate.delete(key)
     }
+
+    override fun addToSet(key: String, vararg values: String): Long? {
+        return redisTemplate.opsForSet().add(key, *values)
+    }
+
+    override fun removeFromSet(key: String, vararg values: String): Long? {
+        return redisTemplate.opsForSet().remove(key, *values)
+    }
+
+    override fun isInSet(key: String, value: String): Boolean {
+        return redisTemplate.opsForSet().isMember(key, value) ?: false
+    }
+
+    override fun getSetMembers(key: String): Set<String> {
+        return redisTemplate.opsForSet().members(key) ?: emptySet()
+    }
+
+    override fun getSetSize(key: String): Long {
+        return redisTemplate.opsForSet().size(key) ?: 0L
+    }
+
+    override fun hasKey(key: String): Boolean {
+        return redisTemplate.hasKey(key)
+    }
 }
