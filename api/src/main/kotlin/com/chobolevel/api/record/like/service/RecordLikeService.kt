@@ -77,8 +77,7 @@ class RecordLikeService(
     }
 
     // cold start: Redis에 키가 없으면 DB에서 로드
-    @Transactional(readOnly = true)
-    fun initCacheIfAbsent(recordId: Long, likesKey: String) {
+    private fun initCacheIfAbsent(recordId: Long, likesKey: String) {
         if (!cacheProvider.hasKey(likesKey)) {
             val userIds: List<String> = recordLikeRepository
                 .findAllByRecordId(recordId)
