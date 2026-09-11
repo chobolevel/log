@@ -22,7 +22,7 @@ class RecordConverter(
         )
     }
 
-    fun convert(entity: Record): RecordResponse {
+    fun convert(entity: Record, likeCount: Long = 0): RecordResponse {
         return RecordResponse(
             id = entity.id!!,
             writer = userConverter.convertToSummary(entity.user!!),
@@ -31,12 +31,13 @@ class RecordConverter(
             content = entity.content,
             isPrivate = entity.isPrivate,
             review = entity.recordReview?.let { recordReviewConverter.convert(it) },
+            likeCount = likeCount,
             createdAt = entity.createdAt.toInstant().toEpochMilli(),
             updatedAt = entity.updatedAt.toInstant().toEpochMilli()
         )
     }
 
-    fun convert(entities: List<Record>): List<RecordResponse> {
-        return entities.map { convert(it) }
+    fun convert(entities: List<Record>, likeCounts: Map<Long, Long> = emptyMap()): List<RecordResponse> {
+        return entities.map { convert(it, likeCounts[it.id] ?: 0L) }
     }
 }

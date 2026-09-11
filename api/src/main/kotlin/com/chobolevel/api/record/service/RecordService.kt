@@ -6,6 +6,7 @@ import com.chobolevel.api.record.dto.CreateRecordRequest
 import com.chobolevel.api.record.dto.RecordResponse
 import com.chobolevel.api.record.dto.SearchRecordRequest
 import com.chobolevel.api.record.dto.UpdateRecordRequest
+import com.chobolevel.api.record.like.service.RecordLikeService
 import com.chobolevel.api.record.validator.RecordBusinessValidator
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.ErrorCode
@@ -27,7 +28,8 @@ class RecordService(
     private val userRepository: UserRepository,
     private val subjectRepository: SubjectRepository,
     private val recordConverter: RecordConverter,
-    private val recordBusinessValidator: RecordBusinessValidator
+    private val recordBusinessValidator: RecordBusinessValidator,
+    private val recordLikeService: RecordLikeService
 ) {
 
     @Transactional
@@ -56,10 +58,12 @@ class RecordService(
             orderTypes = request.orderTypes
         )
         val totalCount: Long = recordRepository.searchRecordsCount(queryFilter)
+        val likeCounts: Map<Long, Long> = recordLikeService.fetchLikeCounts(records.map { it.id!! })
+        val responses: List<RecordResponse> = recordConverter.convert(records, likeCounts)
         return PagingResponse(
             page = paging.page,
             size = paging.size,
-            data = recordConverter.convert(records),
+            data = responses,
             totalCount = totalCount
         )
     }
@@ -70,7 +74,8 @@ class RecordService(
         if (record.isPrivate && record.user.id != requesterId) {
             throw ForbiddenException(errorCode = ErrorCode.PRIVATE_RECORD)
         }
-        return recordConverter.convert(record)
+        val likeCount: Long = recordLikeService.fetchLikeCount(recordId)
+        return recordConverter.convert(record, likeCount)
     }
 
     @Transactional

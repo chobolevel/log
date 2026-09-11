@@ -67,6 +67,15 @@ class RecordLikeService(
         return cacheProvider.isInSet(likesKey, userId.toString())
     }
 
+    @Transactional(readOnly = true)
+    fun fetchLikeCounts(recordIds: List<Long>): Map<Long, Long> {
+        return recordIds.associateWith { recordId ->
+            val likesKey: String = CacheKeyPrefix.recordLikes(recordId)
+            initCacheIfAbsent(recordId = recordId, likesKey = likesKey)
+            cacheProvider.getSetSize(likesKey)
+        }
+    }
+
     // cold start: Redis에 키가 없으면 DB에서 로드
     @Transactional(readOnly = true)
     fun initCacheIfAbsent(recordId: Long, likesKey: String) {

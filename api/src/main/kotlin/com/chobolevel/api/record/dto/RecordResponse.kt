@@ -12,6 +12,7 @@ data class RecordResponse(
     val content: String,
     val isPrivate: Boolean,
     val review: RecordReviewResponse?,
+    val likeCount: Long = 0,
     val createdAt: Long,
     val updatedAt: Long
 )

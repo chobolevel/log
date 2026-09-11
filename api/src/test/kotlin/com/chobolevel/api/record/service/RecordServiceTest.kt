@@ -9,6 +9,7 @@ import com.chobolevel.api.record.dto.CreateRecordRequest
 import com.chobolevel.api.record.dto.RecordResponse
 import com.chobolevel.api.record.dto.SearchRecordRequest
 import com.chobolevel.api.record.dto.UpdateRecordRequest
+import com.chobolevel.api.record.like.service.RecordLikeService
 import com.chobolevel.api.record.validator.RecordBusinessValidator
 import com.chobolevel.domain.common.exception.ForbiddenException
 import com.chobolevel.domain.record.entity.Record
@@ -36,12 +37,14 @@ class RecordServiceTest : BehaviorSpec({
     val subjectRepository: SubjectRepository = mockk()
     val recordConverter: RecordConverter = mockk()
     val recordBusinessValidator: RecordBusinessValidator = mockk()
+    val recordLikeService: RecordLikeService = mockk()
     val recordService: RecordService = RecordService(
         recordRepository = recordRepository,
         userRepository = userRepository,
         subjectRepository = subjectRepository,
         recordConverter = recordConverter,
-        recordBusinessValidator = recordBusinessValidator
+        recordBusinessValidator = recordBusinessValidator,
+        recordLikeService = recordLikeService
     )
 
     beforeEach { clearAllMocks() }
@@ -101,6 +104,7 @@ class RecordServiceTest : BehaviorSpec({
                     title = null
                 )
                 val records: List<Record> = listOf(DummyRecord.toEntity())
+                val likeCounts: Map<Long, Long> = mapOf(DummyRecord.ID to 0L)
                 val recordResponses: List<RecordResponse> = listOf(DummyRecord.toResponse())
                 val totalCount: Long = 1L
                 every { recordConverter.convert(request) } returns queryFilter
@@ -112,7 +116,8 @@ class RecordServiceTest : BehaviorSpec({
                     )
                 } returns records
                 every { recordRepository.searchRecordsCount(queryFilter) } returns totalCount
-                every { recordConverter.convert(records) } returns recordResponses
+                every { recordConverter.convert(records, likeCounts) } returns recordResponses
+                every { recordLikeService.fetchLikeCounts(any()) } returns likeCounts
 
                 // when
                 val result: PagingResponse<RecordResponse> = recordService.searchRecords(request = request)
@@ -121,6 +126,7 @@ class RecordServiceTest : BehaviorSpec({
                 result.data shouldBe recordResponses
                 result.totalCount shouldBe totalCount
                 verify { recordConverter.convert(request) }
+                verify { recordLikeService.fetchLikeCounts(any()) }
             }
         }
     }
@@ -130,10 +136,12 @@ class RecordServiceTest : BehaviorSpec({
             then("기록 응답을 반환한다") {
                 // given
                 val recordId: Long = DummyRecord.ID
+                val likeCount: Long = 0L
                 val record: Record = DummyRecord.toEntity()
                 val response: RecordResponse = DummyRecord.toResponse()
                 every { recordRepository.findById(recordId) } returns record
-                every { recordConverter.convert(record) } returns response
+                every { recordLikeService.fetchLikeCount(recordId) } returns likeCount
+                every { recordConverter.convert(record, likeCount) } returns response
 
                 // when
                 val result: RecordResponse = recordService.fetchRecord(requesterId = null, recordId = recordId)
@@ -147,10 +155,12 @@ class RecordServiceTest : BehaviorSpec({
             then("기록 응답을 반환한다") {
                 // given
                 val userId: Long = DummyUser.ID
+                val likeCount: Long = 0L
                 val record: Record = DummyRecord.toEntity().also { ReflectionTestUtils.setField(it, "isPrivate", true) }
                 val response: RecordResponse = DummyRecord.toResponse()
                 every { recordRepository.findById(DummyRecord.ID) } returns record
-                every { recordConverter.convert(record) } returns response
+                every { recordLikeService.fetchLikeCount(DummyRecord.ID) } returns likeCount
+                every { recordConverter.convert(record, likeCount) } returns response
 
                 // when
                 val result: RecordResponse = recordService.fetchRecord(
