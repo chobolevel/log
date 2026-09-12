@@ -6,67 +6,71 @@ import com.chobolevel.domain.common.exception.DataNotFoundException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.InvalidParameterException
 import com.chobolevel.domain.record.like.repository.RecordLikeRepository
+import com.chobolevel.domain.record.like.sync.entity.RecordLikeSyncEvent
+import com.chobolevel.domain.record.like.sync.repository.RecordLikeSyncEventRepository
+import com.chobolevel.domain.record.like.sync.vo.RecordLikeSyncEventAction
 import com.chobolevel.domain.record.repository.RecordRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.transaction.support.TransactionSynchronization
+import org.springframework.transaction.support.TransactionSynchronizationManager
 
 @Service
 class RecordLikeService(
     private val recordRepository: RecordRepository,
     private val recordLikeRepository: RecordLikeRepository,
-    private val cacheProvider: CacheProvider
+    private val recordLikeSyncEventRepository: RecordLikeSyncEventRepository,
+    private val cacheProvider: CacheProvider,
 ) {
 
-    @Transactional(readOnly = true)
-    fun like(userId: Long, recordId: Long): Long {
+    @Transactional
+    fun like(userId: Long, recordId: Long): Boolean {
         validateRecordExists(recordId = recordId)
 
-        val lockKey: String = CacheKeyPrefix.recordLikesLock(recordId)
-        check(cacheProvider.tryLock(lockKey)) {
-            "좋아요 처리 중 락 획득 실패 (recordId=$recordId)"
+        val likesKey: String = CacheKeyPrefix.recordLikes(recordId)
+        initCacheIfAbsent(recordId = recordId, likesKey = likesKey)
+
+        if (cacheProvider.isInSet(likesKey, userId.toString())) {
+            throw InvalidParameterException(errorCode = ErrorCode.RECORD_LIKE_ALREADY_EXISTS)
         }
-        try {
-            val likesKey: String = CacheKeyPrefix.recordLikes(recordId)
-            initCacheIfAbsent(recordId = recordId, likesKey = likesKey)
 
-            if (cacheProvider.isInSet(likesKey, userId.toString())) {
-                throw InvalidParameterException(errorCode = ErrorCode.RECORD_LIKE_ALREADY_EXISTS)
-            }
+        recordLikeSyncEventRepository.save(
+            RecordLikeSyncEvent.create(
+                recordId = recordId,
+                userId = userId,
+                action = RecordLikeSyncEventAction.LIKE,
+            )
+        )
 
-            // write-back: Redis에만 기록, DB sync는 배치에게 위임
-            cacheProvider.addToSet(likesKey, userId.toString())
-            cacheProvider.addToSet(CacheKeyPrefix.RECORD_LIKES_DIRTY, recordId.toString())
+        // DB 커밋 성공 후 Redis 업데이트 — 실패 시 Consumer가 eventual하게 복구
+        registerAfterCommit { cacheProvider.addToSet(likesKey, userId.toString()) }
 
-            return cacheProvider.getSetSize(likesKey)
-        } finally {
-            cacheProvider.releaseLock(lockKey)
-        }
+        return true
     }
 
-    @Transactional(readOnly = true)
-    fun dislike(userId: Long, recordId: Long): Long {
+    @Transactional
+    fun dislike(userId: Long, recordId: Long): Boolean {
         validateRecordExists(recordId = recordId)
 
-        val lockKey: String = CacheKeyPrefix.recordLikesLock(recordId)
-        check(cacheProvider.tryLock(lockKey)) {
-            "좋아요 취소 처리 중 락 획득 실패 (recordId=$recordId)"
+        val likesKey: String = CacheKeyPrefix.recordLikes(recordId)
+        initCacheIfAbsent(recordId = recordId, likesKey = likesKey)
+
+        if (!cacheProvider.isInSet(likesKey, userId.toString())) {
+            throw InvalidParameterException(errorCode = ErrorCode.RECORD_LIKE_NOT_FOUND)
         }
-        try {
-            val likesKey: String = CacheKeyPrefix.recordLikes(recordId)
-            initCacheIfAbsent(recordId = recordId, likesKey = likesKey)
 
-            if (!cacheProvider.isInSet(likesKey, userId.toString())) {
-                throw InvalidParameterException(errorCode = ErrorCode.RECORD_LIKE_NOT_FOUND)
-            }
+        recordLikeSyncEventRepository.save(
+            RecordLikeSyncEvent.create(
+                recordId = recordId,
+                userId = userId,
+                action = RecordLikeSyncEventAction.DISLIKE,
+            )
+        )
 
-            // write-back: Redis에만 기록, DB sync는 배치에게 위임
-            cacheProvider.removeFromSet(likesKey, userId.toString())
-            cacheProvider.addToSet(CacheKeyPrefix.RECORD_LIKES_DIRTY, recordId.toString())
+        // DB 커밋 성공 후 Redis 업데이트 — 실패 시 Consumer가 eventual하게 복구
+        registerAfterCommit { cacheProvider.removeFromSet(likesKey, userId.toString()) }
 
-            return cacheProvider.getSetSize(likesKey)
-        } finally {
-            cacheProvider.releaseLock(lockKey)
-        }
+        return true
     }
 
     @Transactional(readOnly = true)
@@ -104,11 +108,19 @@ class RecordLikeService(
         }
     }
 
+    private fun registerAfterCommit(action: () -> Unit) {
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
+                override fun afterCommit() = action()
+            })
+        } else {
+            action()
+        }
+    }
+
     private fun validateRecordExists(recordId: Long) {
         if (!recordRepository.existsById(recordId)) {
-            throw DataNotFoundException(
-                errorCode = ErrorCode.RECORD_NOT_FOUND,
-            )
+            throw DataNotFoundException(errorCode = ErrorCode.RECORD_NOT_FOUND)
         }
     }
 }

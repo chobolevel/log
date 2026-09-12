@@ -8,5 +8,7 @@ interface RecordLikeRepository {
 
     fun findAllByRecordId(recordId: Long): List<RecordLike>
 
+    fun existsByRecordIdAndUserId(recordId: Long, userId: Long): Boolean
+
     fun deleteByRecordIdAndUserId(recordId: Long, userId: Long)
 }

@@ -1,8 +1,5 @@
 package com.chobolevel.api.common.config
 
-import org.redisson.Redisson
-import org.redisson.api.RedissonClient
-import org.redisson.config.Config
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.CachingConfigurer
@@ -47,14 +44,5 @@ class RedisConfiguration(
     @Bean
     fun opsForHash(redisTemplate: RedisTemplate<String, String>): HashOperations<String, String, String> {
         return redisTemplate.opsForHash()
-    }
-
-    @Bean(destroyMethod = "shutdown")
-    fun redissonClient(): RedissonClient {
-        val config: Config = Config()
-        config.useSingleServer()
-            .setAddress("redis://$redisHost:$redisPort")
-            .setPassword(password)
-        return Redisson.create(config)
     }
 }

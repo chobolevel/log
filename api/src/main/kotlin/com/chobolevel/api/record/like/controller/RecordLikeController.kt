@@ -27,8 +27,8 @@ class RecordLikeController(
     fun like(
         authentication: Authentication,
         @PathVariable recordId: Long
-    ): ResponseEntity<ResultResponse<Long>> {
-        val result: Long = service.like(
+    ): ResponseEntity<ResultResponse<Boolean>> {
+        val result: Boolean = service.like(
             userId = authentication.getUserId(),
             recordId = recordId
         )
@@ -41,8 +41,8 @@ class RecordLikeController(
     fun dislike(
         authentication: Authentication,
         @PathVariable recordId: Long
-    ): ResponseEntity<ResultResponse<Long>> {
-        val result: Long = service.dislike(
+    ): ResponseEntity<ResultResponse<Boolean>> {
+        val result: Boolean = service.dislike(
             userId = authentication.getUserId(),
             recordId = recordId
         )

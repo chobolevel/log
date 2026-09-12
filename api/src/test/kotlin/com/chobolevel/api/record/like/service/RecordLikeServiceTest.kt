@@ -8,13 +8,14 @@ import com.chobolevel.api.common.provider.CacheProvider
 import com.chobolevel.domain.common.exception.InvalidParameterException
 import com.chobolevel.domain.record.like.entity.RecordLike
 import com.chobolevel.domain.record.like.repository.RecordLikeRepository
+import com.chobolevel.domain.record.like.sync.entity.RecordLikeSyncEvent
+import com.chobolevel.domain.record.like.sync.repository.RecordLikeSyncEventRepository
 import com.chobolevel.domain.record.repository.RecordRepository
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.every
-import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
 
@@ -22,56 +23,37 @@ class RecordLikeServiceTest : BehaviorSpec({
 
     val recordRepository: RecordRepository = mockk()
     val recordLikeRepository: RecordLikeRepository = mockk()
+    val recordLikeSyncEventRepository: RecordLikeSyncEventRepository = mockk()
     val cacheProvider: CacheProvider = mockk()
     val service: RecordLikeService = RecordLikeService(
         recordRepository = recordRepository,
         recordLikeRepository = recordLikeRepository,
-        cacheProvider = cacheProvider
+        recordLikeSyncEventRepository = recordLikeSyncEventRepository,
+        cacheProvider = cacheProvider,
     )
 
     beforeEach { clearAllMocks() }
 
     given("좋아요를 누를 때") {
         `when`("처음 좋아요를 누르면") {
-            then("Redis에 추가되고 좋아요 수를 반환한다") {
+            then("outbox에 LIKE 이벤트가 저장되고 Redis에 추가되어 좋아요 수를 반환한다") {
                 // given
                 val userId: Long = DummyUser.ID
                 val recordId: Long = DummyRecord.ID
                 val likesKey: String = CacheKeyPrefix.recordLikes(recordId)
-                val lockKey: String = CacheKeyPrefix.recordLikesLock(recordId)
                 every { recordRepository.existsById(recordId) } returns true
-                every { cacheProvider.tryLock(lockKey) } returns true
-                justRun { cacheProvider.releaseLock(lockKey) }
                 every { cacheProvider.hasKey(likesKey) } returns true
                 every { cacheProvider.isInSet(likesKey, userId.toString()) } returns false
+                every { recordLikeSyncEventRepository.save(any()) } answers { firstArg() }
                 every { cacheProvider.addToSet(likesKey, userId.toString()) } returns 1L
-                every { cacheProvider.addToSet(CacheKeyPrefix.RECORD_LIKES_DIRTY, recordId.toString()) } returns 1L
-                every { cacheProvider.getSetSize(likesKey) } returns 1L
 
                 // when
-                val result: Long = service.like(userId = userId, recordId = recordId)
+                val result: Boolean = service.like(userId = userId, recordId = recordId)
 
                 // then
-                result shouldBe 1L
+                result shouldBe true
+                verify { recordLikeSyncEventRepository.save(any<RecordLikeSyncEvent>()) }
                 verify { cacheProvider.addToSet(likesKey, userId.toString()) }
-                verify { cacheProvider.addToSet(CacheKeyPrefix.RECORD_LIKES_DIRTY, recordId.toString()) }
-                verify { cacheProvider.releaseLock(lockKey) }
-            }
-        }
-
-        `when`("스케줄러가 락을 점유 중이면") {
-            then("IllegalStateException이 발생한다") {
-                // given
-                val userId: Long = DummyUser.ID
-                val recordId: Long = DummyRecord.ID
-                val lockKey: String = CacheKeyPrefix.recordLikesLock(recordId)
-                every { recordRepository.existsById(recordId) } returns true
-                every { cacheProvider.tryLock(lockKey) } returns false
-
-                // when & then
-                shouldThrow<IllegalStateException> {
-                    service.like(userId = userId, recordId = recordId)
-                }
             }
         }
 
@@ -81,10 +63,7 @@ class RecordLikeServiceTest : BehaviorSpec({
                 val userId: Long = DummyUser.ID
                 val recordId: Long = DummyRecord.ID
                 val likesKey: String = CacheKeyPrefix.recordLikes(recordId)
-                val lockKey: String = CacheKeyPrefix.recordLikesLock(recordId)
                 every { recordRepository.existsById(recordId) } returns true
-                every { cacheProvider.tryLock(lockKey) } returns true
-                justRun { cacheProvider.releaseLock(lockKey) }
                 every { cacheProvider.hasKey(likesKey) } returns true
                 every { cacheProvider.isInSet(likesKey, userId.toString()) } returns true
 
@@ -92,78 +71,55 @@ class RecordLikeServiceTest : BehaviorSpec({
                 shouldThrow<InvalidParameterException> {
                     service.like(userId = userId, recordId = recordId)
                 }
+                verify(exactly = 0) { recordLikeSyncEventRepository.save(any()) }
             }
         }
 
         `when`("캐시에 데이터가 없으면 (cold start)") {
-            then("DB에서 로드 후 Redis에 추가된다") {
+            then("DB에서 로드 후 outbox 저장과 Redis 업데이트가 수행된다") {
                 // given
                 val userId: Long = DummyUser.ID
                 val recordId: Long = DummyRecord.ID
                 val likesKey: String = CacheKeyPrefix.recordLikes(recordId)
-                val lockKey: String = CacheKeyPrefix.recordLikesLock(recordId)
                 val existingLikes: List<RecordLike> = listOf(DummyRecordLike.toEntity())
                 every { recordRepository.existsById(recordId) } returns true
-                every { cacheProvider.tryLock(lockKey) } returns true
-                justRun { cacheProvider.releaseLock(lockKey) }
                 every { cacheProvider.hasKey(likesKey) } returns false
                 every { recordLikeRepository.findAllByRecordId(recordId) } returns existingLikes
                 every { cacheProvider.addToSet(likesKey, *anyVararg()) } returns 1L
                 every { cacheProvider.isInSet(likesKey, userId.toString()) } returns false
-                every { cacheProvider.addToSet(CacheKeyPrefix.RECORD_LIKES_DIRTY, recordId.toString()) } returns 1L
-                every { cacheProvider.getSetSize(likesKey) } returns 2L
+                every { recordLikeSyncEventRepository.save(any()) } answers { firstArg() }
 
                 // when
-                val result: Long = service.like(userId = userId, recordId = recordId)
+                val result: Boolean = service.like(userId = userId, recordId = recordId)
 
                 // then
-                result shouldBe 2L
+                result shouldBe true
                 verify { recordLikeRepository.findAllByRecordId(recordId) }
+                verify { recordLikeSyncEventRepository.save(any<RecordLikeSyncEvent>()) }
             }
         }
     }
 
     given("좋아요를 취소할 때") {
         `when`("좋아요 상태에서 취소하면") {
-            then("Redis에서 제거되고 좋아요 수를 반환한다") {
+            then("outbox에 DISLIKE 이벤트가 저장되고 Redis에서 제거되어 좋아요 수를 반환한다") {
                 // given
                 val userId: Long = DummyUser.ID
                 val recordId: Long = DummyRecord.ID
                 val likesKey: String = CacheKeyPrefix.recordLikes(recordId)
-                val lockKey: String = CacheKeyPrefix.recordLikesLock(recordId)
                 every { recordRepository.existsById(recordId) } returns true
-                every { cacheProvider.tryLock(lockKey) } returns true
-                justRun { cacheProvider.releaseLock(lockKey) }
                 every { cacheProvider.hasKey(likesKey) } returns true
                 every { cacheProvider.isInSet(likesKey, userId.toString()) } returns true
-                every { cacheProvider.removeFromSet(likesKey, userId.toString()) } returns 1L
-                every { cacheProvider.addToSet(CacheKeyPrefix.RECORD_LIKES_DIRTY, recordId.toString()) } returns 1L
-                every { cacheProvider.getSetSize(likesKey) } returns 0L
+                every { recordLikeSyncEventRepository.save(any()) } answers { firstArg() }
+                every { cacheProvider.removeFromSet(likesKey, userId.toString()) } returns 0L
 
                 // when
-                val result: Long = service.dislike(userId = userId, recordId = recordId)
+                val result: Boolean = service.dislike(userId = userId, recordId = recordId)
 
                 // then
-                result shouldBe 0L
+                result shouldBe true
+                verify { recordLikeSyncEventRepository.save(any<RecordLikeSyncEvent>()) }
                 verify { cacheProvider.removeFromSet(likesKey, userId.toString()) }
-                verify { cacheProvider.addToSet(CacheKeyPrefix.RECORD_LIKES_DIRTY, recordId.toString()) }
-                verify { cacheProvider.releaseLock(lockKey) }
-            }
-        }
-
-        `when`("스케줄러가 락을 점유 중이면") {
-            then("IllegalStateException이 발생한다") {
-                // given
-                val userId: Long = DummyUser.ID
-                val recordId: Long = DummyRecord.ID
-                val lockKey: String = CacheKeyPrefix.recordLikesLock(recordId)
-                every { recordRepository.existsById(recordId) } returns true
-                every { cacheProvider.tryLock(lockKey) } returns false
-
-                // when & then
-                shouldThrow<IllegalStateException> {
-                    service.dislike(userId = userId, recordId = recordId)
-                }
             }
         }
 
@@ -173,10 +129,7 @@ class RecordLikeServiceTest : BehaviorSpec({
                 val userId: Long = DummyUser.ID
                 val recordId: Long = DummyRecord.ID
                 val likesKey: String = CacheKeyPrefix.recordLikes(recordId)
-                val lockKey: String = CacheKeyPrefix.recordLikesLock(recordId)
                 every { recordRepository.existsById(recordId) } returns true
-                every { cacheProvider.tryLock(lockKey) } returns true
-                justRun { cacheProvider.releaseLock(lockKey) }
                 every { cacheProvider.hasKey(likesKey) } returns true
                 every { cacheProvider.isInSet(likesKey, userId.toString()) } returns false
 
@@ -184,6 +137,7 @@ class RecordLikeServiceTest : BehaviorSpec({
                 shouldThrow<InvalidParameterException> {
                     service.dislike(userId = userId, recordId = recordId)
                 }
+                verify(exactly = 0) { recordLikeSyncEventRepository.save(any()) }
             }
         }
     }

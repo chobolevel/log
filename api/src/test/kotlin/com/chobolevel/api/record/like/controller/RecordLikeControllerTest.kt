@@ -57,14 +57,14 @@ class RecordLikeControllerTest {
 
     @Test
     @WithMockUser(username = "${DummyUser.ID}", roles = ["USER"])
-    fun `인증된 사용자가 좋아요 요청 시 좋아요 수를 반환한다`() {
+    fun `인증된 사용자가 좋아요 요청 시 true를 반환한다`() {
         // given
-        every { recordLikeService.like(userId = DummyUser.ID, recordId = DummyRecord.ID) } returns 1L
+        every { recordLikeService.like(userId = DummyUser.ID, recordId = DummyRecord.ID) } returns true
 
         // when & then
         mockMvc.perform(post("/api/v1/records/${DummyRecord.ID}/like"))
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.data").value(1L))
+            .andExpect(jsonPath("$.data").value(true))
     }
 
     @Test
@@ -75,14 +75,14 @@ class RecordLikeControllerTest {
 
     @Test
     @WithMockUser(username = "${DummyUser.ID}", roles = ["USER"])
-    fun `인증된 사용자가 좋아요 취소 요청 시 좋아요 수를 반환한다`() {
+    fun `인증된 사용자가 좋아요 취소 요청 시 true를 반환한다`() {
         // given
-        every { recordLikeService.dislike(userId = DummyUser.ID, recordId = DummyRecord.ID) } returns 0L
+        every { recordLikeService.dislike(userId = DummyUser.ID, recordId = DummyRecord.ID) } returns true
 
         // when & then
         mockMvc.perform(post("/api/v1/records/${DummyRecord.ID}/dislike"))
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.data").value(0L))
+            .andExpect(jsonPath("$.data").value(true))
     }
 
     @Test
