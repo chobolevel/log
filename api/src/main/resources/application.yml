@@ -51,14 +51,14 @@ spring:
     job:
       enabled: false
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ENC(uP+Xx3rfk1N4n95C4+U8YGksIRQ9xrDHgyX3idQxPs6wgGgaLUz7LYlI2UsApbfa)
     producer:
       acks: all
       enable-idempotence: true
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     consumer:
-      group-id: log-record-like-sync
+      group-id: ENC(M01eU4U0zBwO9/Qnsg0DD/W38lbTYqrF7Raq+6kM4Q181+g6Elht/eM/jCzlrlHai2nnygaRNin0tXZAylMrJg==)
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
