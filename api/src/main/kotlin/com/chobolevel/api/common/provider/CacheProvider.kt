@@ -33,4 +33,10 @@ interface CacheProvider {
 
     // 키 존재 여부 확인
     fun hasKey(key: String): Boolean
+
+    // 분산 락 획득 시도 (non-blocking, Watchdog으로 TTL 자동 갱신) — 성공 시 true
+    fun tryLock(key: String): Boolean
+
+    // 분산 락 해제 (자신이 획득한 락만 해제)
+    fun releaseLock(key: String)
 }

@@ -21,36 +21,52 @@ class RecordLikeService(
     fun like(userId: Long, recordId: Long): Long {
         validateRecordExists(recordId = recordId)
 
-        val likesKey: String = CacheKeyPrefix.recordLikes(recordId)
-        initCacheIfAbsent(recordId = recordId, likesKey = likesKey)
-
-        if (cacheProvider.isInSet(likesKey, userId.toString())) {
-            throw InvalidParameterException(errorCode = ErrorCode.RECORD_LIKE_ALREADY_EXISTS)
+        val lockKey: String = CacheKeyPrefix.recordLikesLock(recordId)
+        check(cacheProvider.tryLock(lockKey)) {
+            "좋아요 처리 중 락 획득 실패 (recordId=$recordId)"
         }
+        try {
+            val likesKey: String = CacheKeyPrefix.recordLikes(recordId)
+            initCacheIfAbsent(recordId = recordId, likesKey = likesKey)
 
-        // write-back: Redis에만 기록, DB sync는 배치에게 위임
-        cacheProvider.addToSet(likesKey, userId.toString())
-        cacheProvider.addToSet(CacheKeyPrefix.RECORD_LIKES_DIRTY, recordId.toString())
+            if (cacheProvider.isInSet(likesKey, userId.toString())) {
+                throw InvalidParameterException(errorCode = ErrorCode.RECORD_LIKE_ALREADY_EXISTS)
+            }
 
-        return cacheProvider.getSetSize(likesKey)
+            // write-back: Redis에만 기록, DB sync는 배치에게 위임
+            cacheProvider.addToSet(likesKey, userId.toString())
+            cacheProvider.addToSet(CacheKeyPrefix.RECORD_LIKES_DIRTY, recordId.toString())
+
+            return cacheProvider.getSetSize(likesKey)
+        } finally {
+            cacheProvider.releaseLock(lockKey)
+        }
     }
 
     @Transactional(readOnly = true)
     fun dislike(userId: Long, recordId: Long): Long {
         validateRecordExists(recordId = recordId)
 
-        val likesKey: String = CacheKeyPrefix.recordLikes(recordId)
-        initCacheIfAbsent(recordId = recordId, likesKey = likesKey)
-
-        if (!cacheProvider.isInSet(likesKey, userId.toString())) {
-            throw InvalidParameterException(errorCode = ErrorCode.RECORD_LIKE_NOT_FOUND)
+        val lockKey: String = CacheKeyPrefix.recordLikesLock(recordId)
+        check(cacheProvider.tryLock(lockKey)) {
+            "좋아요 취소 처리 중 락 획득 실패 (recordId=$recordId)"
         }
+        try {
+            val likesKey: String = CacheKeyPrefix.recordLikes(recordId)
+            initCacheIfAbsent(recordId = recordId, likesKey = likesKey)
 
-        // write-back: Redis에만 기록, DB sync는 배치에게 위임
-        cacheProvider.removeFromSet(likesKey, userId.toString())
-        cacheProvider.addToSet(CacheKeyPrefix.RECORD_LIKES_DIRTY, recordId.toString())
+            if (!cacheProvider.isInSet(likesKey, userId.toString())) {
+                throw InvalidParameterException(errorCode = ErrorCode.RECORD_LIKE_NOT_FOUND)
+            }
 
-        return cacheProvider.getSetSize(likesKey)
+            // write-back: Redis에만 기록, DB sync는 배치에게 위임
+            cacheProvider.removeFromSet(likesKey, userId.toString())
+            cacheProvider.addToSet(CacheKeyPrefix.RECORD_LIKES_DIRTY, recordId.toString())
+
+            return cacheProvider.getSetSize(likesKey)
+        } finally {
+            cacheProvider.releaseLock(lockKey)
+        }
     }
 
     @Transactional(readOnly = true)

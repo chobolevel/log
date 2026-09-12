@@ -14,6 +14,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.every
+import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
 
@@ -37,7 +38,10 @@ class RecordLikeServiceTest : BehaviorSpec({
                 val userId: Long = DummyUser.ID
                 val recordId: Long = DummyRecord.ID
                 val likesKey: String = CacheKeyPrefix.recordLikes(recordId)
+                val lockKey: String = CacheKeyPrefix.recordLikesLock(recordId)
                 every { recordRepository.existsById(recordId) } returns true
+                every { cacheProvider.tryLock(lockKey) } returns true
+                justRun { cacheProvider.releaseLock(lockKey) }
                 every { cacheProvider.hasKey(likesKey) } returns true
                 every { cacheProvider.isInSet(likesKey, userId.toString()) } returns false
                 every { cacheProvider.addToSet(likesKey, userId.toString()) } returns 1L
@@ -51,6 +55,23 @@ class RecordLikeServiceTest : BehaviorSpec({
                 result shouldBe 1L
                 verify { cacheProvider.addToSet(likesKey, userId.toString()) }
                 verify { cacheProvider.addToSet(CacheKeyPrefix.RECORD_LIKES_DIRTY, recordId.toString()) }
+                verify { cacheProvider.releaseLock(lockKey) }
+            }
+        }
+
+        `when`("스케줄러가 락을 점유 중이면") {
+            then("IllegalStateException이 발생한다") {
+                // given
+                val userId: Long = DummyUser.ID
+                val recordId: Long = DummyRecord.ID
+                val lockKey: String = CacheKeyPrefix.recordLikesLock(recordId)
+                every { recordRepository.existsById(recordId) } returns true
+                every { cacheProvider.tryLock(lockKey) } returns false
+
+                // when & then
+                shouldThrow<IllegalStateException> {
+                    service.like(userId = userId, recordId = recordId)
+                }
             }
         }
 
@@ -60,7 +81,10 @@ class RecordLikeServiceTest : BehaviorSpec({
                 val userId: Long = DummyUser.ID
                 val recordId: Long = DummyRecord.ID
                 val likesKey: String = CacheKeyPrefix.recordLikes(recordId)
+                val lockKey: String = CacheKeyPrefix.recordLikesLock(recordId)
                 every { recordRepository.existsById(recordId) } returns true
+                every { cacheProvider.tryLock(lockKey) } returns true
+                justRun { cacheProvider.releaseLock(lockKey) }
                 every { cacheProvider.hasKey(likesKey) } returns true
                 every { cacheProvider.isInSet(likesKey, userId.toString()) } returns true
 
@@ -77,8 +101,11 @@ class RecordLikeServiceTest : BehaviorSpec({
                 val userId: Long = DummyUser.ID
                 val recordId: Long = DummyRecord.ID
                 val likesKey: String = CacheKeyPrefix.recordLikes(recordId)
+                val lockKey: String = CacheKeyPrefix.recordLikesLock(recordId)
                 val existingLikes: List<RecordLike> = listOf(DummyRecordLike.toEntity())
                 every { recordRepository.existsById(recordId) } returns true
+                every { cacheProvider.tryLock(lockKey) } returns true
+                justRun { cacheProvider.releaseLock(lockKey) }
                 every { cacheProvider.hasKey(likesKey) } returns false
                 every { recordLikeRepository.findAllByRecordId(recordId) } returns existingLikes
                 every { cacheProvider.addToSet(likesKey, *anyVararg()) } returns 1L
@@ -103,7 +130,10 @@ class RecordLikeServiceTest : BehaviorSpec({
                 val userId: Long = DummyUser.ID
                 val recordId: Long = DummyRecord.ID
                 val likesKey: String = CacheKeyPrefix.recordLikes(recordId)
+                val lockKey: String = CacheKeyPrefix.recordLikesLock(recordId)
                 every { recordRepository.existsById(recordId) } returns true
+                every { cacheProvider.tryLock(lockKey) } returns true
+                justRun { cacheProvider.releaseLock(lockKey) }
                 every { cacheProvider.hasKey(likesKey) } returns true
                 every { cacheProvider.isInSet(likesKey, userId.toString()) } returns true
                 every { cacheProvider.removeFromSet(likesKey, userId.toString()) } returns 1L
@@ -117,6 +147,23 @@ class RecordLikeServiceTest : BehaviorSpec({
                 result shouldBe 0L
                 verify { cacheProvider.removeFromSet(likesKey, userId.toString()) }
                 verify { cacheProvider.addToSet(CacheKeyPrefix.RECORD_LIKES_DIRTY, recordId.toString()) }
+                verify { cacheProvider.releaseLock(lockKey) }
+            }
+        }
+
+        `when`("스케줄러가 락을 점유 중이면") {
+            then("IllegalStateException이 발생한다") {
+                // given
+                val userId: Long = DummyUser.ID
+                val recordId: Long = DummyRecord.ID
+                val lockKey: String = CacheKeyPrefix.recordLikesLock(recordId)
+                every { recordRepository.existsById(recordId) } returns true
+                every { cacheProvider.tryLock(lockKey) } returns false
+
+                // when & then
+                shouldThrow<IllegalStateException> {
+                    service.dislike(userId = userId, recordId = recordId)
+                }
             }
         }
 
@@ -126,7 +173,10 @@ class RecordLikeServiceTest : BehaviorSpec({
                 val userId: Long = DummyUser.ID
                 val recordId: Long = DummyRecord.ID
                 val likesKey: String = CacheKeyPrefix.recordLikes(recordId)
+                val lockKey: String = CacheKeyPrefix.recordLikesLock(recordId)
                 every { recordRepository.existsById(recordId) } returns true
+                every { cacheProvider.tryLock(lockKey) } returns true
+                justRun { cacheProvider.releaseLock(lockKey) }
                 every { cacheProvider.hasKey(likesKey) } returns true
                 every { cacheProvider.isInSet(likesKey, userId.toString()) } returns false
 

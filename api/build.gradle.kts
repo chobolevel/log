@@ -65,6 +65,9 @@ dependencies {
     // batch
     implementation("org.springframework.boot:spring-boot-starter-batch")
 
+    // redisson (분산 락)
+    implementation("org.redisson:redisson-spring-boot-starter:3.27.0")
+
     // Resend(sending email SDK)
     implementation("com.resend:resend-java:+")
 
