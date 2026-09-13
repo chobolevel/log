@@ -13,9 +13,9 @@ object DummyChannel {
     val NEW_NAME: String = "newChannelName"
     val INVITE_USER_ID: Long = 2L
 
-    fun toEntity(): Channel = Channel(name = NAME).also {
+    fun toEntity(): Channel = Channel.create(name = NAME).also {
         it.id = ID
-        it.owner = DummyUser.toEntity()
+        it.setBy(DummyUser.toEntity())
     }
 
     fun toCreateRequest(): CreateChannelRequest = CreateChannelRequest(

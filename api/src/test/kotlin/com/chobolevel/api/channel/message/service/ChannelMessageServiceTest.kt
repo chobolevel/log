@@ -46,7 +46,7 @@ class ChannelMessageServiceTest : BehaviorSpec({
         `when`("유효한 요청이 들어오면") {
             then("저장된 메세지 id를 반환한다") {
                 val user: User = DummyUser.toEntity()
-                val channel: Channel = Channel(name = DummyChannel.NAME).also { it.id = DummyChannel.ID }
+                val channel: Channel = Channel.create(name = DummyChannel.NAME).also { it.id = DummyChannel.ID }
                 val channelMessage: ChannelMessage = mockk(relaxed = true)
                 every { channelMessage.id } returns DummyChannelMessage.ID
                 every { userRepository.findById(DummyUser.ID) } returns user
@@ -112,7 +112,7 @@ class ChannelMessageServiceTest : BehaviorSpec({
                 val worker: User = DummyUser.toEntity() // id=1L
                 val anotherUser: User = mockk()
                 every { anotherUser.id } returns 2L
-                val channelMessage: ChannelMessage = DummyChannelMessage.toEntity().also { it.writer = anotherUser }
+                val channelMessage: ChannelMessage = DummyChannelMessage.toEntity().also { it.setBy(anotherUser) }
                 every { userRepository.findById(DummyUser.ID) } returns worker
                 every { repository.findById(DummyChannelMessage.ID) } returns channelMessage
 

@@ -43,7 +43,7 @@ class ChannelUpdaterTest : BehaviorSpec({
         `when`("USERS 마스크이면") {
             then("기존 channelUser들을 삭제 처리하고 userRepository를 호출한다") {
                 val channel: Channel = DummyChannel.toEntity()
-                val existingChannelUser: ChannelUser = ChannelUser().also {
+                val existingChannelUser: ChannelUser = ChannelUser.create().also {
                     it.setBy(channel)
                     it.setBy(DummyUser.toEntity())
                 }

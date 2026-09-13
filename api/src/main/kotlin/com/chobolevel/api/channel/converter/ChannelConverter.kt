@@ -12,7 +12,7 @@ class ChannelConverter(
 ) {
 
     fun convert(request: CreateChannelRequest): Channel {
-        return Channel(
+        return Channel.create(
             name = request.name
         )
     }

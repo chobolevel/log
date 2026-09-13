@@ -45,14 +45,14 @@ class ChannelService(
         val channel: Channel = converter.convert(request).also { channel ->
             channel.setBy(owner)
             // 채널 생성자를 참여자로
-            ChannelUser().also { channelUser ->
+            ChannelUser.create().also { channelUser ->
                 channelUser.setBy(channel)
                 channelUser.setBy(owner)
             }
             // 참여자 생성
             val participants: List<User> = userRepository.findAllByIds(request.userIds)
             participants.forEach { participant: User ->
-                ChannelUser().also { channelUser ->
+                ChannelUser.create().also { channelUser ->
                     channelUser.setBy(channel)
                     channelUser.setBy(participant)
                 }
@@ -150,7 +150,7 @@ class ChannelService(
 
         request.userIds.map { userId ->
             val user: User = userRepository.findById(userId)
-            ChannelUser().also { channelUser ->
+            ChannelUser.create().also { channelUser ->
                 channelUser.setBy(channel)
                 channelUser.setBy(user)
                 val channelMessage: ChannelMessage = channelMessageConverter.convert(

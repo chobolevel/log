@@ -52,7 +52,7 @@ class ChannelServiceTest : BehaviorSpec({
         `when`("유효한 요청이 들어오면") {
             then("저장된 채널 id를 반환한다") {
                 val owner: User = DummyUser.toEntity()
-                val channel: Channel = Channel(name = DummyChannel.NAME).also { it.id = DummyChannel.ID }
+                val channel: Channel = Channel.create(name = DummyChannel.NAME).also { it.id = DummyChannel.ID }
                 every { userRepository.findById(DummyUser.ID) } returns owner
                 every { converter.convert(DummyChannel.toCreateRequest()) } returns channel
                 every { userRepository.findAllByIds(any()) } returns emptyList()
@@ -90,8 +90,8 @@ class ChannelServiceTest : BehaviorSpec({
         `when`("채널 참여자인 경우") {
             then("ChannelResponse를 반환한다") {
                 val user: User = DummyUser.toEntity()
-                val channel: Channel = Channel(name = DummyChannel.NAME).also { it.id = DummyChannel.ID }
-                val channelUser: ChannelUser = ChannelUser().also { it.user = user }
+                val channel: Channel = Channel.create(name = DummyChannel.NAME).also { it.id = DummyChannel.ID }
+                val channelUser: ChannelUser = ChannelUser.create().also { it.setBy(user) }
                 channel.channelUsers.add(channelUser)
                 every { repository.findById(DummyChannel.ID) } returns channel
                 every { converter.convert(channel) } returns DummyChannel.toResponse()
@@ -104,7 +104,7 @@ class ChannelServiceTest : BehaviorSpec({
 
         `when`("채널 참여자가 아닌 경우") {
             then("ApiException이 발생한다") {
-                val channel: Channel = Channel(name = DummyChannel.NAME).also { it.id = DummyChannel.ID }
+                val channel: Channel = Channel.create(name = DummyChannel.NAME).also { it.id = DummyChannel.ID }
                 // channelUsers 비어있음 → find 결과 null
                 every { repository.findById(DummyChannel.ID) } returns channel
 
@@ -119,9 +119,9 @@ class ChannelServiceTest : BehaviorSpec({
         `when`("채널 오너가 수정 요청을 하면") {
             then("채널 id를 반환한다") {
                 val worker: User = DummyUser.toEntity()
-                val channel: Channel = Channel(name = DummyChannel.NAME).also {
+                val channel: Channel = Channel.create(name = DummyChannel.NAME).also {
                     it.id = DummyChannel.ID
-                    it.owner = worker
+                    it.setBy(worker)
                 }
                 every { userRepository.findById(DummyUser.ID) } returns worker
                 every { repository.findById(DummyChannel.ID) } returns channel
@@ -142,9 +142,9 @@ class ChannelServiceTest : BehaviorSpec({
                 val owner: User = DummyUser.toEntity() // id=1L
                 val worker: User = mockk()
                 every { worker.id } returns 2L
-                val channel: Channel = Channel(name = DummyChannel.NAME).also {
+                val channel: Channel = Channel.create(name = DummyChannel.NAME).also {
                     it.id = DummyChannel.ID
-                    it.owner = owner
+                    it.setBy(owner)
                 }
                 every { userRepository.findById(2L) } returns worker
                 every { repository.findById(DummyChannel.ID) } returns channel
@@ -160,8 +160,8 @@ class ChannelServiceTest : BehaviorSpec({
         `when`("채널 참여자가 떠나기 요청을 하면") {
             then("채널 id를 반환하고 ChannelUser가 삭제 상태가 된다") {
                 val user: User = DummyUser.toEntity()
-                val channel: Channel = Channel(name = DummyChannel.NAME).also { it.id = DummyChannel.ID }
-                val channelUser: ChannelUser = ChannelUser().also { it.user = user }
+                val channel: Channel = Channel.create(name = DummyChannel.NAME).also { it.id = DummyChannel.ID }
+                val channelUser: ChannelUser = ChannelUser.create().also { it.setBy(user) }
                 channel.channelUsers.add(channelUser)
                 val channelMessage: ChannelMessage = mockk(relaxed = true)
                 every { channelMessage.id } returns 1L
@@ -180,7 +180,7 @@ class ChannelServiceTest : BehaviorSpec({
 
         `when`("이미 떠난 채널에 떠나기 요청을 하면") {
             then("ApiException이 발생한다") {
-                val channel: Channel = Channel(name = DummyChannel.NAME).also { it.id = DummyChannel.ID }
+                val channel: Channel = Channel.create(name = DummyChannel.NAME).also { it.id = DummyChannel.ID }
                 // channelUsers 비어있음
                 every { repository.findById(DummyChannel.ID) } returns channel
 
@@ -194,7 +194,7 @@ class ChannelServiceTest : BehaviorSpec({
     given("채널에 유저를 초대할 때") {
         `when`("초대받지 않은 유저를 초대하면") {
             then("채널 id를 반환한다") {
-                val channel: Channel = Channel(name = DummyChannel.NAME).also { it.id = DummyChannel.ID }
+                val channel: Channel = Channel.create(name = DummyChannel.NAME).also { it.id = DummyChannel.ID }
                 // channelUsers 비어있음 → 이미 초대된 유저 없음
                 val invitee: User = mockk()
                 every { invitee.id } returns DummyChannel.INVITE_USER_ID
@@ -221,8 +221,8 @@ class ChannelServiceTest : BehaviorSpec({
             then("ApiException이 발생한다") {
                 val user: User = mockk()
                 every { user.id } returns DummyChannel.INVITE_USER_ID
-                val channel: Channel = Channel(name = DummyChannel.NAME).also { it.id = DummyChannel.ID }
-                val channelUser: ChannelUser = ChannelUser().also { it.user = user }
+                val channel: Channel = Channel.create(name = DummyChannel.NAME).also { it.id = DummyChannel.ID }
+                val channelUser: ChannelUser = ChannelUser.create().also { it.setBy(user) }
                 channel.channelUsers.add(channelUser)
                 every { repository.findById(DummyChannel.ID) } returns channel
 
@@ -241,9 +241,9 @@ class ChannelServiceTest : BehaviorSpec({
         `when`("채널 오너가 삭제 요청을 하면") {
             then("true를 반환하고 채널이 삭제 상태가 된다") {
                 val worker: User = DummyUser.toEntity()
-                val channel: Channel = Channel(name = DummyChannel.NAME).also {
+                val channel: Channel = Channel.create(name = DummyChannel.NAME).also {
                     it.id = DummyChannel.ID
-                    it.owner = worker
+                    it.setBy(worker)
                 }
                 every { userRepository.findById(DummyUser.ID) } returns worker
                 every { repository.findById(DummyChannel.ID) } returns channel
@@ -260,9 +260,9 @@ class ChannelServiceTest : BehaviorSpec({
                 val owner: User = DummyUser.toEntity() // id=1L
                 val worker: User = mockk()
                 every { worker.id } returns 2L
-                val channel: Channel = Channel(name = DummyChannel.NAME).also {
+                val channel: Channel = Channel.create(name = DummyChannel.NAME).also {
                     it.id = DummyChannel.ID
-                    it.owner = owner
+                    it.setBy(owner)
                 }
                 every { userRepository.findById(2L) } returns worker
                 every { repository.findById(DummyChannel.ID) } returns channel

@@ -16,12 +16,12 @@ class ChannelUpdater(
     fun markAsUpdate(request: UpdateChannelRequest, entity: Channel): Channel {
         request.updateMask.forEach {
             when (it) {
-                ChannelUpdateMask.NAME -> entity.name = request.name!!
+                ChannelUpdateMask.NAME -> entity.updateName(request.name!!)
                 ChannelUpdateMask.USERS -> {
                     entity.channelUsers.forEach { it.delete() }
                     request.userIds!!.map { userId ->
                         val user: User = userRepository.findById(userId)
-                        ChannelUser().also { channelUser ->
+                        ChannelUser.create().also { channelUser ->
                             channelUser.setBy(user)
                             channelUser.setBy(entity)
                         }

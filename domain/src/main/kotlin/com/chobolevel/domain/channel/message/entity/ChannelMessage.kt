@@ -20,28 +20,37 @@ import org.hibernate.envers.Audited
 @Entity
 @Table(name = "channel_messages")
 @Audited
-class ChannelMessage(
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    var type: ChannelMessageType,
-    @Column(nullable = false)
-    var content: String,
+class ChannelMessage private constructor(
+    type: ChannelMessageType,
+    content: String
 ) : Audit() {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    var type: ChannelMessageType = type
+        protected set
+
+    @Column(nullable = false)
+    var content: String = content
+        protected set
+
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "channel_id")
     var channel: Channel? = null
+        protected set
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "writer_id")
     var writer: User? = null
+        protected set
 
     @Column(nullable = false)
     var deleted: Boolean = false
+        protected set
 
     fun setBy(channel: Channel) {
         if (this.channel != channel) {
@@ -57,5 +66,12 @@ class ChannelMessage(
 
     fun delete() {
         this.deleted = true
+    }
+
+    companion object {
+        fun create(type: ChannelMessageType, content: String): ChannelMessage = ChannelMessage(
+            type = type,
+            content = content
+        )
     }
 }

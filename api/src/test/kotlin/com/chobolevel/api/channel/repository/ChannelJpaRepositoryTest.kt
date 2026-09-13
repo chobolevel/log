@@ -51,13 +51,13 @@ class ChannelJpaRepositoryTest {
     }
 
     private fun savedChannel(owner: User, name: String = "테스트 채널"): Channel {
-        val ch: Channel = Channel(name = name)
+        val ch: Channel = Channel.create(name = name)
         ch.setBy(owner)
         return entityManager.persistAndFlush(ch)
     }
 
     private fun savedChannelUser(channel: Channel, user: User): ChannelUser {
-        val cu: ChannelUser = ChannelUser()
+        val cu: ChannelUser = ChannelUser.create()
         cu.setBy(channel)
         cu.setBy(user)
         return entityManager.persistAndFlush(cu)

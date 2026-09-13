@@ -17,7 +17,7 @@ import org.hibernate.envers.Audited
 @Entity
 @Table(name = "channel_users")
 @Audited
-class ChannelUser : Audit() {
+class ChannelUser private constructor() : Audit() {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,13 +26,16 @@ class ChannelUser : Audit() {
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "channel_id")
     var channel: Channel? = null
+        protected set
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     var user: User? = null
+        protected set
 
     @Column(nullable = false)
     var deleted: Boolean = false
+        protected set
 
     fun setBy(channel: Channel) {
         if (this.channel != channel) {
@@ -49,5 +52,9 @@ class ChannelUser : Audit() {
 
     fun delete() {
         this.deleted = true
+    }
+
+    companion object {
+        fun create(): ChannelUser = ChannelUser()
     }
 }

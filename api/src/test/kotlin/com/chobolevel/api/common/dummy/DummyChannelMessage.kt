@@ -10,12 +10,12 @@ object DummyChannelMessage {
     val CONTENT: String = "testMessage"
     val TYPE: ChannelMessageType = ChannelMessageType.TALK
 
-    fun toEntity(): ChannelMessage = ChannelMessage(
+    fun toEntity(): ChannelMessage = ChannelMessage.create(
         type = TYPE,
         content = CONTENT
     ).also {
         it.id = ID
-        it.writer = DummyUser.toEntity()
+        it.setBy(DummyUser.toEntity())
     }
 
     fun toCreateRequest(): CreateChannelMessageRequest = CreateChannelMessageRequest(

@@ -20,21 +20,26 @@ import org.hibernate.envers.Audited
 @Entity
 @Table(name = "channels")
 @Audited
-class Channel(
-    @Column(nullable = false)
-    var name: String
+class Channel private constructor(
+    name: String
 ) : Audit() {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
 
+    @Column(nullable = false)
+    var name: String = name
+        protected set
+
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
     var owner: User? = null
+        protected set
 
     @Column(nullable = false)
     var deleted: Boolean = false
+        protected set
 
     @OneToMany(mappedBy = "channel", cascade = [(CascadeType.ALL)], orphanRemoval = true)
     @Where(clause = "deleted = false")
@@ -46,6 +51,10 @@ class Channel(
         }
     }
 
+    fun updateName(name: String) {
+        this.name = name
+    }
+
     fun delete() {
         this.deleted = true
     }
@@ -54,5 +63,9 @@ class Channel(
         if (!this.channelUsers.contains(channelUser)) {
             this.channelUsers.add(channelUser)
         }
+    }
+
+    companion object {
+        fun create(name: String): Channel = Channel(name = name)
     }
 }

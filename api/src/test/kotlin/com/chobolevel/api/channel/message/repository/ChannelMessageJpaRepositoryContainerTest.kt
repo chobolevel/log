@@ -59,13 +59,13 @@ class ChannelMessageJpaRepositoryContainerTest : AbstractMySQLContainerTest() {
     }
 
     private fun savedChannel(owner: User): Channel {
-        val ch: Channel = Channel(name = "테스트 채널")
+        val ch: Channel = Channel.create(name = "테스트 채널")
         ch.setBy(owner)
         return entityManager.persistAndFlush(ch)
     }
 
     private fun savedChannelMessage(channel: Channel, writer: User, content: String = "테스트 메시지"): ChannelMessage {
-        val msg: ChannelMessage = ChannelMessage(type = ChannelMessageType.TALK, content = content)
+        val msg: ChannelMessage = ChannelMessage.create(type = ChannelMessageType.TALK, content = content)
         msg.setBy(channel)
         msg.setBy(writer)
         return entityManager.persistAndFlush(msg)

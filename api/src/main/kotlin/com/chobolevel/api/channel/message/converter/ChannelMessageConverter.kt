@@ -12,7 +12,7 @@ class ChannelMessageConverter(
 ) {
 
     fun convert(request: CreateChannelMessageRequest): ChannelMessage {
-        return ChannelMessage(
+        return ChannelMessage.create(
             type = request.type,
             content = request.content,
         )
