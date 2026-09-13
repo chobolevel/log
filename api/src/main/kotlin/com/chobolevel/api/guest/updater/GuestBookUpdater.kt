@@ -11,7 +11,7 @@ class GuestBookUpdater {
     fun markAsUpdate(request: UpdateGuestBookRequest, entity: GuestBook): GuestBook {
         request.updateMask.forEach {
             when (it) {
-                GuestBookUpdateMask.CONTENT -> entity.content = request.content!!
+                GuestBookUpdateMask.CONTENT -> entity.updateContent(request.content!!)
             }
         }
         return entity

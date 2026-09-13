@@ -15,7 +15,7 @@ object DummyGuestBook {
     val CONTENT: String = "testContent"
     val NEW_CONTENT: String = "newContent"
 
-    fun toEntity(): GuestBook = GuestBook(
+    fun toEntity(): GuestBook = GuestBook.create(
         guestName = GUEST_NAME,
         password = ENCODED_PASSWORD,
         content = CONTENT

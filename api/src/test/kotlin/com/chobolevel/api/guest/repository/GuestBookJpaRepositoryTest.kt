@@ -39,7 +39,7 @@ class GuestBookJpaRepositoryTest {
 
     private fun savedGuestBook(guestName: String = "홍길동", content: String = "방명록 내용"): GuestBook {
         return entityManager.persistAndFlush(
-            GuestBook(
+            GuestBook.create(
                 guestName = guestName,
                 password = "1234",
                 content = content

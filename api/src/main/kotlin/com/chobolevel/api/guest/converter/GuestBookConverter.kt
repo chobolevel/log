@@ -14,7 +14,7 @@ class GuestBookConverter(
 ) {
 
     fun convert(request: CreateGuestBookRequest): GuestBook {
-        return GuestBook(
+        return GuestBook.create(
             guestName = request.guestName,
             password = passwordProvider.encode(request.password),
             content = request.content
