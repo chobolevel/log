@@ -11,7 +11,7 @@ class UserUpdater {
     fun markAsUpdate(request: UpdateUserRequest, user: User): User {
         request.updateMask.forEach {
             when (it) {
-                UserUpdateMask.NICKNAME -> user.nickname = request.nickname!!
+                UserUpdateMask.NICKNAME -> user.updateNickname(request.nickname!!)
             }
         }
         return user

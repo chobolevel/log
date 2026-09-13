@@ -72,7 +72,7 @@ class UserAuthService(
         }
         val user: User = existingUser ?: userRepository.save(userConverter.convert(request))
         if (user.socialId != request.socialId) {
-            user.socialId = request.socialId
+            user.updateSocialId(request.socialId)
         }
         val authorities: List<GrantedAuthority> = AuthorityUtils.createAuthorityList(user.role.name)
         val authentication: UsernamePasswordAuthenticationToken = UsernamePasswordAuthenticationToken(user.id, user.password, authorities)

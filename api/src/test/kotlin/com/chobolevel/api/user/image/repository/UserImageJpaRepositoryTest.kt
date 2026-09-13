@@ -31,7 +31,7 @@ class UserImageJpaRepositoryTest {
 
     private fun savedUser(email: String = "test@test.com"): User {
         return entityManager.persistAndFlush(
-            User(
+            User.create(
                 email = email,
                 password = "password",
                 socialId = null,
@@ -43,7 +43,7 @@ class UserImageJpaRepositoryTest {
     }
 
     private fun savedUserImage(user: User): UserImage {
-        val image: UserImage = UserImage(
+        val image: UserImage = UserImage.create(
             type = UserImageType.PROFILE,
             path = "https://test.com/image.png",
             name = "image.png"

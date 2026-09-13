@@ -19,7 +19,7 @@ object DummyUser {
     const val NICKNAME: String = "testUser"
     const val RESET_CODE: String = "resetCode123"
 
-    fun toEntity(): User = User(
+    fun toEntity(): User = User.create(
         email = EMAIL,
         password = PASSWORD,
         socialId = null,

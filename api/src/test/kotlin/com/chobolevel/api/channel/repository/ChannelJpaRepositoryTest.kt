@@ -39,7 +39,7 @@ class ChannelJpaRepositoryTest {
 
     private fun savedUser(email: String = "test@test.com"): User {
         return entityManager.persistAndFlush(
-            User(
+            User.create(
                 email = email,
                 password = "password",
                 socialId = null,

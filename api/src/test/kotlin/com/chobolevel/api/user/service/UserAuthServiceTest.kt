@@ -117,7 +117,7 @@ class UserAuthServiceTest : BehaviorSpec({
             then("converter로 신규 유저를 생성하고 JWT 토큰을 반환한다") {
                 // given
                 val request = DummyAuth.toGithubSocialLoginRequest()
-                val newUser: User = User(
+                val newUser: User = User.create(
                     email = DummyUser.EMAIL,
                     password = "",
                     socialId = DummyAuth.GITHUB_SOCIAL_ID,
@@ -154,7 +154,7 @@ class UserAuthServiceTest : BehaviorSpec({
             then("JWT 토큰을 반환하고 Redis에 userId 키로 refresh token을 저장한다") {
                 // given
                 val request = DummyAuth.toGithubSocialLoginRequest()
-                val user: User = User(
+                val user: User = User.create(
                     email = DummyUser.EMAIL,
                     password = "",
                     socialId = DummyAuth.GITHUB_SOCIAL_ID,
@@ -188,7 +188,7 @@ class UserAuthServiceTest : BehaviorSpec({
             then("소셜 아이디를 업데이트하고 JWT 토큰을 반환한다") {
                 // given
                 val request = DummyAuth.toGithubSocialLoginRequest()
-                val user: User = User(
+                val user: User = User.create(
                     email = DummyUser.EMAIL,
                     password = "",
                     socialId = "old_social_id",

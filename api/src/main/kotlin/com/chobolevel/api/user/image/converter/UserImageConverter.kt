@@ -12,7 +12,7 @@ class UserImageConverter(
 ) {
 
     fun convert(request: CreateUserImageRequest): UserImage {
-        return UserImage(
+        return UserImage.create(
             type = request.type,
             path = request.path,
             name = request.name,

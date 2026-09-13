@@ -38,7 +38,7 @@ class PostJpaRepositoryTest {
 
     private fun savedUser(): User {
         return entityManager.persistAndFlush(
-            User(
+            User.create(
                 email = "test@test.com",
                 password = "password",
                 socialId = null,

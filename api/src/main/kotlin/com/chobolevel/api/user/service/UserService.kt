@@ -88,7 +88,7 @@ class UserService(
             user = user,
             request = request
         )
-        user.password = passwordProvider.encode(request.newPassword)
+        user.changePassword(passwordProvider.encode(request.newPassword))
         return user.id!!
     }
 

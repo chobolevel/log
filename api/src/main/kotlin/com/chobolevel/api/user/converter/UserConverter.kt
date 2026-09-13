@@ -20,7 +20,7 @@ class UserConverter(
 ) {
 
     fun convert(request: CreateUserRequest): User {
-        return User(
+        return User.create(
             email = request.email,
             password = passwordProvider.encode(plainText = request.password),
             socialId = null,
@@ -31,7 +31,7 @@ class UserConverter(
     }
 
     fun convert(request: SocialLoginRequest): User {
-        return User(
+        return User.create(
             email = request.email,
             password = null,
             socialId = request.socialId,

@@ -23,26 +23,37 @@ import org.hibernate.envers.Audited
 @Audited
 @SQLDelete(sql = "UPDATE users_images SET deleted = true WHERE id = ?")
 @Where(clause = "deleted = false")
-class UserImage(
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    var type: UserImageType,
-    @Column(nullable = false)
-    var path: String,
-    @Column(nullable = false)
-    var name: String,
+class UserImage private constructor(
+    type: UserImageType,
+    path: String,
+    name: String
 ) : Audit() {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    var type: UserImageType = type
+        protected set
+
+    @Column(nullable = false)
+    var path: String = path
+        protected set
+
+    @Column(nullable = false)
+    var name: String = name
+        protected set
+
     @OneToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     var user: User? = null
+        protected set
 
     @Column(nullable = false)
     var deleted: Boolean = false
+        protected set
 
     fun setBy(user: User) {
         if (this.user != user) {
@@ -53,5 +64,13 @@ class UserImage(
 
     fun delete() {
         this.deleted = true
+    }
+
+    companion object {
+        fun create(type: UserImageType, path: String, name: String): UserImage = UserImage(
+            type = type,
+            path = path,
+            name = name
+        )
     }
 }

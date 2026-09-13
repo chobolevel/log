@@ -40,7 +40,7 @@ class UserJpaRepositoryTest {
         nickname: String = "testUser"
     ): User {
         return entityManager.persistAndFlush(
-            User(
+            User.create(
                 email = email,
                 password = "password",
                 socialId = null,

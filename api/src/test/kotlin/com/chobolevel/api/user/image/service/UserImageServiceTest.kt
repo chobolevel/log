@@ -39,7 +39,7 @@ class UserImageServiceTest : BehaviorSpec({
                     name = "test.png"
                 )
                 val user: User = DummyUser.toEntity()
-                val newImage: UserImage = UserImage(
+                val newImage: UserImage = UserImage.create(
                     type = UserImageType.PROFILE,
                     path = "/image/2024/01/01/test.png",
                     name = "test.png"
@@ -64,13 +64,13 @@ class UserImageServiceTest : BehaviorSpec({
                     path = "/image/2024/01/01/new.png",
                     name = "new.png"
                 )
-                val existingImage: UserImage = UserImage(
+                val existingImage: UserImage = UserImage.create(
                     type = UserImageType.PROFILE,
                     path = "/image/old.png",
                     name = "old.png"
                 ).also { it.id = 5L }
                 val user: User = DummyUser.toEntity().also { it.addImage(existingImage) }
-                val newImage: UserImage = UserImage(
+                val newImage: UserImage = UserImage.create(
                     type = UserImageType.PROFILE,
                     path = "/image/2024/01/01/new.png",
                     name = "new.png"
@@ -95,7 +95,7 @@ class UserImageServiceTest : BehaviorSpec({
                 val userId: Long = DummyUser.ID
                 val userImageId: Long = 1L
                 val user: User = DummyUser.toEntity()
-                val userImage: UserImage = UserImage(
+                val userImage: UserImage = UserImage.create(
                     type = UserImageType.PROFILE,
                     path = "/image/test.png",
                     name = "test.png"
