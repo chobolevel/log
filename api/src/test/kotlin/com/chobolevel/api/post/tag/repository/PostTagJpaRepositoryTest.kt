@@ -44,19 +44,19 @@ class PostTagJpaRepositoryTest {
     }
 
     private fun savedPost(user: User, title: String = "테스트 게시글"): Post {
-        val post: Post = Post(title = title, subTitle = "부제목", content = "내용")
+        val post: Post = Post.create(title = title, subTitle = "부제목", content = "내용")
         post.assignWriter(user)
         return entityManager.persistAndFlush(post)
     }
 
     private fun savedTag(): Tag {
-        return entityManager.persistAndFlush(Tag(name = "Kotlin", order = 1))
+        return entityManager.persistAndFlush(Tag.create(name = "Kotlin", order = 1))
     }
 
     // Post.postTags 컬렉션 cascade를 우회하기 위해 PostTag를 직접 persist한다.
     // cascade를 통해 삽입하면 flush 시 컬렉션이 재삽입을 유발해 deleteByPostId 테스트가 실패한다.
     private fun savedPostTag(post: Post, tag: Tag): PostTag {
-        val postTag: PostTag = PostTag()
+        val postTag: PostTag = PostTag.create()
         postTag.assignPost(post)
         postTag.assignTag(tag)
         return entityManager.persistAndFlush(postTag)

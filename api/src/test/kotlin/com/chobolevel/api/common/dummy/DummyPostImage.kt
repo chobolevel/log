@@ -12,7 +12,7 @@ object DummyPostImage {
     val WIDTH: Int = 100
     val HEIGHT: Int = 100
 
-    fun toEntity(): PostImage = PostImage(
+    fun toEntity(): PostImage = PostImage.create(
         type = TYPE,
         name = NAME,
         path = PATH,

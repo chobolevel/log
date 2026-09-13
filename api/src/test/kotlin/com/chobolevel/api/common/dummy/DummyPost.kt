@@ -13,7 +13,7 @@ object DummyPost {
     val SUB_TITLE: String = "testPostSubTitle"
     val CONTENT: String = "testPostContent"
 
-    fun toEntity(): Post = Post(
+    fun toEntity(): Post = Post.create(
         title = TITLE,
         subTitle = SUB_TITLE,
         content = CONTENT

@@ -21,30 +21,47 @@ import org.hibernate.envers.Audited
 @Table(name = "post_images")
 @Audited
 @SQLDelete(sql = "UPDATE post_images SET deleted = true WHERE id = ?")
-class PostImage(
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    var type: PostImageType,
-    @Column(nullable = false)
-    var name: String,
-    @Column(nullable = false)
-    var path: String,
-    @Column(nullable = false)
-    var width: Int,
-    @Column(nullable = false)
-    var height: Int
+class PostImage private constructor(
+    type: PostImageType,
+    name: String,
+    path: String,
+    width: Int,
+    height: Int
 ) : Audit() {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    var type: PostImageType = type
+        protected set
+
+    @Column(nullable = false)
+    var name: String = name
+        protected set
+
+    @Column(nullable = false)
+    var path: String = path
+        protected set
+
+    @Column(nullable = false)
+    var width: Int = width
+        protected set
+
+    @Column(nullable = false)
+    var height: Int = height
+        protected set
+
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     var post: Post? = null
+        protected set
 
     @Column(nullable = false)
     var deleted: Boolean = false
+        protected set
 
     fun assignPost(post: Post) {
         if (this.post != post) {
@@ -54,5 +71,15 @@ class PostImage(
 
     fun delete() {
         this.deleted = true
+    }
+
+    companion object {
+        fun create(type: PostImageType, name: String, path: String, width: Int, height: Int): PostImage = PostImage(
+            type = type,
+            name = name,
+            path = path,
+            width = width,
+            height = height
+        )
     }
 }

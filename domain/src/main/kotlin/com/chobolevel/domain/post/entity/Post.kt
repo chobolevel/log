@@ -23,25 +23,36 @@ import org.hibernate.envers.Audited
 @Entity
 @Table(name = "posts")
 @Audited
-class Post(
-    @Column(nullable = false)
-    var title: String,
-    @Column(nullable = false)
-    var subTitle: String,
-    @Column(nullable = false)
-    var content: String
+class Post private constructor(
+    title: String,
+    subTitle: String,
+    content: String
 ) : Audit() {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
 
+    @Column(nullable = false)
+    var title: String = title
+        protected set
+
+    @Column(nullable = false)
+    var subTitle: String = subTitle
+        protected set
+
+    @Column(nullable = false)
+    var content: String = content
+        protected set
+
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     var user: User? = null
+        protected set
 
     @Column(nullable = false)
     var deleted: Boolean = false
+        protected set
 
     @OneToMany(mappedBy = "post", cascade = [CascadeType.ALL], orphanRemoval = true)
     var postTags = mutableSetOf<PostTag>()
@@ -54,6 +65,18 @@ class Post(
         if (this.user != user) {
             this.user = user
         }
+    }
+
+    fun updateTitle(title: String) {
+        this.title = title
+    }
+
+    fun updateSubTitle(subTitle: String) {
+        this.subTitle = subTitle
+    }
+
+    fun updateContent(content: String) {
+        this.content = content
     }
 
     fun addPostImage(postImage: PostImage) {
@@ -75,7 +98,7 @@ class Post(
 
     fun addTags(tags: List<Tag>) {
         tags.forEach { tag ->
-            val postTag = PostTag()
+            val postTag: PostTag = PostTag.create()
             postTag.assignTag(tag)
             postTag.assignPost(this)
             if (!this.postTags.contains(postTag)) {
@@ -86,5 +109,13 @@ class Post(
 
     fun delete() {
         this.deleted = true
+    }
+
+    companion object {
+        fun create(title: String, subTitle: String, content: String): Post = Post(
+            title = title,
+            subTitle = subTitle,
+            content = content
+        )
     }
 }

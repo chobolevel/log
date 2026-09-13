@@ -25,9 +25,9 @@ class PostUpdater(
                     val tags: List<Tag> = tagRepository.findByIds(request.tagIds!!)
                     entity.addTags(tags)
                 }
-                PostUpdateMask.TITLE -> entity.title = request.title!!
-                PostUpdateMask.SUB_TITLE -> entity.subTitle = request.subTitle!!
-                PostUpdateMask.CONTENT -> entity.content = request.content!!
+                PostUpdateMask.TITLE -> entity.updateTitle(request.title!!)
+                PostUpdateMask.SUB_TITLE -> entity.updateSubTitle(request.subTitle!!)
+                PostUpdateMask.CONTENT -> entity.updateContent(request.content!!)
                 PostUpdateMask.THUMB_NAIL_IMAGE -> {
                     // 수정/삭제 구분하도록 변경 필요
                     entity.getThumbnailImage()?.let { postThumbnailImage ->

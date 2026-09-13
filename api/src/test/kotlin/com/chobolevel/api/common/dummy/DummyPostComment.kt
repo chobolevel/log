@@ -12,7 +12,7 @@ object DummyPostComment {
     val CONTENT: String = "testPostCommentContent"
     val UPDATED_CONTENT: String = "updatedPostCommentContent"
 
-    fun toEntity(): PostComment = PostComment(
+    fun toEntity(): PostComment = PostComment.create(
         content = CONTENT
     ).also { it.id = ID }
 

@@ -14,7 +14,7 @@ class PostCommentConverter(
 ) {
 
     fun convert(request: CreatePostCommentRequest): PostComment {
-        return PostComment(
+        return PostComment.create(
             content = request.content,
         )
     }

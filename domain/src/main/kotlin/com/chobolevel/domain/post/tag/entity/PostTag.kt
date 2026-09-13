@@ -16,7 +16,7 @@ import org.hibernate.envers.Audited
 @Entity
 @Table(name = "post_tags")
 @Audited
-class PostTag : Audit() {
+class PostTag private constructor() : Audit() {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,10 +25,12 @@ class PostTag : Audit() {
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     var post: Post? = null
+        protected set
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "tag_id")
     var tag: Tag? = null
+        protected set
 
     fun assignPost(post: Post) {
         if (this.post != post) {
@@ -40,5 +42,9 @@ class PostTag : Audit() {
         if (this.tag != tag) {
             this.tag = tag
         }
+    }
+
+    companion object {
+        fun create(): PostTag = PostTag()
     }
 }

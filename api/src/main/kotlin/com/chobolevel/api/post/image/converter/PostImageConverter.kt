@@ -12,7 +12,7 @@ class PostImageConverter(
 ) {
 
     fun convert(request: CreatePostImageRequest): PostImage {
-        return PostImage(
+        return PostImage.create(
             type = request.type,
             name = request.name,
             path = request.path,

@@ -47,17 +47,17 @@ class PostTagJpaRepositoryContainerTest : AbstractMySQLContainerTest() {
     }
 
     private fun savedPost(user: User, title: String = "테스트 게시글"): Post {
-        val p: Post = Post(title = title, subTitle = "부제목", content = "내용")
+        val p: Post = Post.create(title = title, subTitle = "부제목", content = "내용")
         p.assignWriter(user)
         return entityManager.persistAndFlush(p)
     }
 
     private fun savedTag(): Tag {
-        return entityManager.persistAndFlush(Tag(name = "Kotlin", order = 1))
+        return entityManager.persistAndFlush(Tag.create(name = "Kotlin", order = 1))
     }
 
     private fun savedPostTag(post: Post, tag: Tag): PostTag {
-        val postTag: PostTag = PostTag()
+        val postTag: PostTag = PostTag.create()
         postTag.assignPost(post)
         postTag.assignTag(tag)
         return entityManager.persistAndFlush(postTag)

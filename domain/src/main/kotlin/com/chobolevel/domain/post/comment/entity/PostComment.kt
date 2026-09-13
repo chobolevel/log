@@ -17,25 +17,31 @@ import org.hibernate.envers.Audited
 @Entity
 @Table(name = "post_comments")
 @Audited
-class PostComment(
-    @Column(nullable = false)
-    var content: String
+class PostComment private constructor(
+    content: String
 ) : Audit() {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
 
+    @Column(nullable = false)
+    var content: String = content
+        protected set
+
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     var post: Post? = null
+        protected set
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "writer_id")
     var writer: User? = null
+        protected set
 
     @Column(nullable = false)
     var deleted: Boolean = false
+        protected set
 
     fun setBy(post: Post) {
         if (this.post != post) {
@@ -49,7 +55,15 @@ class PostComment(
         }
     }
 
+    fun updateContent(content: String) {
+        this.content = content
+    }
+
     fun delete() {
         this.deleted = true
+    }
+
+    companion object {
+        fun create(content: String): PostComment = PostComment(content = content)
     }
 }

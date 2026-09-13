@@ -50,7 +50,7 @@ class PostJpaRepositoryTest {
     }
 
     private fun savedPost(user: User, title: String = "테스트 게시글"): Post {
-        val post: Post = Post(title = title, subTitle = "부제목", content = "내용")
+        val post: Post = Post.create(title = title, subTitle = "부제목", content = "내용")
         post.assignWriter(user)
         return entityManager.persistAndFlush(post)
     }

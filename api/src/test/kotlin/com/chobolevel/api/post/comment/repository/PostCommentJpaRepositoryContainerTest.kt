@@ -54,13 +54,13 @@ class PostCommentJpaRepositoryContainerTest : AbstractMySQLContainerTest() {
     }
 
     private fun savedPost(user: User): Post {
-        val p: Post = Post(title = "테스트 게시글", subTitle = "부제목", content = "내용")
+        val p: Post = Post.create(title = "테스트 게시글", subTitle = "부제목", content = "내용")
         p.assignWriter(user)
         return entityManager.persistAndFlush(p)
     }
 
     private fun savedPostComment(post: Post, writer: User): PostComment {
-        val comment: PostComment = PostComment(content = "테스트 댓글")
+        val comment: PostComment = PostComment.create(content = "테스트 댓글")
         comment.setBy(post)
         comment.setBy(writer)
         return entityManager.persistAndFlush(comment)

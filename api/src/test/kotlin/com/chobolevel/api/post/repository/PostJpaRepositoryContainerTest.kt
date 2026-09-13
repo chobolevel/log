@@ -53,7 +53,7 @@ class PostJpaRepositoryContainerTest : AbstractMySQLContainerTest() {
     }
 
     private fun savedPost(user: User, title: String = "테스트 게시글"): Post {
-        val p: Post = Post(title = title, subTitle = "부제목", content = "내용")
+        val p: Post = Post.create(title = title, subTitle = "부제목", content = "내용")
         p.assignWriter(user)
         return entityManager.persistAndFlush(p)
     }

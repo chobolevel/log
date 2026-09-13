@@ -18,7 +18,7 @@ class PostConverter(
 ) {
 
     fun convert(request: CreatePostRequest): Post {
-        return Post(
+        return Post.create(
             title = request.title,
             subTitle = request.subTitle,
             content = request.content

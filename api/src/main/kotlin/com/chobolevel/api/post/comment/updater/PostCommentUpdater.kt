@@ -11,7 +11,7 @@ class PostCommentUpdater : PostCommentUpdatable {
     override fun markAsUpdate(request: UpdatePostCommentRequest, entity: PostComment): PostComment {
         request.updateMask.forEach {
             when (it) {
-                PostCommentUpdateMask.CONTENT -> entity.content = request.content!!
+                PostCommentUpdateMask.CONTENT -> entity.updateContent(request.content!!)
             }
         }
         return entity
