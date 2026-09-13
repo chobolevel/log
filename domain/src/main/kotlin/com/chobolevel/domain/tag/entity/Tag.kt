@@ -15,11 +15,9 @@ import org.hibernate.envers.Audited
 @Entity
 @Table(name = "tags")
 @Audited
-class Tag(
-    @Column(nullable = false)
-    var name: String,
-    @Column(nullable = false)
-    var order: Int
+class Tag private constructor(
+    name: String,
+    order: Int
 ) : Audit() {
 
     @Id
@@ -27,10 +25,27 @@ class Tag(
     var id: Long? = null
 
     @Column(nullable = false)
+    var name: String = name
+        protected set
+
+    @Column(nullable = false)
+    var order: Int = order
+        protected set
+
+    @Column(nullable = false)
     var deleted: Boolean = false
+        protected set
 
     @OneToMany(mappedBy = "tag", cascade = [CascadeType.ALL], orphanRemoval = true)
     var postTags = mutableListOf<PostTag>()
+
+    fun updateName(name: String) {
+        this.name = name
+    }
+
+    fun updateOrder(order: Int) {
+        this.order = order
+    }
 
     fun addPostTag(postTag: PostTag) {
         if (!this.postTags.contains(postTag)) {
@@ -40,5 +55,9 @@ class Tag(
 
     fun delete() {
         this.deleted = true
+    }
+
+    companion object {
+        fun create(name: String, order: Int): Tag = Tag(name = name, order = order)
     }
 }

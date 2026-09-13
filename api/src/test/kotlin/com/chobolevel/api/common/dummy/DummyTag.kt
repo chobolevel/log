@@ -12,7 +12,7 @@ object DummyTag {
     val NAME: String = "testTagName"
     val ORDER: Int = 1
 
-    fun toEntity(): Tag = Tag(
+    fun toEntity(): Tag = Tag.create(
         name = NAME,
         order = ORDER,
     ).also { it.id = ID }

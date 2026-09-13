@@ -45,7 +45,7 @@ class TagJpaRepositoryContainerTest : AbstractMySQLContainerTest() {
     private lateinit var tagQuerydslRepository: TagQuerydslRepository
 
     private fun savedTag(name: String = "Kotlin", order: Int = 1): Tag {
-        return entityManager.persistAndFlush(Tag(name = name, order = order))
+        return entityManager.persistAndFlush(Tag.create(name = name, order = order))
     }
 
     @Test

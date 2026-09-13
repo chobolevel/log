@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 class TagConverter {
 
     fun convert(request: CreateTagRequest): Tag {
-        return Tag(
+        return Tag.create(
             name = request.name,
             order = request.order
         )

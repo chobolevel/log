@@ -11,8 +11,8 @@ class TagUpdater : TagUpdatable {
     override fun markAsUpdate(request: UpdateTagRequest, entity: Tag): Tag {
         request.updateMask.forEach {
             when (it) {
-                TagUpdateMask.NAME -> entity.name = request.name!!
-                TagUpdateMask.ORDER -> entity.order = request.order!!
+                TagUpdateMask.NAME -> entity.updateName(request.name!!)
+                TagUpdateMask.ORDER -> entity.updateOrder(request.order!!)
             }
         }
         return entity
