@@ -97,11 +97,12 @@ class RecordServiceTest : BehaviorSpec({
         `when`("유효한 요청이 들어오면") {
             then("기록 목록을 반환한다") {
                 // given
-                val request: SearchRecordRequest = SearchRecordRequest(userId = DummyUser.ID, type = null, title = null)
+                val request: SearchRecordRequest = SearchRecordRequest(userId = DummyUser.ID, type = null, title = null, tagName = null)
                 val queryFilter: RecordQueryFilter = RecordQueryFilter(
                     userId = DummyUser.ID,
                     type = null,
-                    title = null
+                    title = null,
+                    tagName = null
                 )
                 val records: List<Record> = listOf(DummyRecord.toEntity())
                 val likeCounts: Map<Long, Long> = mapOf(DummyRecord.ID to 0L)
@@ -199,6 +200,7 @@ class RecordServiceTest : BehaviorSpec({
                     title = "새 제목",
                     content = null,
                     isPrivate = null,
+                    tags = null,
                     review = null,
                     updateMask = listOf(RecordUpdateMask.TITLE)
                 )

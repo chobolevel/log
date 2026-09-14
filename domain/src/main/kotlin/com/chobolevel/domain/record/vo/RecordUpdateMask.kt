@@ -4,5 +4,6 @@ enum class RecordUpdateMask {
     TYPE,
     TITLE,
     CONTENT,
-    IS_PRIVATE
+    IS_PRIVATE,
+    TAGS
 }

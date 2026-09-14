@@ -22,6 +22,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
                     title = null,
                     content = null,
                     isPrivate = null,
+                    tags = null,
                     review = null,
                     updateMask = listOf(RecordUpdateMask.TYPE)
                 )
@@ -39,6 +40,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
                     title = null,
                     content = null,
                     isPrivate = null,
+                    tags = null,
                     review = null,
                     updateMask = listOf(RecordUpdateMask.TYPE)
                 )
@@ -71,6 +73,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
                     title = null,
                     content = null,
                     isPrivate = null,
+                    tags = null,
                     review = null,
                     updateMask = listOf(RecordUpdateMask.TITLE)
                 )
@@ -91,6 +94,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
                     title = "",
                     content = null,
                     isPrivate = null,
+                    tags = null,
                     review = null,
                     updateMask = listOf(RecordUpdateMask.TITLE)
                 )
@@ -113,6 +117,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
                     title = null,
                     content = "새 내용",
                     isPrivate = null,
+                    tags = null,
                     review = null,
                     updateMask = listOf(RecordUpdateMask.CONTENT)
                 )
@@ -130,6 +135,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
                     title = null,
                     content = null,
                     isPrivate = null,
+                    tags = null,
                     review = null,
                     updateMask = listOf(RecordUpdateMask.CONTENT)
                 )
@@ -152,6 +158,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
                     title = null,
                     content = null,
                     isPrivate = true,
+                    tags = null,
                     review = null,
                     updateMask = listOf(RecordUpdateMask.IS_PRIVATE)
                 )
@@ -169,6 +176,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
                     title = null,
                     content = null,
                     isPrivate = null,
+                    tags = null,
                     review = null,
                     updateMask = listOf(RecordUpdateMask.IS_PRIVATE)
                 )
@@ -178,6 +186,65 @@ class RecordParameterValidatorTest : BehaviorSpec({
                     validator.validate(request)
                 }
                 ex.message shouldBe "변경할 공개 여부가 유효하지 않습니다."
+            }
+        }
+    }
+
+    given("TAGS updateMask를 검증할 때") {
+        `when`("tags 값이 있으면") {
+            then("예외가 발생하지 않는다") {
+                // given
+                val request: UpdateRecordRequest = UpdateRecordRequest(
+                    type = null,
+                    title = null,
+                    content = null,
+                    isPrivate = null,
+                    tags = listOf("Kotlin", "Spring"),
+                    review = null,
+                    updateMask = listOf(RecordUpdateMask.TAGS)
+                )
+
+                // when & then
+                validator.validate(request)
+            }
+        }
+
+        `when`("tags 값이 빈 리스트이면") {
+            then("예외가 발생하지 않는다 (전체 삭제 허용)") {
+                // given
+                val request: UpdateRecordRequest = UpdateRecordRequest(
+                    type = null,
+                    title = null,
+                    content = null,
+                    isPrivate = null,
+                    tags = emptyList(),
+                    review = null,
+                    updateMask = listOf(RecordUpdateMask.TAGS)
+                )
+
+                // when & then
+                validator.validate(request)
+            }
+        }
+
+        `when`("tags 값이 null이면") {
+            then("InvalidParameterException이 발생한다") {
+                // given
+                val request: UpdateRecordRequest = UpdateRecordRequest(
+                    type = null,
+                    title = null,
+                    content = null,
+                    isPrivate = null,
+                    tags = null,
+                    review = null,
+                    updateMask = listOf(RecordUpdateMask.TAGS)
+                )
+
+                // when & then
+                val ex: InvalidParameterException = shouldThrow {
+                    validator.validate(request)
+                }
+                ex.message shouldBe "변경할 태그 목록이 유효하지 않습니다."
             }
         }
     }

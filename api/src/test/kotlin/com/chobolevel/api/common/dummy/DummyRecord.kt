@@ -74,6 +74,7 @@ object DummyRecord {
         title = "새 제목",
         content = null,
         isPrivate = null,
+        tags = null,
         review = null,
         updateMask = listOf(RecordUpdateMask.TITLE)
     )
@@ -86,7 +87,8 @@ object DummyRecord {
     fun toSearchRequest(): SearchRecordRequest = SearchRecordRequest(
         userId = null,
         type = null,
-        title = null
+        title = null,
+        tagName = null
     )
 
     fun toResponse(): RecordResponse = RecordResponse(
@@ -96,6 +98,7 @@ object DummyRecord {
         title = TITLE,
         content = CONTENT,
         isPrivate = IS_PRIVATE,
+        tags = emptyList(),
         review = null,
         createdAt = 0L,
         updatedAt = 0L

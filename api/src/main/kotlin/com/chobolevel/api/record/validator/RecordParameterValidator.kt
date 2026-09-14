@@ -44,6 +44,14 @@ class RecordParameterValidator {
                         )
                     }
                 }
+                RecordUpdateMask.TAGS -> {
+                    if (request.tags == null) {
+                        throw InvalidParameterException(
+                            errorCode = ErrorCode.INVALID_PARAMETER,
+                            message = "변경할 태그 목록이 유효하지 않습니다."
+                        )
+                    }
+                }
             }
         }
     }

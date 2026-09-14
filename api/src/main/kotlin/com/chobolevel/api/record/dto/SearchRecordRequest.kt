@@ -7,6 +7,7 @@ data class SearchRecordRequest(
     val userId: Long?,
     val type: RecordType?,
     val title: String?,
+    val tagName: String?,
     val page: Long = 1,
     val size: Long = 20,
     val orderTypes: List<RecordOrderType> = emptyList()

@@ -19,6 +19,7 @@ class RecordConverter(
             userId = request.userId,
             type = request.type,
             title = request.title,
+            tagName = request.tagName,
         )
     }
 
@@ -30,6 +31,7 @@ class RecordConverter(
             title = entity.title,
             content = entity.content,
             isPrivate = entity.isPrivate,
+            tags = entity.recordTags.map { it.name },
             review = entity.recordReview?.let { recordReviewConverter.convert(it) },
             likeCount = likeCount,
             createdAt = entity.createdAt.toInstant().toEpochMilli(),

@@ -45,6 +45,7 @@ class RecordService(
             reviewSubject = reviewSubject,
             reviewRating = request.review?.rating
         )
+        record.replaceTags(request.tags)
         return recordRepository.save(record).id!!
     }
 
@@ -92,6 +93,7 @@ class RecordService(
                 RecordUpdateMask.TITLE -> record.changeTitle(request.title!!)
                 RecordUpdateMask.CONTENT -> record.changeContent(request.content!!)
                 RecordUpdateMask.IS_PRIVATE -> record.changePrivacy(request.isPrivate!!)
+                RecordUpdateMask.TAGS -> record.replaceTags(request.tags!!)
             }
         }
         return record.id!!

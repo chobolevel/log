@@ -4,6 +4,7 @@ import com.chobolevel.domain.common.entity.Audit
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.InvalidParameterException
 import com.chobolevel.domain.record.review.entity.RecordReview
+import com.chobolevel.domain.record.tag.entity.RecordTag
 import com.chobolevel.domain.record.vo.RecordType
 import com.chobolevel.domain.subject.entity.Subject
 import com.chobolevel.domain.user.entity.User
@@ -18,6 +19,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
+import jakarta.persistence.OneToMany
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.Where
@@ -70,6 +72,11 @@ class Record private constructor(
 
     val recordReview: RecordReview? get() = _recordReview
 
+    @OneToMany(mappedBy = "record", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    private val _recordTags: MutableList<RecordTag> = mutableListOf()
+
+    val recordTags: List<RecordTag> get() = _recordTags.toList()
+
     fun changeType(type: RecordType, reviewSubject: Subject? = null, reviewRating: BigDecimal? = null) {
         when (type) {
             RecordType.REVIEW -> {
@@ -110,6 +117,13 @@ class Record private constructor(
 
     fun changePrivacy(isPrivate: Boolean) {
         this.isPrivate = isPrivate
+    }
+
+    fun replaceTags(names: List<String>) {
+        _recordTags.clear()
+        names.distinct().forEach { name ->
+            _recordTags.add(RecordTag.create(record = this, name = name))
+        }
     }
 
     fun delete() {
