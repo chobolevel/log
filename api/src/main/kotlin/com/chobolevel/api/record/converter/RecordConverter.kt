@@ -2,6 +2,7 @@ package com.chobolevel.api.record.converter
 
 import com.chobolevel.api.record.dto.RecordResponse
 import com.chobolevel.api.record.dto.SearchRecordRequest
+import com.chobolevel.api.record.emotion.converter.RecordEmotionConverter
 import com.chobolevel.api.record.review.converter.RecordReviewConverter
 import com.chobolevel.api.user.converter.UserConverter
 import com.chobolevel.domain.record.entity.Record
@@ -11,7 +12,8 @@ import org.springframework.stereotype.Component
 @Component
 class RecordConverter(
     private val userConverter: UserConverter,
-    private val recordReviewConverter: RecordReviewConverter
+    private val recordReviewConverter: RecordReviewConverter,
+    private val recordEmotionConverter: RecordEmotionConverter
 ) {
 
     fun convert(request: SearchRecordRequest): RecordQueryFilter {
@@ -33,6 +35,7 @@ class RecordConverter(
             isPrivate = entity.isPrivate,
             tags = entity.recordTags.map { it.name },
             review = entity.recordReview?.let { recordReviewConverter.convert(it) },
+            emotion = entity.recordEmotion?.let { recordEmotionConverter.convert(it) },
             likeCount = likeCount,
             createdAt = entity.createdAt.toInstant().toEpochMilli(),
             updatedAt = entity.updatedAt.toInstant().toEpochMilli()

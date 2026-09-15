@@ -25,7 +25,6 @@ import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -96,30 +95,6 @@ class RecordReviewControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(DummyRecord.toUpdateReviewRequest()))
         )
-            .andExpect(status().isUnauthorized)
-    }
-
-    @Test
-    @WithMockUser(username = "${DummyUser.ID}", roles = ["USER"])
-    fun `인증된 사용자가 기록 리뷰 삭제 요청 시 true를 반환한다`() {
-        // given
-        every {
-            recordReviewService.deleteRecordReview(
-                userId = DummyUser.ID,
-                reviewId = DummyRecord.REVIEW_ID
-            )
-        } returns true
-
-        // when & then
-        mockMvc.perform(delete("/api/v1/record-reviews/${DummyRecord.REVIEW_ID}"))
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.data").value(true))
-    }
-
-    @Test
-    fun `인증 없이 기록 리뷰 삭제 요청 시 401을 반환한다`() {
-        // given & when & then
-        mockMvc.perform(delete("/api/v1/record-reviews/${DummyRecord.REVIEW_ID}"))
             .andExpect(status().isUnauthorized)
     }
 }

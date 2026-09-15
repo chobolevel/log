@@ -73,6 +73,17 @@ enum class ErrorCode(val defaultMessage: String) {
     // SUBJECT IMAGE
     SUBJECT_IMAGE_NOT_FOUND("주제 이미지를 찾을 수 없습니다."),
 
+    // EMOTION CATEGORY
+    EMOTION_CATEGORY_NOT_FOUND("감정 카테고리를 찾을 수 없습니다."),
+    EMOTION_CATEGORY_IN_USE("사용 중인 감정 카테고리는 삭제할 수 없습니다."),
+
+    // EMOTION
+    EMOTION_NOT_FOUND("감정을 찾을 수 없습니다."),
+    EMOTION_IN_USE("사용 중인 감정은 삭제할 수 없습니다."),
+
+    // RECORD EMOTION
+    RECORD_EMOTION_NOT_FOUND("기록 감정을 찾을 수 없습니다."),
+
     // EXTERNAL API
     EMAIL_SEND_FAILED("이메일 발송에 실패했습니다.")
 }

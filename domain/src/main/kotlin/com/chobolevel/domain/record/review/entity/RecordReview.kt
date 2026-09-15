@@ -58,6 +58,10 @@ class RecordReview private constructor(
         this.isDeleted = true
     }
 
+    fun restore() {
+        this.isDeleted = false
+    }
+
     companion object {
         internal fun create(record: Record, subject: Subject, rating: BigDecimal): RecordReview {
             return RecordReview(

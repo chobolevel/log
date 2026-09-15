@@ -7,14 +7,16 @@ import com.chobolevel.api.record.dto.RecordResponse
 import com.chobolevel.api.record.dto.SearchRecordRequest
 import com.chobolevel.api.record.dto.UpdateRecordRequest
 import com.chobolevel.api.record.like.service.RecordLikeService
+import com.chobolevel.api.record.updater.RecordUpdater
 import com.chobolevel.api.record.validator.RecordBusinessValidator
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.ForbiddenException
+import com.chobolevel.domain.emotion.entity.Emotion
+import com.chobolevel.domain.emotion.repository.EmotionRepository
 import com.chobolevel.domain.record.entity.Record
 import com.chobolevel.domain.record.repository.RecordRepository
 import com.chobolevel.domain.record.vo.RecordQueryFilter
-import com.chobolevel.domain.record.vo.RecordUpdateMask
 import com.chobolevel.domain.subject.entity.Subject
 import com.chobolevel.domain.subject.repository.SubjectRepository
 import com.chobolevel.domain.user.entity.User
@@ -27,15 +29,18 @@ class RecordService(
     private val recordRepository: RecordRepository,
     private val userRepository: UserRepository,
     private val subjectRepository: SubjectRepository,
+    private val emotionRepository: EmotionRepository,
     private val recordConverter: RecordConverter,
     private val recordBusinessValidator: RecordBusinessValidator,
-    private val recordLikeService: RecordLikeService
+    private val recordLikeService: RecordLikeService,
+    private val recordUpdater: RecordUpdater
 ) {
 
     @Transactional
     fun createRecord(userId: Long, request: CreateRecordRequest): Long {
         val user: User = userRepository.findById(userId)
         val reviewSubject: Subject? = request.review?.subjectId?.let { subjectRepository.findById(it) }
+        val emotion: Emotion? = request.emotion?.emotionId?.let { emotionRepository.findById(it) }
         val record: Record = Record.create(
             user = user,
             type = request.type,
@@ -43,7 +48,9 @@ class RecordService(
             content = request.content,
             isPrivate = request.isPrivate,
             reviewSubject = reviewSubject,
-            reviewRating = request.review?.rating
+            reviewRating = request.review?.rating,
+            emotion = emotion,
+            emotionIntensity = request.emotion?.intensity
         )
         record.replaceTags(request.tags)
         return recordRepository.save(record).id!!
@@ -83,19 +90,7 @@ class RecordService(
     fun updateRecord(userId: Long, recordId: Long, request: UpdateRecordRequest): Long {
         val record: Record = recordRepository.findById(recordId)
         recordBusinessValidator.validateWriter(userId, record)
-        request.updateMask.forEach { mask: RecordUpdateMask ->
-            when (mask) {
-                RecordUpdateMask.TYPE -> record.changeType(
-                    type = request.type!!,
-                    reviewSubject = request.review?.subjectId?.let { subjectRepository.findById(it) },
-                    reviewRating = request.review?.rating
-                )
-                RecordUpdateMask.TITLE -> record.changeTitle(request.title!!)
-                RecordUpdateMask.CONTENT -> record.changeContent(request.content!!)
-                RecordUpdateMask.IS_PRIVATE -> record.changePrivacy(request.isPrivate!!)
-                RecordUpdateMask.TAGS -> record.replaceTags(request.tags!!)
-            }
-        }
+        recordUpdater.markAsUpdate(request, record)
         return record.id!!
     }
 

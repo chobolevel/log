@@ -3,6 +3,7 @@ package com.chobolevel.api.record.controller
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dummy.DummyRecord
 import com.chobolevel.api.common.dummy.DummyUser
+import com.chobolevel.api.record.dto.CreateRecordRequest
 import com.chobolevel.api.record.dto.RecordResponse
 import com.chobolevel.api.record.service.RecordService
 import com.chobolevel.api.record.validator.RecordParameterValidator
@@ -83,6 +84,23 @@ class RecordControllerTest {
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.data").value(DummyRecord.ID))
+    }
+
+    @Test
+    @WithMockUser(username = "${DummyUser.ID}", roles = ["USER"])
+    fun `기록 등록 요청 시 중첩된 emotion의 intensity가 범위를 벗어나면 400을 반환한다`() {
+        // given
+        val request: CreateRecordRequest = DummyRecord.toCreateRequest().let {
+            it.copy(emotion = it.emotion!!.copy(intensity = 999))
+        }
+
+        // when & then
+        mockMvc.perform(
+            post("/api/v1/records")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+        )
+            .andExpect(status().isBadRequest)
     }
 
     @Test

@@ -1,9 +1,11 @@
 package com.chobolevel.api.record.dto
 
+import com.chobolevel.api.record.emotion.dto.CreateRecordEmotionRequest
 import com.chobolevel.api.record.review.dto.CreateRecordReviewRequest
 import com.chobolevel.api.record.vo.RecordTagPolicy
 import com.chobolevel.domain.record.vo.RecordType
 import com.chobolevel.domain.record.vo.RecordUpdateMask
+import jakarta.validation.Valid
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 
@@ -16,7 +18,10 @@ data class UpdateRecordRequest(
             regexp = RecordTagPolicy.NAME_PATTERN,
             message = RecordTagPolicy.NAME_PATTERN_MESSAGE
         ) String>?,
+    @field:Valid
     val review: CreateRecordReviewRequest?,
+    @field:Valid
+    val emotion: CreateRecordEmotionRequest?,
     @field:Size(min = 1, message = "update_mask는 필수 값입니다.")
     val updateMask: List<RecordUpdateMask>
 )

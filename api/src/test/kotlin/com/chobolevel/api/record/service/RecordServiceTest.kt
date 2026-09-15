@@ -1,6 +1,7 @@
 package com.chobolevel.api.record.service
 
 import com.chobolevel.api.common.dto.PagingResponse
+import com.chobolevel.api.common.dummy.DummyEmotion
 import com.chobolevel.api.common.dummy.DummyRecord
 import com.chobolevel.api.common.dummy.DummySubject
 import com.chobolevel.api.common.dummy.DummyUser
@@ -10,12 +11,14 @@ import com.chobolevel.api.record.dto.RecordResponse
 import com.chobolevel.api.record.dto.SearchRecordRequest
 import com.chobolevel.api.record.dto.UpdateRecordRequest
 import com.chobolevel.api.record.like.service.RecordLikeService
+import com.chobolevel.api.record.updater.RecordUpdater
 import com.chobolevel.api.record.validator.RecordBusinessValidator
 import com.chobolevel.domain.common.exception.ForbiddenException
+import com.chobolevel.domain.emotion.entity.Emotion
+import com.chobolevel.domain.emotion.repository.EmotionRepository
 import com.chobolevel.domain.record.entity.Record
 import com.chobolevel.domain.record.repository.RecordRepository
 import com.chobolevel.domain.record.vo.RecordQueryFilter
-import com.chobolevel.domain.record.vo.RecordUpdateMask
 import com.chobolevel.domain.subject.entity.Subject
 import com.chobolevel.domain.subject.repository.SubjectRepository
 import com.chobolevel.domain.user.entity.User
@@ -35,16 +38,20 @@ class RecordServiceTest : BehaviorSpec({
     val recordRepository: RecordRepository = mockk()
     val userRepository: UserRepository = mockk()
     val subjectRepository: SubjectRepository = mockk()
+    val emotionRepository: EmotionRepository = mockk()
     val recordConverter: RecordConverter = mockk()
     val recordBusinessValidator: RecordBusinessValidator = mockk()
     val recordLikeService: RecordLikeService = mockk()
+    val recordUpdater: RecordUpdater = mockk()
     val recordService: RecordService = RecordService(
         recordRepository = recordRepository,
         userRepository = userRepository,
         subjectRepository = subjectRepository,
+        emotionRepository = emotionRepository,
         recordConverter = recordConverter,
         recordBusinessValidator = recordBusinessValidator,
-        recordLikeService = recordLikeService
+        recordLikeService = recordLikeService,
+        recordUpdater = recordUpdater
     )
 
     beforeEach { clearAllMocks() }
@@ -56,8 +63,10 @@ class RecordServiceTest : BehaviorSpec({
                 val userId: Long = DummyUser.ID
                 val request: CreateRecordRequest = DummyRecord.toCreateRequest()
                 val user: User = DummyUser.toEntity()
+                val emotion: Emotion = DummyEmotion.toEntity()
                 val savedRecord: Record = DummyRecord.toEntity()
                 every { userRepository.findById(userId) } returns user
+                every { emotionRepository.findById(DummyEmotion.ID) } returns emotion
                 every { recordRepository.save(any()) } returns savedRecord
 
                 // when
@@ -66,6 +75,7 @@ class RecordServiceTest : BehaviorSpec({
                 // then
                 result shouldBe DummyRecord.ID
                 verify { userRepository.findById(userId) }
+                verify { emotionRepository.findById(DummyEmotion.ID) }
                 verify { recordRepository.save(any()) }
             }
         }
@@ -195,18 +205,11 @@ class RecordServiceTest : BehaviorSpec({
                 // given
                 val userId: Long = DummyUser.ID
                 val recordId: Long = DummyRecord.ID
-                val request: UpdateRecordRequest = UpdateRecordRequest(
-                    type = null,
-                    title = "새 제목",
-                    content = null,
-                    isPrivate = null,
-                    tags = null,
-                    review = null,
-                    updateMask = listOf(RecordUpdateMask.TITLE)
-                )
+                val request: UpdateRecordRequest = DummyRecord.toUpdateRequest()
                 val record: Record = DummyRecord.toEntity()
                 every { recordRepository.findById(recordId) } returns record
                 justRun { recordBusinessValidator.validateWriter(userId, record) }
+                every { recordUpdater.markAsUpdate(request, record) } returns record
 
                 // when
                 val result: Long = recordService.updateRecord(
@@ -217,8 +220,8 @@ class RecordServiceTest : BehaviorSpec({
 
                 // then
                 result shouldBe DummyRecord.ID
-                record.title shouldBe "새 제목"
                 verify { recordBusinessValidator.validateWriter(userId, record) }
+                verify { recordUpdater.markAsUpdate(request, record) }
             }
         }
     }

@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
-import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -40,20 +39,6 @@ class RecordReviewController(
             userId = authentication.getUserId(),
             reviewId = id,
             request = request
-        )
-        return ResponseEntity.ok(ResultResponse(result))
-    }
-
-    @Operation(summary = "기록 리뷰 삭제 API")
-    @HasAuthorityUser
-    @DeleteMapping("/record-reviews/{id}")
-    fun deleteRecordReview(
-        authentication: Authentication,
-        @PathVariable id: Long
-    ): ResponseEntity<ResultResponse<Boolean>> {
-        val result: Boolean = service.deleteRecordReview(
-            userId = authentication.getUserId(),
-            reviewId = id
         )
         return ResponseEntity.ok(ResultResponse(result))
     }

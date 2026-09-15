@@ -4,9 +4,13 @@ import com.chobolevel.api.record.dto.CreateRecordRequest
 import com.chobolevel.api.record.dto.RecordResponse
 import com.chobolevel.api.record.dto.SearchRecordRequest
 import com.chobolevel.api.record.dto.UpdateRecordRequest
+import com.chobolevel.api.record.emotion.dto.CreateRecordEmotionRequest
+import com.chobolevel.api.record.emotion.dto.RecordEmotionResponse
+import com.chobolevel.api.record.emotion.dto.UpdateRecordEmotionRequest
 import com.chobolevel.api.record.review.dto.CreateRecordReviewRequest
 import com.chobolevel.api.record.review.dto.RecordReviewResponse
 import com.chobolevel.api.record.review.dto.UpdateRecordReviewRequest
+import com.chobolevel.domain.record.emotion.vo.RecordEmotionUpdateMask
 import com.chobolevel.domain.record.entity.Record
 import com.chobolevel.domain.record.review.entity.RecordReview
 import com.chobolevel.domain.record.review.vo.RecordReviewUpdateMask
@@ -25,6 +29,9 @@ object DummyRecord {
     val REVIEW_ID: Long = 2L
     val RATING: BigDecimal = BigDecimal("4.5")
 
+    val RECORD_EMOTION_ID: Long = 3L
+    val INTENSITY: Int = 5
+
     fun toEntity(): Record = Record.create(
         user = DummyUser.toEntity(),
         type = TYPE,
@@ -32,9 +39,12 @@ object DummyRecord {
         content = CONTENT,
         isPrivate = IS_PRIVATE,
         reviewSubject = null,
-        reviewRating = null
+        reviewRating = null,
+        emotion = DummyEmotion.toEntity(),
+        emotionIntensity = INTENSITY
     ).also {
         ReflectionTestUtils.setField(it, "id", ID)
+        ReflectionTestUtils.setField(it.recordEmotion!!, "id", RECORD_EMOTION_ID)
     }
 
     fun toEntityWithReview(): Record {
@@ -45,7 +55,9 @@ object DummyRecord {
             content = CONTENT,
             isPrivate = IS_PRIVATE,
             reviewSubject = DummySubject.toEntity(),
-            reviewRating = RATING
+            reviewRating = RATING,
+            emotion = null,
+            emotionIntensity = null
         )
         ReflectionTestUtils.setField(record, "id", ID)
         val review: RecordReview = record.recordReview!!
@@ -58,7 +70,8 @@ object DummyRecord {
         title = TITLE,
         content = CONTENT,
         isPrivate = IS_PRIVATE,
-        review = null
+        review = null,
+        emotion = CreateRecordEmotionRequest(emotionId = DummyEmotion.ID, intensity = INTENSITY)
     )
 
     fun toCreateReviewRequest(): CreateRecordRequest = CreateRecordRequest(
@@ -66,7 +79,8 @@ object DummyRecord {
         title = TITLE,
         content = CONTENT,
         isPrivate = IS_PRIVATE,
-        review = CreateRecordReviewRequest(subjectId = DummySubject.ID, rating = RATING)
+        review = CreateRecordReviewRequest(subjectId = DummySubject.ID, rating = RATING),
+        emotion = null
     )
 
     fun toUpdateRequest(): UpdateRecordRequest = UpdateRecordRequest(
@@ -76,12 +90,18 @@ object DummyRecord {
         isPrivate = null,
         tags = null,
         review = null,
+        emotion = null,
         updateMask = listOf(RecordUpdateMask.TITLE)
     )
 
     fun toUpdateReviewRequest(): UpdateRecordReviewRequest = UpdateRecordReviewRequest(
         rating = RATING,
         updateMask = listOf(RecordReviewUpdateMask.RATING)
+    )
+
+    fun toUpdateEmotionRequest(): UpdateRecordEmotionRequest = UpdateRecordEmotionRequest(
+        intensity = INTENSITY,
+        updateMask = listOf(RecordEmotionUpdateMask.INTENSITY)
     )
 
     fun toSearchRequest(): SearchRecordRequest = SearchRecordRequest(
@@ -100,6 +120,7 @@ object DummyRecord {
         isPrivate = IS_PRIVATE,
         tags = emptyList(),
         review = null,
+        emotion = null,
         createdAt = 0L,
         updatedAt = 0L
     )
@@ -108,6 +129,14 @@ object DummyRecord {
         id = REVIEW_ID,
         subject = DummySubject.toResponse(),
         rating = RATING,
+        createdAt = 0L,
+        updatedAt = 0L
+    )
+
+    fun toEmotionResponse(): RecordEmotionResponse = RecordEmotionResponse(
+        id = RECORD_EMOTION_ID,
+        emotion = DummyEmotion.toResponse(),
+        intensity = INTENSITY,
         createdAt = 0L,
         updatedAt = 0L
     )

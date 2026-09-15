@@ -24,6 +24,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
                     isPrivate = null,
                     tags = null,
                     review = null,
+                    emotion = null,
                     updateMask = listOf(RecordUpdateMask.TYPE)
                 )
 
@@ -42,6 +43,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
                     isPrivate = null,
                     tags = null,
                     review = null,
+                    emotion = null,
                     updateMask = listOf(RecordUpdateMask.TYPE)
                 )
 
@@ -75,6 +77,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
                     isPrivate = null,
                     tags = null,
                     review = null,
+                    emotion = null,
                     updateMask = listOf(RecordUpdateMask.TITLE)
                 )
 
@@ -96,6 +99,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
                     isPrivate = null,
                     tags = null,
                     review = null,
+                    emotion = null,
                     updateMask = listOf(RecordUpdateMask.TITLE)
                 )
 
@@ -119,6 +123,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
                     isPrivate = null,
                     tags = null,
                     review = null,
+                    emotion = null,
                     updateMask = listOf(RecordUpdateMask.CONTENT)
                 )
 
@@ -137,6 +142,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
                     isPrivate = null,
                     tags = null,
                     review = null,
+                    emotion = null,
                     updateMask = listOf(RecordUpdateMask.CONTENT)
                 )
 
@@ -160,6 +166,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
                     isPrivate = true,
                     tags = null,
                     review = null,
+                    emotion = null,
                     updateMask = listOf(RecordUpdateMask.IS_PRIVATE)
                 )
 
@@ -178,6 +185,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
                     isPrivate = null,
                     tags = null,
                     review = null,
+                    emotion = null,
                     updateMask = listOf(RecordUpdateMask.IS_PRIVATE)
                 )
 
@@ -201,6 +209,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
                     isPrivate = null,
                     tags = listOf("Kotlin", "Spring"),
                     review = null,
+                    emotion = null,
                     updateMask = listOf(RecordUpdateMask.TAGS)
                 )
 
@@ -219,6 +228,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
                     isPrivate = null,
                     tags = emptyList(),
                     review = null,
+                    emotion = null,
                     updateMask = listOf(RecordUpdateMask.TAGS)
                 )
 
@@ -237,6 +247,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
                     isPrivate = null,
                     tags = null,
                     review = null,
+                    emotion = null,
                     updateMask = listOf(RecordUpdateMask.TAGS)
                 )
 
