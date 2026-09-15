@@ -24,6 +24,10 @@ class RecordLikeSyncEventRelayScheduler(
     // like()/dislike() 와 같은 트랜잭션에서 INSERT된 PENDING 이벤트를 Kafka로 중계한다.
     // 각 이벤트는 독립적으로 처리되며, Kafka 발행 성공 시에만 PUBLISHED로 업데이트한다.
     // 발행 실패 시 PENDING 상태가 유지되어 다음 실행 주기에 자동으로 재시도된다.
+    //
+    // 메시지 키는 event.id가 아닌 recordId를 사용한다.
+    // 파티션이 1개인 지금은 동작에 차이가 없지만, 파티션을 늘릴 때 키가 recordId여야
+    // 같은 기록에 대한 이벤트가 항상 같은 파티션으로 라우팅되어 순서가 보장된다.
     @Scheduled(fixedDelay = 5_000)
     fun relay() {
         val pendingEvents: List<RecordLikeSyncEvent> = recordLikeSyncEventRepository
@@ -37,7 +41,7 @@ class RecordLikeSyncEventRelayScheduler(
             runCatching {
                 kafkaTemplate.send(
                     KafkaTopicConfiguration.RECORD_LIKE_SYNC_EVENTS,
-                    event.id!!.toString(),
+                    event.recordId.toString(),
                     RecordLikeSyncEventMessage(
                         eventId = event.id!!,
                         recordId = event.recordId,
