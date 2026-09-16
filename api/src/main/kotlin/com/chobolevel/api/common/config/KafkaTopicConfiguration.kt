@@ -10,21 +10,12 @@ class KafkaTopicConfiguration {
 
     companion object {
         const val RECORD_LIKE_SYNC_EVENTS = "record-like-sync-events"
-        const val RECORD_LIKE_SYNC_EVENTS_RETRY = "record-like-sync-events-retry"
         const val RECORD_LIKE_SYNC_EVENTS_DLQ = "record-like-sync-events-dlq"
     }
 
     @Bean
     fun recordLikeSyncEventsTopic(): NewTopic {
         return TopicBuilder.name("record-like-sync-events")
-            .partitions(1)
-            .replicas(1)
-            .build()
-    }
-
-    @Bean
-    fun recordLikeSyncEventsRetryTopic(): NewTopic {
-        return TopicBuilder.name("record-like-sync-events-retry")
             .partitions(1)
             .replicas(1)
             .build()

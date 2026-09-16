@@ -69,6 +69,10 @@ class RecordLikeSyncEvent private constructor(
         retryCount++
     }
 
+    fun retry() {
+        status = RecordLikeSyncEventStatus.PENDING
+    }
+
     companion object {
         fun create(
             recordId: Long,

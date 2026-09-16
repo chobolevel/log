@@ -4,6 +4,7 @@ import com.chobolevel.api.common.config.KafkaTopicConfiguration
 import com.chobolevel.api.common.constant.CacheKeyPrefix
 import com.chobolevel.api.common.provider.CacheProvider
 import com.chobolevel.api.record.like.sync.dto.RecordLikeSyncEventMessage
+import com.chobolevel.domain.common.exception.LogException
 import com.chobolevel.domain.record.like.entity.RecordLike
 import com.chobolevel.domain.record.like.repository.RecordLikeRepository
 import com.chobolevel.domain.record.like.sync.repository.RecordLikeSyncEventRepository
@@ -36,11 +37,16 @@ class RecordLikeSyncEventConsumer(
     //
     // Redis 업데이트는 DB 커밋 후 best-effort로 수행된다.
     // Redis 실패 시 트랜잭션이 롤백되어 Kafka가 재시도하고, like()의 cold start 로직이 최종적으로 Redis를 복구한다.
+    //
+    // LogException 계열(레코드 삭제 등 데이터 정합성 문제)은 재시도해도 결과가 달라지지 않으므로
+    // 재시도 없이 즉시 DLQ로 보낸다.
     @RetryableTopic(
         attempts = "3",
         backoff = Backoff(delay = 1_000, multiplier = 2.0),
         retryTopicSuffix = "-retry",
         dltTopicSuffix = "-dlq",
+        exclude = [LogException::class],
+        traversingCauses = "true",
     )
     @KafkaListener(topics = [KafkaTopicConfiguration.RECORD_LIKE_SYNC_EVENTS])
     @Transactional
@@ -55,7 +61,7 @@ class RecordLikeSyncEventConsumer(
     @DltHandler
     @Transactional
     fun handleDlt(message: RecordLikeSyncEventMessage) {
-        logger.error("RecordLikeSyncEvent DLQ 도달 - 수동 처리 필요: eventId=${message.eventId}, recordId=${message.recordId}, userId=${message.userId}, action=${message.action}")
+        logger.error("RecordLikeSyncEvent DLQ 도달 - 관리자 재발행 필요: eventId=${message.eventId}, recordId=${message.recordId}, userId=${message.userId}, action=${message.action}")
         recordLikeSyncEventRepository.findByIdOrNull(message.eventId)?.markFailed()
     }
 

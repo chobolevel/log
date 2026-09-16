@@ -67,6 +67,10 @@ enum class ErrorCode(val defaultMessage: String) {
     RECORD_LIKE_ALREADY_EXISTS("이미 좋아요한 기록입니다."),
     RECORD_LIKE_NOT_FOUND("좋아요하지 않은 기록입니다."),
 
+    // RECORD LIKE SYNC EVENT
+    RECORD_LIKE_SYNC_EVENT_NOT_FOUND("좋아요 동기화 이벤트를 찾을 수 없습니다."),
+    RECORD_LIKE_SYNC_EVENT_NOT_FAILED("실패한 이벤트만 재발행할 수 있습니다."),
+
     // SUBJECT
     SUBJECT_NOT_FOUND("주제를 찾을 수 없습니다."),
 
