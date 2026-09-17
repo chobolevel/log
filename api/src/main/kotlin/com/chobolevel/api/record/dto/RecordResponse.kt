@@ -16,6 +16,7 @@ data class RecordResponse(
     val review: RecordReviewResponse?,
     val emotion: RecordEmotionResponse?,
     val likeCount: Long = 0,
+    val viewCount: Long = 0,
     val createdAt: Long,
     val updatedAt: Long
 )

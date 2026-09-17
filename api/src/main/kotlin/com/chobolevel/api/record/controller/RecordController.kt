@@ -1,5 +1,6 @@
 package com.chobolevel.api.record.controller
 
+import com.chobolevel.api.common.annotation.GuestId
 import com.chobolevel.api.common.annotation.HasAuthorityUser
 import com.chobolevel.api.common.annotation.QueryObject
 import com.chobolevel.api.common.dto.PagingResponse
@@ -61,10 +62,12 @@ class RecordController(
     @GetMapping("/records/{id}")
     fun fetchRecord(
         authentication: Authentication?,
+        @GuestId guestId: String?,
         @PathVariable id: Long
     ): ResponseEntity<ResultResponse<RecordResponse>> {
         val result: RecordResponse = service.fetchRecord(
             requesterId = authentication?.getUserId(),
+            guestId = guestId,
             recordId = id
         )
         return ResponseEntity.ok(ResultResponse(result))

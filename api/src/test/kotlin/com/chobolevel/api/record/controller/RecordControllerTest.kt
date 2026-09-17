@@ -137,7 +137,7 @@ class RecordControllerTest {
     fun `인증 없이 기록 단건을 조회할 수 있다`() {
         // given
         every {
-            recordService.fetchRecord(requesterId = null, recordId = DummyRecord.ID)
+            recordService.fetchRecord(requesterId = null, guestId = null, recordId = DummyRecord.ID)
         } returns DummyRecord.toResponse()
 
         // when & then
