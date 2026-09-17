@@ -3,12 +3,12 @@ package com.chobolevel.api.common.security
 import com.chobolevel.api.common.constant.RequestAttributeKey
 import com.chobolevel.api.common.extension.getCookie
 import com.chobolevel.api.common.properties.GuestProperties
+import io.hypersistence.tsid.TSID
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.web.filter.OncePerRequestFilter
-import java.util.UUID
 
 // 방문자(회원/비회원 공통) 식별을 위한 게스트 ID 발급 필터.
 // 로그인 여부와 무관하게 항상 guestId를 보장한다 — 조회 이력/추천 피드 등에서
@@ -28,7 +28,7 @@ class GuestIdAssignFilter(
     }
 
     private fun issueGuestId(response: HttpServletResponse): String {
-        val guestId: String = UUID.randomUUID().toString()
+        val guestId: String = TSID.fast().toString()
         response.addCookie(generateCookie(guestId))
         return guestId
     }
