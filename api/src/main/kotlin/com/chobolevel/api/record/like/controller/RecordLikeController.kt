@@ -3,6 +3,7 @@ package com.chobolevel.api.record.like.controller
 import com.chobolevel.api.common.annotation.HasAuthorityUser
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getUserId
+import com.chobolevel.api.record.like.service.RecordLikeQueryService
 import com.chobolevel.api.record.like.service.RecordLikeService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -18,7 +19,8 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/v1")
 class RecordLikeController(
-    private val service: RecordLikeService
+    private val service: RecordLikeService,
+    private val queryService: RecordLikeQueryService,
 ) {
 
     @Operation(summary = "기록 좋아요 API")
@@ -54,7 +56,7 @@ class RecordLikeController(
     fun fetchLikeCount(
         @PathVariable recordId: Long
     ): ResponseEntity<ResultResponse<Long>> {
-        val result: Long = service.fetchLikeCount(recordId = recordId)
+        val result: Long = queryService.fetchLikeCount(recordId = recordId)
         return ResponseEntity.ok(ResultResponse(result))
     }
 
@@ -65,7 +67,7 @@ class RecordLikeController(
         authentication: Authentication,
         @PathVariable recordId: Long
     ): ResponseEntity<ResultResponse<Boolean>> {
-        val result: Boolean = service.isLiked(
+        val result: Boolean = queryService.isLiked(
             userId = authentication.getUserId(),
             recordId = recordId
         )

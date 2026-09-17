@@ -2,6 +2,7 @@ package com.chobolevel.api.record.like.controller
 
 import com.chobolevel.api.common.dummy.DummyRecord
 import com.chobolevel.api.common.dummy.DummyUser
+import com.chobolevel.api.record.like.service.RecordLikeQueryService
 import com.chobolevel.api.record.like.service.RecordLikeService
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.clearAllMocks
@@ -37,6 +38,9 @@ class RecordLikeControllerTest {
 
     @MockkBean
     private lateinit var recordLikeService: RecordLikeService
+
+    @MockkBean
+    private lateinit var recordLikeQueryService: RecordLikeQueryService
 
     @TestConfiguration
     @EnableMethodSecurity(prePostEnabled = true)
@@ -94,7 +98,7 @@ class RecordLikeControllerTest {
     @Test
     fun `인증 없이 좋아요 수를 조회할 수 있다`() {
         // given
-        every { recordLikeService.fetchLikeCount(recordId = DummyRecord.ID) } returns 5L
+        every { recordLikeQueryService.fetchLikeCount(recordId = DummyRecord.ID) } returns 5L
 
         // when & then
         mockMvc.perform(get("/api/v1/records/${DummyRecord.ID}/likes/count"))
@@ -106,7 +110,7 @@ class RecordLikeControllerTest {
     @WithMockUser(username = "${DummyUser.ID}", roles = ["USER"])
     fun `인증된 사용자가 좋아요 여부 조회 시 결과를 반환한다`() {
         // given
-        every { recordLikeService.isLiked(userId = DummyUser.ID, recordId = DummyRecord.ID) } returns true
+        every { recordLikeQueryService.isLiked(userId = DummyUser.ID, recordId = DummyRecord.ID) } returns true
 
         // when & then
         mockMvc.perform(get("/api/v1/records/${DummyRecord.ID}/likes/me"))

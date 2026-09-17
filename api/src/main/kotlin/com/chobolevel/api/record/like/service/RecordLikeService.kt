@@ -73,30 +73,8 @@ class RecordLikeService(
         return true
     }
 
-    @Transactional(readOnly = true)
-    fun fetchLikeCount(recordId: Long): Long {
-        val likesKey: String = CacheKeyPrefix.recordLikes(recordId)
-        initCacheIfAbsent(recordId = recordId, likesKey = likesKey)
-        return cacheProvider.getSetSize(likesKey)
-    }
-
-    @Transactional(readOnly = true)
-    fun isLiked(userId: Long, recordId: Long): Boolean {
-        val likesKey: String = CacheKeyPrefix.recordLikes(recordId)
-        initCacheIfAbsent(recordId = recordId, likesKey = likesKey)
-        return cacheProvider.isInSet(likesKey, userId.toString())
-    }
-
-    @Transactional(readOnly = true)
-    fun fetchLikeCounts(recordIds: List<Long>): Map<Long, Long> {
-        return recordIds.associateWith { recordId ->
-            val likesKey: String = CacheKeyPrefix.recordLikes(recordId)
-            initCacheIfAbsent(recordId = recordId, likesKey = likesKey)
-            cacheProvider.getSetSize(likesKey)
-        }
-    }
-
     // cold start: Redis에 키가 없으면 DB에서 로드
+    // like()/dislike()가 멤버십을 확인하기 전에 캐시를 준비해야 해서 Command 쪽에도 필요 (RecordLikeQueryService와 중복)
     private fun initCacheIfAbsent(recordId: Long, likesKey: String) {
         if (!cacheProvider.hasKey(likesKey)) {
             val userIds: List<String> = recordLikeRepository

@@ -1,0 +1,49 @@
+package com.chobolevel.api.record.like.service
+
+import com.chobolevel.api.common.constant.CacheKeyPrefix
+import com.chobolevel.api.common.provider.CacheProvider
+import com.chobolevel.domain.record.like.repository.RecordLikeRepository
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+
+@Service
+class RecordLikeQueryService(
+    private val recordLikeRepository: RecordLikeRepository,
+    private val cacheProvider: CacheProvider,
+) {
+
+    @Transactional(readOnly = true)
+    fun fetchLikeCount(recordId: Long): Long {
+        val likesKey: String = CacheKeyPrefix.recordLikes(recordId)
+        initCacheIfAbsent(recordId = recordId, likesKey = likesKey)
+        return cacheProvider.getSetSize(likesKey)
+    }
+
+    @Transactional(readOnly = true)
+    fun fetchLikeCounts(recordIds: List<Long>): Map<Long, Long> {
+        return recordIds.associateWith { recordId ->
+            val likesKey: String = CacheKeyPrefix.recordLikes(recordId)
+            initCacheIfAbsent(recordId = recordId, likesKey = likesKey)
+            cacheProvider.getSetSize(likesKey)
+        }
+    }
+
+    @Transactional(readOnly = true)
+    fun isLiked(userId: Long, recordId: Long): Boolean {
+        val likesKey: String = CacheKeyPrefix.recordLikes(recordId)
+        initCacheIfAbsent(recordId = recordId, likesKey = likesKey)
+        return cacheProvider.isInSet(likesKey, userId.toString())
+    }
+
+    // cold start: Redis에 키가 없으면 DB에서 로드
+    private fun initCacheIfAbsent(recordId: Long, likesKey: String) {
+        if (!cacheProvider.hasKey(likesKey)) {
+            val userIds: List<String> = recordLikeRepository
+                .findAllByRecordId(recordId)
+                .map { it.user.id!!.toString() }
+            if (userIds.isNotEmpty()) {
+                cacheProvider.addToSet(likesKey, *userIds.toTypedArray())
+            }
+        }
+    }
+}
