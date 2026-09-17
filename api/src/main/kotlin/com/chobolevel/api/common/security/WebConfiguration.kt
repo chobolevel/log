@@ -1,5 +1,6 @@
 package com.chobolevel.api.common.security
 
+import com.chobolevel.api.common.properties.GuestProperties
 import com.chobolevel.api.common.properties.JwtProperties
 import com.chobolevel.api.common.properties.SecurityProperties
 import org.springframework.context.annotation.Bean
@@ -25,6 +26,7 @@ class WebConfiguration(
     private val tokenProvider: TokenProvider,
     private val securityProperties: SecurityProperties,
     private val jwtProperties: JwtProperties,
+    private val guestProperties: GuestProperties,
 ) {
 
     @Bean
@@ -87,6 +89,10 @@ class WebConfiguration(
             }
             .addFilterBefore(
                 OnceJwtAuthorizationFilter(accessTokenKey = jwtProperties.accessTokenKey, tokenProvider = tokenProvider),
+                UsernamePasswordAuthenticationFilter::class.java
+            )
+            .addFilterBefore(
+                GuestIdAssignFilter(guestProperties = guestProperties),
                 UsernamePasswordAuthenticationFilter::class.java
             )
             .build()

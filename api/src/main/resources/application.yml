@@ -113,6 +113,16 @@ jwt:
     http-only: true
     same-site: none
 
+guest:
+  guest-id-key: ENC(08oTwaRzk/vNJxZWlGxv06rCCwwWwyUXLXfIXCquGJ7RP3SIglCauqg6HtuT+auz)
+  cookie:
+    path: "/"
+    max-age: 31536000
+    domain: localhost
+    secure: true
+    http-only: true
+    same-site: none
+
 security:
   allow-origins: ENC(4K87xBn8UQLVcVfztebCtC+/jt2xtURHMjwbd3jE0X2Tns96uhZFlTX/E9sFEmlPvjyXxGLUVSrWkEg0GXvPFA==)
 

@@ -73,7 +73,17 @@ jwt:
   cookie:
     path: /
     max-age: 31536000
-    domain: chobolevel.co.kr
+    domain: chobolevel.com
+    secure: true
+    http-only: true
+    same-site: none
+
+guest:
+  guest-id-key: ENC(08oTwaRzk/vNJxZWlGxv06rCCwwWwyUXLXfIXCquGJ7RP3SIglCauqg6HtuT+auz)
+  cookie:
+    path: /
+    max-age: 31536000
+    domain: chobolevel.com
     secure: true
     http-only: true
     same-site: none
