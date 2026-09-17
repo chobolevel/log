@@ -48,4 +48,16 @@ class RedisCacheProvider(
     override fun hasKey(key: String): Boolean {
         return redisTemplate.hasKey(key)
     }
+
+    override fun putIfAbsent(key: String, value: String): Boolean {
+        return redisTemplate.opsForValue().setIfAbsent(key, value) ?: false
+    }
+
+    override fun putIfAbsent(key: String, value: String, duration: Long, unit: TimeUnit): Boolean {
+        return redisTemplate.opsForValue().setIfAbsent(key, value, duration, unit) ?: false
+    }
+
+    override fun increment(key: String): Long {
+        return redisTemplate.opsForValue().increment(key) ?: 0L
+    }
 }

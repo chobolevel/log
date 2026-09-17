@@ -33,4 +33,13 @@ interface CacheProvider {
 
     // 키 존재 여부 확인
     fun hasKey(key: String): Boolean
+
+    // 키가 없을 때만 값 저장 (만료 없음) — 카운터 콜드스타트 시드값 세팅 등에 사용
+    fun putIfAbsent(key: String, value: String): Boolean
+
+    // 키가 없을 때만 값 저장 (만료 시간 지정) — 원자적 연산, 중복 방지 게이트 등에 사용
+    fun putIfAbsent(key: String, value: String, duration: Long, unit: TimeUnit): Boolean
+
+    // 키의 값을 1 증가시키고 반환 (키가 없으면 0에서 시작)
+    fun increment(key: String): Long
 }
