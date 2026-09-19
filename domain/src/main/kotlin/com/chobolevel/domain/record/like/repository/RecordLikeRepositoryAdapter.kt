@@ -2,7 +2,6 @@ package com.chobolevel.domain.record.like.repository
 
 import com.chobolevel.domain.record.like.entity.RecordLike
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 
 @Component
 class RecordLikeRepositoryAdapter(
@@ -24,7 +23,6 @@ class RecordLikeRepositoryAdapter(
         )
     }
 
-    @Transactional
     override fun deleteByRecordIdAndUserId(recordId: Long, userId: Long) {
         recordLikeJpaRepository.deleteByRecordIdAndUserId(
             recordId = recordId,
