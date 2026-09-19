@@ -3,6 +3,7 @@ package com.chobolevel.domain.user.follow.entity
 import com.chobolevel.domain.user.entity.User
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EntityListeners
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -11,10 +12,12 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import org.springframework.data.annotation.CreatedDate
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.time.OffsetDateTime
 
 @Entity
 @Table(name = "user_follows")
+@EntityListeners(value = [AuditingEntityListener::class])
 class UserFollow private constructor(
     followingUser: User,
     followerUser: User
@@ -38,7 +41,7 @@ class UserFollow private constructor(
 
     companion object {
         internal fun create(followingUser: User, followerUser: User): UserFollow {
-            require(followingUser.id == followerUser.id) { "팔로잉, 팔로워 회원이 같습니다." }
+            require(followingUser.id != followerUser.id) { "팔로잉, 팔로워 회원이 같습니다." }
             return UserFollow(
                 followingUser = followingUser,
                 followerUser = followerUser
