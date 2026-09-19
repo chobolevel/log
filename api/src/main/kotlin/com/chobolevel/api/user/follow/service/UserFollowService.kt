@@ -5,13 +5,11 @@ import com.chobolevel.api.common.provider.CacheProvider
 import com.chobolevel.api.common.provider.DistributedLockProvider
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.InvalidParameterException
-import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.follow.repository.UserFollowRepository
 import com.chobolevel.domain.user.follow.sync.entity.UserFollowSyncEvent
 import com.chobolevel.domain.user.follow.sync.repository.UserFollowSyncEventRepository
 import com.chobolevel.domain.user.follow.sync.vo.UserFollowSyncEventAction
 import com.chobolevel.domain.user.follow.vo.UserFollowQueryFilter
-import com.chobolevel.domain.user.repository.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.transaction.support.TransactionSynchronization
@@ -20,7 +18,6 @@ import java.util.concurrent.TimeUnit
 
 @Service
 class UserFollowService(
-    private val userRepository: UserRepository,
     private val userFollowRepository: UserFollowRepository,
     private val userFollowSyncEventRepository: UserFollowSyncEventRepository,
     private val cacheProvider: CacheProvider,
@@ -34,10 +31,6 @@ class UserFollowService(
 
     @Transactional
     fun follow(followerUserId: Long, followingUserId: Long): Boolean {
-        if (followerUserId == followingUserId) {
-            throw InvalidParameterException(errorCode = ErrorCode.USER_FOLLOW_SELF_NOT_ALLOWED)
-        }
-
         val lockKey: String = CacheKeyPrefix.userFollowLock(followerUserId, followingUserId)
         return distributedLockProvider.executeWithLock(
             key = lockKey,
@@ -49,12 +42,6 @@ class UserFollowService(
             if (isCurrentlyFollowing(followerUserId = followerUserId, followingUserId = followingUserId, relationKey = relationKey)) {
                 throw InvalidParameterException(errorCode = ErrorCode.USER_FOLLOW_ALREADY_EXISTS)
             }
-
-            val followerUser: User = userRepository.findById(followerUserId)
-            val followingUser: User = userRepository.findById(followingUserId)
-            // 실제 UserFollow row는 Consumer가 생성한다 — 여기서는 애그리거트 진입점을 통해 불변식만 검증한다.
-            // TODO: 불변식 검증을 Outbox 발행단계에서 하는 게 맞을까?
-            followerUser.follow(followingUser)
 
             userFollowSyncEventRepository.save(
                 UserFollowSyncEvent.create(

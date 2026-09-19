@@ -10,6 +10,7 @@ import com.chobolevel.api.user.follow.dto.SearchUserFollowingRequest
 import com.chobolevel.api.user.follow.dto.UserFollowResponse
 import com.chobolevel.api.user.follow.service.UserFollowQueryService
 import com.chobolevel.api.user.follow.service.UserFollowService
+import com.chobolevel.api.user.follow.validator.UserFollowParameterValidator
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController
 class UserFollowController(
     private val service: UserFollowService,
     private val queryService: UserFollowQueryService,
+    private val validator: UserFollowParameterValidator,
 ) {
 
     @Operation(summary = "회원 팔로우 API")
@@ -35,6 +37,7 @@ class UserFollowController(
         authentication: Authentication,
         @PathVariable userId: Long
     ): ResponseEntity<ResultResponse<Boolean>> {
+        validator.validateFollow(followerUserId = authentication.getUserId(), followingUserId = userId)
         val result: Boolean = service.follow(
             followerUserId = authentication.getUserId(),
             followingUserId = userId

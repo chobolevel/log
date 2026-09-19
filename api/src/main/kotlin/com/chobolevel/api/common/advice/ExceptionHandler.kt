@@ -67,6 +67,14 @@ class ExceptionHandler {
         )
     }
 
+    // 도메인 엔티티의 require()로 표현된 불변식 위반 — 잡히지 않으면 500으로 새던 것을 400으로 전환한다.
+    @ExceptionHandler(IllegalArgumentException::class)
+    fun handleIllegalArgumentException(e: IllegalArgumentException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.badRequest().body(
+            ErrorResponse(errorCode = ErrorCode.INVALID_PARAMETER, errorMessage = e.message ?: ErrorCode.INVALID_PARAMETER.defaultMessage)
+        )
+    }
+
     @ExceptionHandler(AccessDeniedException::class)
     fun handleAccessDeniedException(e: AccessDeniedException): ResponseEntity<ErrorResponse> {
         val errorResponse = ErrorResponse(
