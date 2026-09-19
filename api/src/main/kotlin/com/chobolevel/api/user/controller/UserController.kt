@@ -11,6 +11,7 @@ import com.chobolevel.api.user.dto.ResetUserPasswordRequest
 import com.chobolevel.api.user.dto.SearchUserRequest
 import com.chobolevel.api.user.dto.SendUserPasswordResetEmailRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
+import com.chobolevel.api.user.dto.UserDetailResponse
 import com.chobolevel.api.user.dto.UserResponse
 import com.chobolevel.api.user.service.UserService
 import com.chobolevel.api.user.validator.UserParameterValidator
@@ -57,16 +58,16 @@ class UserController(
 
     @Operation(summary = "회원 단건 조회 API")
     @GetMapping("/users/{id}")
-    fun fetchUser(@PathVariable id: Long): ResponseEntity<ResultResponse<UserResponse>> {
-        val result: UserResponse = service.fetchUser(id)
+    fun fetchUser(@PathVariable id: Long): ResponseEntity<ResultResponse<UserDetailResponse>> {
+        val result: UserDetailResponse = service.fetchUser(id)
         return ResponseEntity.ok(ResultResponse(result))
     }
 
     @Operation(summary = "회원 본인 정보 조회 API")
     @HasAuthorityUser
     @GetMapping("/user/me")
-    fun myUser(principal: Principal): ResponseEntity<ResultResponse<UserResponse>> {
-        val result: UserResponse = service.fetchUser(principal.getUserId())
+    fun myUser(principal: Principal): ResponseEntity<ResultResponse<UserDetailResponse>> {
+        val result: UserDetailResponse = service.fetchUser(principal.getUserId())
         return ResponseEntity.ok(ResultResponse(result))
     }
 

@@ -113,7 +113,7 @@ class UserControllerTest {
             userService.fetchUser(
                 id = any()
             )
-        } returns DummyUser.toResponse()
+        } returns DummyUser.toDetailResponse()
 
         // when & then
         mockMvc.perform(get("/api/v1/users/${DummyUser.ID}"))
@@ -129,7 +129,7 @@ class UserControllerTest {
             userService.fetchUser(
                 id = DummyUser.ID
             )
-        } returns DummyUser.toResponse()
+        } returns DummyUser.toDetailResponse()
 
         // when & then
         mockMvc.perform(get("/api/v1/user/me"))

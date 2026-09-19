@@ -4,6 +4,7 @@ import com.chobolevel.api.common.provider.PasswordProvider
 import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.SearchUserRequest
 import com.chobolevel.api.user.dto.SocialLoginRequest
+import com.chobolevel.api.user.dto.UserDetailResponse
 import com.chobolevel.api.user.dto.UserResponse
 import com.chobolevel.api.user.dto.UserSummaryResponse
 import com.chobolevel.api.user.image.converter.UserImageConverter
@@ -67,6 +68,21 @@ class UserConverter(
 
     fun convert(entities: List<User>): List<UserResponse> {
         return entities.map { convert(it) }
+    }
+
+    fun convertToDetail(entity: User, followerCount: Long, followingCount: Long): UserDetailResponse {
+        return UserDetailResponse(
+            id = entity.id!!,
+            email = entity.email,
+            loginType = entity.loginType,
+            nickname = entity.nickname,
+            role = entity.role,
+            profileImage = entity.profileImage?.let { userImageConverter.convert(it) },
+            followerCount = followerCount,
+            followingCount = followingCount,
+            createdAt = entity.createdAt.toInstant().toEpochMilli(),
+            updatedAt = entity.updatedAt.toInstant().toEpochMilli()
+        )
     }
 
     fun convertToSummary(entity: User): UserSummaryResponse {

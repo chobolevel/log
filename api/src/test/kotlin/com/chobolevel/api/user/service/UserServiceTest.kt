@@ -13,7 +13,9 @@ import com.chobolevel.api.user.dto.ResetUserPasswordRequest
 import com.chobolevel.api.user.dto.SearchUserRequest
 import com.chobolevel.api.user.dto.SendUserPasswordResetEmailRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
+import com.chobolevel.api.user.dto.UserDetailResponse
 import com.chobolevel.api.user.dto.UserResponse
+import com.chobolevel.api.user.follow.service.UserFollowQueryService
 import com.chobolevel.api.user.updater.UserUpdater
 import com.chobolevel.api.user.validator.UserBusinessValidator
 import com.chobolevel.domain.user.entity.User
@@ -38,6 +40,7 @@ class UserServiceTest : BehaviorSpec({
     val cacheProvider: CacheProvider = mockk()
     val emailProvider: EmailProvider = mockk()
     val frontServerProperties: FrontServerProperties = mockk()
+    val userFollowQueryService: UserFollowQueryService = mockk()
     val service: UserService = UserService(
         repository = repository,
         converter = converter,
@@ -47,6 +50,7 @@ class UserServiceTest : BehaviorSpec({
         cacheProvider = cacheProvider,
         emailProvider = emailProvider,
         frontServerProperties = frontServerProperties,
+        userFollowQueryService = userFollowQueryService,
     )
 
     beforeEach {
@@ -112,18 +116,31 @@ class UserServiceTest : BehaviorSpec({
 
     given("단일 회원을 조회할 때") {
         `when`("존재하는 회원 id가 들어오면") {
-            then("UserResponse를 반환한다") {
+            then("팔로워/팔로잉 수를 포함한 UserDetailResponse를 반환한다") {
                 // given
                 val user: User = DummyUser.toEntity()
-                val userResponse: UserResponse = DummyUser.toResponse()
+                val followerCount = 3L
+                val followingCount = 5L
+                val userDetailResponse: UserDetailResponse = DummyUser.toDetailResponse(
+                    followerCount = followerCount,
+                    followingCount = followingCount
+                )
                 every { repository.findById(DummyUser.ID) } returns user
-                every { converter.convert(entity = user) } returns userResponse
+                every { userFollowQueryService.fetchFollowerCount(DummyUser.ID) } returns followerCount
+                every { userFollowQueryService.fetchFollowingCount(DummyUser.ID) } returns followingCount
+                every {
+                    converter.convertToDetail(
+                        entity = user,
+                        followerCount = followerCount,
+                        followingCount = followingCount
+                    )
+                } returns userDetailResponse
 
                 // when
-                val result: UserResponse = service.fetchUser(DummyUser.ID)
+                val result: UserDetailResponse = service.fetchUser(DummyUser.ID)
 
                 // then
-                result shouldBe userResponse
+                result shouldBe userDetailResponse
             }
         }
     }

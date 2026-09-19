@@ -5,6 +5,7 @@ import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.ResetUserPasswordRequest
 import com.chobolevel.api.user.dto.SendUserPasswordResetEmailRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
+import com.chobolevel.api.user.dto.UserDetailResponse
 import com.chobolevel.api.user.dto.UserResponse
 import com.chobolevel.api.user.dto.UserSummaryResponse
 import com.chobolevel.domain.user.entity.User
@@ -61,6 +62,19 @@ object DummyUser {
         nickname = NICKNAME,
         role = UserRoleType.ROLE_USER,
         profileImage = null,
+        createdAt = 0L,
+        updatedAt = 0L
+    )
+
+    fun toDetailResponse(followerCount: Long = 0L, followingCount: Long = 0L): UserDetailResponse = UserDetailResponse(
+        id = ID,
+        email = EMAIL,
+        loginType = UserLoginType.GENERAL,
+        nickname = NICKNAME,
+        role = UserRoleType.ROLE_USER,
+        profileImage = null,
+        followerCount = followerCount,
+        followingCount = followingCount,
         createdAt = 0L,
         updatedAt = 0L
     )

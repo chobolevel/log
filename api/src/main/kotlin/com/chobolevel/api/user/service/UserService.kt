@@ -13,7 +13,9 @@ import com.chobolevel.api.user.dto.ResetUserPasswordRequest
 import com.chobolevel.api.user.dto.SearchUserRequest
 import com.chobolevel.api.user.dto.SendUserPasswordResetEmailRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
+import com.chobolevel.api.user.dto.UserDetailResponse
 import com.chobolevel.api.user.dto.UserResponse
+import com.chobolevel.api.user.follow.service.UserFollowQueryService
 import com.chobolevel.api.user.updater.UserUpdater
 import com.chobolevel.api.user.validator.UserBusinessValidator
 import com.chobolevel.domain.common.dto.Paging
@@ -35,6 +37,7 @@ class UserService(
     private val cacheProvider: CacheProvider,
     private val emailProvider: EmailProvider,
     private val frontServerProperties: FrontServerProperties,
+    private val userFollowQueryService: UserFollowQueryService,
 ) {
 
     @Transactional
@@ -65,9 +68,11 @@ class UserService(
     }
 
     @Transactional(readOnly = true)
-    fun fetchUser(id: Long): UserResponse {
+    fun fetchUser(id: Long): UserDetailResponse {
         val user: User = repository.findById(id)
-        return converter.convert(entity = user)
+        val followerCount: Long = userFollowQueryService.fetchFollowerCount(id)
+        val followingCount: Long = userFollowQueryService.fetchFollowingCount(id)
+        return converter.convertToDetail(entity = user, followerCount = followerCount, followingCount = followingCount)
     }
 
     @Transactional
