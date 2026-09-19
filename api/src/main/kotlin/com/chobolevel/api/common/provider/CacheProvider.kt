@@ -16,6 +16,9 @@ interface CacheProvider {
     // 키 삭제
     fun delete(key: String)
 
+    // 키가 존재할 때만 삭제하고 실제 삭제 여부를 반환 — 멱등 토큰 해제(언팔로우 등) 시 "실제로 존재했는지" 판단에 사용
+    fun deleteIfPresent(key: String): Boolean
+
     // Set에 값 추가
     fun addToSet(key: String, vararg values: String): Long?
 
@@ -42,4 +45,7 @@ interface CacheProvider {
 
     // 키의 값을 1 증가시키고 반환 (키가 없으면 0에서 시작)
     fun increment(key: String): Long
+
+    // 키의 값을 1 감소시키고 반환 (키가 없으면 0에서 시작)
+    fun decrement(key: String): Long
 }

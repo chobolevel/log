@@ -68,6 +68,9 @@ dependencies {
     // kafka
     implementation("org.springframework.kafka:spring-kafka")
 
+    // redisson: 분산 락
+    implementation("org.redisson:redisson-spring-boot-starter:3.23.5")
+
     // Resend(sending email SDK)
     implementation("com.resend:resend-java:+")
 
