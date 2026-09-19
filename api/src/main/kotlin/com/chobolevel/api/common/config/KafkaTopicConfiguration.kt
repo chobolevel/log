@@ -12,6 +12,8 @@ class KafkaTopicConfiguration {
         const val RECORD_LIKE_SYNC_EVENTS = "record-like-sync-events"
         const val RECORD_LIKE_SYNC_EVENTS_DLQ = "record-like-sync-events-dlq"
         const val RECORD_VIEW_EVENTS = "record-view-events"
+        const val USER_FOLLOW_SYNC_EVENTS = "user-follow-sync-events"
+        const val USER_FOLLOW_SYNC_EVENTS_DLQ = "user-follow-sync-events-dlq"
     }
 
     @Bean
@@ -35,6 +37,22 @@ class KafkaTopicConfiguration {
     @Bean
     fun recordViewEventsTopic(): NewTopic {
         return TopicBuilder.name("record-view-events")
+            .partitions(1)
+            .replicas(1)
+            .build()
+    }
+
+    @Bean
+    fun userFollowSyncEventsTopic(): NewTopic {
+        return TopicBuilder.name("user-follow-sync-events")
+            .partitions(1)
+            .replicas(1)
+            .build()
+    }
+
+    @Bean
+    fun userFollowSyncEventsDlqTopic(): NewTopic {
+        return TopicBuilder.name("user-follow-sync-events-dlq")
             .partitions(1)
             .replicas(1)
             .build()

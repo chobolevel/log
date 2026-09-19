@@ -63,7 +63,7 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
-        spring.json.trusted.packages: "com.chobolevel.api.record.like.sync.dto,com.chobolevel.api.record.view.dto"
+        spring.json.trusted.packages: "com.chobolevel.api.record.like.sync.dto,com.chobolevel.api.record.view.dto,com.chobolevel.api.user.follow.sync.dto"
   flyway:
     enabled: true
     baseline-on-migrate: true
