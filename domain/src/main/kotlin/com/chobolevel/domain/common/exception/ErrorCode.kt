@@ -5,6 +5,7 @@ enum class ErrorCode(val defaultMessage: String) {
     INVALID_PARAMETER("파라미터가 유효하지 않습니다."),
     INVALID_REQUEST_FORMAT("요청 형식이 올바르지 않습니다."),
     INTERNAL_SERVER_ERROR("내부 서버에서 에러가 발생하였습니다."),
+    LOCK_ACQUISITION_FAILED("요청이 많아 처리할 수 없습니다. 잠시 후 다시 시도해주세요."),
 
     // AUTH
     BAD_CREDENTIAL("아이디 또는 비밀번호가 일치하지 않습니다."),
@@ -53,6 +54,15 @@ enum class ErrorCode(val defaultMessage: String) {
 
     // USER IMAGE
     USER_IMAGE_NOT_FOUND("회원 이미지를 찾을 수 없습니다."),
+
+    // USER FOLLOW
+    USER_FOLLOW_ALREADY_EXISTS("이미 팔로우한 회원입니다."),
+    USER_FOLLOW_NOT_FOUND("팔로우하지 않은 회원입니다."),
+    USER_FOLLOW_SELF_NOT_ALLOWED("자기 자신은 팔로우할 수 없습니다."),
+
+    // USER FOLLOW SYNC EVENT
+    USER_FOLLOW_SYNC_EVENT_NOT_FOUND("팔로우 동기화 이벤트를 찾을 수 없습니다."),
+    USER_FOLLOW_SYNC_EVENT_NOT_FAILED("실패한 이벤트만 재발행할 수 있습니다."),
 
     // RECORD
     RECORD_NOT_FOUND("기록을 찾을 수 없습니다."),

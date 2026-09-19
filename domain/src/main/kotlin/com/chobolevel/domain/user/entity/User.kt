@@ -1,6 +1,7 @@
 package com.chobolevel.domain.user.entity
 
 import com.chobolevel.domain.common.entity.Audit
+import com.chobolevel.domain.user.follow.entity.UserFollow
 import com.chobolevel.domain.user.image.entity.UserImage
 import com.chobolevel.domain.user.vo.UserLoginType
 import com.chobolevel.domain.user.vo.UserRoleType
@@ -88,6 +89,10 @@ class User private constructor(
 
     fun updateSocialId(socialId: String) {
         this.socialId = socialId
+    }
+
+    fun follow(targetUser: User): UserFollow {
+        return UserFollow.create(followingUser = targetUser, followerUser = this)
     }
 
     companion object {
