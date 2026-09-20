@@ -3,8 +3,7 @@ package com.chobolevel.api.user.follow.service
 import com.chobolevel.api.common.constant.CacheKeyPrefix
 import com.chobolevel.api.common.provider.CacheProvider
 import com.chobolevel.api.common.provider.DistributedLockProvider
-import com.chobolevel.domain.common.exception.ErrorCode
-import com.chobolevel.domain.common.exception.InvalidParameterException
+import com.chobolevel.api.user.follow.validator.UserFollowBusinessValidator
 import com.chobolevel.domain.user.follow.repository.UserFollowRepository
 import com.chobolevel.domain.user.follow.sync.entity.UserFollowSyncEvent
 import com.chobolevel.domain.user.follow.sync.repository.UserFollowSyncEventRepository
@@ -20,6 +19,7 @@ import java.util.concurrent.TimeUnit
 class UserFollowService(
     private val userFollowRepository: UserFollowRepository,
     private val userFollowSyncEventRepository: UserFollowSyncEventRepository,
+    private val userFollowBusinessValidator: UserFollowBusinessValidator,
     private val cacheProvider: CacheProvider,
     private val distributedLockProvider: DistributedLockProvider,
 ) {
@@ -29,6 +29,7 @@ class UserFollowService(
         private const val LOCK_LEASE_SECONDS = 10L
     }
 
+    // TODO: 락 해제가 트랜잭션 커밋보다 먼저 일어나는 타이밍 문제 재검토 필요 (동시 요청 시 중복 카운트 위험)
     @Transactional
     fun follow(followerUserId: Long, followingUserId: Long): Boolean {
         val lockKey: String = CacheKeyPrefix.userFollowLock(followerUserId, followingUserId)
@@ -38,10 +39,7 @@ class UserFollowService(
             leaseTime = LOCK_LEASE_SECONDS,
             unit = TimeUnit.SECONDS,
         ) {
-            val relationKey: String = CacheKeyPrefix.userFollowRelation(followerUserId, followingUserId)
-            if (isCurrentlyFollowing(followerUserId = followerUserId, followingUserId = followingUserId, relationKey = relationKey)) {
-                throw InvalidParameterException(errorCode = ErrorCode.USER_FOLLOW_ALREADY_EXISTS)
-            }
+            userFollowBusinessValidator.validateFollow(followerUserId = followerUserId, followingUserId = followingUserId)
 
             userFollowSyncEventRepository.save(
                 UserFollowSyncEvent.create(
@@ -51,6 +49,7 @@ class UserFollowService(
                 )
             )
 
+            val relationKey: String = CacheKeyPrefix.userFollowRelation(followerUserId, followingUserId)
             // DB 커밋 성공 후 Redis 반영 — 실패 시 콜드스타트 로직이 eventual하게 복구
             registerAfterCommit {
                 cacheProvider.put(relationKey, "1")
@@ -71,10 +70,7 @@ class UserFollowService(
             leaseTime = LOCK_LEASE_SECONDS,
             unit = TimeUnit.SECONDS,
         ) {
-            val relationKey: String = CacheKeyPrefix.userFollowRelation(followerUserId, followingUserId)
-            if (!isCurrentlyFollowing(followerUserId = followerUserId, followingUserId = followingUserId, relationKey = relationKey)) {
-                throw InvalidParameterException(errorCode = ErrorCode.USER_FOLLOW_NOT_FOUND)
-            }
+            userFollowBusinessValidator.validateUnfollow(followerUserId = followerUserId, followingUserId = followingUserId)
 
             userFollowSyncEventRepository.save(
                 UserFollowSyncEvent.create(
@@ -84,6 +80,7 @@ class UserFollowService(
                 )
             )
 
+            val relationKey: String = CacheKeyPrefix.userFollowRelation(followerUserId, followingUserId)
             registerAfterCommit {
                 cacheProvider.delete(relationKey)
                 decrementFollowingCount(followerUserId)
@@ -92,21 +89,6 @@ class UserFollowService(
 
             true
         }
-    }
-
-    // 관계 캐시가 없으면 DB로 확인 후 있으면 재적재 (좋아요 Set과 동일한 역할 — TTL 없이 즉시 상태 반영)
-    private fun isCurrentlyFollowing(followerUserId: Long, followingUserId: Long, relationKey: String): Boolean {
-        if (cacheProvider.hasKey(relationKey)) {
-            return true
-        }
-        val exists: Boolean = userFollowRepository.existsByFollowerUserIdAndFollowingUserId(
-            followerUserId = followerUserId,
-            followingUserId = followingUserId,
-        )
-        if (exists) {
-            cacheProvider.put(relationKey, "1")
-        }
-        return exists
     }
 
     private fun incrementFollowingCount(userId: Long) {
