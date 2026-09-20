@@ -25,10 +25,6 @@ class RedisCacheProvider(
         redisTemplate.delete(key)
     }
 
-    override fun deleteIfPresent(key: String): Boolean {
-        return redisTemplate.delete(key)
-    }
-
     override fun addToSet(key: String, vararg values: String): Long? {
         return redisTemplate.opsForSet().add(key, *values)
     }
