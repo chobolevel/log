@@ -17,4 +17,8 @@ interface UserFollowSyncEventRepository {
     fun findAllByStatus(status: UserFollowSyncEventStatus, paging: Paging): List<UserFollowSyncEvent>
 
     fun countByStatus(status: UserFollowSyncEventStatus): Long
+
+    fun existsByStatusNotAndFollowerUserId(status: UserFollowSyncEventStatus, followerUserId: Long): Boolean
+
+    fun existsByStatusNotAndFollowingUserId(status: UserFollowSyncEventStatus, followingUserId: Long): Boolean
 }

@@ -63,6 +63,7 @@ enum class ErrorCode(val defaultMessage: String) {
     // USER FOLLOW SYNC EVENT
     USER_FOLLOW_SYNC_EVENT_NOT_FOUND("팔로우 동기화 이벤트를 찾을 수 없습니다."),
     USER_FOLLOW_SYNC_EVENT_NOT_FAILED("실패한 이벤트만 재발행할 수 있습니다."),
+    USER_FOLLOW_SYNC_EVENT_NOT_PROCESSED("처리 중인 팔로우 동기화 이벤트가 있어 카운터를 재계산할 수 없습니다."),
 
     // RECORD
     RECORD_NOT_FOUND("기록을 찾을 수 없습니다."),

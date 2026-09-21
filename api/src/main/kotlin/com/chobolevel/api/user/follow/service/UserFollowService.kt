@@ -4,10 +4,13 @@ import com.chobolevel.api.common.constant.CacheKeyPrefix
 import com.chobolevel.api.common.provider.CacheProvider
 import com.chobolevel.api.user.follow.dto.UserFollowCounterResponse
 import com.chobolevel.api.user.follow.validator.UserFollowBusinessValidator
+import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.common.exception.PolicyViolationException
 import com.chobolevel.domain.user.follow.repository.UserFollowRepository
 import com.chobolevel.domain.user.follow.sync.entity.UserFollowSyncEvent
 import com.chobolevel.domain.user.follow.sync.repository.UserFollowSyncEventRepository
 import com.chobolevel.domain.user.follow.sync.vo.UserFollowSyncEventAction
+import com.chobolevel.domain.user.follow.sync.vo.UserFollowSyncEventStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.transaction.support.TransactionSynchronization
@@ -108,7 +111,18 @@ class UserFollowService(
 
     // 관리자 수동 트리거용 복구 경로: afterCommit 콜백의 Redis 호출이 부분 실패해 카운터가 드리프트된 경우,
     // DB COUNT(*)로 다시 계산해 캐시를 강제로 덮어쓴다(콜드스타트의 putIfAbsent와 달리 무조건 덮어씀).
+    //
+    // user_follows row는 outbox 이벤트가 Kafka 컨슈머에 의해 처리된 뒤에야 반영되므로,
+    // 이 유저와 관련된 이벤트가 아직 PROCESSED 상태가 아니라면 COUNT(*)가 그 row를 놓쳐
+    // 오히려 정상 값을 더 낮은 값으로 덮어쓸 수 있다. 그래서 미처리 이벤트가 있으면 재계산을 거부한다.
     fun recalculateFollowCounters(userId: Long): UserFollowCounterResponse {
+        val hasUnprocessedEvent: Boolean =
+            userFollowSyncEventRepository.existsByStatusNotAndFollowerUserId(UserFollowSyncEventStatus.PROCESSED, userId) ||
+                userFollowSyncEventRepository.existsByStatusNotAndFollowingUserId(UserFollowSyncEventStatus.PROCESSED, userId)
+        if (hasUnprocessedEvent) {
+            throw PolicyViolationException(errorCode = ErrorCode.USER_FOLLOW_SYNC_EVENT_NOT_PROCESSED)
+        }
+
         val followingCount: Long = userFollowRepository.countByFollowerUserId(followerUserId = userId)
         val followerCount: Long = userFollowRepository.countByFollowingUserId(followingUserId = userId)
         cacheProvider.put(CacheKeyPrefix.userFollowingCount(userId), followingCount.toString())

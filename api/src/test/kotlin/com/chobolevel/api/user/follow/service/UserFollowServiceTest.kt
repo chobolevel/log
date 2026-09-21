@@ -7,9 +7,11 @@ import com.chobolevel.api.user.follow.dto.UserFollowCounterResponse
 import com.chobolevel.api.user.follow.validator.UserFollowBusinessValidator
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.InvalidParameterException
+import com.chobolevel.domain.common.exception.PolicyViolationException
 import com.chobolevel.domain.user.follow.repository.UserFollowRepository
 import com.chobolevel.domain.user.follow.sync.entity.UserFollowSyncEvent
 import com.chobolevel.domain.user.follow.sync.repository.UserFollowSyncEventRepository
+import com.chobolevel.domain.user.follow.sync.vo.UserFollowSyncEventStatus
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -159,12 +161,18 @@ class UserFollowServiceTest : BehaviorSpec({
     }
 
     given("카운터를 재계산할 때") {
-        `when`("특정 유저에 대한 재계산을 요청하면") {
+        `when`("이 유저와 관련된 동기화 이벤트가 모두 처리 완료 상태이면") {
             then("DB COUNT 기준으로 캐시를 강제로 덮어쓰고 계산된 값을 반환한다") {
                 // given
                 val userId: Long = DummyUser.ID
                 val followingCountKey: String = CacheKeyPrefix.userFollowingCount(userId)
                 val followerCountKey: String = CacheKeyPrefix.userFollowerCount(userId)
+                every {
+                    userFollowSyncEventRepository.existsByStatusNotAndFollowerUserId(UserFollowSyncEventStatus.PROCESSED, userId)
+                } returns false
+                every {
+                    userFollowSyncEventRepository.existsByStatusNotAndFollowingUserId(UserFollowSyncEventStatus.PROCESSED, userId)
+                } returns false
                 every { userFollowRepository.countByFollowerUserId(userId) } returns 10L
                 every { userFollowRepository.countByFollowingUserId(userId) } returns 20L
                 justRun { cacheProvider.put(followingCountKey, "10") }
@@ -177,6 +185,26 @@ class UserFollowServiceTest : BehaviorSpec({
                 result shouldBe UserFollowCounterResponse(followerCount = 20L, followingCount = 10L)
                 verify(exactly = 1) { cacheProvider.put(followingCountKey, "10") }
                 verify(exactly = 1) { cacheProvider.put(followerCountKey, "20") }
+            }
+        }
+
+        `when`("이 유저와 관련된 미처리 동기화 이벤트가 남아있으면") {
+            then("PolicyViolationException이 발생하고 캐시는 건드리지 않는다") {
+                // given
+                val userId: Long = DummyUser.ID
+                every {
+                    userFollowSyncEventRepository.existsByStatusNotAndFollowerUserId(UserFollowSyncEventStatus.PROCESSED, userId)
+                } returns true
+                every {
+                    userFollowSyncEventRepository.existsByStatusNotAndFollowingUserId(UserFollowSyncEventStatus.PROCESSED, userId)
+                } returns false
+
+                // when & then
+                shouldThrow<PolicyViolationException> {
+                    service.recalculateFollowCounters(userId = userId)
+                }
+                verify(exactly = 0) { userFollowRepository.countByFollowerUserId(any()) }
+                verify(exactly = 0) { cacheProvider.put(any(), any()) }
             }
         }
     }

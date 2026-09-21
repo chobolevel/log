@@ -44,4 +44,18 @@ class UserFollowSyncEventRepositoryAdapter(
     override fun countByStatus(status: UserFollowSyncEventStatus): Long {
         return userFollowSyncEventJpaRepository.countByStatus(status = status)
     }
+
+    override fun existsByStatusNotAndFollowerUserId(status: UserFollowSyncEventStatus, followerUserId: Long): Boolean {
+        return userFollowSyncEventJpaRepository.existsByStatusNotAndFollowerUserId(
+            status = status,
+            followerUserId = followerUserId,
+        )
+    }
+
+    override fun existsByStatusNotAndFollowingUserId(status: UserFollowSyncEventStatus, followingUserId: Long): Boolean {
+        return userFollowSyncEventJpaRepository.existsByStatusNotAndFollowingUserId(
+            status = status,
+            followingUserId = followingUserId,
+        )
+    }
 }
