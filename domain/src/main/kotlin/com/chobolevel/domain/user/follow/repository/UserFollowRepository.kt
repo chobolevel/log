@@ -13,6 +13,10 @@ interface UserFollowRepository {
 
     fun deleteByFollowerUserIdAndFollowingUserId(followerUserId: Long, followingUserId: Long)
 
+    fun countByFollowerUserId(followerUserId: Long): Long
+
+    fun countByFollowingUserId(followingUserId: Long): Long
+
     fun searchUserFollows(
         queryFilter: UserFollowQueryFilter,
         paging: Paging,

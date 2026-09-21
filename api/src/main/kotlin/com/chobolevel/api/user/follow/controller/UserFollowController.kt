@@ -1,5 +1,6 @@
 package com.chobolevel.api.user.follow.controller
 
+import com.chobolevel.api.common.annotation.HasAuthorityAdmin
 import com.chobolevel.api.common.annotation.HasAuthorityUser
 import com.chobolevel.api.common.annotation.QueryObject
 import com.chobolevel.api.common.dto.PagingResponse
@@ -7,9 +8,11 @@ import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getUserId
 import com.chobolevel.api.user.follow.dto.SearchUserFollowerRequest
 import com.chobolevel.api.user.follow.dto.SearchUserFollowingRequest
+import com.chobolevel.api.user.follow.dto.UserFollowCounterResponse
 import com.chobolevel.api.user.follow.dto.UserFollowResponse
 import com.chobolevel.api.user.follow.service.UserFollowFacade
 import com.chobolevel.api.user.follow.service.UserFollowQueryService
+import com.chobolevel.api.user.follow.service.UserFollowService
 import com.chobolevel.api.user.follow.validator.UserFollowParameterValidator
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -26,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/v1")
 class UserFollowController(
     private val facade: UserFollowFacade,
+    private val service: UserFollowService,
     private val queryService: UserFollowQueryService,
     private val validator: UserFollowParameterValidator,
 ) {
@@ -82,6 +86,14 @@ class UserFollowController(
             userId = userId,
             request = request
         )
+        return ResponseEntity.ok(ResultResponse(result))
+    }
+
+    @Operation(summary = "회원 팔로워/팔로잉 카운터 재계산 API")
+    @HasAuthorityAdmin
+    @PostMapping("/users/{userId}/follow-counters/recalculate")
+    fun recalculateFollowCounters(@PathVariable userId: Long): ResponseEntity<ResultResponse<UserFollowCounterResponse>> {
+        val result: UserFollowCounterResponse = service.recalculateFollowCounters(userId = userId)
         return ResponseEntity.ok(ResultResponse(result))
     }
 }

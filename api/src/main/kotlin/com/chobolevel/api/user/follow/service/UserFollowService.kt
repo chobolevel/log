@@ -2,12 +2,12 @@ package com.chobolevel.api.user.follow.service
 
 import com.chobolevel.api.common.constant.CacheKeyPrefix
 import com.chobolevel.api.common.provider.CacheProvider
+import com.chobolevel.api.user.follow.dto.UserFollowCounterResponse
 import com.chobolevel.api.user.follow.validator.UserFollowBusinessValidator
 import com.chobolevel.domain.user.follow.repository.UserFollowRepository
 import com.chobolevel.domain.user.follow.sync.entity.UserFollowSyncEvent
 import com.chobolevel.domain.user.follow.sync.repository.UserFollowSyncEventRepository
 import com.chobolevel.domain.user.follow.sync.vo.UserFollowSyncEventAction
-import com.chobolevel.domain.user.follow.vo.UserFollowQueryFilter
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.transaction.support.TransactionSynchronization
@@ -94,20 +94,26 @@ class UserFollowService(
     // 콜드스타트: Redis에 카운터 키가 없으면 DB COUNT로 시드값 세팅
     private fun initFollowingCountCacheIfAbsent(userId: Long, key: String) {
         if (!cacheProvider.hasKey(key)) {
-            val count: Long = userFollowRepository.searchUserFollowsCount(
-                UserFollowQueryFilter(followerUserId = userId, followingUserId = null, nickname = null)
-            )
+            val count: Long = userFollowRepository.countByFollowerUserId(followerUserId = userId)
             cacheProvider.putIfAbsent(key, count.toString())
         }
     }
 
     private fun initFollowerCountCacheIfAbsent(userId: Long, key: String) {
         if (!cacheProvider.hasKey(key)) {
-            val count: Long = userFollowRepository.searchUserFollowsCount(
-                UserFollowQueryFilter(followerUserId = null, followingUserId = userId, nickname = null)
-            )
+            val count: Long = userFollowRepository.countByFollowingUserId(followingUserId = userId)
             cacheProvider.putIfAbsent(key, count.toString())
         }
+    }
+
+    // 관리자 수동 트리거용 복구 경로: afterCommit 콜백의 Redis 호출이 부분 실패해 카운터가 드리프트된 경우,
+    // DB COUNT(*)로 다시 계산해 캐시를 강제로 덮어쓴다(콜드스타트의 putIfAbsent와 달리 무조건 덮어씀).
+    fun recalculateFollowCounters(userId: Long): UserFollowCounterResponse {
+        val followingCount: Long = userFollowRepository.countByFollowerUserId(followerUserId = userId)
+        val followerCount: Long = userFollowRepository.countByFollowingUserId(followingUserId = userId)
+        cacheProvider.put(CacheKeyPrefix.userFollowingCount(userId), followingCount.toString())
+        cacheProvider.put(CacheKeyPrefix.userFollowerCount(userId), followerCount.toString())
+        return UserFollowCounterResponse(followerCount = followerCount, followingCount = followingCount)
     }
 
     private fun registerAfterCommit(action: () -> Unit) {

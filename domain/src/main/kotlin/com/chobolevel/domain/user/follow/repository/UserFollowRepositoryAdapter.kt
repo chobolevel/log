@@ -32,6 +32,14 @@ class UserFollowRepositoryAdapter(
         )
     }
 
+    override fun countByFollowerUserId(followerUserId: Long): Long {
+        return userFollowJpaRepository.countByFollowerUserId(followerUserId = followerUserId)
+    }
+
+    override fun countByFollowingUserId(followingUserId: Long): Long {
+        return userFollowJpaRepository.countByFollowingUserId(followingUserId = followingUserId)
+    }
+
     override fun searchUserFollows(
         queryFilter: UserFollowQueryFilter,
         paging: Paging,
