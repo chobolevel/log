@@ -34,7 +34,8 @@ class UserFollowSyncEventConsumer(
     // FOLLOW: existsByFollowerUserIdAndFollowingUserId 선확인으로 중복 INSERT 방지 (Kafka retry 시에도 안전)
     // UNFOLLOW: deleteByFollowerUserIdAndFollowingUserId는 존재하지 않는 row 삭제 시 no-op이므로 멱등성 보장
     //
-    // 카운터(팔로워/팔로잉 수)는 이미 UserFollowService에서 락으로 보호된 커맨드 시점에 정확히 1번 증감되므로
+    // 카운터(팔로워/팔로잉 수)는 이미 UserFollowFacade의 락이 UserFollowService 트랜잭션 커밋까지 보호하는
+    // 커맨드 시점에 정확히 1번 증감되므로
     // 여기서는 건드리지 않는다. 관계 캐시(userFollowRelation)만 실제 row 생성/삭제에 맞춰 self-healing 차원에서 갱신한다.
     //
     // LogException 계열(회원 삭제 등 데이터 정합성 문제)은 재시도해도 결과가 달라지지 않으므로

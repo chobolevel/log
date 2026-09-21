@@ -8,8 +8,8 @@ import com.chobolevel.api.common.extension.getUserId
 import com.chobolevel.api.user.follow.dto.SearchUserFollowerRequest
 import com.chobolevel.api.user.follow.dto.SearchUserFollowingRequest
 import com.chobolevel.api.user.follow.dto.UserFollowResponse
+import com.chobolevel.api.user.follow.service.UserFollowFacade
 import com.chobolevel.api.user.follow.service.UserFollowQueryService
-import com.chobolevel.api.user.follow.service.UserFollowService
 import com.chobolevel.api.user.follow.validator.UserFollowParameterValidator
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/v1")
 class UserFollowController(
-    private val service: UserFollowService,
+    private val facade: UserFollowFacade,
     private val queryService: UserFollowQueryService,
     private val validator: UserFollowParameterValidator,
 ) {
@@ -38,7 +38,7 @@ class UserFollowController(
         @PathVariable userId: Long
     ): ResponseEntity<ResultResponse<Boolean>> {
         validator.validateFollow(followerUserId = authentication.getUserId(), followingUserId = userId)
-        val result: Boolean = service.follow(
+        val result: Boolean = facade.follow(
             followerUserId = authentication.getUserId(),
             followingUserId = userId
         )
@@ -52,7 +52,7 @@ class UserFollowController(
         authentication: Authentication,
         @PathVariable userId: Long
     ): ResponseEntity<ResultResponse<Boolean>> {
-        val result: Boolean = service.unfollow(
+        val result: Boolean = facade.unfollow(
             followerUserId = authentication.getUserId(),
             followingUserId = userId
         )
