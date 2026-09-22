@@ -7,7 +7,6 @@ import com.chobolevel.api.record.view.dto.RecordViewEventMessage
 import com.chobolevel.domain.common.exception.DataNotFoundException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.record.repository.RecordRepository
-import com.chobolevel.domain.record.view.repository.RecordViewRepository
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service
@@ -16,7 +15,6 @@ import java.util.concurrent.TimeUnit
 @Service
 class RecordViewService(
     private val recordRepository: RecordRepository,
-    private val recordViewRepository: RecordViewRepository,
     private val cacheProvider: CacheProvider,
     private val kafkaTemplate: KafkaTemplate<String, RecordViewEventMessage>,
 ) {
@@ -28,6 +26,9 @@ class RecordViewService(
     }
 
     // [설계 의도]
+    // RecordService가 "조회수를 어떻게 세고 반영하는지" 몰라도 되도록, 이 메서드는 dedup 판단과 이벤트 발행까지만 한다.
+    // 실제 카운트 증가와 이력 영속화는 전부 RecordViewEventConsumer로 옮겨져 있다(같은 레이어 서비스 간 직접 의존 제거).
+    //
     // 좋아요와 달리 Outbox 없이 dedup 게이트 통과 시 바로 Kafka에 발행한다.
     // 조회수는 유실을 허용하는 근사 지표이므로, 발행 실패는 로그만 남기고 요청 흐름을 막지 않는다.
     // userId가 있으면(로그인) guestId는 무시하고 userId로만 귀속시킨다 — RecordView는 둘 중 하나만 가져야 한다.
@@ -43,24 +44,8 @@ class RecordViewService(
             return false
         }
 
-        increaseViewCount(recordId = recordId)
         publishViewEvent(recordId = recordId, userId = userId, guestId = guestId.takeIf { userId == null })
         return true
-    }
-
-    private fun increaseViewCount(recordId: Long) {
-        val countKey: String = CacheKeyPrefix.recordViewCount(recordId)
-        initCountCacheIfAbsent(recordId = recordId, countKey = countKey)
-        cacheProvider.increment(countKey)
-    }
-
-    // 콜드스타트: Redis에 카운터 키가 없으면 record_views 이력 COUNT(*)로 시드값 세팅
-    // increaseViewCount()가 증가 전에 캐시를 준비해야 해서 Command 쪽에도 필요 (RecordViewQueryService와 중복)
-    private fun initCountCacheIfAbsent(recordId: Long, countKey: String) {
-        if (!cacheProvider.hasKey(countKey)) {
-            val currentCount: Long = recordViewRepository.countByRecordId(recordId = recordId)
-            cacheProvider.putIfAbsent(countKey, currentCount.toString())
-        }
     }
 
     private fun publishViewEvent(recordId: Long, userId: Long?, guestId: String?) {
