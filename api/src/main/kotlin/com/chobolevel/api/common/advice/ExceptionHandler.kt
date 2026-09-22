@@ -11,6 +11,7 @@ import com.chobolevel.domain.common.exception.PolicyViolationException
 import com.chobolevel.domain.common.exception.UnAuthorizedException
 import jakarta.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -72,6 +73,15 @@ class ExceptionHandler {
     fun handleIllegalArgumentException(e: IllegalArgumentException): ResponseEntity<ErrorResponse> {
         return ResponseEntity.badRequest().body(
             ErrorResponse(errorCode = ErrorCode.INVALID_PARAMETER, errorMessage = e.message ?: ErrorCode.INVALID_PARAMETER.defaultMessage)
+        )
+    }
+
+    // 사전 중복 검증을 통과한 두 요청이 동시에 들어와 DB unique 제약에서 걸리는 경합(race) 상황의 안전망.
+    // 특정 도메인에 한정되지 않으므로 공용 에러코드로 응답한다.
+    @ExceptionHandler(DataIntegrityViolationException::class)
+    fun handleDataIntegrityViolationException(e: DataIntegrityViolationException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.badRequest().body(
+            ErrorResponse(errorCode = ErrorCode.DUPLICATE_REQUEST, errorMessage = ErrorCode.DUPLICATE_REQUEST.defaultMessage)
         )
     }
 

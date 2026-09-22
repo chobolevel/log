@@ -6,6 +6,7 @@ enum class ErrorCode(val defaultMessage: String) {
     INVALID_REQUEST_FORMAT("요청 형식이 올바르지 않습니다."),
     INTERNAL_SERVER_ERROR("내부 서버에서 에러가 발생하였습니다."),
     LOCK_ACQUISITION_FAILED("요청이 많아 처리할 수 없습니다. 잠시 후 다시 시도해주세요."),
+    DUPLICATE_REQUEST("이미 처리된 요청입니다."),
 
     // AUTH
     BAD_CREDENTIAL("아이디 또는 비밀번호가 일치하지 않습니다."),

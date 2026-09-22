@@ -5,9 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface RecordLikeJpaRepository : JpaRepository<RecordLike, Long> {
 
-    fun findByRecordIdAndUserId(recordId: Long, userId: Long): RecordLike?
-
-    fun findAllByRecordId(recordId: Long): List<RecordLike>
+    fun countByRecordId(recordId: Long): Long
 
     fun deleteByRecordIdAndUserId(recordId: Long, userId: Long)
 

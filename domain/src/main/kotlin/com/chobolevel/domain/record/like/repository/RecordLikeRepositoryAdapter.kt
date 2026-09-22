@@ -12,8 +12,8 @@ class RecordLikeRepositoryAdapter(
         return recordLikeJpaRepository.save(recordLike)
     }
 
-    override fun findAllByRecordId(recordId: Long): List<RecordLike> {
-        return recordLikeJpaRepository.findAllByRecordId(recordId = recordId)
+    override fun countByRecordId(recordId: Long): Long {
+        return recordLikeJpaRepository.countByRecordId(recordId = recordId)
     }
 
     override fun existsByRecordIdAndUserId(recordId: Long, userId: Long): Boolean {
