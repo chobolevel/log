@@ -48,10 +48,11 @@ class RecordViewServiceTest : BehaviorSpec({
                 val dedupKey: String = CacheKeyPrefix.recordViewDedup(recordId, "user:$userId")
                 val recordViewSlot: CapturingSlot<RecordView> = slot()
                 justRun { recordViewValidator.validateViewable(requesterId = userId, recordId = recordId) }
-                every { cacheProvider.putIfAbsent(dedupKey, "1", 24L, TimeUnit.HOURS) } returns true
+                every { cacheProvider.putIfAbsent(dedupKey, "1", 10L, TimeUnit.SECONDS) } returns true
                 every { cacheProvider.hasKey(countKey) } returns true
                 every { recordViewRepository.save(capture(recordViewSlot)) } answers { firstArg() }
                 every { recordViewSyncEventRepository.save(any()) } answers { firstArg() }
+                justRun { cacheProvider.put(dedupKey, "1", 24L, TimeUnit.HOURS) }
                 every { cacheProvider.increment(countKey) } returns 1L
 
                 // when
@@ -62,6 +63,7 @@ class RecordViewServiceTest : BehaviorSpec({
                 recordViewSlot.captured.userId shouldBe userId
                 recordViewSlot.captured.guestId shouldBe null
                 verify { recordViewSyncEventRepository.save(any()) }
+                verify { cacheProvider.put(dedupKey, "1", 24L, TimeUnit.HOURS) }
                 verify { cacheProvider.increment(countKey) }
             }
         }
@@ -75,10 +77,11 @@ class RecordViewServiceTest : BehaviorSpec({
                 val dedupKey: String = CacheKeyPrefix.recordViewDedup(recordId, "guest:$guestId")
                 val recordViewSlot: CapturingSlot<RecordView> = slot()
                 justRun { recordViewValidator.validateViewable(requesterId = null, recordId = recordId) }
-                every { cacheProvider.putIfAbsent(dedupKey, "1", 24L, TimeUnit.HOURS) } returns true
+                every { cacheProvider.putIfAbsent(dedupKey, "1", 10L, TimeUnit.SECONDS) } returns true
                 every { cacheProvider.hasKey(countKey) } returns true
                 every { recordViewRepository.save(capture(recordViewSlot)) } answers { firstArg() }
                 every { recordViewSyncEventRepository.save(any()) } answers { firstArg() }
+                justRun { cacheProvider.put(dedupKey, "1", 24L, TimeUnit.HOURS) }
                 every { cacheProvider.increment(countKey) } returns 1L
 
                 // when
@@ -98,7 +101,7 @@ class RecordViewServiceTest : BehaviorSpec({
                 val userId: Long = DummyUser.ID
                 val dedupKey: String = CacheKeyPrefix.recordViewDedup(recordId, "user:$userId")
                 justRun { recordViewValidator.validateViewable(requesterId = userId, recordId = recordId) }
-                every { cacheProvider.putIfAbsent(dedupKey, "1", 24L, TimeUnit.HOURS) } returns false
+                every { cacheProvider.putIfAbsent(dedupKey, "1", 10L, TimeUnit.SECONDS) } returns false
 
                 // when
                 val result: Boolean = service.recordView(recordId = recordId, userId = userId, guestId = "guest-id")
@@ -141,6 +144,27 @@ class RecordViewServiceTest : BehaviorSpec({
             }
         }
 
+        `when`("dedup 락 통과 후 DB 저장이 실패하면") {
+            then("예외가 전파되고 dedup 키를 24시간으로 연장하지 않는다") {
+                // given
+                val recordId: Long = DummyRecord.ID
+                val userId: Long = DummyUser.ID
+                val dedupKey: String = CacheKeyPrefix.recordViewDedup(recordId, "user:$userId")
+                val countKey: String = CacheKeyPrefix.recordViewCount(recordId)
+                justRun { recordViewValidator.validateViewable(requesterId = userId, recordId = recordId) }
+                every { cacheProvider.putIfAbsent(dedupKey, "1", 10L, TimeUnit.SECONDS) } returns true
+                every { cacheProvider.hasKey(countKey) } returns true
+                every { recordViewRepository.save(any()) } throws RuntimeException("DB 저장 실패")
+
+                // when & then
+                shouldThrow<RuntimeException> {
+                    service.recordView(recordId = recordId, userId = userId, guestId = null)
+                }
+                verify(exactly = 0) { cacheProvider.put(dedupKey, "1", 24L, TimeUnit.HOURS) }
+                verify(exactly = 0) { cacheProvider.increment(any()) }
+            }
+        }
+
         `when`("캐시에 조회수 카운터가 없으면 (cold start)") {
             then("DB의 조회 이력 수로 시드값을 세팅한 뒤 증가시킨다") {
                 // given
@@ -149,12 +173,13 @@ class RecordViewServiceTest : BehaviorSpec({
                 val countKey: String = CacheKeyPrefix.recordViewCount(recordId)
                 val dedupKey: String = CacheKeyPrefix.recordViewDedup(recordId, "user:$userId")
                 justRun { recordViewValidator.validateViewable(requesterId = userId, recordId = recordId) }
-                every { cacheProvider.putIfAbsent(dedupKey, "1", 24L, TimeUnit.HOURS) } returns true
+                every { cacheProvider.putIfAbsent(dedupKey, "1", 10L, TimeUnit.SECONDS) } returns true
                 every { cacheProvider.hasKey(countKey) } returns false
                 every { recordViewRepository.countByRecordId(recordId) } returns 10L
                 every { cacheProvider.putIfAbsent(countKey, "10") } returns true
                 every { recordViewRepository.save(any()) } answers { firstArg() }
                 every { recordViewSyncEventRepository.save(any()) } answers { firstArg() }
+                justRun { cacheProvider.put(dedupKey, "1", 24L, TimeUnit.HOURS) }
                 every { cacheProvider.increment(countKey) } returns 11L
 
                 // when
