@@ -41,7 +41,10 @@ class UserAuthController(
         request: LoginRequest
     ): ResponseEntity<ResultResponse<Boolean>> {
         validator.validate(request = request)
-        val result: JwtResponse = service.login(request)
+        val result: JwtResponse = runCatching { service.login(request) }.getOrElse {
+            clearAuthCookies(res)
+            throw it
+        }
         val accessTokenCookie: Cookie = generateCookie(
             key = jwtProperties.accessTokenKey,
             value = result.accessToken
@@ -63,7 +66,10 @@ class UserAuthController(
         request: SocialLoginRequest
     ): ResponseEntity<ResultResponse<Boolean>> {
         validator.validate(request = request)
-        val result: JwtResponse = service.socialLogin(request)
+        val result: JwtResponse = runCatching { service.socialLogin(request) }.getOrElse {
+            clearAuthCookies(res)
+            throw it
+        }
         val accessTokenCookie: Cookie = generateCookie(
             key = jwtProperties.accessTokenKey,
             value = result.accessToken
@@ -84,18 +90,7 @@ class UserAuthController(
         if (refreshToken != null) {
             service.logout(refreshToken)
         }
-        val expiredAccessTokenCookie: Cookie = generateCookie(
-            key = jwtProperties.accessTokenKey,
-            value = "",
-            maxAge = 0
-        )
-        val expiredRefreshTokenCookie: Cookie = generateCookie(
-            key = jwtProperties.refreshTokenKey,
-            value = "",
-            maxAge = 0
-        )
-        res.addCookie(expiredAccessTokenCookie)
-        res.addCookie(expiredRefreshTokenCookie)
+        clearAuthCookies(res)
         return ResponseEntity.ok(ResultResponse(true))
     }
 
@@ -105,11 +100,17 @@ class UserAuthController(
         req: HttpServletRequest,
         res: HttpServletResponse,
     ): ResponseEntity<ResultResponse<Boolean>> {
-        val refreshToken: String = req.getCookie(jwtProperties.refreshTokenKey) ?: throw UnAuthorizedException(
-            errorCode = ErrorCode.INVALID_TOKEN,
-            message = "토큰이 만료되었습니다. 재로그인 해주세요."
-        )
-        val result: JwtResponse = service.reissue(refreshToken)
+        val refreshToken: String = req.getCookie(jwtProperties.refreshTokenKey) ?: run {
+            clearAuthCookies(res)
+            throw UnAuthorizedException(
+                errorCode = ErrorCode.INVALID_TOKEN,
+                message = "토큰이 만료되었습니다. 재로그인 해주세요."
+            )
+        }
+        val result: JwtResponse = runCatching { service.reissue(refreshToken) }.getOrElse {
+            clearAuthCookies(res)
+            throw it
+        }
         val newAccessTokenCookie: Cookie = generateCookie(
             key = jwtProperties.accessTokenKey,
             value = result.accessToken
@@ -159,5 +160,21 @@ class UserAuthController(
             it.isHttpOnly = cookieConfig.httpOnly
             it.setAttribute("SameSite", cookieConfig.sameSite)
         }
+    }
+
+    // 로그인/reissue 실패, 로그아웃 시 브라우저에 남아있는 토큰 쿠키를 즉시 만료시킨다.
+    private fun clearAuthCookies(res: HttpServletResponse) {
+        val expiredAccessTokenCookie: Cookie = generateCookie(
+            key = jwtProperties.accessTokenKey,
+            value = "",
+            maxAge = 0
+        )
+        val expiredRefreshTokenCookie: Cookie = generateCookie(
+            key = jwtProperties.refreshTokenKey,
+            value = "",
+            maxAge = 0
+        )
+        res.addCookie(expiredAccessTokenCookie)
+        res.addCookie(expiredRefreshTokenCookie)
     }
 }

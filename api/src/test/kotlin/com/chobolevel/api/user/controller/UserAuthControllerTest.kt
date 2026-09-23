@@ -8,6 +8,9 @@ import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest
 import com.chobolevel.api.user.dto.SocialLoginRequest
 import com.chobolevel.api.user.service.UserAuthService
 import com.chobolevel.api.user.validator.UserAuthParameterValidator
+import com.chobolevel.domain.common.exception.BadCredentialException
+import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.common.exception.UnAuthorizedException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.clearAllMocks
@@ -96,6 +99,24 @@ class UserAuthControllerTest {
             .andExpect(jsonPath("$.data").value(true))
             .andExpect(cookie().value(DummyAuth.ACCESS_TOKEN_COOKIE_KEY, DummyAuth.ACCESS_TOKEN))
             .andExpect(cookie().value(DummyAuth.REFRESH_TOKEN_COOKIE_KEY, DummyAuth.REFRESH_TOKEN))
+    }
+
+    @Test
+    fun `비밀번호가 틀린 로그인 요청 시 401을 반환하고 남아있던 토큰 쿠키를 만료시킨다`() {
+        // given
+        justRun { userAuthParameterValidator.validate(request = any<LoginRequest>()) }
+        every { userAuthService.login(request = any()) } throws BadCredentialException(errorCode = ErrorCode.USER_PASSWORD_NOT_MATCHED)
+
+        // when & then
+        mockMvc.perform(
+            post("/api/v1/users/login")
+                .cookie(Cookie(DummyAuth.ACCESS_TOKEN_COOKIE_KEY, "stale-access-token"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(DummyAuth.toGeneralLoginRequest()))
+        )
+            .andExpect(status().isUnauthorized)
+            .andExpect(cookie().maxAge(DummyAuth.ACCESS_TOKEN_COOKIE_KEY, 0))
+            .andExpect(cookie().maxAge(DummyAuth.REFRESH_TOKEN_COOKIE_KEY, 0))
     }
 
     @Test
@@ -188,12 +209,35 @@ class UserAuthControllerTest {
     }
 
     @Test
-    fun `refresh 토큰 쿠키 없이 재발급 요청 시 401을 반환한다`() {
+    fun `refresh 토큰이 만료되어 재발급이 실패하면 401을 반환하고 남아있던 토큰 쿠키를 만료시킨다`() {
+        // given
+        every {
+            userAuthService.reissue(refreshToken = DummyAuth.REFRESH_TOKEN)
+        } throws UnAuthorizedException(errorCode = ErrorCode.INVALID_TOKEN, message = "토큰이 만료되었습니다.")
+
+        // when & then
+        mockMvc.perform(
+            post("/api/v1/users/reissue")
+                .cookie(Cookie(DummyAuth.REFRESH_TOKEN_COOKIE_KEY, DummyAuth.REFRESH_TOKEN))
+                .cookie(Cookie(DummyAuth.ACCESS_TOKEN_COOKIE_KEY, "stale-access-token"))
+        )
+            .andExpect(status().isUnauthorized)
+            .andExpect(cookie().maxAge(DummyAuth.ACCESS_TOKEN_COOKIE_KEY, 0))
+            .andExpect(cookie().maxAge(DummyAuth.REFRESH_TOKEN_COOKIE_KEY, 0))
+    }
+
+    @Test
+    fun `refresh 토큰 쿠키 없이 재발급 요청 시 401을 반환하고 남아있던 토큰 쿠키를 만료시킨다`() {
         // given — 쿠키 없음 → controller에서 ApiException(INVALID_TOKEN) 발생 → 401
 
         // when & then
-        mockMvc.perform(post("/api/v1/users/reissue"))
+        mockMvc.perform(
+            post("/api/v1/users/reissue")
+                .cookie(Cookie(DummyAuth.ACCESS_TOKEN_COOKIE_KEY, "stale-access-token"))
+        )
             .andExpect(status().isUnauthorized)
+            .andExpect(cookie().maxAge(DummyAuth.ACCESS_TOKEN_COOKIE_KEY, 0))
+            .andExpect(cookie().maxAge(DummyAuth.REFRESH_TOKEN_COOKIE_KEY, 0))
     }
 
     @Test
