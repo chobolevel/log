@@ -61,7 +61,7 @@ class UserBusinessValidator(
     fun validate(request: ResetUserPasswordRequest) {
         validateEmailNotExists(email = request.email)
         // 비밀번호 초기화 코드 검증
-        val cachedCode: String = cacheProvider.get("${CacheKeyPrefix.RESET_PASSWORD}${request.email}") ?: throw InvalidParameterException(
+        val cachedCode: String = cacheProvider.get(CacheKeyPrefix.userResetPassword(request.email)) ?: throw InvalidParameterException(
             errorCode = ErrorCode.RESET_USER_PASSWORD_CODE_NOT_EXISTS
         )
         if (cachedCode != request.code) {

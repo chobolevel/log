@@ -74,7 +74,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 result.refreshToken shouldBe DummyAuth.REFRESH_TOKEN
                 verify(exactly = 1) {
                     cacheProvider.put(
-                        "${CacheKeyPrefix.REFRESH_TOKEN}${DummyUser.ID}",
+                        CacheKeyPrefix.userRefreshToken(DummyUser.ID),
                         DummyAuth.REFRESH_TOKEN,
                         any(),
                         TimeUnit.MILLISECONDS
@@ -141,7 +141,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 verify(exactly = 1) { userConverter.convert(request) }
                 verify(exactly = 1) {
                     cacheProvider.put(
-                        "${CacheKeyPrefix.REFRESH_TOKEN}${DummyUser.ID}",
+                        CacheKeyPrefix.userRefreshToken(DummyUser.ID),
                         DummyAuth.REFRESH_TOKEN,
                         any(),
                         TimeUnit.MILLISECONDS
@@ -175,7 +175,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 result.refreshToken shouldBe DummyAuth.REFRESH_TOKEN
                 verify(exactly = 1) {
                     cacheProvider.put(
-                        "${CacheKeyPrefix.REFRESH_TOKEN}${DummyUser.ID}",
+                        CacheKeyPrefix.userRefreshToken(DummyUser.ID),
                         DummyAuth.REFRESH_TOKEN,
                         any(),
                         TimeUnit.MILLISECONDS
@@ -232,7 +232,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 val jwtResponse: JwtResponse = DummyAuth.toJwtResponse()
                 every { tokenProvider.validateToken(DummyAuth.REFRESH_TOKEN) } returns true
                 every { tokenProvider.getAuthentication(DummyAuth.REFRESH_TOKEN) } returns authentication
-                every { cacheProvider.get("${CacheKeyPrefix.REFRESH_TOKEN}${DummyUser.ID}") } returns DummyAuth.REFRESH_TOKEN
+                every { cacheProvider.get(CacheKeyPrefix.userRefreshToken(DummyUser.ID)) } returns DummyAuth.REFRESH_TOKEN
                 every { tokenProvider.generateTokenPair(authentication) } returns jwtResponse
                 justRun { cacheProvider.put(any(), any(), any(), any()) }
 
@@ -244,7 +244,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 result.refreshToken shouldBe DummyAuth.REFRESH_TOKEN
                 verify(exactly = 1) {
                     cacheProvider.put(
-                        "${CacheKeyPrefix.REFRESH_TOKEN}${DummyUser.ID}",
+                        CacheKeyPrefix.userRefreshToken(DummyUser.ID),
                         DummyAuth.REFRESH_TOKEN,
                         any(),
                         TimeUnit.MILLISECONDS
@@ -259,7 +259,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 val authentication = UsernamePasswordAuthenticationToken(DummyUser.ID.toString(), null)
                 every { tokenProvider.validateToken(DummyAuth.REFRESH_TOKEN) } returns true
                 every { tokenProvider.getAuthentication(DummyAuth.REFRESH_TOKEN) } returns authentication
-                every { cacheProvider.get("${CacheKeyPrefix.REFRESH_TOKEN}${DummyUser.ID}") } returns null
+                every { cacheProvider.get(CacheKeyPrefix.userRefreshToken(DummyUser.ID)) } returns null
 
                 // when & then
                 shouldThrow<UnAuthorizedException> {
@@ -274,7 +274,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 val authentication = UsernamePasswordAuthenticationToken(DummyUser.ID.toString(), null)
                 every { tokenProvider.validateToken(DummyAuth.REFRESH_TOKEN) } returns true
                 every { tokenProvider.getAuthentication(DummyAuth.REFRESH_TOKEN) } returns authentication
-                every { cacheProvider.get("${CacheKeyPrefix.REFRESH_TOKEN}${DummyUser.ID}") } returns "other.refresh.token"
+                every { cacheProvider.get(CacheKeyPrefix.userRefreshToken(DummyUser.ID)) } returns "other.refresh.token"
 
                 // when & then
                 shouldThrow<UnAuthorizedException> {
@@ -298,7 +298,7 @@ class UserAuthServiceTest : BehaviorSpec({
 
                 // then
                 result shouldBe true
-                verify(exactly = 1) { cacheProvider.put(eq("${CacheKeyPrefix.EMAIL}${DummyUser.EMAIL}"), any(), any(), any()) }
+                verify(exactly = 1) { cacheProvider.put(eq(CacheKeyPrefix.userEmailVerification(DummyUser.EMAIL)), any(), any(), any()) }
                 verify(exactly = 1) { emailProvider.sendEmail(to = DummyUser.EMAIL, subject = any(), content = any()) }
             }
         }
@@ -327,15 +327,15 @@ class UserAuthServiceTest : BehaviorSpec({
                     email = DummyUser.EMAIL,
                     verificationCode = DummyAuth.VERIFICATION_CODE
                 )
-                every { cacheProvider.get("${CacheKeyPrefix.EMAIL}${DummyUser.EMAIL}") } returns DummyAuth.VERIFICATION_CODE
-                justRun { cacheProvider.delete("${CacheKeyPrefix.EMAIL}${DummyUser.EMAIL}") }
+                every { cacheProvider.get(CacheKeyPrefix.userEmailVerification(DummyUser.EMAIL)) } returns DummyAuth.VERIFICATION_CODE
+                justRun { cacheProvider.delete(CacheKeyPrefix.userEmailVerification(DummyUser.EMAIL)) }
 
                 // when
                 val result: String = service.checkEmailVerificationCode(request)
 
                 // then
                 result shouldBe DummyUser.EMAIL
-                verify(exactly = 1) { cacheProvider.delete("${CacheKeyPrefix.EMAIL}${DummyUser.EMAIL}") }
+                verify(exactly = 1) { cacheProvider.delete(CacheKeyPrefix.userEmailVerification(DummyUser.EMAIL)) }
             }
         }
 
@@ -346,7 +346,7 @@ class UserAuthServiceTest : BehaviorSpec({
                     email = DummyUser.EMAIL,
                     verificationCode = DummyAuth.VERIFICATION_CODE
                 )
-                every { cacheProvider.get("${CacheKeyPrefix.EMAIL}${DummyUser.EMAIL}") } returns null
+                every { cacheProvider.get(CacheKeyPrefix.userEmailVerification(DummyUser.EMAIL)) } returns null
 
                 // when & then
                 shouldThrow<InvalidParameterException> {
@@ -362,7 +362,7 @@ class UserAuthServiceTest : BehaviorSpec({
                     email = DummyUser.EMAIL,
                     verificationCode = "wrongCode"
                 )
-                every { cacheProvider.get("${CacheKeyPrefix.EMAIL}${DummyUser.EMAIL}") } returns DummyAuth.VERIFICATION_CODE
+                every { cacheProvider.get(CacheKeyPrefix.userEmailVerification(DummyUser.EMAIL)) } returns DummyAuth.VERIFICATION_CODE
 
                 // when & then
                 shouldThrow<InvalidParameterException> {
@@ -378,13 +378,13 @@ class UserAuthServiceTest : BehaviorSpec({
                 // given
                 val authentication = UsernamePasswordAuthenticationToken(DummyUser.ID.toString(), null)
                 every { tokenProvider.getAuthentication(DummyAuth.REFRESH_TOKEN) } returns authentication
-                justRun { cacheProvider.delete("${CacheKeyPrefix.REFRESH_TOKEN}${DummyUser.ID}") }
+                justRun { cacheProvider.delete(CacheKeyPrefix.userRefreshToken(DummyUser.ID)) }
 
                 // when
                 service.logout(DummyAuth.REFRESH_TOKEN)
 
                 // then
-                verify(exactly = 1) { cacheProvider.delete("${CacheKeyPrefix.REFRESH_TOKEN}${DummyUser.ID}") }
+                verify(exactly = 1) { cacheProvider.delete(CacheKeyPrefix.userRefreshToken(DummyUser.ID)) }
             }
         }
 

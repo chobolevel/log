@@ -107,7 +107,7 @@ class UserService(
     @Transactional(readOnly = true)
     fun sendResetPasswordEmail(request: SendUserPasswordResetEmailRequest): Boolean {
         val code: String = TSID.fast().toString()
-        cacheProvider.put("${CacheKeyPrefix.RESET_PASSWORD}${request.email}", code, 10, TimeUnit.MINUTES)
+        cacheProvider.put(CacheKeyPrefix.userResetPassword(request.email), code, 10, TimeUnit.MINUTES)
         val emailBody: String = javaClass.getResourceAsStream("/templates/email/reset-password.html")
             ?.bufferedReader()
             ?.readText()
@@ -126,7 +126,7 @@ class UserService(
         validator.validate(request = request)
         val user: User = repository.findByEmail(email = request.email)
         user.changePassword(password = passwordProvider.encode(plainText = request.password))
-        cacheProvider.delete("${CacheKeyPrefix.RESET_PASSWORD}${request.email}")
+        cacheProvider.delete(CacheKeyPrefix.userResetPassword(request.email))
         return true
     }
 }

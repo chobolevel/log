@@ -240,7 +240,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 // given
                 val request: ResetUserPasswordRequest = DummyUser.toResetPasswordRequest()
                 every { userRepository.existsByEmail(DummyUser.EMAIL) } returns true
-                every { cacheProvider.get("${CacheKeyPrefix.RESET_PASSWORD}${DummyUser.EMAIL}") } returns null
+                every { cacheProvider.get(CacheKeyPrefix.userResetPassword(DummyUser.EMAIL)) } returns null
 
                 // when
                 val exception: InvalidParameterException = shouldThrow<InvalidParameterException> {
@@ -257,7 +257,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 // given
                 val request: ResetUserPasswordRequest = DummyUser.toResetPasswordRequest()
                 every { userRepository.existsByEmail(DummyUser.EMAIL) } returns true
-                every { cacheProvider.get("${CacheKeyPrefix.RESET_PASSWORD}${DummyUser.EMAIL}") } returns "wrongCode"
+                every { cacheProvider.get(CacheKeyPrefix.userResetPassword(DummyUser.EMAIL)) } returns "wrongCode"
 
                 // when
                 val exception: InvalidParameterException = shouldThrow<InvalidParameterException> {
@@ -274,7 +274,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 // given
                 val request: ResetUserPasswordRequest = DummyUser.toResetPasswordRequest()
                 every { userRepository.existsByEmail(DummyUser.EMAIL) } returns true
-                every { cacheProvider.get("${CacheKeyPrefix.RESET_PASSWORD}${DummyUser.EMAIL}") } returns DummyUser.RESET_CODE
+                every { cacheProvider.get(CacheKeyPrefix.userResetPassword(DummyUser.EMAIL)) } returns DummyUser.RESET_CODE
 
                 // when + then
                 shouldNotThrow<Exception> { validator.validate(request) }

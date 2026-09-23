@@ -117,7 +117,7 @@ class UserAuthService(
     fun sendEmailVerificationCode(request: SendEmailVerificationCodeRequest): Boolean {
         userBusinessValidator.validate(request = request)
         val authCode: String = TSID.fast().toString()
-        cacheProvider.put(CacheKeyPrefix.EMAIL + request.email, authCode, 5, TimeUnit.MINUTES)
+        cacheProvider.put(CacheKeyPrefix.userEmailVerification(request.email), authCode, 5, TimeUnit.MINUTES)
         val emailBody: String = javaClass.getResourceAsStream("/templates/email/verification-code.html")
             ?.bufferedReader()
             ?.readText()
@@ -132,13 +132,13 @@ class UserAuthService(
     }
 
     fun checkEmailVerificationCode(request: CheckEmailVerificationCodeRequest): String {
-        val cachedVerificationCode: String? = cacheProvider.get(CacheKeyPrefix.EMAIL + request.email)
+        val cachedVerificationCode: String? = cacheProvider.get(CacheKeyPrefix.userEmailVerification(request.email))
         if (request.verificationCode != cachedVerificationCode) {
             throw InvalidParameterException(
                 errorCode = ErrorCode.EMAIL_VERIFICATION_CODE_NOT_MATCHED,
             )
         }
-        cacheProvider.delete("${CacheKeyPrefix.EMAIL}${request.email}")
+        cacheProvider.delete(CacheKeyPrefix.userEmailVerification(request.email))
         return request.email
     }
 
@@ -150,7 +150,7 @@ class UserAuthService(
     private fun setRefreshToken(userId: Long, refreshToken: String, refreshTokenExpiredAt: Date) {
         val ttlMillis: Long = refreshTokenExpiredAt.time - System.currentTimeMillis()
         cacheProvider.put(
-            "${CacheKeyPrefix.REFRESH_TOKEN}$userId",
+            CacheKeyPrefix.userRefreshToken(userId),
             refreshToken,
             ttlMillis,
             TimeUnit.MILLISECONDS
@@ -158,10 +158,10 @@ class UserAuthService(
     }
 
     private fun getRefreshTokenByUserId(userId: Long): String? {
-        return cacheProvider.get("${CacheKeyPrefix.REFRESH_TOKEN}$userId")
+        return cacheProvider.get(CacheKeyPrefix.userRefreshToken(userId))
     }
 
     private fun clearRefreshTokenByUserId(userId: Long) {
-        cacheProvider.delete("${CacheKeyPrefix.REFRESH_TOKEN}$userId")
+        cacheProvider.delete(CacheKeyPrefix.userRefreshToken(userId))
     }
 }
