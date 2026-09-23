@@ -12,8 +12,6 @@ import com.chobolevel.api.record.updater.RecordUpdater
 import com.chobolevel.api.record.validator.RecordBusinessValidator
 import com.chobolevel.api.record.view.service.RecordViewQueryService
 import com.chobolevel.domain.common.dto.Paging
-import com.chobolevel.domain.common.exception.ErrorCode
-import com.chobolevel.domain.common.exception.ForbiddenException
 import com.chobolevel.domain.emotion.entity.Emotion
 import com.chobolevel.domain.emotion.repository.EmotionRepository
 import com.chobolevel.domain.record.entity.Record
@@ -84,9 +82,7 @@ class RecordService(
     @Transactional(readOnly = true)
     fun fetchRecord(requesterId: Long?, recordId: Long): RecordDetailResponse {
         val record: Record = recordRepository.findById(recordId)
-        if (record.isPrivate && record.user.id != requesterId) {
-            throw ForbiddenException(errorCode = ErrorCode.PRIVATE_RECORD)
-        }
+        recordBusinessValidator.validateReadable(requesterId = requesterId, record = record)
         val likeCount: Long = recordLikeQueryService.fetchLikeCount(recordId)
         val viewCount: Long = recordViewQueryService.fetchViewCount(recordId)
         return recordConverter.convertToDetail(record, likeCount, viewCount)

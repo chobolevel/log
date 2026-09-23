@@ -13,4 +13,10 @@ class RecordBusinessValidator {
             throw ForbiddenException(errorCode = ErrorCode.RESTRICTED_TO_RECORD_WRITER)
         }
     }
+
+    fun validateReadable(requesterId: Long?, record: Record) {
+        if (record.isPrivate && record.user.id != requesterId) {
+            throw ForbiddenException(errorCode = ErrorCode.PRIVATE_RECORD)
+        }
+    }
 }

@@ -15,6 +15,7 @@ import com.chobolevel.api.record.like.service.RecordLikeQueryService
 import com.chobolevel.api.record.updater.RecordUpdater
 import com.chobolevel.api.record.validator.RecordBusinessValidator
 import com.chobolevel.api.record.view.service.RecordViewQueryService
+import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.ForbiddenException
 import com.chobolevel.domain.emotion.entity.Emotion
 import com.chobolevel.domain.emotion.repository.EmotionRepository
@@ -159,6 +160,7 @@ class RecordServiceTest : BehaviorSpec({
                 val record: Record = DummyRecord.toEntity()
                 val response: RecordDetailResponse = DummyRecord.toDetailResponse()
                 every { recordRepository.findById(recordId) } returns record
+                justRun { recordBusinessValidator.validateReadable(requesterId = null, record = record) }
                 every { recordLikeQueryService.fetchLikeCount(recordId) } returns likeCount
                 every { recordViewQueryService.fetchViewCount(recordId) } returns viewCount
                 every { recordConverter.convertToDetail(record, likeCount, viewCount) } returns response
@@ -183,6 +185,7 @@ class RecordServiceTest : BehaviorSpec({
                 val record: Record = DummyRecord.toEntity().also { ReflectionTestUtils.setField(it, "isPrivate", true) }
                 val response: RecordDetailResponse = DummyRecord.toDetailResponse()
                 every { recordRepository.findById(DummyRecord.ID) } returns record
+                justRun { recordBusinessValidator.validateReadable(requesterId = userId, record = record) }
                 every { recordLikeQueryService.fetchLikeCount(DummyRecord.ID) } returns likeCount
                 every { recordViewQueryService.fetchViewCount(DummyRecord.ID) } returns viewCount
                 every { recordConverter.convertToDetail(record, likeCount, viewCount) } returns response
@@ -204,6 +207,9 @@ class RecordServiceTest : BehaviorSpec({
                 val otherUserId: Long = DummyUser.ID + 1L
                 val record: Record = DummyRecord.toEntity().also { ReflectionTestUtils.setField(it, "isPrivate", true) }
                 every { recordRepository.findById(DummyRecord.ID) } returns record
+                every {
+                    recordBusinessValidator.validateReadable(requesterId = otherUserId, record = record)
+                } throws ForbiddenException(errorCode = ErrorCode.PRIVATE_RECORD)
 
                 // when & then
                 shouldThrow<ForbiddenException> {
