@@ -137,8 +137,8 @@ class RecordControllerTest {
     fun `인증 없이 기록 단건을 조회할 수 있다`() {
         // given
         every {
-            recordService.fetchRecord(requesterId = null, guestId = null, recordId = DummyRecord.ID)
-        } returns DummyRecord.toResponse()
+            recordService.fetchRecord(requesterId = null, recordId = DummyRecord.ID)
+        } returns DummyRecord.toDetailResponse()
 
         // when & then
         mockMvc.perform(get("/api/v1/records/${DummyRecord.ID}"))

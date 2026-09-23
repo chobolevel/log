@@ -1,6 +1,5 @@
 package com.chobolevel.api.common.dummy
 
-import com.chobolevel.api.record.view.dto.RecordViewEventMessage
 import com.chobolevel.domain.record.view.entity.RecordView
 import org.springframework.test.util.ReflectionTestUtils
 
@@ -17,11 +16,4 @@ object DummyRecordView {
     ).also {
         ReflectionTestUtils.setField(it, "id", ID)
     }
-
-    fun toEventMessage(userId: Long? = USER_ID, guestId: String? = null): RecordViewEventMessage =
-        RecordViewEventMessage(
-            recordId = RECORD_ID,
-            userId = userId,
-            guestId = guestId
-        )
 }

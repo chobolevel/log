@@ -3,6 +3,7 @@ package com.chobolevel.api.record.service
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.record.converter.RecordConverter
 import com.chobolevel.api.record.dto.CreateRecordRequest
+import com.chobolevel.api.record.dto.RecordDetailResponse
 import com.chobolevel.api.record.dto.RecordResponse
 import com.chobolevel.api.record.dto.SearchRecordRequest
 import com.chobolevel.api.record.dto.UpdateRecordRequest
@@ -10,7 +11,6 @@ import com.chobolevel.api.record.like.service.RecordLikeQueryService
 import com.chobolevel.api.record.updater.RecordUpdater
 import com.chobolevel.api.record.validator.RecordBusinessValidator
 import com.chobolevel.api.record.view.service.RecordViewQueryService
-import com.chobolevel.api.record.view.service.RecordViewService
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.ForbiddenException
@@ -23,7 +23,6 @@ import com.chobolevel.domain.subject.entity.Subject
 import com.chobolevel.domain.subject.repository.SubjectRepository
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -36,12 +35,9 @@ class RecordService(
     private val recordConverter: RecordConverter,
     private val recordBusinessValidator: RecordBusinessValidator,
     private val recordLikeQueryService: RecordLikeQueryService,
-    private val recordViewService: RecordViewService,
     private val recordViewQueryService: RecordViewQueryService,
     private val recordUpdater: RecordUpdater
 ) {
-
-    private val logger = LoggerFactory.getLogger(javaClass)
 
     @Transactional
     fun createRecord(userId: Long, request: CreateRecordRequest): Long {
@@ -86,15 +82,14 @@ class RecordService(
     }
 
     @Transactional(readOnly = true)
-    fun fetchRecord(requesterId: Long?, guestId: String?, recordId: Long): RecordResponse {
+    fun fetchRecord(requesterId: Long?, recordId: Long): RecordDetailResponse {
         val record: Record = recordRepository.findById(recordId)
         if (record.isPrivate && record.user.id != requesterId) {
             throw ForbiddenException(errorCode = ErrorCode.PRIVATE_RECORD)
         }
-        recordView(recordId = recordId, userId = requesterId, guestId = guestId)
         val likeCount: Long = recordLikeQueryService.fetchLikeCount(recordId)
         val viewCount: Long = recordViewQueryService.fetchViewCount(recordId)
-        return recordConverter.convert(record, likeCount, viewCount)
+        return recordConverter.convertToDetail(record, likeCount, viewCount)
     }
 
     @Transactional
@@ -111,14 +106,5 @@ class RecordService(
         recordBusinessValidator.validateWriter(userId, record)
         record.delete()
         return true
-    }
-
-    // 조회수 집계는 부가 기능이라 실패해도 기록 조회 자체는 막지 않는다
-    private fun recordView(recordId: Long, userId: Long?, guestId: String?) {
-        runCatching {
-            recordViewService.recordView(recordId = recordId, userId = userId, guestId = guestId)
-        }.onFailure { e ->
-            logger.error("조회수 반영 실패 - recordId: $recordId", e)
-        }
     }
 }

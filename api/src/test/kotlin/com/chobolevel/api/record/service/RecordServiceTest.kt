@@ -7,6 +7,7 @@ import com.chobolevel.api.common.dummy.DummySubject
 import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.record.converter.RecordConverter
 import com.chobolevel.api.record.dto.CreateRecordRequest
+import com.chobolevel.api.record.dto.RecordDetailResponse
 import com.chobolevel.api.record.dto.RecordResponse
 import com.chobolevel.api.record.dto.SearchRecordRequest
 import com.chobolevel.api.record.dto.UpdateRecordRequest
@@ -14,7 +15,6 @@ import com.chobolevel.api.record.like.service.RecordLikeQueryService
 import com.chobolevel.api.record.updater.RecordUpdater
 import com.chobolevel.api.record.validator.RecordBusinessValidator
 import com.chobolevel.api.record.view.service.RecordViewQueryService
-import com.chobolevel.api.record.view.service.RecordViewService
 import com.chobolevel.domain.common.exception.ForbiddenException
 import com.chobolevel.domain.emotion.entity.Emotion
 import com.chobolevel.domain.emotion.repository.EmotionRepository
@@ -44,7 +44,6 @@ class RecordServiceTest : BehaviorSpec({
     val recordConverter: RecordConverter = mockk()
     val recordBusinessValidator: RecordBusinessValidator = mockk()
     val recordLikeQueryService: RecordLikeQueryService = mockk()
-    val recordViewService: RecordViewService = mockk()
     val recordViewQueryService: RecordViewQueryService = mockk()
     val recordUpdater: RecordUpdater = mockk()
     val recordService: RecordService = RecordService(
@@ -55,7 +54,6 @@ class RecordServiceTest : BehaviorSpec({
         recordConverter = recordConverter,
         recordBusinessValidator = recordBusinessValidator,
         recordLikeQueryService = recordLikeQueryService,
-        recordViewService = recordViewService,
         recordViewQueryService = recordViewQueryService,
         recordUpdater = recordUpdater
     )
@@ -153,30 +151,26 @@ class RecordServiceTest : BehaviorSpec({
 
     given("기록 단건을 조회할 때") {
         `when`("공개 기록이면") {
-            then("기록 응답을 반환하고 조회수가 반영된다") {
+            then("기록 응답을 반환한다") {
                 // given
                 val recordId: Long = DummyRecord.ID
-                val guestId: String = "guest-id"
                 val likeCount: Long = 0L
                 val viewCount: Long = 1L
                 val record: Record = DummyRecord.toEntity()
-                val response: RecordResponse = DummyRecord.toResponse()
+                val response: RecordDetailResponse = DummyRecord.toDetailResponse()
                 every { recordRepository.findById(recordId) } returns record
-                every { recordViewService.recordView(recordId = recordId, userId = null, guestId = guestId) } returns true
                 every { recordLikeQueryService.fetchLikeCount(recordId) } returns likeCount
                 every { recordViewQueryService.fetchViewCount(recordId) } returns viewCount
-                every { recordConverter.convert(record, likeCount, viewCount) } returns response
+                every { recordConverter.convertToDetail(record, likeCount, viewCount) } returns response
 
                 // when
-                val result: RecordResponse = recordService.fetchRecord(
+                val result: RecordDetailResponse = recordService.fetchRecord(
                     requesterId = null,
-                    guestId = guestId,
                     recordId = recordId
                 )
 
                 // then
                 result shouldBe response
-                verify { recordViewService.recordView(recordId = recordId, userId = null, guestId = guestId) }
             }
         }
 
@@ -184,23 +178,18 @@ class RecordServiceTest : BehaviorSpec({
             then("기록 응답을 반환한다") {
                 // given
                 val userId: Long = DummyUser.ID
-                val guestId: String = "guest-id"
                 val likeCount: Long = 0L
                 val viewCount: Long = 1L
                 val record: Record = DummyRecord.toEntity().also { ReflectionTestUtils.setField(it, "isPrivate", true) }
-                val response: RecordResponse = DummyRecord.toResponse()
+                val response: RecordDetailResponse = DummyRecord.toDetailResponse()
                 every { recordRepository.findById(DummyRecord.ID) } returns record
-                every {
-                    recordViewService.recordView(recordId = DummyRecord.ID, userId = userId, guestId = guestId)
-                } returns true
                 every { recordLikeQueryService.fetchLikeCount(DummyRecord.ID) } returns likeCount
                 every { recordViewQueryService.fetchViewCount(DummyRecord.ID) } returns viewCount
-                every { recordConverter.convert(record, likeCount, viewCount) } returns response
+                every { recordConverter.convertToDetail(record, likeCount, viewCount) } returns response
 
                 // when
-                val result: RecordResponse = recordService.fetchRecord(
+                val result: RecordDetailResponse = recordService.fetchRecord(
                     requesterId = userId,
-                    guestId = guestId,
                     recordId = DummyRecord.ID
                 )
 
@@ -210,7 +199,7 @@ class RecordServiceTest : BehaviorSpec({
         }
 
         `when`("비공개 기록이고 요청자가 작성자가 아니면") {
-            then("ForbiddenException이 발생하고 조회수는 반영되지 않는다") {
+            then("ForbiddenException이 발생한다") {
                 // given
                 val otherUserId: Long = DummyUser.ID + 1L
                 val record: Record = DummyRecord.toEntity().also { ReflectionTestUtils.setField(it, "isPrivate", true) }
@@ -218,9 +207,8 @@ class RecordServiceTest : BehaviorSpec({
 
                 // when & then
                 shouldThrow<ForbiddenException> {
-                    recordService.fetchRecord(requesterId = otherUserId, guestId = "guest-id", recordId = DummyRecord.ID)
+                    recordService.fetchRecord(requesterId = otherUserId, recordId = DummyRecord.ID)
                 }
-                verify(exactly = 0) { recordViewService.recordView(any(), any(), any()) }
             }
         }
     }

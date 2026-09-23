@@ -5,11 +5,12 @@ import com.chobolevel.api.record.review.dto.RecordReviewResponse
 import com.chobolevel.api.user.dto.UserSummaryResponse
 import com.chobolevel.domain.record.vo.RecordType
 
-data class RecordResponse(
+data class RecordDetailResponse(
     val id: Long,
     val writer: UserSummaryResponse,
     val type: RecordType,
     val title: String,
+    val content: String,
     val isPrivate: Boolean,
     val tags: List<String>,
     val review: RecordReviewResponse?,

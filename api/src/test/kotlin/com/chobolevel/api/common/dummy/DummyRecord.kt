@@ -1,6 +1,7 @@
 package com.chobolevel.api.common.dummy
 
 import com.chobolevel.api.record.dto.CreateRecordRequest
+import com.chobolevel.api.record.dto.RecordDetailResponse
 import com.chobolevel.api.record.dto.RecordResponse
 import com.chobolevel.api.record.dto.SearchRecordRequest
 import com.chobolevel.api.record.dto.UpdateRecordRequest
@@ -112,6 +113,19 @@ object DummyRecord {
     )
 
     fun toResponse(): RecordResponse = RecordResponse(
+        id = ID,
+        writer = DummyUser.toSummaryResponse(),
+        type = TYPE,
+        title = TITLE,
+        isPrivate = IS_PRIVATE,
+        tags = emptyList(),
+        review = null,
+        emotion = null,
+        createdAt = 0L,
+        updatedAt = 0L
+    )
+
+    fun toDetailResponse(): RecordDetailResponse = RecordDetailResponse(
         id = ID,
         writer = DummyUser.toSummaryResponse(),
         type = TYPE,
