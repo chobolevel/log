@@ -1,6 +1,7 @@
 package com.chobolevel.api.record.view.service
 
 import com.chobolevel.api.common.constant.CacheKeyPrefix
+import com.chobolevel.api.common.extension.registerAfterCommit
 import com.chobolevel.api.common.provider.CacheProvider
 import com.chobolevel.api.record.view.validator.RecordViewValidator
 import com.chobolevel.domain.record.view.entity.RecordView
@@ -9,8 +10,6 @@ import com.chobolevel.domain.record.view.sync.entity.RecordViewSyncEvent
 import com.chobolevel.domain.record.view.sync.repository.RecordViewSyncEventRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.transaction.support.TransactionSynchronization
-import org.springframework.transaction.support.TransactionSynchronizationManager
 import java.util.concurrent.TimeUnit
 
 @Service
@@ -70,16 +69,6 @@ class RecordViewService(
         if (!cacheProvider.hasKey(countKey)) {
             val currentCount: Long = recordViewRepository.countByRecordId(recordId)
             cacheProvider.putIfAbsent(countKey, currentCount.toString())
-        }
-    }
-
-    private fun registerAfterCommit(action: () -> Unit) {
-        if (TransactionSynchronizationManager.isSynchronizationActive()) {
-            TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
-                override fun afterCommit() = action()
-            })
-        } else {
-            action()
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.chobolevel.api.user.follow.service
 
 import com.chobolevel.api.common.constant.CacheKeyPrefix
+import com.chobolevel.api.common.extension.registerAfterCommit
 import com.chobolevel.api.common.provider.CacheProvider
 import com.chobolevel.api.user.follow.dto.UserFollowCounterResponse
 import com.chobolevel.api.user.follow.validator.UserFollowBusinessValidator
@@ -13,8 +14,6 @@ import com.chobolevel.domain.user.follow.sync.vo.UserFollowSyncEventAction
 import com.chobolevel.domain.user.follow.sync.vo.UserFollowSyncEventStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.transaction.support.TransactionSynchronization
-import org.springframework.transaction.support.TransactionSynchronizationManager
 
 @Service
 class UserFollowService(
@@ -128,15 +127,5 @@ class UserFollowService(
         cacheProvider.put(CacheKeyPrefix.userFollowingCount(userId), followingCount.toString())
         cacheProvider.put(CacheKeyPrefix.userFollowerCount(userId), followerCount.toString())
         return UserFollowCounterResponse(followerCount = followerCount, followingCount = followingCount)
-    }
-
-    private fun registerAfterCommit(action: () -> Unit) {
-        if (TransactionSynchronizationManager.isSynchronizationActive()) {
-            TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
-                override fun afterCommit() = action()
-            })
-        } else {
-            action()
-        }
     }
 }

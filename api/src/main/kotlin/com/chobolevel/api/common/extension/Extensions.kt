@@ -2,6 +2,8 @@ package com.chobolevel.api.common.extension
 
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.security.core.Authentication
+import org.springframework.transaction.support.TransactionSynchronization
+import org.springframework.transaction.support.TransactionSynchronizationManager
 import java.security.Principal
 import java.time.OffsetDateTime
 
@@ -24,4 +26,15 @@ fun HttpServletRequest.getCookie(key: String): String? {
 
 fun OffsetDateTime?.toMillis(): Long {
     return this?.toInstant()?.toEpochMilli() ?: 0L
+}
+
+// DB 커밋 성공 후에만 캐시 반영 등 부가 작업을 실행한다 — 트랜잭션 동기화가 없는 컨텍스트(테스트 등)에서는 즉시 실행한다.
+fun registerAfterCommit(action: () -> Unit) {
+    if (TransactionSynchronizationManager.isSynchronizationActive()) {
+        TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
+            override fun afterCommit() = action()
+        })
+    } else {
+        action()
+    }
 }

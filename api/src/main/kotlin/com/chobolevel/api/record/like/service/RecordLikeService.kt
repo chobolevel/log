@@ -1,6 +1,7 @@
 package com.chobolevel.api.record.like.service
 
 import com.chobolevel.api.common.constant.CacheKeyPrefix
+import com.chobolevel.api.common.extension.registerAfterCommit
 import com.chobolevel.api.common.provider.CacheProvider
 import com.chobolevel.api.record.like.validator.RecordLikeValidator
 import com.chobolevel.domain.record.entity.Record
@@ -14,8 +15,6 @@ import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.transaction.support.TransactionSynchronization
-import org.springframework.transaction.support.TransactionSynchronizationManager
 import java.util.concurrent.TimeUnit
 
 @Service
@@ -107,16 +106,6 @@ class RecordLikeService(
         if (!cacheProvider.hasKey(countKey)) {
             val currentCount: Long = recordLikeRepository.countByRecordId(recordId)
             cacheProvider.putIfAbsent(countKey, currentCount.toString(), CacheKeyPrefix.RECORD_LIKE_CACHE_TTL_MINUTES, TimeUnit.MINUTES)
-        }
-    }
-
-    private fun registerAfterCommit(action: () -> Unit) {
-        if (TransactionSynchronizationManager.isSynchronizationActive()) {
-            TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
-                override fun afterCommit() = action()
-            })
-        } else {
-            action()
         }
     }
 }
