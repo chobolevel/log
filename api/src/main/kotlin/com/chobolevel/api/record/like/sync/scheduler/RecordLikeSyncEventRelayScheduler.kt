@@ -19,11 +19,19 @@ class RecordLikeSyncEventRelayScheduler(
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
+    companion object {
+        private const val RELAY_CHUNK_SIZE = 500L
+    }
+
     // [설계 의도: Transactional Outbox Relay]
     //
     // like()/dislike() 와 같은 트랜잭션에서 INSERT된 PENDING 이벤트를 Kafka로 중계한다.
     // 각 이벤트는 독립적으로 처리되며, Kafka 발행 성공 시에만 PUBLISHED로 업데이트한다.
     // 발행 실패 시 PENDING 상태가 유지되어 다음 실행 주기에 자동으로 재시도된다.
+    //
+    // 한 번에 최대 RELAY_CHUNK_SIZE개(오래된 순)만 가져온다 — Kafka 장애 등으로 PENDING이
+    // 쌓여도 한 tick이 무제한 풀 스캔/로드를 하지 않도록 상한을 둔다. 남은 백로그는
+    // 5초 뒤 다음 tick이 이어서 처리한다.
     //
     // 메시지 키는 event.id가 아닌 recordId를 사용한다.
     // 파티션이 1개인 지금은 동작에 차이가 없지만, 파티션을 늘릴 때 키가 recordId여야
@@ -31,7 +39,7 @@ class RecordLikeSyncEventRelayScheduler(
     @Scheduled(fixedDelay = 5_000)
     fun relay() {
         val pendingEvents: List<RecordLikeSyncEvent> = recordLikeSyncEventRepository
-            .findAllByStatus(RecordLikeSyncEventStatus.PENDING)
+            .findAllByStatusOrderByIdAsc(RecordLikeSyncEventStatus.PENDING, RELAY_CHUNK_SIZE)
 
         if (pendingEvents.isEmpty()) return
 

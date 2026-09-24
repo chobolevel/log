@@ -16,5 +16,8 @@ interface RecordLikeSyncEventRepository {
 
     fun findAllByStatus(status: RecordLikeSyncEventStatus, paging: Paging): List<RecordLikeSyncEvent>
 
+    // Relay 스케줄러 전용 — 오래된 순(id ASC)으로 최대 limit개만 가져온다 (풀 스캔/starvation 방지)
+    fun findAllByStatusOrderByIdAsc(status: RecordLikeSyncEventStatus, limit: Long): List<RecordLikeSyncEvent>
+
     fun countByStatus(status: RecordLikeSyncEventStatus): Long
 }

@@ -11,5 +11,7 @@ interface RecordLikeSyncEventJpaRepository : JpaRepository<RecordLikeSyncEvent, 
 
     fun findAllByStatus(status: RecordLikeSyncEventStatus, pageable: Pageable): List<RecordLikeSyncEvent>
 
+    fun findAllByStatusOrderByIdAsc(status: RecordLikeSyncEventStatus, pageable: Pageable): List<RecordLikeSyncEvent>
+
     fun countByStatus(status: RecordLikeSyncEventStatus): Long
 }

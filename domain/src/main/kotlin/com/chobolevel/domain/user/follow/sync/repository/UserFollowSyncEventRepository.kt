@@ -16,6 +16,9 @@ interface UserFollowSyncEventRepository {
 
     fun findAllByStatus(status: UserFollowSyncEventStatus, paging: Paging): List<UserFollowSyncEvent>
 
+    // Relay 스케줄러 전용 — 오래된 순(id ASC)으로 최대 limit개만 가져온다 (풀 스캔/starvation 방지)
+    fun findAllByStatusOrderByIdAsc(status: UserFollowSyncEventStatus, limit: Long): List<UserFollowSyncEvent>
+
     fun countByStatus(status: UserFollowSyncEventStatus): Long
 
     fun existsByStatusNotAndFollowerUserId(status: UserFollowSyncEventStatus, followerUserId: Long): Boolean

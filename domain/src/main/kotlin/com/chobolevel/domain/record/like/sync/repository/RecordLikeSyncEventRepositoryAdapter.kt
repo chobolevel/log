@@ -44,4 +44,9 @@ class RecordLikeSyncEventRepositoryAdapter(
     override fun countByStatus(status: RecordLikeSyncEventStatus): Long {
         return recordLikeSyncEventJpaRepository.countByStatus(status = status)
     }
+
+    override fun findAllByStatusOrderByIdAsc(status: RecordLikeSyncEventStatus, limit: Long): List<RecordLikeSyncEvent> {
+        val pageable = PageRequest.of(0, limit.toInt())
+        return recordLikeSyncEventJpaRepository.findAllByStatusOrderByIdAsc(status = status, pageable = pageable)
+    }
 }

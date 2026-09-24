@@ -58,4 +58,9 @@ class UserFollowSyncEventRepositoryAdapter(
             followingUserId = followingUserId,
         )
     }
+
+    override fun findAllByStatusOrderByIdAsc(status: UserFollowSyncEventStatus, limit: Long): List<UserFollowSyncEvent> {
+        val pageable = PageRequest.of(0, limit.toInt())
+        return userFollowSyncEventJpaRepository.findAllByStatusOrderByIdAsc(status = status, pageable = pageable)
+    }
 }
