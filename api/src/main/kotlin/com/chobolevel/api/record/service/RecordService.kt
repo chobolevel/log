@@ -111,12 +111,12 @@ class RecordService(
 
     // 연도별 잔디 — 비공개 기록도 카운트에 포함하되(공개 프로필에서도 활동량만 노출), 소프트 삭제된 기록은 제외한다.
     // 날짜 경계는 저장 타임존 설정과 무관하게 항상 KST 기준으로 계산한다.
+    // year 기본값(현재 연도) 보정은 컨트롤러 경계(FetchRecordContributionsRequest)에서 이미 끝나 있으므로 여기서는 다루지 않는다.
     @Transactional(readOnly = true)
-    fun fetchContributions(userId: Long, year: Int?): List<RecordContributionResponse> {
+    fun fetchContributions(userId: Long, year: Int): List<RecordContributionResponse> {
         val zoneId: ZoneId = ZoneId.of("Asia/Seoul")
-        val resolvedYear: Int = year ?: LocalDate.now(zoneId).year
-        val start: OffsetDateTime = LocalDate.of(resolvedYear, 1, 1).atStartOfDay(zoneId).toOffsetDateTime()
-        val end: OffsetDateTime = LocalDate.of(resolvedYear + 1, 1, 1).atStartOfDay(zoneId).toOffsetDateTime()
+        val start: OffsetDateTime = LocalDate.of(year, 1, 1).atStartOfDay(zoneId).toOffsetDateTime()
+        val end: OffsetDateTime = LocalDate.of(year + 1, 1, 1).atStartOfDay(zoneId).toOffsetDateTime()
 
         val createdAts: List<OffsetDateTime> = recordRepository.findCreatedAtsByUserIdAndCreatedAtBetween(
             userId = userId,
@@ -126,6 +126,6 @@ class RecordService(
         val countsByDate: Map<LocalDate, Long> = createdAts.groupingBy { it.toKST() }.eachCount()
             .mapValues { it.value.toLong() }
 
-        return recordConverter.convertToContributions(year = resolvedYear, countsByDate = countsByDate)
+        return recordConverter.convertToContributions(year = year, countsByDate = countsByDate)
     }
 }

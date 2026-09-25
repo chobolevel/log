@@ -28,12 +28,13 @@ class RecordParameterValidatorTest : BehaviorSpec({
             }
         }
 
-        `when`("year가 없으면") {
-            then("예외가 발생하지 않는다 (서비스에서 현재 연도로 기본값 처리)") {
+        `when`("year를 생략하면") {
+            then("DTO 기본값(현재 연도)이 채워져 예외가 발생하지 않는다") {
                 // given
-                val request = FetchRecordContributionsRequest(userId = DummyUser.ID, year = null)
+                val request = FetchRecordContributionsRequest(userId = DummyUser.ID)
 
                 // when & then
+                request.year shouldBe LocalDate.now(ZoneId.of("Asia/Seoul")).year
                 validator.validate(request)
             }
         }

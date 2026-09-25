@@ -17,6 +17,7 @@ class RecordParameterValidator {
     }
 
     // QueryObject 바인딩은 Bean Validation을 타지 않아서(@Valid 미적용) 여기서 직접 검증한다.
+    // year 기본값(현재 연도)은 DTO 바인딩 시점에 이미 채워져 있으므로 여기서는 범위만 검증한다.
     fun validate(request: FetchRecordContributionsRequest) {
         if (request.userId == null) {
             throw InvalidParameterException(
@@ -25,7 +26,7 @@ class RecordParameterValidator {
             )
         }
         val currentYear: Int = LocalDate.now(ZoneId.of("Asia/Seoul")).year
-        if (request.year != null && (request.year < CONTRIBUTIONS_MIN_YEAR || request.year > currentYear)) {
+        if (request.year < CONTRIBUTIONS_MIN_YEAR || request.year > currentYear) {
             throw InvalidParameterException(
                 errorCode = ErrorCode.INVALID_PARAMETER,
                 message = "유효하지 않은 연도입니다."

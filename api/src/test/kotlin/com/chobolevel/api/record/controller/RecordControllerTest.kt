@@ -16,6 +16,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.justRun
+import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -38,6 +39,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.time.LocalDate
+import java.time.ZoneId
 
 @WebMvcTest(RecordController::class)
 @Import(RecordControllerTest.TestSecurityConfig::class)
@@ -162,6 +165,22 @@ class RecordControllerTest {
         mockMvc.perform(get("/api/v1/records/contributions?user_id=${DummyUser.ID}&year=2026"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.data").isArray)
+    }
+
+    @Test
+    fun `기록 잔디 조회 시 year를 생략하면 현재 연도로 조회한다`() {
+        // given
+        val currentYear: Int = LocalDate.now(ZoneId.of("Asia/Seoul")).year
+        justRun { recordParameterValidator.validate(request = any<FetchRecordContributionsRequest>()) }
+        every {
+            recordService.fetchContributions(userId = DummyUser.ID, year = currentYear)
+        } returns listOf(DummyRecord.toContributionResponse())
+
+        // when & then
+        mockMvc.perform(get("/api/v1/records/contributions?user_id=${DummyUser.ID}"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.data").isArray)
+        verify { recordService.fetchContributions(userId = DummyUser.ID, year = currentYear) }
     }
 
     @Test

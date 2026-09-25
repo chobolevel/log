@@ -297,27 +297,6 @@ class RecordServiceTest : BehaviorSpec({
             }
         }
 
-        `when`("year가 없으면") {
-            then("현재 연도(KST 기준)로 기본값 처리한다") {
-                // given
-                val userId: Long = DummyUser.ID
-                val zoneId: ZoneId = ZoneId.of("Asia/Seoul")
-                val currentYear: Int = LocalDate.now(zoneId).year
-                val expectedStart: OffsetDateTime = LocalDate.of(currentYear, 1, 1).atStartOfDay(zoneId).toOffsetDateTime()
-                val expectedEnd: OffsetDateTime = LocalDate.of(currentYear + 1, 1, 1).atStartOfDay(zoneId).toOffsetDateTime()
-                every {
-                    recordRepository.findCreatedAtsByUserIdAndCreatedAtBetween(userId, expectedStart, expectedEnd)
-                } returns emptyList()
-                every { recordConverter.convertToContributions(year = currentYear, countsByDate = emptyMap()) } returns emptyList()
-
-                // when
-                recordService.fetchContributions(userId = userId, year = null)
-
-                // then
-                verify { recordConverter.convertToContributions(year = currentYear, countsByDate = emptyMap()) }
-            }
-        }
-
         `when`("UTC 자정 전후에 걸친 createdAt들이 있으면") {
             then("KST 기준 날짜로 정확히 그룹핑해서 converter에 전달한다") {
                 // given
