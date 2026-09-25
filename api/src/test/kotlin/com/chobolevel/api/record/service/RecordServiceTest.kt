@@ -7,6 +7,7 @@ import com.chobolevel.api.common.dummy.DummySubject
 import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.record.converter.RecordConverter
 import com.chobolevel.api.record.dto.CreateRecordRequest
+import com.chobolevel.api.record.dto.RecordContributionResponse
 import com.chobolevel.api.record.dto.RecordDetailResponse
 import com.chobolevel.api.record.dto.RecordResponse
 import com.chobolevel.api.record.dto.SearchRecordRequest
@@ -29,12 +30,18 @@ import com.chobolevel.domain.user.repository.UserRepository
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.CapturingSlot
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import org.springframework.test.util.ReflectionTestUtils
+import java.time.LocalDate
+import java.time.OffsetDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
 
 class RecordServiceTest : BehaviorSpec({
 
@@ -263,6 +270,76 @@ class RecordServiceTest : BehaviorSpec({
                 result shouldBe true
                 record.isDeleted shouldBe true
                 verify { recordBusinessValidator.validateWriter(userId, record) }
+            }
+        }
+    }
+
+    given("연도별 기록 잔디를 조회할 때") {
+        `when`("year를 지정하면") {
+            then("해당 연도의 KST 기준 시작/종료 시각으로 조회하고 변환 결과를 반환한다") {
+                // given
+                val userId: Long = DummyUser.ID
+                val zoneId: ZoneId = ZoneId.of("Asia/Seoul")
+                val expectedStart: OffsetDateTime = LocalDate.of(2026, 1, 1).atStartOfDay(zoneId).toOffsetDateTime()
+                val expectedEnd: OffsetDateTime = LocalDate.of(2027, 1, 1).atStartOfDay(zoneId).toOffsetDateTime()
+                val response: List<RecordContributionResponse> = listOf(DummyRecord.toContributionResponse())
+                every {
+                    recordRepository.findCreatedAtsByUserIdAndCreatedAtBetween(userId, expectedStart, expectedEnd)
+                } returns emptyList()
+                every { recordConverter.convertToContributions(year = 2026, countsByDate = emptyMap()) } returns response
+
+                // when
+                val result: List<RecordContributionResponse> = recordService.fetchContributions(userId = userId, year = 2026)
+
+                // then
+                result shouldBe response
+                verify { recordRepository.findCreatedAtsByUserIdAndCreatedAtBetween(userId, expectedStart, expectedEnd) }
+            }
+        }
+
+        `when`("year가 없으면") {
+            then("현재 연도(KST 기준)로 기본값 처리한다") {
+                // given
+                val userId: Long = DummyUser.ID
+                val zoneId: ZoneId = ZoneId.of("Asia/Seoul")
+                val currentYear: Int = LocalDate.now(zoneId).year
+                val expectedStart: OffsetDateTime = LocalDate.of(currentYear, 1, 1).atStartOfDay(zoneId).toOffsetDateTime()
+                val expectedEnd: OffsetDateTime = LocalDate.of(currentYear + 1, 1, 1).atStartOfDay(zoneId).toOffsetDateTime()
+                every {
+                    recordRepository.findCreatedAtsByUserIdAndCreatedAtBetween(userId, expectedStart, expectedEnd)
+                } returns emptyList()
+                every { recordConverter.convertToContributions(year = currentYear, countsByDate = emptyMap()) } returns emptyList()
+
+                // when
+                recordService.fetchContributions(userId = userId, year = null)
+
+                // then
+                verify { recordConverter.convertToContributions(year = currentYear, countsByDate = emptyMap()) }
+            }
+        }
+
+        `when`("UTC 자정 전후에 걸친 createdAt들이 있으면") {
+            then("KST 기준 날짜로 정확히 그룹핑해서 converter에 전달한다") {
+                // given
+                val userId: Long = DummyUser.ID
+                // UTC 2025-12-31T15:30 -> KST 2026-01-01T00:30 (다음 해로 넘어감)
+                val crossesIntoNewYear: OffsetDateTime = OffsetDateTime.of(2025, 12, 31, 15, 30, 0, 0, ZoneOffset.UTC)
+                // UTC 2025-12-31T14:59 -> KST 2025-12-31T23:59 (그대로 그 해)
+                val staysInSameDay: OffsetDateTime = OffsetDateTime.of(2025, 12, 31, 14, 59, 0, 0, ZoneOffset.UTC)
+                every {
+                    recordRepository.findCreatedAtsByUserIdAndCreatedAtBetween(userId, any(), any())
+                } returns listOf(crossesIntoNewYear, staysInSameDay)
+                val countsByDateSlot: CapturingSlot<Map<LocalDate, Long>> = slot()
+                every {
+                    recordConverter.convertToContributions(year = any(), countsByDate = capture(countsByDateSlot))
+                } returns emptyList()
+
+                // when
+                recordService.fetchContributions(userId = userId, year = 2026)
+
+                // then
+                countsByDateSlot.captured[LocalDate.of(2026, 1, 1)] shouldBe 1L
+                countsByDateSlot.captured[LocalDate.of(2025, 12, 31)] shouldBe 1L
             }
         }
     }

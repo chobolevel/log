@@ -1,6 +1,7 @@
 package com.chobolevel.api.common.dummy
 
 import com.chobolevel.api.record.dto.CreateRecordRequest
+import com.chobolevel.api.record.dto.RecordContributionResponse
 import com.chobolevel.api.record.dto.RecordDetailResponse
 import com.chobolevel.api.record.dto.RecordResponse
 import com.chobolevel.api.record.dto.SearchRecordRequest
@@ -154,4 +155,7 @@ object DummyRecord {
         createdAt = 0L,
         updatedAt = 0L
     )
+
+    fun toContributionResponse(date: String = "2026-01-01", count: Long = 1L): RecordContributionResponse =
+        RecordContributionResponse(date = date, count = count)
 }

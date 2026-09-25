@@ -4,9 +4,13 @@ import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dummy.DummyRecord
 import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.record.dto.CreateRecordRequest
+import com.chobolevel.api.record.dto.FetchRecordContributionsRequest
 import com.chobolevel.api.record.dto.RecordResponse
+import com.chobolevel.api.record.dto.UpdateRecordRequest
 import com.chobolevel.api.record.service.RecordService
 import com.chobolevel.api.record.validator.RecordParameterValidator
+import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.common.exception.InvalidParameterException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.clearAllMocks
@@ -147,10 +151,36 @@ class RecordControllerTest {
     }
 
     @Test
+    fun `인증 없이 기록 잔디를 조회할 수 있다`() {
+        // given
+        justRun { recordParameterValidator.validate(request = any<FetchRecordContributionsRequest>()) }
+        every {
+            recordService.fetchContributions(userId = DummyUser.ID, year = 2026)
+        } returns listOf(DummyRecord.toContributionResponse())
+
+        // when & then
+        mockMvc.perform(get("/api/v1/records/contributions?user_id=${DummyUser.ID}&year=2026"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.data").isArray)
+    }
+
+    @Test
+    fun `기록 잔디 조회 시 user_id가 없으면 400을 반환한다`() {
+        // given
+        every {
+            recordParameterValidator.validate(request = any<FetchRecordContributionsRequest>())
+        } throws InvalidParameterException(errorCode = ErrorCode.INVALID_PARAMETER, message = "user_id는 필수 값입니다.")
+
+        // when & then
+        mockMvc.perform(get("/api/v1/records/contributions?year=2026"))
+            .andExpect(status().isBadRequest)
+    }
+
+    @Test
     @WithMockUser(username = "${DummyUser.ID}", roles = ["USER"])
     fun `인증된 사용자가 기록 수정 요청 시 기록 수정 후 기록 id를 반환한다`() {
         // given
-        justRun { recordParameterValidator.validate(request = any()) }
+        justRun { recordParameterValidator.validate(request = any<UpdateRecordRequest>()) }
         every {
             recordService.updateRecord(userId = DummyUser.ID, recordId = DummyRecord.ID, request = any())
         } returns DummyRecord.ID
