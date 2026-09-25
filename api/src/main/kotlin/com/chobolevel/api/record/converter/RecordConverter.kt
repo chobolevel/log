@@ -1,6 +1,7 @@
 package com.chobolevel.api.record.converter
 
 import com.chobolevel.api.common.extension.toMillis
+import com.chobolevel.api.record.dto.RecordContributionResponse
 import com.chobolevel.api.record.dto.RecordDetailResponse
 import com.chobolevel.api.record.dto.RecordResponse
 import com.chobolevel.api.record.dto.SearchRecordRequest
@@ -10,6 +11,7 @@ import com.chobolevel.api.user.converter.UserConverter
 import com.chobolevel.domain.record.entity.Record
 import com.chobolevel.domain.record.vo.RecordQueryFilter
 import org.springframework.stereotype.Component
+import java.time.LocalDate
 
 @Component
 class RecordConverter(
@@ -68,5 +70,15 @@ class RecordConverter(
             createdAt = record.createdAt.toMillis(),
             updatedAt = record.updatedAt.toMillis()
         )
+    }
+
+    // year 1/1 ~ 12/31 전체를 채워서 반환한다 — 기록이 없는 날짜는 count 0
+    fun convertToContributions(year: Int, countsByDate: Map<LocalDate, Long>): List<RecordContributionResponse> {
+        val startOfYear: LocalDate = LocalDate.of(year, 1, 1)
+        val endOfYear: LocalDate = LocalDate.of(year, 12, 31)
+        return generateSequence(startOfYear) { it.plusDays(1) }
+            .takeWhile { !it.isAfter(endOfYear) }
+            .map { date -> RecordContributionResponse(date = date.toString(), count = countsByDate[date] ?: 0L) }
+            .toList()
     }
 }

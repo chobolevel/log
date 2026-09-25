@@ -1,8 +1,10 @@
 package com.chobolevel.api.record.service
 
 import com.chobolevel.api.common.dto.PagingResponse
+import com.chobolevel.api.common.extension.toKST
 import com.chobolevel.api.record.converter.RecordConverter
 import com.chobolevel.api.record.dto.CreateRecordRequest
+import com.chobolevel.api.record.dto.RecordContributionResponse
 import com.chobolevel.api.record.dto.RecordDetailResponse
 import com.chobolevel.api.record.dto.RecordResponse
 import com.chobolevel.api.record.dto.SearchRecordRequest
@@ -23,6 +25,9 @@ import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
+import java.time.OffsetDateTime
+import java.time.ZoneId
 
 @Service
 class RecordService(
@@ -102,5 +107,25 @@ class RecordService(
         recordBusinessValidator.validateWriter(userId, record)
         record.delete()
         return true
+    }
+
+    // 연도별 잔디 — 비공개 기록도 카운트에 포함하되(공개 프로필에서도 활동량만 노출), 소프트 삭제된 기록은 제외한다.
+    // 날짜 경계는 저장 타임존 설정과 무관하게 항상 KST 기준으로 계산한다.
+    @Transactional(readOnly = true)
+    fun fetchContributions(userId: Long, year: Int?): List<RecordContributionResponse> {
+        val zoneId: ZoneId = ZoneId.of("Asia/Seoul")
+        val resolvedYear: Int = year ?: LocalDate.now(zoneId).year
+        val start: OffsetDateTime = LocalDate.of(resolvedYear, 1, 1).atStartOfDay(zoneId).toOffsetDateTime()
+        val end: OffsetDateTime = LocalDate.of(resolvedYear + 1, 1, 1).atStartOfDay(zoneId).toOffsetDateTime()
+
+        val createdAts: List<OffsetDateTime> = recordRepository.findCreatedAtsByUserIdAndCreatedAtBetween(
+            userId = userId,
+            start = start,
+            end = end
+        )
+        val countsByDate: Map<LocalDate, Long> = createdAts.groupingBy { it.toKST() }.eachCount()
+            .mapValues { it.value.toLong() }
+
+        return recordConverter.convertToContributions(year = resolvedYear, countsByDate = countsByDate)
     }
 }

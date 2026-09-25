@@ -7,6 +7,7 @@ import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.core.types.dsl.BooleanExpression
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import org.springframework.stereotype.Repository
+import java.time.OffsetDateTime
 
 @Repository
 class RecordQuerydslRepository : QuerydslRepositorySupport(Record::class.java) {
@@ -28,5 +29,17 @@ class RecordQuerydslRepository : QuerydslRepositorySupport(Record::class.java) {
         return from(record)
             .where(*predicates)
             .fetchCount()
+    }
+
+    fun findCreatedAtsByUserIdAndCreatedAtBetween(userId: Long, start: OffsetDateTime, end: OffsetDateTime): List<OffsetDateTime> {
+        return from(record)
+            .select(record.createdAt)
+            .where(
+                record.user.id.eq(userId),
+                record.isDeleted.isFalse,
+                record.createdAt.goe(start),
+                record.createdAt.lt(end),
+            )
+            .fetch()
     }
 }

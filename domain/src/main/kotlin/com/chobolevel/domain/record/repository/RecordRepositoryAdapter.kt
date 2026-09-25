@@ -9,6 +9,7 @@ import com.chobolevel.domain.record.vo.RecordOrderType
 import com.chobolevel.domain.record.vo.RecordQueryFilter
 import com.querydsl.core.types.OrderSpecifier
 import org.springframework.stereotype.Component
+import java.time.OffsetDateTime
 
 @Component
 class RecordRepositoryAdapter(
@@ -44,6 +45,10 @@ class RecordRepositoryAdapter(
 
     override fun searchRecordsCount(queryFilter: RecordQueryFilter): Long {
         return recordQuerydslRepository.countByPredicates(predicates = queryFilter.toPredicates())
+    }
+
+    override fun findCreatedAtsByUserIdAndCreatedAtBetween(userId: Long, start: OffsetDateTime, end: OffsetDateTime): List<OffsetDateTime> {
+        return recordQuerydslRepository.findCreatedAtsByUserIdAndCreatedAtBetween(userId = userId, start = start, end = end)
     }
 
     private fun List<RecordOrderType>.toOrderSpecifiers(): Array<OrderSpecifier<*>> {

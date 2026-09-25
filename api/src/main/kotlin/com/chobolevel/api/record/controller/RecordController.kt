@@ -6,6 +6,8 @@ import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getUserId
 import com.chobolevel.api.record.dto.CreateRecordRequest
+import com.chobolevel.api.record.dto.FetchRecordContributionsRequest
+import com.chobolevel.api.record.dto.RecordContributionResponse
 import com.chobolevel.api.record.dto.RecordDetailResponse
 import com.chobolevel.api.record.dto.RecordResponse
 import com.chobolevel.api.record.dto.SearchRecordRequest
@@ -55,6 +57,19 @@ class RecordController(
         @QueryObject request: SearchRecordRequest
     ): ResponseEntity<ResultResponse<PagingResponse<RecordResponse>>> {
         val result: PagingResponse<RecordResponse> = service.searchRecords(request = request)
+        return ResponseEntity.ok(ResultResponse(result))
+    }
+
+    @Operation(summary = "기록 잔디(연도별 일자별 등록 개수) 조회 API")
+    @GetMapping("/records/contributions")
+    fun fetchContributions(
+        @QueryObject request: FetchRecordContributionsRequest
+    ): ResponseEntity<ResultResponse<List<RecordContributionResponse>>> {
+        validator.validate(request = request)
+        val result: List<RecordContributionResponse> = service.fetchContributions(
+            userId = request.userId!!,
+            year = request.year
+        )
         return ResponseEntity.ok(ResultResponse(result))
     }
 
