@@ -60,6 +60,8 @@ class RecordController(
         return ResponseEntity.ok(ResultResponse(result))
     }
 
+    // TODO: 인증 없이 user_id를 스크립트로 순회하며 호출을 반복할 수 있는 구조. 쿼리 자체는 user_id+연도로 좁혀져 있어 문제 없지만,
+    // 호출 빈도를 막는 rate limiting 인프라가 아직 없어 스크래핑/자원 고갈 벡터로 남아있음. 보류, 추후 별도로 다룰 것.
     @Operation(summary = "기록 잔디(연도별 일자별 등록 개수) 조회 API")
     @GetMapping("/records/contributions")
     fun fetchContributions(

@@ -184,6 +184,14 @@ class RecordControllerTest {
     }
 
     @Test
+    fun `기록 잔디 조회 시 year가 숫자 형식이 아니면 400을 반환한다`() {
+        // given & when & then
+        mockMvc.perform(get("/api/v1/records/contributions?user_id=${DummyUser.ID}&year=abc"))
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.error_code").value(ErrorCode.INVALID_PARAMETER.name))
+    }
+
+    @Test
     fun `기록 잔디 조회 시 user_id가 없으면 400을 반환한다`() {
         // given
         every {
