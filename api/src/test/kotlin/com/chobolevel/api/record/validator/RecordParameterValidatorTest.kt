@@ -20,7 +20,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
         `when`("user_id와 유효한 연도가 있으면") {
             then("예외가 발생하지 않는다") {
                 // given
-                val request = FetchRecordContributionsRequest(userId = DummyUser.ID, year = 2024)
+                val request: FetchRecordContributionsRequest = FetchRecordContributionsRequest(userId = DummyUser.ID, year = 2024)
 
                 // when & then
                 validator.validate(request)
@@ -30,7 +30,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
         `when`("year를 생략하면") {
             then("DTO 기본값(현재 연도)이 채워져 예외가 발생하지 않는다") {
                 // given
-                val request = FetchRecordContributionsRequest(userId = DummyUser.ID)
+                val request: FetchRecordContributionsRequest = FetchRecordContributionsRequest(userId = DummyUser.ID)
 
                 // when & then
                 request.year shouldBe nowKST().year
@@ -41,7 +41,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
         `when`("user_id가 없으면") {
             then("InvalidParameterException이 발생한다") {
                 // given
-                val request = FetchRecordContributionsRequest(userId = null, year = 2024)
+                val request: FetchRecordContributionsRequest = FetchRecordContributionsRequest(userId = null, year = 2024)
 
                 // when & then
                 val ex: InvalidParameterException = shouldThrow {
@@ -54,7 +54,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
         `when`("year가 2000년보다 이전이면") {
             then("InvalidParameterException이 발생한다") {
                 // given
-                val request = FetchRecordContributionsRequest(userId = DummyUser.ID, year = 1999)
+                val request: FetchRecordContributionsRequest = FetchRecordContributionsRequest(userId = DummyUser.ID, year = 1999)
 
                 // when & then
                 val ex: InvalidParameterException = shouldThrow {
@@ -68,7 +68,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
             then("InvalidParameterException이 발생한다") {
                 // given
                 val futureYear: Int = nowKST().year + 1
-                val request = FetchRecordContributionsRequest(userId = DummyUser.ID, year = futureYear)
+                val request: FetchRecordContributionsRequest = FetchRecordContributionsRequest(userId = DummyUser.ID, year = futureYear)
 
                 // when & then
                 val ex: InvalidParameterException = shouldThrow {
