@@ -1,9 +1,8 @@
 package com.chobolevel.api.record.dto
 
-import java.time.LocalDate
-import java.time.ZoneId
+import com.chobolevel.api.common.extension.nowKST
 
 data class FetchRecordContributionsRequest(
     val userId: Long?,
-    val year: Int = LocalDate.now(ZoneId.of("Asia/Seoul")).year,
+    val year: Int = nowKST().year,
 )

@@ -3,6 +3,7 @@ package com.chobolevel.api.record.controller
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dummy.DummyRecord
 import com.chobolevel.api.common.dummy.DummyUser
+import com.chobolevel.api.common.extension.nowKST
 import com.chobolevel.api.record.dto.CreateRecordRequest
 import com.chobolevel.api.record.dto.FetchRecordContributionsRequest
 import com.chobolevel.api.record.dto.RecordResponse
@@ -39,8 +40,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.time.LocalDate
-import java.time.ZoneId
 
 @WebMvcTest(RecordController::class)
 @Import(RecordControllerTest.TestSecurityConfig::class)
@@ -170,7 +169,7 @@ class RecordControllerTest {
     @Test
     fun `기록 잔디 조회 시 year를 생략하면 현재 연도로 조회한다`() {
         // given
-        val currentYear: Int = LocalDate.now(ZoneId.of("Asia/Seoul")).year
+        val currentYear: Int = nowKST().year
         justRun { recordParameterValidator.validate(request = any<FetchRecordContributionsRequest>()) }
         every {
             recordService.fetchContributions(userId = DummyUser.ID, year = currentYear)

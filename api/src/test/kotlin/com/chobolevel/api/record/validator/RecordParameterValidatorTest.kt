@@ -2,6 +2,7 @@ package com.chobolevel.api.record.validator
 
 import com.chobolevel.api.common.dummy.DummyRecord
 import com.chobolevel.api.common.dummy.DummyUser
+import com.chobolevel.api.common.extension.nowKST
 import com.chobolevel.api.record.dto.FetchRecordContributionsRequest
 import com.chobolevel.api.record.dto.UpdateRecordRequest
 import com.chobolevel.domain.common.exception.InvalidParameterException
@@ -10,8 +11,6 @@ import com.chobolevel.domain.record.vo.RecordUpdateMask
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import java.time.LocalDate
-import java.time.ZoneId
 
 class RecordParameterValidatorTest : BehaviorSpec({
 
@@ -34,7 +33,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
                 val request = FetchRecordContributionsRequest(userId = DummyUser.ID)
 
                 // when & then
-                request.year shouldBe LocalDate.now(ZoneId.of("Asia/Seoul")).year
+                request.year shouldBe nowKST().year
                 validator.validate(request)
             }
         }
@@ -68,7 +67,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
         `when`("year가 현재 연도보다 미래이면") {
             then("InvalidParameterException이 발생한다") {
                 // given
-                val futureYear: Int = LocalDate.now(ZoneId.of("Asia/Seoul")).year + 1
+                val futureYear: Int = nowKST().year + 1
                 val request = FetchRecordContributionsRequest(userId = DummyUser.ID, year = futureYear)
 
                 // when & then
