@@ -61,9 +61,14 @@ spring:
       group-id: ENC(M01eU4U0zBwO9/Qnsg0DD/W38lbTYqrF7Raq+6kM4Q181+g6Elht/eM/jCzlrlHai2nnygaRNin0tXZAylMrJg==)
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      # 역직렬화 실패(trusted-packages 위반, 손상된 메시지 등)가 poll() 단계에서 그대로 터지면
+      # DefaultErrorHandler가 처리할 수 없어 컨슈머 스레드가 같은 offset에서 영구적으로 멈춘다.
+      # ErrorHandlingDeserializer가 예외를 잡아 DeserializationException으로 감싸주면 @RetryableTopic이
+      # 정상적으로 DLQ 라우팅 + offset 커밋까지 처리할 수 있다.
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       properties:
-        spring.json.trusted.packages: "com.chobolevel.api"
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        spring.json.trusted.packages: "com.chobolevel.api.*"
   flyway:
     enabled: true
     baseline-on-migrate: true
