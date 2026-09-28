@@ -14,8 +14,4 @@ interface UserFollowSyncEventJpaRepository : JpaRepository<UserFollowSyncEvent, 
     fun findAllByStatusOrderByIdAsc(status: UserFollowSyncEventStatus, pageable: Pageable): List<UserFollowSyncEvent>
 
     fun countByStatus(status: UserFollowSyncEventStatus): Long
-
-    fun existsByStatusNotAndFollowerUserId(status: UserFollowSyncEventStatus, followerUserId: Long): Boolean
-
-    fun existsByStatusNotAndFollowingUserId(status: UserFollowSyncEventStatus, followingUserId: Long): Boolean
 }

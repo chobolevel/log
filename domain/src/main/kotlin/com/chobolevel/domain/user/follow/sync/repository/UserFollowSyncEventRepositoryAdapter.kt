@@ -45,20 +45,6 @@ class UserFollowSyncEventRepositoryAdapter(
         return userFollowSyncEventJpaRepository.countByStatus(status = status)
     }
 
-    override fun existsByStatusNotAndFollowerUserId(status: UserFollowSyncEventStatus, followerUserId: Long): Boolean {
-        return userFollowSyncEventJpaRepository.existsByStatusNotAndFollowerUserId(
-            status = status,
-            followerUserId = followerUserId,
-        )
-    }
-
-    override fun existsByStatusNotAndFollowingUserId(status: UserFollowSyncEventStatus, followingUserId: Long): Boolean {
-        return userFollowSyncEventJpaRepository.existsByStatusNotAndFollowingUserId(
-            status = status,
-            followingUserId = followingUserId,
-        )
-    }
-
     override fun findAllByStatusOrderByIdAsc(status: UserFollowSyncEventStatus, limit: Long): List<UserFollowSyncEvent> {
         val pageable = PageRequest.of(0, limit.toInt())
         return userFollowSyncEventJpaRepository.findAllByStatusOrderByIdAsc(status = status, pageable = pageable)
