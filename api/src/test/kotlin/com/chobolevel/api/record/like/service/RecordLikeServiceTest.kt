@@ -4,15 +4,19 @@ import com.chobolevel.api.common.constant.CacheKeyPrefix
 import com.chobolevel.api.common.dummy.DummyRecord
 import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.common.provider.CacheProvider
+import com.chobolevel.api.notification.constant.NotificationLink
+import com.chobolevel.api.notification.provider.NotificationPublisher
 import com.chobolevel.api.record.like.validator.RecordLikeValidator
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.InvalidParameterException
+import com.chobolevel.domain.notification.vo.NotificationType
 import com.chobolevel.domain.record.entity.Record
 import com.chobolevel.domain.record.like.entity.RecordLike
 import com.chobolevel.domain.record.like.repository.RecordLikeRepository
 import com.chobolevel.domain.record.like.sync.entity.RecordLikeSyncEvent
 import com.chobolevel.domain.record.like.sync.repository.RecordLikeSyncEventRepository
 import com.chobolevel.domain.record.repository.RecordRepository
+import com.chobolevel.domain.record.vo.RecordType
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
 import io.kotest.assertions.throwables.shouldThrow
@@ -23,6 +27,7 @@ import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
+import org.springframework.test.util.ReflectionTestUtils
 import java.util.concurrent.TimeUnit
 
 class RecordLikeServiceTest : BehaviorSpec({
@@ -33,6 +38,7 @@ class RecordLikeServiceTest : BehaviorSpec({
     val recordLikeRepository: RecordLikeRepository = mockk()
     val recordLikeSyncEventRepository: RecordLikeSyncEventRepository = mockk()
     val cacheProvider: CacheProvider = mockk()
+    val notificationPublisher: NotificationPublisher = mockk()
     val service: RecordLikeService = RecordLikeService(
         recordLikeValidator = recordLikeValidator,
         recordRepository = recordRepository,
@@ -40,6 +46,7 @@ class RecordLikeServiceTest : BehaviorSpec({
         recordLikeRepository = recordLikeRepository,
         recordLikeSyncEventRepository = recordLikeSyncEventRepository,
         cacheProvider = cacheProvider,
+        notificationPublisher = notificationPublisher,
     )
 
     beforeEach { clearAllMocks() }
@@ -86,6 +93,69 @@ class RecordLikeServiceTest : BehaviorSpec({
                         "1",
                         CacheKeyPrefix.RECORD_LIKE_CACHE_TTL_MINUTES,
                         TimeUnit.MINUTES,
+                    )
+                }
+                // DummyRecord의 작성자와 좋아요를 누른 사용자가 동일(자기 자신의 기록) — 알림이 발행되지 않아야 한다
+                verify(exactly = 0) { notificationPublisher.publish(any(), any(), any(), any()) }
+            }
+        }
+
+        `when`("자신이 작성하지 않은 기록에 좋아요를 누르면") {
+            then("기록 작성자에게 알림을 발행한다") {
+                // given
+                val userId: Long = DummyUser.ID
+                val recordId: Long = DummyRecord.ID
+                val writerId: Long = DummyUser.ID + 1L
+                val writer: User = DummyUser.toEntity().also { it.id = writerId }
+                val user: User = DummyUser.toEntity()
+                val record: Record = Record.create(
+                    user = writer,
+                    type = RecordType.BLOG_TECH,
+                    title = DummyRecord.TITLE,
+                    content = DummyRecord.CONTENT,
+                    isPrivate = DummyRecord.IS_PRIVATE,
+                    reviewSubject = null,
+                    reviewRating = null,
+                    emotion = null,
+                    emotionIntensity = null,
+                ).also { ReflectionTestUtils.setField(it, "id", recordId) }
+                val countKey: String = CacheKeyPrefix.recordLikeCount(recordId)
+                justRun { recordLikeValidator.validateRecordExists(recordId = recordId) }
+                justRun { recordLikeValidator.validateNotAlreadyLiked(recordId = recordId, userId = userId) }
+                every { userRepository.findById(id = userId) } returns user
+                every { recordRepository.findById(id = recordId) } returns record
+                every { recordLikeRepository.save(any<RecordLike>()) } answers { firstArg() }
+                every { recordLikeSyncEventRepository.save(any()) } answers { firstArg() }
+                every { cacheProvider.hasKey(countKey) } returns true
+                every { cacheProvider.increment(countKey) } returns 1L
+                every {
+                    cacheProvider.put(
+                        CacheKeyPrefix.recordLike(recordId = recordId, userId = userId),
+                        "1",
+                        CacheKeyPrefix.RECORD_LIKE_CACHE_TTL_MINUTES,
+                        TimeUnit.MINUTES,
+                    )
+                } returns Unit
+                justRun {
+                    notificationPublisher.publish(
+                        userId = writerId,
+                        type = NotificationType.RECORD_LIKE,
+                        content = "${user.nickname}님이 회원님의 기록을 좋아합니다.",
+                        link = NotificationLink.recordDetail(recordId),
+                    )
+                }
+
+                // when
+                val result: Boolean = service.like(userId = userId, recordId = recordId)
+
+                // then
+                result shouldBe true
+                verify(exactly = 1) {
+                    notificationPublisher.publish(
+                        userId = writerId,
+                        type = NotificationType.RECORD_LIKE,
+                        content = "${user.nickname}님이 회원님의 기록을 좋아합니다.",
+                        link = NotificationLink.recordDetail(recordId),
                     )
                 }
             }

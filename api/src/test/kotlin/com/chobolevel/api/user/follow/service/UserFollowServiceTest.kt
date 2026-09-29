@@ -3,10 +3,13 @@ package com.chobolevel.api.user.follow.service
 import com.chobolevel.api.common.constant.CacheKeyPrefix
 import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.common.provider.CacheProvider
+import com.chobolevel.api.notification.constant.NotificationLink
+import com.chobolevel.api.notification.provider.NotificationPublisher
 import com.chobolevel.api.user.follow.dto.UserFollowCounterResponse
 import com.chobolevel.api.user.follow.validator.UserFollowBusinessValidator
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.InvalidParameterException
+import com.chobolevel.domain.notification.vo.NotificationType
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.follow.entity.UserFollow
 import com.chobolevel.domain.user.follow.repository.UserFollowRepository
@@ -18,6 +21,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.every
+import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
 
@@ -28,12 +32,14 @@ class UserFollowServiceTest : BehaviorSpec({
     val userFollowSyncEventRepository: UserFollowSyncEventRepository = mockk()
     val userFollowBusinessValidator: UserFollowBusinessValidator = mockk()
     val cacheProvider: CacheProvider = mockk()
+    val notificationPublisher: NotificationPublisher = mockk()
     val service: UserFollowService = UserFollowService(
         userRepository = userRepository,
         userFollowRepository = userFollowRepository,
         userFollowSyncEventRepository = userFollowSyncEventRepository,
         userFollowBusinessValidator = userFollowBusinessValidator,
         cacheProvider = cacheProvider,
+        notificationPublisher = notificationPublisher,
     )
 
     beforeEach { clearAllMocks() }
@@ -59,6 +65,14 @@ class UserFollowServiceTest : BehaviorSpec({
                 every { cacheProvider.put(relationKey, "1") } returns Unit
                 every { cacheProvider.increment(followingCountKey) } returns 1L
                 every { cacheProvider.increment(followerCountKey) } returns 1L
+                justRun {
+                    notificationPublisher.publish(
+                        userId = followingUserId,
+                        type = NotificationType.FOLLOW,
+                        content = "${followerUser.nickname}님이 회원님을 팔로우했습니다.",
+                        link = NotificationLink.userProfile(followerUserId),
+                    )
+                }
 
                 // when
                 val result: Boolean = service.follow(followerUserId = followerUserId, followingUserId = followingUserId)
@@ -72,6 +86,14 @@ class UserFollowServiceTest : BehaviorSpec({
                 verify(exactly = 1) { cacheProvider.put(relationKey, "1") }
                 verify(exactly = 1) { cacheProvider.increment(followingCountKey) }
                 verify(exactly = 1) { cacheProvider.increment(followerCountKey) }
+                verify(exactly = 1) {
+                    notificationPublisher.publish(
+                        userId = followingUserId,
+                        type = NotificationType.FOLLOW,
+                        content = "${followerUser.nickname}님이 회원님을 팔로우했습니다.",
+                        link = NotificationLink.userProfile(followerUserId),
+                    )
+                }
             }
         }
 
@@ -99,6 +121,14 @@ class UserFollowServiceTest : BehaviorSpec({
                 every { cacheProvider.put(relationKey, "1") } returns Unit
                 every { cacheProvider.increment(followingCountKey) } returns 4L
                 every { cacheProvider.increment(followerCountKey) } returns 6L
+                justRun {
+                    notificationPublisher.publish(
+                        userId = followingUserId,
+                        type = NotificationType.FOLLOW,
+                        content = "${followerUser.nickname}님이 회원님을 팔로우했습니다.",
+                        link = NotificationLink.userProfile(followerUserId),
+                    )
+                }
 
                 // when
                 val result: Boolean = service.follow(followerUserId = followerUserId, followingUserId = followingUserId)

@@ -3,7 +3,10 @@ package com.chobolevel.api.record.like.service
 import com.chobolevel.api.common.constant.CacheKeyPrefix
 import com.chobolevel.api.common.extension.registerAfterCommit
 import com.chobolevel.api.common.provider.CacheProvider
+import com.chobolevel.api.notification.constant.NotificationLink
+import com.chobolevel.api.notification.provider.NotificationPublisher
 import com.chobolevel.api.record.like.validator.RecordLikeValidator
+import com.chobolevel.domain.notification.vo.NotificationType
 import com.chobolevel.domain.record.entity.Record
 import com.chobolevel.domain.record.like.entity.RecordLike
 import com.chobolevel.domain.record.like.repository.RecordLikeRepository
@@ -25,6 +28,7 @@ class RecordLikeService(
     private val recordLikeRepository: RecordLikeRepository,
     private val recordLikeSyncEventRepository: RecordLikeSyncEventRepository,
     private val cacheProvider: CacheProvider,
+    private val notificationPublisher: NotificationPublisher,
 ) {
 
     @Transactional
@@ -51,6 +55,16 @@ class RecordLikeService(
                 action = RecordLikeSyncEventAction.LIKE,
             )
         )
+
+        // 자기 자신의 기록에 좋아요를 누른 경우는 알림을 보내지 않는다
+        if (record.user.id != userId) {
+            notificationPublisher.publish(
+                userId = record.user.id!!,
+                type = NotificationType.RECORD_LIKE,
+                content = "${user.nickname}님이 회원님의 기록을 좋아합니다.",
+                link = NotificationLink.recordDetail(recordId),
+            )
+        }
 
         // DB 커밋 성공 후 Redis 즉시 반영 (UX) — 실패해도 Consumer의 read-repair(DB 조회 후 덮어쓰기)가 뒤따라 복구한다
         registerAfterCommit {

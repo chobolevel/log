@@ -3,8 +3,11 @@ package com.chobolevel.api.user.follow.service
 import com.chobolevel.api.common.constant.CacheKeyPrefix
 import com.chobolevel.api.common.extension.registerAfterCommit
 import com.chobolevel.api.common.provider.CacheProvider
+import com.chobolevel.api.notification.constant.NotificationLink
+import com.chobolevel.api.notification.provider.NotificationPublisher
 import com.chobolevel.api.user.follow.dto.UserFollowCounterResponse
 import com.chobolevel.api.user.follow.validator.UserFollowBusinessValidator
+import com.chobolevel.domain.notification.vo.NotificationType
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.follow.entity.UserFollow
 import com.chobolevel.domain.user.follow.repository.UserFollowRepository
@@ -22,6 +25,7 @@ class UserFollowService(
     private val userFollowSyncEventRepository: UserFollowSyncEventRepository,
     private val userFollowBusinessValidator: UserFollowBusinessValidator,
     private val cacheProvider: CacheProvider,
+    private val notificationPublisher: NotificationPublisher,
 ) {
 
     // 동시 요청에 대한 락은 UserFollowFacade가 이 메서드 호출 전체(커밋까지)를 감싸며 책임진다.
@@ -45,6 +49,13 @@ class UserFollowService(
                 followingUserId = followingUserId,
                 action = UserFollowSyncEventAction.FOLLOW,
             )
+        )
+
+        notificationPublisher.publish(
+            userId = followingUserId,
+            type = NotificationType.FOLLOW,
+            content = "${followerUser.nickname}님이 회원님을 팔로우했습니다.",
+            link = NotificationLink.userProfile(followerUserId),
         )
 
         val relationKey: String = CacheKeyPrefix.userFollowRelation(followerUserId, followingUserId)
