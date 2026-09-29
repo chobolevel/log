@@ -103,6 +103,14 @@ enum class ErrorCode(val defaultMessage: String) {
     // RECORD EMOTION
     RECORD_EMOTION_NOT_FOUND("기록 감정을 찾을 수 없습니다."),
 
+    // NOTIFICATION
+    NOTIFICATION_NOT_FOUND("알림을 찾을 수 없습니다."),
+    RESTRICTED_TO_NOTIFICATION_OWNER("알림 수신자만 접근 가능합니다."),
+
+    // NOTIFICATION SYNC EVENT
+    NOTIFICATION_SYNC_EVENT_NOT_FOUND("알림 동기화 이벤트를 찾을 수 없습니다."),
+    NOTIFICATION_SYNC_EVENT_NOT_FAILED("실패한 이벤트만 재발행할 수 있습니다."),
+
     // EXTERNAL API
     EMAIL_SEND_FAILED("이메일 발송에 실패했습니다.")
 }
