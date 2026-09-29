@@ -12,14 +12,20 @@ class LocalSseEmitterRegistry : SseEmitterRegistry {
     private val emitters = ConcurrentHashMap<Long, SseEmitter>()
 
     override fun register(userId: Long, emitter: SseEmitter) {
-        emitters[userId] = emitter
+        // 같은 유저의 이전 연결이 남아있으면(새로고침 등으로 이전 EventSource가 안 닫힌 경우) 서버가 먼저 끊어준다
+        // — 브라우저의 origin당 동시 연결 제한(HTTP/1.1 기준 통상 6개)에 걸려 이후 모든 요청이 pending되는 걸 방지
+        emitters.put(userId, emitter)?.complete()
     }
 
-    override fun remove(userId: Long) {
-        emitters.remove(userId)
+    override fun remove(userId: Long, emitter: SseEmitter) {
+        emitters.remove(userId, emitter)
     }
 
     override fun find(userId: Long): SseEmitter? {
         return emitters[userId]
+    }
+
+    override fun all(): Map<Long, SseEmitter> {
+        return emitters.toMap()
     }
 }

@@ -76,7 +76,7 @@ class NotificationSyncEventConsumerTest : BehaviorSpec({
         }
 
         `when`("push 도중 예외가 발생하면") {
-            then("이벤트를 FAILED로 표시한다 (재처리 스케줄러/DLQ가 없어 이 상태는 관찰 목적으로만 남는다)") {
+            then("죽은 emitter를 레지스트리에서 제거하고 이벤트를 FAILED로 표시한다 (재처리 스케줄러/DLQ가 없어 이 상태는 관찰 목적으로만 남는다)") {
                 // given
                 val event: NotificationSyncEvent = DummyNotificationSyncEvent.toEntity()
                 val message = NotificationSyncEventMessage(
@@ -90,12 +90,14 @@ class NotificationSyncEventConsumerTest : BehaviorSpec({
                 every { notificationSyncEventRepository.findByIdOrNull(message.eventId) } returns event
                 every { sseEmitterRegistry.find(userId = message.userId) } returns emitter
                 every { emitter.send(any<SseEmitter.SseEventBuilder>()) } throws IOException("broken pipe")
+                justRun { sseEmitterRegistry.remove(userId = message.userId, emitter = emitter) }
 
                 // when
                 consumer.consume(message)
 
                 // then
                 event.status shouldBe NotificationSyncEventStatus.FAILED
+                verify(exactly = 1) { sseEmitterRegistry.remove(userId = message.userId, emitter = emitter) }
             }
         }
     }

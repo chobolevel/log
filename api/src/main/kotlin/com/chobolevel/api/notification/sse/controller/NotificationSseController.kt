@@ -39,7 +39,7 @@ class NotificationSseController(
 
         emitter.onTimeout { emitter.complete() }
         emitter.onError { e -> logger.warn("Notification SSE 연결 오류 - userId: $userId", e) }
-        emitter.onCompletion { sseEmitterRegistry.remove(userId) }
+        emitter.onCompletion { sseEmitterRegistry.remove(userId, emitter) }
 
         sseEmitterRegistry.register(userId, emitter)
         return emitter

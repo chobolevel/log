@@ -34,23 +34,28 @@ class NotificationSyncEventConsumer(
     @Transactional
     fun consume(message: NotificationSyncEventMessage) {
         val event: NotificationSyncEvent = notificationSyncEventRepository.findByIdOrNull(message.eventId) ?: return
+        val emitter: SseEmitter? = sseEmitterRegistry.find(userId = message.userId)
 
-        runCatching {
-            sseEmitterRegistry.find(userId = message.userId)?.send(
-                SseEmitter.event()
-                    .name(SseEventName.NOTIFICATION)
-                    .data(
-                        NotificationSsePayload(
-                            type = message.type,
-                            content = message.content,
-                            link = message.link,
+        if (emitter != null) {
+            runCatching {
+                emitter.send(
+                    SseEmitter.event()
+                        .name(SseEventName.NOTIFICATION)
+                        .data(
+                            NotificationSsePayload(
+                                type = message.type,
+                                content = message.content,
+                                link = message.link,
+                            )
                         )
-                    )
-            )
-        }.onFailure { e ->
-            logger.warn("NotificationSyncEvent SSE push 실패 - eventId: ${message.eventId}, userId: ${message.userId}", e)
-            event.markFailed()
-            return
+                )
+            }.onFailure { e ->
+                logger.warn("NotificationSyncEvent SSE push 실패 - eventId: ${message.eventId}, userId: ${message.userId}", e)
+                // 죽은 연결이 레지스트리에 남아있으면 다음 알림도 계속 실패하니, 실패한 김에 바로 치운다
+                sseEmitterRegistry.remove(userId = message.userId, emitter = emitter)
+                event.markFailed()
+                return
+            }
         }
 
         event.markProcessed()
