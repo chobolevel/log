@@ -15,6 +15,8 @@ class KafkaTopicConfiguration {
         const val RECORD_VIEW_SYNC_EVENTS_DLQ = "record-view-sync-events-dlq"
         const val USER_FOLLOW_SYNC_EVENTS = "user-follow-sync-events"
         const val USER_FOLLOW_SYNC_EVENTS_DLQ = "user-follow-sync-events-dlq"
+        const val NOTIFICATION_SYNC_EVENTS = "notification-sync-events"
+        const val NOTIFICATION_SYNC_EVENTS_DLQ = "notification-sync-events-dlq"
     }
 
     @Bean
@@ -60,6 +62,22 @@ class KafkaTopicConfiguration {
     @Bean
     fun userFollowSyncEventsDlqTopic(): NewTopic {
         return TopicBuilder.name("user-follow-sync-events-dlq")
+            .partitions(1)
+            .replicas(1)
+            .build()
+    }
+
+    @Bean
+    fun notificationSyncEventsTopic(): NewTopic {
+        return TopicBuilder.name("notification-sync-events")
+            .partitions(1)
+            .replicas(1)
+            .build()
+    }
+
+    @Bean
+    fun notificationSyncEventsDlqTopic(): NewTopic {
+        return TopicBuilder.name("notification-sync-events-dlq")
             .partitions(1)
             .replicas(1)
             .build()
