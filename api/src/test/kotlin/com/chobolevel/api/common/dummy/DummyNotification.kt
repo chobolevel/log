@@ -1,0 +1,32 @@
+package com.chobolevel.api.common.dummy
+
+import com.chobolevel.api.notification.dto.NotificationResponse
+import com.chobolevel.domain.notification.entity.Notification
+import com.chobolevel.domain.notification.vo.NotificationType
+import org.springframework.test.util.ReflectionTestUtils
+
+object DummyNotification {
+    val ID: Long = 1L
+    val USER_ID: Long = DummyUser.ID
+    val TYPE: NotificationType = NotificationType.FOLLOW
+    val CONTENT: String = "홍길동님이 회원님을 팔로우했습니다."
+    val LINK: String = "/users/2"
+
+    fun toEntity(): Notification = Notification.create(
+        userId = USER_ID,
+        type = TYPE,
+        content = CONTENT,
+        link = LINK,
+    ).also {
+        ReflectionTestUtils.setField(it, "id", ID)
+    }
+
+    fun toResponse(): NotificationResponse = NotificationResponse(
+        id = ID,
+        type = TYPE,
+        content = CONTENT,
+        link = LINK,
+        isRead = false,
+        createdAt = 0L,
+    )
+}
