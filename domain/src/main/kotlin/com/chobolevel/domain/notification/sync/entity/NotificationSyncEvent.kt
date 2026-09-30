@@ -68,13 +68,11 @@ class NotificationSyncEvent private constructor(
         status = NotificationSyncEventStatus.PROCESSED
     }
 
+    // retryCount는 관찰용으로만 남긴다 — 이 도메인은 FAILED를 재처리 대상으로 삼지 않으므로
+    // (NotificationSyncEventConsumer 설계 주석 참고) status를 PENDING으로 되돌리는 retry()는 두지 않는다.
     fun markFailed() {
         status = NotificationSyncEventStatus.FAILED
         retryCount++
-    }
-
-    fun retry() {
-        status = NotificationSyncEventStatus.PENDING
     }
 
     companion object {
