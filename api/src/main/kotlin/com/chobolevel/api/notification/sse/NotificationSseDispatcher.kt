@@ -24,6 +24,8 @@ class NotificationSseDispatcher(
     @Async("sseTaskExecutor")
     @Transactional
     fun dispatch(eventId: Long, userId: Long, payload: NotificationSsePayload) {
+        // eventId에 대한 검증이 없어서 존재하지 않은 이벤트의 전송이 가능한 상태(이벤트의 수정/삭제가 없어서 문제가 되지 않지만 수정/삭제가 되면 검증 필요)
+
         val emitter: SseEmitter? = sseEmitterRegistry.find(userId)
         if (emitter == null) {
             notificationDispatchEventRepository.findByIdOrNull(eventId)?.markProcessed()
