@@ -100,5 +100,23 @@ class NotificationSyncEventConsumerTest : BehaviorSpec({
                 verify(exactly = 0) { notificationSseDispatcher.dispatch(any(), any(), any(), any()) }
             }
         }
+
+        `when`("이벤트 조회 중 예상치 못한 예외가 발생하면") {
+            then("예외를 전파하지 않고 로그만 남긴다") {
+                // given
+                val message = NotificationSyncEventMessage(
+                    eventId = DummyNotificationSyncEvent.ID,
+                    userId = DummyNotificationSyncEvent.USER_ID,
+                    type = DummyNotificationSyncEvent.TYPE,
+                    content = DummyNotificationSyncEvent.CONTENT,
+                    link = DummyNotificationSyncEvent.LINK,
+                )
+                every { notificationSyncEventRepository.findByIdOrNull(message.eventId) } throws RuntimeException("DB 블립")
+
+                // when & then (예외 없이 종료되면 성공)
+                consumer.consume(message)
+                verify(exactly = 0) { notificationSseDispatcher.dispatch(any(), any(), any(), any()) }
+            }
+        }
     }
 })
