@@ -51,12 +51,17 @@ class UserFollowService(
             )
         )
 
-        notificationPublisher.publish(
-            userId = followingUserId,
-            type = NotificationType.FOLLOW,
-            content = "${followerUser.nickname}님이 회원님을 팔로우했습니다.",
-            link = NotificationLink.userProfile(followerUserId),
-        )
+        // UserFollow.create()의 invariant가 자기 자신 팔로우를 이미 막고 있어 지금은 도달 불가능하지만,
+        // RecordLikeService와 동일하게 얇은 사전 체크를 둔다(사용자 입력으로 직접 도달 가능한 invariant는
+        // 상위 레이어에도 방어선을 둔다는 원칙)
+        if (followingUserId != followerUserId) {
+            notificationPublisher.publish(
+                userId = followingUserId,
+                type = NotificationType.FOLLOW,
+                content = "${followerUser.nickname}님이 회원님을 팔로우했습니다.",
+                link = NotificationLink.userProfile(followerUserId),
+            )
+        }
 
         val relationKey: String = CacheKeyPrefix.userFollowRelation(followerUserId, followingUserId)
         // DB 커밋 성공 후 Redis 즉시 반영 (UX) — 실패해도 Consumer의 read-repair(DB 조회 후 덮어쓰기)가 뒤따라 복구한다
