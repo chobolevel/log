@@ -14,17 +14,46 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 import java.io.IOException
+import java.util.concurrent.Executor
 
 class NotificationSseDispatcherTest : BehaviorSpec({
 
+    val sseEmitterRegistry: SseEmitterRegistry = mockk()
     val notificationDispatchEventRepository: NotificationDispatchEventRepository = mockk()
+    val sseTaskExecutor: Executor = mockk()
     val dispatcher = NotificationSseDispatcher(
+        sseEmitterRegistry = sseEmitterRegistry,
         notificationDispatchEventRepository = notificationDispatchEventRepository,
+        sseTaskExecutor = sseTaskExecutor,
     )
 
     beforeEach { clearAllMocks() }
 
-    given("SSE로 알림을 전송할 때") {
+    given("알림을 SSE로 전송할 때") {
+        `when`("수신자가 연결돼 있지 않으면") {
+            then("전송 없이 바로 이벤트를 PROCESSED로 표시한다") {
+                // given
+                val event: NotificationDispatchEvent = DummyNotificationDispatchEvent.toEntity()
+                val payload = NotificationSsePayload(
+                    type = DummyNotificationDispatchEvent.TYPE,
+                    content = DummyNotificationDispatchEvent.CONTENT,
+                    link = DummyNotificationDispatchEvent.LINK,
+                )
+                every { sseEmitterRegistry.find(DummyNotificationDispatchEvent.USER_ID) } returns null
+                every { notificationDispatchEventRepository.findByIdOrNull(DummyNotificationDispatchEvent.ID) } returns event
+
+                // when
+                dispatcher.dispatch(
+                    eventId = DummyNotificationDispatchEvent.ID,
+                    userId = DummyNotificationDispatchEvent.USER_ID,
+                    payload = payload,
+                )
+
+                // then
+                event.status shouldBe NotificationDispatchEventStatus.PROCESSED
+            }
+        }
+
         `when`("전송이 성공하면") {
             then("이벤트를 PROCESSED로 표시한다") {
                 // given
@@ -35,6 +64,7 @@ class NotificationSseDispatcherTest : BehaviorSpec({
                     content = DummyNotificationDispatchEvent.CONTENT,
                     link = DummyNotificationDispatchEvent.LINK,
                 )
+                every { sseEmitterRegistry.find(DummyNotificationDispatchEvent.USER_ID) } returns emitter
                 every { notificationDispatchEventRepository.findByIdOrNull(DummyNotificationDispatchEvent.ID) } returns event
                 justRun { emitter.send(any<SseEmitter.SseEventBuilder>()) }
 
@@ -42,7 +72,6 @@ class NotificationSseDispatcherTest : BehaviorSpec({
                 dispatcher.dispatch(
                     eventId = DummyNotificationDispatchEvent.ID,
                     userId = DummyNotificationDispatchEvent.USER_ID,
-                    emitter = emitter,
                     payload = payload,
                 )
 
@@ -53,7 +82,7 @@ class NotificationSseDispatcherTest : BehaviorSpec({
         }
 
         `when`("전송이 실패하면") {
-            then("emitter를 completeWithError로 종료시키고(레지스트리 정리는 그 onCompletion 콜백에 위임) 이벤트를 FAILED로 표시한다") {
+            then("emitter를 completeWithError로 종료시키고 이벤트를 FAILED로 표시한다") {
                 // given
                 val event: NotificationDispatchEvent = DummyNotificationDispatchEvent.toEntity()
                 val emitter: SseEmitter = mockk()
@@ -62,6 +91,7 @@ class NotificationSseDispatcherTest : BehaviorSpec({
                     content = DummyNotificationDispatchEvent.CONTENT,
                     link = DummyNotificationDispatchEvent.LINK,
                 )
+                every { sseEmitterRegistry.find(DummyNotificationDispatchEvent.USER_ID) } returns emitter
                 every { notificationDispatchEventRepository.findByIdOrNull(DummyNotificationDispatchEvent.ID) } returns event
                 every { emitter.send(any<SseEmitter.SseEventBuilder>()) } throws IOException("broken pipe")
                 justRun { emitter.completeWithError(any()) }
@@ -70,13 +100,54 @@ class NotificationSseDispatcherTest : BehaviorSpec({
                 dispatcher.dispatch(
                     eventId = DummyNotificationDispatchEvent.ID,
                     userId = DummyNotificationDispatchEvent.USER_ID,
-                    emitter = emitter,
                     payload = payload,
                 )
 
                 // then
                 event.status shouldBe NotificationDispatchEventStatus.FAILED
                 verify(exactly = 1) { emitter.completeWithError(any()) }
+            }
+        }
+    }
+
+    given("heartbeat를 전체 연결에 전송할 때") {
+        `when`("등록된 emitter가 여럿이면") {
+            then("각 전송을 전용 Executor에 개별 제출한다") {
+                // given
+                val emitter1: SseEmitter = mockk()
+                val emitter2: SseEmitter = mockk()
+                every { sseEmitterRegistry.all() } returns mapOf(1L to emitter1, 2L to emitter2)
+                justRun { emitter1.send(any<SseEmitter.SseEventBuilder>()) }
+                justRun { emitter2.send(any<SseEmitter.SseEventBuilder>()) }
+                every { sseTaskExecutor.execute(any()) } answers { firstArg<Runnable>().run() }
+
+                // when
+                dispatcher.dispatchHeartbeat()
+
+                // then
+                verify(exactly = 2) { sseTaskExecutor.execute(any()) }
+                verify(exactly = 1) { emitter1.send(any<SseEmitter.SseEventBuilder>()) }
+                verify(exactly = 1) { emitter2.send(any<SseEmitter.SseEventBuilder>()) }
+            }
+        }
+
+        `when`("특정 emitter로의 전송이 실패하면") {
+            then("그 emitter만 completeWithError로 종료시키고 나머지는 영향받지 않는다") {
+                // given
+                val healthyEmitter: SseEmitter = mockk()
+                val deadEmitter: SseEmitter = mockk()
+                every { sseEmitterRegistry.all() } returns mapOf(1L to healthyEmitter, 2L to deadEmitter)
+                justRun { healthyEmitter.send(any<SseEmitter.SseEventBuilder>()) }
+                every { deadEmitter.send(any<SseEmitter.SseEventBuilder>()) } throws IOException("broken pipe")
+                justRun { deadEmitter.completeWithError(any()) }
+                every { sseTaskExecutor.execute(any()) } answers { firstArg<Runnable>().run() }
+
+                // when
+                dispatcher.dispatchHeartbeat()
+
+                // then
+                verify(exactly = 0) { healthyEmitter.completeWithError(any()) }
+                verify(exactly = 1) { deadEmitter.completeWithError(any()) }
             }
         }
     }

@@ -3,21 +3,33 @@ package com.chobolevel.api.notification.sse
 import com.chobolevel.api.notification.sse.dto.NotificationSsePayload
 import com.chobolevel.domain.notification.dispatch.repository.NotificationDispatchEventRepository
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
+import java.util.concurrent.Executor
 
 @Component
 class NotificationSseDispatcher(
+    private val sseEmitterRegistry: SseEmitterRegistry,
     private val notificationDispatchEventRepository: NotificationDispatchEventRepository,
+    @Qualifier("sseTaskExecutor") private val sseTaskExecutor: Executor,
 ) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
+    // 호출부(Consumer)는 userId만 넘기고, 연결 조회는 여기(SSE 배달을 담당하는 쪽)가 책임진다.
+    // 연결이 없으면 보낼 게 없으니 그 자리에서 바로 PROCESSED로 표시한다.
     @Async("sseTaskExecutor")
     @Transactional
-    fun dispatch(eventId: Long, userId: Long, emitter: SseEmitter, payload: NotificationSsePayload) {
+    fun dispatch(eventId: Long, userId: Long, payload: NotificationSsePayload) {
+        val emitter: SseEmitter? = sseEmitterRegistry.find(userId)
+        if (emitter == null) {
+            notificationDispatchEventRepository.findByIdOrNull(eventId)?.markProcessed()
+            return
+        }
+
         runCatching {
             emitter.send(
                 SseEmitter.event()
@@ -33,13 +45,20 @@ class NotificationSseDispatcher(
         }
     }
 
-    @Async("sseTaskExecutor")
-    fun dispatchHeartbeat(userId: Long, emitter: SseEmitter) {
-        runCatching {
-            emitter.send(SseEmitter.event().comment("heartbeat"))
-        }.onFailure { e ->
-            logger.info("Notification SSE heartbeat 실패, 연결 종료 - userId: $userId")
-            runCatching { emitter.completeWithError(e) }
+    // heartbeat 팬아웃 — Registry 전체를 순회하되, 각 emitter로의 전송은 sseTaskExecutor에 개별
+    // 제출한다. 같은 클래스 안에서 순회하며 자기 자신의 @Async 메서드를 부르면 self-invocation이라
+    // 프록시를 안 타고 무시되므로(동기 실행 + 직렬화), Executor에 직접 제출해서 우회한다 — 이렇게 해야
+    // 한 emitter가 느려도 나머지 heartbeat 전송이 같이 밀리지 않고 각자 병렬로 처리된다.
+    fun dispatchHeartbeat() {
+        sseEmitterRegistry.all().forEach { (userId, emitter) ->
+            sseTaskExecutor.execute {
+                runCatching {
+                    emitter.send(SseEmitter.event().comment("heartbeat"))
+                }.onFailure { e ->
+                    logger.info("Notification SSE heartbeat 실패, 연결 종료 - userId: $userId")
+                    runCatching { emitter.completeWithError(e) }
+                }
+            }
         }
     }
 }

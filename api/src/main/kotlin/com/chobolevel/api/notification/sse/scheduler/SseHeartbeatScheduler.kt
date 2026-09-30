@@ -1,13 +1,11 @@
 package com.chobolevel.api.notification.sse.scheduler
 
 import com.chobolevel.api.notification.sse.NotificationSseDispatcher
-import com.chobolevel.api.notification.sse.SseEmitterRegistry
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 
 @Component
 class SseHeartbeatScheduler(
-    private val sseEmitterRegistry: SseEmitterRegistry,
     private val notificationSseDispatcher: NotificationSseDispatcher,
 ) {
 
@@ -18,12 +16,10 @@ class SseHeartbeatScheduler(
     }
 
     // 재연결 시 교체(SseEmitterRegistry.register)만으로는 "아무도 재연결하지 않은 채 그냥 죽은 연결"을
-    // 잡아낼 수 없다 — 그런 연결은 여기서 걸러낸다. 실제 send()/정리는 NotificationSseDispatcher에 위임한다
-    // (이 스케줄러 스레드에서 직접 보내면 느린 클라이언트 하나가 이번 tick의 다른 모든 유저 몫까지 지연시킨다).
+    // 잡아낼 수 없다 — 그런 연결은 여기서 걸러낸다. 누구에게 보낼지(Registry 조회)와 어떻게 보낼지(전송/정리)는
+    // 전부 NotificationSseDispatcher 책임이라, 이 스케줄러는 "언제 트리거할지"만 안다.
     @Scheduled(fixedDelay = HEARTBEAT_FIXED_DELAY_MILLIS)
     fun heartbeat() {
-        sseEmitterRegistry.all().forEach { (userId, emitter) ->
-            notificationSseDispatcher.dispatchHeartbeat(userId, emitter)
-        }
+        notificationSseDispatcher.dispatchHeartbeat()
     }
 }
