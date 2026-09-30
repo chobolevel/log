@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap
 @Component
 class LocalSseEmitterRegistry : SseEmitterRegistry {
 
-    private val emitters = ConcurrentHashMap<Long, SseEmitter>()
+    private val emitters: ConcurrentHashMap<Long, SseEmitter> = ConcurrentHashMap()
 
     override fun register(userId: Long, emitter: SseEmitter) {
         // 같은 유저의 이전 연결이 남아있으면(새로고침 등으로 이전 EventSource가 안 닫힌 경우) 서버가 먼저 끊어준다
