@@ -37,4 +37,17 @@ class NotificationSseDispatcher(
             notificationSyncEventRepository.findByIdOrNull(eventId)?.markFailed()
         }
     }
+
+    // heartbeat 전용 — SseHeartbeatScheduler가 자기 스케줄러 스레드에서 직접 send()를 호출하면 느린 클라이언트
+    // 하나 때문에 그 tick의 다른 모든 유저 heartbeat까지 밀린다. dispatch()와 동일하게 전용 스레드풀에서
+    // 실행하고, 실패 시 completeWithError()로 정리한다(레지스트리 제거는 onCompletion 콜백에 위임).
+    @Async("sseTaskExecutor")
+    fun dispatchHeartbeat(userId: Long, emitter: SseEmitter) {
+        runCatching {
+            emitter.send(SseEmitter.event().comment("heartbeat"))
+        }.onFailure { e ->
+            logger.info("Notification SSE heartbeat 실패, 연결 종료 - userId: $userId")
+            runCatching { emitter.completeWithError(e) }
+        }
+    }
 }
