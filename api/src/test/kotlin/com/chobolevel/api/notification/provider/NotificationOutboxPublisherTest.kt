@@ -1,9 +1,9 @@
 package com.chobolevel.api.notification.provider
 
+import com.chobolevel.domain.notification.dispatch.entity.NotificationDispatchEvent
+import com.chobolevel.domain.notification.dispatch.repository.NotificationDispatchEventRepository
 import com.chobolevel.domain.notification.entity.Notification
 import com.chobolevel.domain.notification.repository.NotificationRepository
-import com.chobolevel.domain.notification.sync.entity.NotificationSyncEvent
-import com.chobolevel.domain.notification.sync.repository.NotificationSyncEventRepository
 import com.chobolevel.domain.notification.vo.NotificationType
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -17,26 +17,26 @@ import io.mockk.verifyOrder
 class NotificationOutboxPublisherTest : BehaviorSpec({
 
     val notificationRepository: NotificationRepository = mockk()
-    val notificationSyncEventRepository: NotificationSyncEventRepository = mockk()
+    val notificationDispatchEventRepository: NotificationDispatchEventRepository = mockk()
     val publisher: NotificationOutboxPublisher = NotificationOutboxPublisher(
         notificationRepository = notificationRepository,
-        notificationSyncEventRepository = notificationSyncEventRepository,
+        notificationDispatchEventRepository = notificationDispatchEventRepository,
     )
 
     beforeEach { clearAllMocks() }
 
     given("알림을 발행할 때") {
         `when`("push()를 호출하면") {
-            then("notifications에 source of truth를 먼저 동기 저장하고, 이어서 notification_sync_events에 outbox 이벤트를 저장한다") {
+            then("notifications에 source of truth를 먼저 동기 저장하고, 이어서 notification_dispatch_events에 outbox 이벤트를 저장한다") {
                 // given
                 val userId = 1L
                 val type: NotificationType = NotificationType.FOLLOW
                 val content = "홍길동님이 회원님을 팔로우했습니다."
                 val link = "/users/1"
                 val notificationSlot: CapturingSlot<Notification> = slot()
-                val syncEventSlot: CapturingSlot<NotificationSyncEvent> = slot()
+                val dispatchEventSlot: CapturingSlot<NotificationDispatchEvent> = slot()
                 every { notificationRepository.save(capture(notificationSlot)) } answers { firstArg() }
-                every { notificationSyncEventRepository.save(capture(syncEventSlot)) } answers { firstArg() }
+                every { notificationDispatchEventRepository.save(capture(dispatchEventSlot)) } answers { firstArg() }
 
                 // when
                 publisher.publish(userId = userId, type = type, content = content, link = link)
@@ -44,16 +44,16 @@ class NotificationOutboxPublisherTest : BehaviorSpec({
                 // then
                 verifyOrder {
                     notificationRepository.save(any())
-                    notificationSyncEventRepository.save(any())
+                    notificationDispatchEventRepository.save(any())
                 }
                 notificationSlot.captured.userId shouldBe userId
                 notificationSlot.captured.type shouldBe type
                 notificationSlot.captured.content shouldBe content
                 notificationSlot.captured.link shouldBe link
-                syncEventSlot.captured.userId shouldBe userId
-                syncEventSlot.captured.type shouldBe type
-                syncEventSlot.captured.content shouldBe content
-                syncEventSlot.captured.link shouldBe link
+                dispatchEventSlot.captured.userId shouldBe userId
+                dispatchEventSlot.captured.type shouldBe type
+                dispatchEventSlot.captured.content shouldBe content
+                dispatchEventSlot.captured.link shouldBe link
             }
         }
     }

@@ -1,10 +1,10 @@
 package com.chobolevel.api.notification.sse
 
-import com.chobolevel.api.common.dummy.DummyNotificationSyncEvent
+import com.chobolevel.api.common.dummy.DummyNotificationDispatchEvent
 import com.chobolevel.api.notification.sse.dto.NotificationSsePayload
-import com.chobolevel.domain.notification.sync.entity.NotificationSyncEvent
-import com.chobolevel.domain.notification.sync.repository.NotificationSyncEventRepository
-import com.chobolevel.domain.notification.sync.vo.NotificationSyncEventStatus
+import com.chobolevel.domain.notification.dispatch.entity.NotificationDispatchEvent
+import com.chobolevel.domain.notification.dispatch.repository.NotificationDispatchEventRepository
+import com.chobolevel.domain.notification.dispatch.vo.NotificationDispatchEventStatus
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
@@ -17,9 +17,9 @@ import java.io.IOException
 
 class NotificationSseDispatcherTest : BehaviorSpec({
 
-    val notificationSyncEventRepository: NotificationSyncEventRepository = mockk()
+    val notificationDispatchEventRepository: NotificationDispatchEventRepository = mockk()
     val dispatcher = NotificationSseDispatcher(
-        notificationSyncEventRepository = notificationSyncEventRepository,
+        notificationDispatchEventRepository = notificationDispatchEventRepository,
     )
 
     beforeEach { clearAllMocks() }
@@ -28,26 +28,26 @@ class NotificationSseDispatcherTest : BehaviorSpec({
         `when`("전송이 성공하면") {
             then("이벤트를 PROCESSED로 표시한다") {
                 // given
-                val event: NotificationSyncEvent = DummyNotificationSyncEvent.toEntity()
+                val event: NotificationDispatchEvent = DummyNotificationDispatchEvent.toEntity()
                 val emitter: SseEmitter = mockk()
                 val payload = NotificationSsePayload(
-                    type = DummyNotificationSyncEvent.TYPE,
-                    content = DummyNotificationSyncEvent.CONTENT,
-                    link = DummyNotificationSyncEvent.LINK,
+                    type = DummyNotificationDispatchEvent.TYPE,
+                    content = DummyNotificationDispatchEvent.CONTENT,
+                    link = DummyNotificationDispatchEvent.LINK,
                 )
-                every { notificationSyncEventRepository.findByIdOrNull(DummyNotificationSyncEvent.ID) } returns event
+                every { notificationDispatchEventRepository.findByIdOrNull(DummyNotificationDispatchEvent.ID) } returns event
                 justRun { emitter.send(any<SseEmitter.SseEventBuilder>()) }
 
                 // when
                 dispatcher.dispatch(
-                    eventId = DummyNotificationSyncEvent.ID,
-                    userId = DummyNotificationSyncEvent.USER_ID,
+                    eventId = DummyNotificationDispatchEvent.ID,
+                    userId = DummyNotificationDispatchEvent.USER_ID,
                     emitter = emitter,
                     payload = payload,
                 )
 
                 // then
-                event.status shouldBe NotificationSyncEventStatus.PROCESSED
+                event.status shouldBe NotificationDispatchEventStatus.PROCESSED
                 verify(exactly = 0) { emitter.completeWithError(any()) }
             }
         }
@@ -55,27 +55,27 @@ class NotificationSseDispatcherTest : BehaviorSpec({
         `when`("전송이 실패하면") {
             then("emitter를 completeWithError로 종료시키고(레지스트리 정리는 그 onCompletion 콜백에 위임) 이벤트를 FAILED로 표시한다") {
                 // given
-                val event: NotificationSyncEvent = DummyNotificationSyncEvent.toEntity()
+                val event: NotificationDispatchEvent = DummyNotificationDispatchEvent.toEntity()
                 val emitter: SseEmitter = mockk()
                 val payload = NotificationSsePayload(
-                    type = DummyNotificationSyncEvent.TYPE,
-                    content = DummyNotificationSyncEvent.CONTENT,
-                    link = DummyNotificationSyncEvent.LINK,
+                    type = DummyNotificationDispatchEvent.TYPE,
+                    content = DummyNotificationDispatchEvent.CONTENT,
+                    link = DummyNotificationDispatchEvent.LINK,
                 )
-                every { notificationSyncEventRepository.findByIdOrNull(DummyNotificationSyncEvent.ID) } returns event
+                every { notificationDispatchEventRepository.findByIdOrNull(DummyNotificationDispatchEvent.ID) } returns event
                 every { emitter.send(any<SseEmitter.SseEventBuilder>()) } throws IOException("broken pipe")
                 justRun { emitter.completeWithError(any()) }
 
                 // when
                 dispatcher.dispatch(
-                    eventId = DummyNotificationSyncEvent.ID,
-                    userId = DummyNotificationSyncEvent.USER_ID,
+                    eventId = DummyNotificationDispatchEvent.ID,
+                    userId = DummyNotificationDispatchEvent.USER_ID,
                     emitter = emitter,
                     payload = payload,
                 )
 
                 // then
-                event.status shouldBe NotificationSyncEventStatus.FAILED
+                event.status shouldBe NotificationDispatchEventStatus.FAILED
                 verify(exactly = 1) { emitter.completeWithError(any()) }
             }
         }

@@ -1,6 +1,6 @@
-package com.chobolevel.domain.notification.sync.entity
+package com.chobolevel.domain.notification.dispatch.entity
 
-import com.chobolevel.domain.notification.sync.vo.NotificationSyncEventStatus
+import com.chobolevel.domain.notification.dispatch.vo.NotificationDispatchEventStatus
 import com.chobolevel.domain.notification.vo.NotificationType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -16,9 +16,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.time.OffsetDateTime
 
 @Entity
-@Table(name = "notification_sync_events")
+@Table(name = "notification_dispatch_events")
 @EntityListeners(value = [AuditingEntityListener::class])
-class NotificationSyncEvent private constructor(
+class NotificationDispatchEvent private constructor(
     userId: Long,
     type: NotificationType,
     content: String,
@@ -44,7 +44,7 @@ class NotificationSyncEvent private constructor(
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    var status: NotificationSyncEventStatus = NotificationSyncEventStatus.PENDING
+    var status: NotificationDispatchEventStatus = NotificationDispatchEventStatus.PENDING
         protected set
 
     @Column(nullable = false, updatable = false)
@@ -60,24 +60,22 @@ class NotificationSyncEvent private constructor(
         protected set
 
     fun markPublished() {
-        status = NotificationSyncEventStatus.PUBLISHED
+        status = NotificationDispatchEventStatus.PUBLISHED
         publishedAt = OffsetDateTime.now()
     }
 
     fun markProcessed() {
-        status = NotificationSyncEventStatus.PROCESSED
+        status = NotificationDispatchEventStatus.PROCESSED
     }
 
-    // retryCount는 관찰용으로만 남긴다 — 이 도메인은 FAILED를 재처리 대상으로 삼지 않으므로
-    // (NotificationSyncEventConsumer 설계 주석 참고) status를 PENDING으로 되돌리는 retry()는 두지 않는다.
     fun markFailed() {
-        status = NotificationSyncEventStatus.FAILED
+        status = NotificationDispatchEventStatus.FAILED
         retryCount++
     }
 
     companion object {
-        fun create(userId: Long, type: NotificationType, content: String, link: String?): NotificationSyncEvent {
-            return NotificationSyncEvent(
+        fun create(userId: Long, type: NotificationType, content: String, link: String?): NotificationDispatchEvent {
+            return NotificationDispatchEvent(
                 userId = userId,
                 type = type,
                 content = content,

@@ -1,16 +1,16 @@
 package com.chobolevel.api.notification.provider
 
+import com.chobolevel.domain.notification.dispatch.entity.NotificationDispatchEvent
+import com.chobolevel.domain.notification.dispatch.repository.NotificationDispatchEventRepository
 import com.chobolevel.domain.notification.entity.Notification
 import com.chobolevel.domain.notification.repository.NotificationRepository
-import com.chobolevel.domain.notification.sync.entity.NotificationSyncEvent
-import com.chobolevel.domain.notification.sync.repository.NotificationSyncEventRepository
 import com.chobolevel.domain.notification.vo.NotificationType
 import org.springframework.stereotype.Component
 
 @Component
 class NotificationOutboxPublisher(
     private val notificationRepository: NotificationRepository,
-    private val notificationSyncEventRepository: NotificationSyncEventRepository,
+    private val notificationDispatchEventRepository: NotificationDispatchEventRepository,
 ) : NotificationPublisher {
 
     override fun publish(userId: Long, type: NotificationType, content: String, link: String?) {
@@ -24,8 +24,8 @@ class NotificationOutboxPublisher(
             )
         )
 
-        notificationSyncEventRepository.save(
-            NotificationSyncEvent.create(
+        notificationDispatchEventRepository.save(
+            NotificationDispatchEvent.create(
                 userId = userId,
                 type = type,
                 content = content,

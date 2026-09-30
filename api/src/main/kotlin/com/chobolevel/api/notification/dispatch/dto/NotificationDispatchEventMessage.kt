@@ -1,8 +1,8 @@
-package com.chobolevel.api.notification.sync.dto
+package com.chobolevel.api.notification.dispatch.dto
 
 import com.chobolevel.domain.notification.vo.NotificationType
 
-data class NotificationSyncEventMessage(
+data class NotificationDispatchEventMessage(
     val eventId: Long,
     val userId: Long,
     val type: NotificationType,
