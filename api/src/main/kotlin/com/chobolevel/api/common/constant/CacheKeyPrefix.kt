@@ -6,12 +6,17 @@ object CacheKeyPrefix {
     // 이 TTL은 정상 흐름의 정합성 보장 수단이 아니라 이벤트 유실 시의 상한선(safety net) 역할만 한다.
     const val RECORD_LIKE_CACHE_TTL_MINUTES = 10L
 
+    // 기록 잔디 캐시 TTL — 조회 부하 흡수가 목적이라 무효화(evict) 없이 TTL 만료에만 맡긴다(최대 5분간 반영 지연 허용).
+    const val RECORD_CONTRIBUTION_CACHE_TTL_MINUTES = 5L
+
     private const val USER_EMAIL_VERIFICATION = "user:{email}:email-verification:v1"
     private const val USER_RESET_PASSWORD = "user:{email}:reset-password:v1"
     private const val USER_REFRESH_TOKEN = "user:{userId}:refresh-token:v1"
 
     private const val RECORD_LIKE_COUNT = "record:{recordId}:like-count:v1"
     private const val RECORD_LIKE = "record:{recordId}:like:{userId}:v1"
+
+    private const val USER_RECORD_CONTRIBUTION = "user:{userId}:record-contribution:{year}:v1"
 
     private const val RECORD_VIEW_DEDUP = "record:{recordId}:view-dedup:{viewerKey}:v1"
     private const val RECORD_VIEW_COUNT = "record:{recordId}:view-count:v1"
@@ -26,6 +31,10 @@ object CacheKeyPrefix {
     fun userResetPassword(email: String): String = USER_RESET_PASSWORD.replace("{email}", email)
 
     fun userRefreshToken(userId: Long): String = USER_REFRESH_TOKEN.replace("{userId}", userId.toString())
+
+    // 응답 JSON 스키마(RecordContributionResponse)가 바뀌면 역직렬화가 깨지므로 v 접미사를 올려 키를 분리한다.
+    fun userRecordContribution(userId: Long, year: Int): String =
+        USER_RECORD_CONTRIBUTION.replace("{userId}", userId.toString()).replace("{year}", year.toString())
 
     fun recordLikeCount(recordId: Long): String = RECORD_LIKE_COUNT.replace("{recordId}", recordId.toString())
 

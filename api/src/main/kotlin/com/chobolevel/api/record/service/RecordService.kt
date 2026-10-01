@@ -1,7 +1,9 @@
 package com.chobolevel.api.record.service
 
+import com.chobolevel.api.common.constant.CacheKeyPrefix
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.extension.toKST
+import com.chobolevel.api.common.provider.CacheProvider
 import com.chobolevel.api.record.converter.RecordConverter
 import com.chobolevel.api.record.dto.CreateRecordRequest
 import com.chobolevel.api.record.dto.RecordContributionResponse
@@ -23,11 +25,14 @@ import com.chobolevel.domain.subject.entity.Subject
 import com.chobolevel.domain.subject.repository.SubjectRepository
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneId
+import java.util.concurrent.TimeUnit
 
 @Service
 class RecordService(
@@ -39,7 +44,9 @@ class RecordService(
     private val recordBusinessValidator: RecordBusinessValidator,
     private val recordLikeQueryService: RecordLikeQueryService,
     private val recordViewQueryService: RecordViewQueryService,
-    private val recordUpdater: RecordUpdater
+    private val recordUpdater: RecordUpdater,
+    private val cacheProvider: CacheProvider,
+    private val objectMapper: ObjectMapper
 ) {
 
     @Transactional
@@ -112,8 +119,25 @@ class RecordService(
     // 연도별 잔디 — 비공개 기록도 카운트에 포함하되(공개 프로필에서도 활동량만 노출), 소프트 삭제된 기록은 제외한다.
     // 날짜 경계는 저장 타임존 설정과 무관하게 항상 KST 기준으로 계산한다.
     // year 기본값(현재 연도) 보정은 컨트롤러 경계(FetchRecordContributionsRequest)에서 이미 끝나 있으므로 여기서는 다루지 않는다.
-    @Transactional(readOnly = true)
+    // 캐시 히트 시 불필요하게 트랜잭션(커넥션)을 잡지 않도록 @Transactional을 두지 않는다 — 조회는 repository 단위 트랜잭션으로 충분하다.
     fun fetchContributions(userId: Long, year: Int): List<RecordContributionResponse> {
+        val cacheKey: String = CacheKeyPrefix.userRecordContribution(userId = userId, year = year)
+        val cached: String? = cacheProvider.get(cacheKey)
+        if (cached != null) {
+            return objectMapper.readValue(cached, object : TypeReference<List<RecordContributionResponse>>() {})
+        }
+
+        val contributions: List<RecordContributionResponse> = loadContributions(userId = userId, year = year)
+        cacheProvider.put(
+            cacheKey,
+            objectMapper.writeValueAsString(contributions),
+            CacheKeyPrefix.RECORD_CONTRIBUTION_CACHE_TTL_MINUTES,
+            TimeUnit.MINUTES
+        )
+        return contributions
+    }
+
+    private fun loadContributions(userId: Long, year: Int): List<RecordContributionResponse> {
         val zoneId: ZoneId = ZoneId.of("Asia/Seoul")
         val start: OffsetDateTime = LocalDate.of(year, 1, 1).atStartOfDay(zoneId).toOffsetDateTime()
         val end: OffsetDateTime = LocalDate.of(year + 1, 1, 1).atStartOfDay(zoneId).toOffsetDateTime()

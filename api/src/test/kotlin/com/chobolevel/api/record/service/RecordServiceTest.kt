@@ -1,10 +1,12 @@
 package com.chobolevel.api.record.service
 
+import com.chobolevel.api.common.constant.CacheKeyPrefix
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dummy.DummyEmotion
 import com.chobolevel.api.common.dummy.DummyRecord
 import com.chobolevel.api.common.dummy.DummySubject
 import com.chobolevel.api.common.dummy.DummyUser
+import com.chobolevel.api.common.provider.CacheProvider
 import com.chobolevel.api.record.converter.RecordConverter
 import com.chobolevel.api.record.dto.CreateRecordRequest
 import com.chobolevel.api.record.dto.RecordContributionResponse
@@ -27,6 +29,8 @@ import com.chobolevel.domain.subject.entity.Subject
 import com.chobolevel.domain.subject.repository.SubjectRepository
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -42,6 +46,7 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
+import java.util.concurrent.TimeUnit
 
 class RecordServiceTest : BehaviorSpec({
 
@@ -54,6 +59,8 @@ class RecordServiceTest : BehaviorSpec({
     val recordLikeQueryService: RecordLikeQueryService = mockk()
     val recordViewQueryService: RecordViewQueryService = mockk()
     val recordUpdater: RecordUpdater = mockk()
+    val cacheProvider: CacheProvider = mockk()
+    val objectMapper: ObjectMapper = jacksonObjectMapper()
     val recordService: RecordService = RecordService(
         recordRepository = recordRepository,
         userRepository = userRepository,
@@ -63,7 +70,9 @@ class RecordServiceTest : BehaviorSpec({
         recordBusinessValidator = recordBusinessValidator,
         recordLikeQueryService = recordLikeQueryService,
         recordViewQueryService = recordViewQueryService,
-        recordUpdater = recordUpdater
+        recordUpdater = recordUpdater,
+        cacheProvider = cacheProvider,
+        objectMapper = objectMapper
     )
 
     beforeEach { clearAllMocks() }
@@ -283,6 +292,8 @@ class RecordServiceTest : BehaviorSpec({
                 val expectedStart: OffsetDateTime = LocalDate.of(2026, 1, 1).atStartOfDay(zoneId).toOffsetDateTime()
                 val expectedEnd: OffsetDateTime = LocalDate.of(2027, 1, 1).atStartOfDay(zoneId).toOffsetDateTime()
                 val response: List<RecordContributionResponse> = listOf(DummyRecord.toContributionResponse())
+                every { cacheProvider.get(any()) } returns null
+                justRun { cacheProvider.put(any(), any(), any(), any()) }
                 every {
                     recordRepository.findCreatedAtsByUserIdAndCreatedAtBetween(userId, expectedStart, expectedEnd)
                 } returns emptyList()
@@ -303,6 +314,8 @@ class RecordServiceTest : BehaviorSpec({
                 val userId: Long = DummyUser.ID
                 // UTC 2025-12-31T15:30 -> KST 2026-01-01T00:30 (다음 해로 넘어감)
                 val crossesIntoNewYear: OffsetDateTime = OffsetDateTime.of(2025, 12, 31, 15, 30, 0, 0, ZoneOffset.UTC)
+                every { cacheProvider.get(any()) } returns null
+                justRun { cacheProvider.put(any(), any(), any(), any()) }
                 // UTC 2025-12-31T14:59 -> KST 2025-12-31T23:59 (그대로 그 해)
                 val staysInSameDay: OffsetDateTime = OffsetDateTime.of(2025, 12, 31, 14, 59, 0, 0, ZoneOffset.UTC)
                 every {
@@ -319,6 +332,46 @@ class RecordServiceTest : BehaviorSpec({
                 // then
                 countsByDateSlot.captured[LocalDate.of(2026, 1, 1)] shouldBe 1L
                 countsByDateSlot.captured[LocalDate.of(2025, 12, 31)] shouldBe 1L
+            }
+        }
+
+        `when`("캐시에 값이 없으면") {
+            then("DB에서 조회한 결과를 5분 TTL로 캐시에 저장하고 반환한다") {
+                // given
+                val userId: Long = DummyUser.ID
+                val cacheKey: String = CacheKeyPrefix.userRecordContribution(userId = userId, year = 2026)
+                val response: List<RecordContributionResponse> = listOf(DummyRecord.toContributionResponse())
+                every { cacheProvider.get(cacheKey) } returns null
+                every { recordRepository.findCreatedAtsByUserIdAndCreatedAtBetween(userId, any(), any()) } returns emptyList()
+                every { recordConverter.convertToContributions(year = 2026, countsByDate = emptyMap()) } returns response
+                val valueSlot: CapturingSlot<String> = slot()
+                justRun { cacheProvider.put(cacheKey, capture(valueSlot), 5L, TimeUnit.MINUTES) }
+
+                // when
+                val result: List<RecordContributionResponse> = recordService.fetchContributions(userId = userId, year = 2026)
+
+                // then
+                result shouldBe response
+                objectMapper.writeValueAsString(response) shouldBe valueSlot.captured
+                verify(exactly = 1) { cacheProvider.put(cacheKey, any(), 5L, TimeUnit.MINUTES) }
+            }
+        }
+
+        `when`("캐시에 값이 있으면") {
+            then("DB를 조회하지 않고 캐시된 값을 역직렬화해서 반환한다") {
+                // given
+                val userId: Long = DummyUser.ID
+                val cacheKey: String = CacheKeyPrefix.userRecordContribution(userId = userId, year = 2026)
+                val cachedResponse: List<RecordContributionResponse> = listOf(DummyRecord.toContributionResponse(date = "2026-03-01", count = 3L))
+                every { cacheProvider.get(cacheKey) } returns objectMapper.writeValueAsString(cachedResponse)
+
+                // when
+                val result: List<RecordContributionResponse> = recordService.fetchContributions(userId = userId, year = 2026)
+
+                // then
+                result shouldBe cachedResponse
+                verify(exactly = 0) { recordRepository.findCreatedAtsByUserIdAndCreatedAtBetween(any(), any(), any()) }
+                verify(exactly = 0) { cacheProvider.put(any(), any(), any(), any()) }
             }
         }
     }
