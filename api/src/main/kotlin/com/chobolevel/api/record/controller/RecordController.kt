@@ -60,8 +60,11 @@ class RecordController(
         return ResponseEntity.ok(ResultResponse(result))
     }
 
-    // TODO: 인증 없이 user_id를 스크립트로 순회하며 호출을 반복할 수 있는 구조. 쿼리 자체는 user_id+연도로 좁혀져 있어 문제 없지만,
-    // 호출 빈도를 막는 rate limiting 인프라가 아직 없어 스크래핑/자원 고갈 벡터로 남아있음. 보류, 추후 별도로 다룰 것.
+    // 비인증 공개 API라 user_id를 순회하며 호출 빈도를 무제한으로 늘릴 수 있다.
+    //  - 부하: 쿼리가 user_id+연도(2020~올해)로 한정되고, userId+year 단위로 5분간 캐시되어(RecordService) 반복 호출은 DB를 치지 않는다.
+    //  - 남은 위험: user_id를 바꿔가며 순회하는 스크래핑은 매번 캐시 miss라 캐시로 막을 수 없다.
+    //  - TODO(rate-limit): IP 기준 제한으로 대응한다(게이트웨이/엣지 우선, X-Forwarded-For 신뢰 범위 확정 필요).
+    //    guestId는 쿠키 미전송으로 우회되므로 제한 키로 쓰지 않는다. 보류, 운영 배포 전 재평가.
     @Operation(summary = "기록 잔디(연도별 일자별 등록 개수) 조회 API")
     @GetMapping("/records/contributions")
     fun fetchContributions(
