@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component
 class RecordParameterValidator {
 
     companion object {
-        private const val CONTRIBUTIONS_MIN_YEAR = 2000
+        private const val CONTRIBUTIONS_MIN_YEAR = 2020
     }
 
     // QueryObject 바인딩은 Bean Validation을 타지 않아서(@Valid 미적용) 여기서 직접 검증한다.

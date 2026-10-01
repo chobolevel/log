@@ -51,10 +51,20 @@ class RecordParameterValidatorTest : BehaviorSpec({
             }
         }
 
-        `when`("year가 2000년보다 이전이면") {
+        `when`("year가 하한(2020년)과 같으면") {
+            then("예외가 발생하지 않는다") {
+                // given
+                val request: FetchRecordContributionsRequest = FetchRecordContributionsRequest(userId = DummyUser.ID, year = 2020)
+
+                // when & then
+                validator.validate(request)
+            }
+        }
+
+        `when`("year가 2020년보다 이전이면") {
             then("InvalidParameterException이 발생한다") {
                 // given
-                val request: FetchRecordContributionsRequest = FetchRecordContributionsRequest(userId = DummyUser.ID, year = 1999)
+                val request: FetchRecordContributionsRequest = FetchRecordContributionsRequest(userId = DummyUser.ID, year = 2019)
 
                 // when & then
                 val ex: InvalidParameterException = shouldThrow {
