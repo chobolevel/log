@@ -5,5 +5,5 @@ import com.chobolevel.domain.notification.vo.NotificationType
 data class NotificationSsePayload(
     val type: NotificationType,
     val content: String,
-    val link: String?,
+    val path: String?,
 )

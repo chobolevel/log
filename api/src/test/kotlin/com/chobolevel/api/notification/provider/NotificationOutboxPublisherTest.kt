@@ -32,14 +32,14 @@ class NotificationOutboxPublisherTest : BehaviorSpec({
                 val userId = 1L
                 val type: NotificationType = NotificationType.FOLLOW
                 val content = "홍길동님이 회원님을 팔로우했습니다."
-                val link = "/users/1"
+                val path = "/users/1"
                 val notificationSlot: CapturingSlot<Notification> = slot()
                 val dispatchEventSlot: CapturingSlot<NotificationDispatchEvent> = slot()
                 every { notificationRepository.save(capture(notificationSlot)) } answers { firstArg() }
                 every { notificationDispatchEventRepository.save(capture(dispatchEventSlot)) } answers { firstArg() }
 
                 // when
-                publisher.publish(userId = userId, type = type, content = content, link = link)
+                publisher.publish(userId = userId, type = type, content = content, path = path)
 
                 // then
                 verifyOrder {
@@ -49,11 +49,11 @@ class NotificationOutboxPublisherTest : BehaviorSpec({
                 notificationSlot.captured.userId shouldBe userId
                 notificationSlot.captured.type shouldBe type
                 notificationSlot.captured.content shouldBe content
-                notificationSlot.captured.link shouldBe link
+                notificationSlot.captured.path shouldBe path
                 dispatchEventSlot.captured.userId shouldBe userId
                 dispatchEventSlot.captured.type shouldBe type
                 dispatchEventSlot.captured.content shouldBe content
-                dispatchEventSlot.captured.link shouldBe link
+                dispatchEventSlot.captured.path shouldBe path
             }
         }
     }

@@ -42,7 +42,7 @@ class NotificationDispatchEventRelayScheduler(
                         userId = event.userId,
                         type = event.type,
                         content = event.content,
-                        link = event.link,
+                        path = event.path,
                     )
                 ).get(5, TimeUnit.SECONDS)
 

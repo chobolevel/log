@@ -7,5 +7,5 @@ data class NotificationDispatchEventMessage(
     val userId: Long,
     val type: NotificationType,
     val content: String,
-    val link: String?,
+    val path: String?,
 )

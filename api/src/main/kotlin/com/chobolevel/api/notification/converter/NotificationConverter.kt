@@ -13,7 +13,7 @@ class NotificationConverter {
             id = entity.id!!,
             type = entity.type,
             content = entity.content,
-            link = entity.link,
+            path = entity.path,
             isRead = entity.isRead,
             createdAt = entity.createdAt.toMillis(),
         )

@@ -24,7 +24,7 @@ class NotificationDispatchEventConsumer(
             payload = NotificationSsePayload(
                 type = message.type,
                 content = message.content,
-                link = message.link,
+                path = message.path,
             ),
         )
     }

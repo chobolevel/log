@@ -22,7 +22,7 @@ class NotificationDispatchEvent private constructor(
     userId: Long,
     type: NotificationType,
     content: String,
-    link: String?,
+    path: String?,
 ) {
 
     @Id
@@ -40,7 +40,7 @@ class NotificationDispatchEvent private constructor(
     val content: String = content
 
     @Column(updatable = false)
-    val link: String? = link
+    val path: String? = path
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -74,12 +74,12 @@ class NotificationDispatchEvent private constructor(
     }
 
     companion object {
-        fun create(userId: Long, type: NotificationType, content: String, link: String?): NotificationDispatchEvent {
+        fun create(userId: Long, type: NotificationType, content: String, path: String?): NotificationDispatchEvent {
             return NotificationDispatchEvent(
                 userId = userId,
                 type = type,
                 content = content,
-                link = link,
+                path = path,
             )
         }
     }

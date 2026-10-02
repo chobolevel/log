@@ -10,13 +10,13 @@ object DummyNotification {
     val USER_ID: Long = DummyUser.ID
     val TYPE: NotificationType = NotificationType.FOLLOW
     val CONTENT: String = "홍길동님이 회원님을 팔로우했습니다."
-    val LINK: String = "/users/2"
+    val PATH: String = "/users/2"
 
     fun toEntity(): Notification = Notification.create(
         userId = USER_ID,
         type = TYPE,
         content = CONTENT,
-        link = LINK,
+        path = PATH,
     ).also {
         ReflectionTestUtils.setField(it, "id", ID)
     }
@@ -25,7 +25,7 @@ object DummyNotification {
         id = ID,
         type = TYPE,
         content = CONTENT,
-        link = LINK,
+        path = PATH,
         isRead = false,
         createdAt = 0L,
     )

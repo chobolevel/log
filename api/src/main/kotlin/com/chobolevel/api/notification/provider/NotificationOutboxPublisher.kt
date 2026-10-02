@@ -13,14 +13,14 @@ class NotificationOutboxPublisher(
     private val notificationDispatchEventRepository: NotificationDispatchEventRepository,
 ) : NotificationPublisher {
 
-    override fun publish(userId: Long, type: NotificationType, content: String, link: String?) {
+    override fun publish(userId: Long, type: NotificationType, content: String, path: String?) {
         // source of truth: 호출부 트랜잭션 안에서 동기 저장 — Outbox는 이 사실을 외부(SSE)로 전달하는 역할만 한다
         notificationRepository.save(
             Notification.create(
                 userId = userId,
                 type = type,
                 content = content,
-                link = link,
+                path = path,
             )
         )
 
@@ -29,7 +29,7 @@ class NotificationOutboxPublisher(
                 userId = userId,
                 type = type,
                 content = content,
-                link = link,
+                path = path,
             )
         )
     }

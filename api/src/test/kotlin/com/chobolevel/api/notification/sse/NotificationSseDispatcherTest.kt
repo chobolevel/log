@@ -37,7 +37,7 @@ class NotificationSseDispatcherTest : BehaviorSpec({
                 val payload = NotificationSsePayload(
                     type = DummyNotificationDispatchEvent.TYPE,
                     content = DummyNotificationDispatchEvent.CONTENT,
-                    link = DummyNotificationDispatchEvent.LINK,
+                    path = DummyNotificationDispatchEvent.PATH,
                 )
                 every { sseEmitterRegistry.find(DummyNotificationDispatchEvent.USER_ID) } returns null
                 every { notificationDispatchEventRepository.findByIdOrNull(DummyNotificationDispatchEvent.ID) } returns event
@@ -62,7 +62,7 @@ class NotificationSseDispatcherTest : BehaviorSpec({
                 val payload = NotificationSsePayload(
                     type = DummyNotificationDispatchEvent.TYPE,
                     content = DummyNotificationDispatchEvent.CONTENT,
-                    link = DummyNotificationDispatchEvent.LINK,
+                    path = DummyNotificationDispatchEvent.PATH,
                 )
                 every { sseEmitterRegistry.find(DummyNotificationDispatchEvent.USER_ID) } returns emitter
                 every { notificationDispatchEventRepository.findByIdOrNull(DummyNotificationDispatchEvent.ID) } returns event
@@ -89,7 +89,7 @@ class NotificationSseDispatcherTest : BehaviorSpec({
                 val payload = NotificationSsePayload(
                     type = DummyNotificationDispatchEvent.TYPE,
                     content = DummyNotificationDispatchEvent.CONTENT,
-                    link = DummyNotificationDispatchEvent.LINK,
+                    path = DummyNotificationDispatchEvent.PATH,
                 )
                 every { sseEmitterRegistry.find(DummyNotificationDispatchEvent.USER_ID) } returns emitter
                 every { notificationDispatchEventRepository.findByIdOrNull(DummyNotificationDispatchEvent.ID) } returns event

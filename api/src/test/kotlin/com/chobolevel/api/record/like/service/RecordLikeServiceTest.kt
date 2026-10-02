@@ -4,7 +4,7 @@ import com.chobolevel.api.common.constant.CacheKeyPrefix
 import com.chobolevel.api.common.dummy.DummyRecord
 import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.common.provider.CacheProvider
-import com.chobolevel.api.notification.constant.NotificationLink
+import com.chobolevel.api.notification.constant.NotificationPath
 import com.chobolevel.api.notification.provider.NotificationPublisher
 import com.chobolevel.api.record.like.validator.RecordLikeValidator
 import com.chobolevel.domain.common.exception.ErrorCode
@@ -141,7 +141,7 @@ class RecordLikeServiceTest : BehaviorSpec({
                         userId = writerId,
                         type = NotificationType.RECORD_LIKE,
                         content = "${user.nickname}님이 회원님의 기록을 좋아합니다.",
-                        link = NotificationLink.recordDetail(recordId),
+                        path = NotificationPath.recordDetail(recordId),
                     )
                 }
 
@@ -155,7 +155,7 @@ class RecordLikeServiceTest : BehaviorSpec({
                         userId = writerId,
                         type = NotificationType.RECORD_LIKE,
                         content = "${user.nickname}님이 회원님의 기록을 좋아합니다.",
-                        link = NotificationLink.recordDetail(recordId),
+                        path = NotificationPath.recordDetail(recordId),
                     )
                 }
             }

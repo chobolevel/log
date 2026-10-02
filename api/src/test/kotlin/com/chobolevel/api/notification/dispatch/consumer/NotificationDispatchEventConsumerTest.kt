@@ -28,12 +28,12 @@ class NotificationDispatchEventConsumerTest : BehaviorSpec({
                     userId = DummyNotificationDispatchEvent.USER_ID,
                     type = DummyNotificationDispatchEvent.TYPE,
                     content = DummyNotificationDispatchEvent.CONTENT,
-                    link = DummyNotificationDispatchEvent.LINK,
+                    path = DummyNotificationDispatchEvent.PATH,
                 )
                 val payload = NotificationSsePayload(
                     type = message.type,
                     content = message.content,
-                    link = message.link,
+                    path = message.path,
                 )
                 justRun {
                     notificationSseDispatcher.dispatch(eventId = message.eventId, userId = message.userId, payload = payload)

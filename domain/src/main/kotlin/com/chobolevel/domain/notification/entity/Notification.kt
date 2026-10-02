@@ -21,7 +21,7 @@ class Notification private constructor(
     userId: Long,
     type: NotificationType,
     content: String,
-    link: String?,
+    path: String?,
 ) {
 
     @Id
@@ -39,7 +39,7 @@ class Notification private constructor(
     val content: String = content
 
     @Column(updatable = false)
-    val link: String? = link
+    val path: String? = path
 
     @Column(nullable = false)
     var isRead: Boolean = false
@@ -61,12 +61,12 @@ class Notification private constructor(
     }
 
     companion object {
-        fun create(userId: Long, type: NotificationType, content: String, link: String?): Notification {
+        fun create(userId: Long, type: NotificationType, content: String, path: String?): Notification {
             return Notification(
                 userId = userId,
                 type = type,
                 content = content,
-                link = link,
+                path = path,
             )
         }
     }
