@@ -141,7 +141,6 @@ class AuthService(private val userRepository: UserRepository)
 ```
 // 허용: api/service → 타 도메인 repository
 AuthService → UserRepository (O)
-ChannelService → UserRepository (O)
 
 // 금지: domain 내부에서 타 도메인 참조
 PostEntity → UserRepository (X)
@@ -315,8 +314,6 @@ class RecordEmotionParameterValidator {
 - `api/.../post/updater/PostUpdaterTest.kt` — updateMask별 필드 업데이트
 - `api/.../post/comment/validator/PostCommentParameterValidatorTest.kt` — CONTENT updateMask 검증
 - `api/.../post/comment/updater/PostCommentUpdaterTest.kt` — updateMask별 필드 업데이트
-- `api/.../channel/validator/ChannelParameterValidatorTest.kt` — NAME/USERS updateMask 검증
-- `api/.../channel/updater/ChannelUpdaterTest.kt` — NAME 업데이트, USERS 교체 시 기존 ChannelUser 삭제 처리
 - `api/.../upload/validator/UploadValidatorTest.kt` — 허용 prefix/extension 검증
 
 **이번 단계에서 배운 것**
@@ -388,8 +385,6 @@ class RecordEmotionParameterValidator {
 - `api/.../tag/controller/TagControllerTest.kt`
 - `api/.../post/controller/PostControllerTest.kt`
 - `api/.../post/comment/controller/PostCommentControllerTest.kt`
-- `api/.../channel/controller/ChannelControllerTest.kt`
-- `api/.../channel/message/controller/ChannelMessageControllerTest.kt`
 
 **`@DataJpaTest` 리포지토리 슬라이스 테스트**
 - `api/.../user/repository/UserJpaRepositoryTest.kt`
@@ -398,8 +393,6 @@ class RecordEmotionParameterValidator {
 - `api/.../post/comment/repository/PostCommentJpaRepositoryTest.kt`
 - `api/.../post/tag/repository/PostTagJpaRepositoryTest.kt`
 - `api/.../tag/repository/TagJpaRepositoryTest.kt`
-- `api/.../channel/repository/ChannelJpaRepositoryTest.kt`
-- `api/.../channel/message/repository/ChannelMessageJpaRepositoryTest.kt`
 
 **공유 테스트 인프라**
 - `api/.../common/config/DomainJpaTestConfig.kt` — `@EnableJpaRepositories` + `@EntityScan`만 담은 `@TestConfiguration`; 멀티 모듈 `@DataJpaTest`에서 공유

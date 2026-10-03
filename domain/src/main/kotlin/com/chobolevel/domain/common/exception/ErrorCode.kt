@@ -17,17 +17,6 @@ enum class ErrorCode(val defaultMessage: String) {
     ACCESS_DENIED("접근 권한이 없습니다."),
     BAD_CREDENTIALS("유효하지 않은 접근입니다."),
 
-    // CHANNEL
-    CHANNEL_NOT_FOUND("채널을 찾을 수 없습니다."),
-    UNINVITED_CHANNEL("초대받지 않은 채널입니다."),
-    ALREADY_EXITED_CHANNEL("이미 떠난 채널입니다."),
-    ALREADY_INVITED_CHANNEL("이미 초대된 채널입니다."),
-    RESTRICTED_TO_CHANNEL_OWNER("채널 오너만 접근 가능합니다."),
-
-    // CHANNEL MESSAGE
-    CHANNEL_MESSAGE_NOT_FOUND("채널 메시지를 찾을 수 없습니다."),
-    CHANNEL_MESSAGE_WRITER_NOT_MATCHED("채널 메시지 작성자가 아닙니다."),
-
     // POST
     POST_NOT_FOUND("게시글을 찾을 수 없습니다."),
     RESTRICTED_TO_POST_WRITER("게시글 작성자만 접근 가능합니다."),
