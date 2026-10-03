@@ -32,9 +32,6 @@ dependencies {
     // XML 문서의 Java 객체 간 매핑 자동화
     implementation("javax.xml.bind:jaxb-api:2.3.1")
 
-    // logger
-    implementation("com.github.napstr:logback-discord-appender:1.0.0")
-
     // actuator + micrometer
     implementation("org.springframework.boot:spring-boot-starter-actuator")
 
@@ -55,9 +52,6 @@ dependencies {
 
     // thymeleaf
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
-
-    // loki
-    implementation("com.github.loki4j:loki-logback-appender:1.4.2")
 
     // jsoup for crawling
     implementation("org.jsoup:jsoup:1.16.1")
