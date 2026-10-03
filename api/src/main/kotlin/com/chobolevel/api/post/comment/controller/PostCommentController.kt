@@ -5,7 +5,6 @@ import com.chobolevel.api.common.annotation.QueryObject
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getUserId
-import com.chobolevel.api.common.posttask.CreatePostCommentPostTask
 import com.chobolevel.api.post.comment.dto.CreatePostCommentRequest
 import com.chobolevel.api.post.comment.dto.PostCommentResponse
 import com.chobolevel.api.post.comment.dto.SearchPostCommentRequest
@@ -32,7 +31,6 @@ import java.security.Principal
 class PostCommentController(
     private val validator: PostCommentParameterValidator,
     private val service: PostCommentService,
-    private val createPostTask: CreatePostCommentPostTask,
 ) {
 
     @Operation(summary = "게시글 댓글 등록 API")
@@ -47,7 +45,6 @@ class PostCommentController(
             userId = principal.getUserId(),
             request = request
         )
-        createPostTask.invoke()
         return ResponseEntity.ok(ResultResponse(result))
     }
 

@@ -3,7 +3,6 @@ package com.chobolevel.api.post.comment.controller
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dummy.DummyPostComment
 import com.chobolevel.api.common.dummy.DummyUser
-import com.chobolevel.api.common.posttask.CreatePostCommentPostTask
 import com.chobolevel.api.post.comment.dto.PostCommentResponse
 import com.chobolevel.api.post.comment.service.PostCommentService
 import com.chobolevel.api.post.comment.validator.PostCommentParameterValidator
@@ -53,9 +52,6 @@ class PostCommentControllerTest {
     @MockkBean
     private lateinit var postCommentParameterValidator: PostCommentParameterValidator
 
-    @MockkBean
-    private lateinit var createPostCommentPostTask: CreatePostCommentPostTask
-
     @TestConfiguration
     @EnableMethodSecurity(prePostEnabled = true)
     class TestSecurityConfig {
@@ -78,7 +74,6 @@ class PostCommentControllerTest {
     fun `인증된 사용자가 유효한 요청으로 댓글을 등록하면 댓글 id를 반환한다`() {
         // given
         every { postCommentService.createPostComment(userId = DummyUser.ID, request = any()) } returns DummyPostComment.ID
-        justRun { createPostCommentPostTask.invoke() }
 
         // when & then
         mockMvc.perform(

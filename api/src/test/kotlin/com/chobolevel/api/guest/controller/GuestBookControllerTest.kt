@@ -2,7 +2,6 @@ package com.chobolevel.api.guest.controller
 
 import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dummy.DummyGuestBook
-import com.chobolevel.api.common.posttask.CreateGuestBookPostTask
 import com.chobolevel.api.guest.dto.GuestBookResponse
 import com.chobolevel.api.guest.dto.UpdateGuestBookRequest
 import com.chobolevel.api.guest.service.GuestBookService
@@ -50,11 +49,6 @@ class GuestBookControllerTest {
     @MockkBean
     private lateinit var guestBookParameterValidator: GuestBookParameterValidator
 
-    // @Component이지만 @Value로 Discord 설정을 주입받으므로 Mock으로 대체한다.
-    // 실제 빈이 생성되지 않아 암호화된 프로퍼티 복호화 없이도 컨텍스트가 기동된다.
-    @MockkBean
-    private lateinit var createGuestBookPostTask: CreateGuestBookPostTask
-
     @TestConfiguration
     class TestSecurityConfig {
         @Bean
@@ -75,7 +69,6 @@ class GuestBookControllerTest {
     fun `유효한 요청으로 방명록 등록 시 200과 id를 반환한다`() {
         // given
         every { guestBookService.createGuestBook(request = any()) } returns DummyGuestBook.ID
-        justRun { createGuestBookPostTask.invoke() }
 
         // when & then
         mockMvc.perform(
