@@ -310,10 +310,6 @@ class RecordEmotionParameterValidator {
 - `api/.../auth/validator/AuthParameterValidatorTest.kt` — 일반/소셜 로그인, 이메일 인증 파라미터 검증
 - `api/.../tag/validator/TagParameterValidatorTest.kt` — NAME/ORDER updateMask 파라미터 검증
 - `api/.../tag/updater/TagUpdaterTest.kt` — updateMask별 필드 업데이트
-- `api/.../post/validator/PostParameterValidatorTest.kt` — TAGS/TITLE/SUB_TITLE/CONTENT updateMask 검증
-- `api/.../post/updater/PostUpdaterTest.kt` — updateMask별 필드 업데이트
-- `api/.../post/comment/validator/PostCommentParameterValidatorTest.kt` — CONTENT updateMask 검증
-- `api/.../post/comment/updater/PostCommentUpdaterTest.kt` — updateMask별 필드 업데이트
 - `api/.../upload/validator/UploadValidatorTest.kt` — 허용 prefix/extension 검증
 
 **이번 단계에서 배운 것**
@@ -383,15 +379,10 @@ class RecordEmotionParameterValidator {
 - `api/.../user/controller/UserControllerTest.kt`
 - `api/.../auth/controller/AuthControllerTest.kt`
 - `api/.../tag/controller/TagControllerTest.kt`
-- `api/.../post/controller/PostControllerTest.kt`
-- `api/.../post/comment/controller/PostCommentControllerTest.kt`
 
 **`@DataJpaTest` 리포지토리 슬라이스 테스트**
 - `api/.../user/repository/UserJpaRepositoryTest.kt`
 - `api/.../user/image/repository/UserImageJpaRepositoryTest.kt`
-- `api/.../post/repository/PostJpaRepositoryTest.kt`
-- `api/.../post/comment/repository/PostCommentJpaRepositoryTest.kt`
-- `api/.../post/tag/repository/PostTagJpaRepositoryTest.kt`
 - `api/.../tag/repository/TagJpaRepositoryTest.kt`
 
 **공유 테스트 인프라**

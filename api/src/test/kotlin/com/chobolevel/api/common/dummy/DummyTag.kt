@@ -36,7 +36,6 @@ object DummyTag {
         id = ID,
         name = NAME,
         order = ORDER,
-        postsCount = 1,
         createdAt = 0L,
         updatedAt = 0L
     )

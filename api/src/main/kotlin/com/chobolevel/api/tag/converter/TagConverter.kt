@@ -28,7 +28,6 @@ class TagConverter {
             id = entity.id!!,
             name = entity.name,
             order = entity.order,
-            postsCount = entity.postTags.size,
             createdAt = entity.createdAt.toInstant().toEpochMilli(),
             updatedAt = entity.updatedAt.toInstant().toEpochMilli()
         )

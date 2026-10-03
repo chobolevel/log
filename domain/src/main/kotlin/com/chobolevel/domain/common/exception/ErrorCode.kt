@@ -17,14 +17,6 @@ enum class ErrorCode(val defaultMessage: String) {
     ACCESS_DENIED("접근 권한이 없습니다."),
     BAD_CREDENTIALS("유효하지 않은 접근입니다."),
 
-    // POST
-    POST_NOT_FOUND("게시글을 찾을 수 없습니다."),
-    RESTRICTED_TO_POST_WRITER("게시글 작성자만 접근 가능합니다."),
-
-    // POST COMMENT
-    POST_COMMENT_NOT_FOUND("게시글 댓글을 찾을 수 없습니다."),
-    RESTRICTED_TO_POST_COMMENT_WRITER("게시글 댓글 작성자만 접근 가능합니다."),
-
     // TAG
     TAG_NOT_FOUND("태그를 찾을 수 없습니다."),
 
