@@ -28,10 +28,6 @@ enum class ErrorCode(val defaultMessage: String) {
     CHANNEL_MESSAGE_NOT_FOUND("채널 메시지를 찾을 수 없습니다."),
     CHANNEL_MESSAGE_WRITER_NOT_MATCHED("채널 메시지 작성자가 아닙니다."),
 
-    // GUEST BOOK
-    GUEST_BOOK_NOT_FOUND("방명록을 찾을 수 없습니다."),
-    GUEST_BOOK_PASSWORD_NOT_MATCHED("방명록 비밀번호가 일치하지 않습니다."),
-
     // POST
     POST_NOT_FOUND("게시글을 찾을 수 없습니다."),
     RESTRICTED_TO_POST_WRITER("게시글 작성자만 접근 가능합니다."),
