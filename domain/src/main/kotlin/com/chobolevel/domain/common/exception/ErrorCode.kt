@@ -17,9 +17,6 @@ enum class ErrorCode(val defaultMessage: String) {
     ACCESS_DENIED("접근 권한이 없습니다."),
     BAD_CREDENTIALS("유효하지 않은 접근입니다."),
 
-    // TAG
-    TAG_NOT_FOUND("태그를 찾을 수 없습니다."),
-
     // USER
     USER_NOT_FOUND("회원을 찾을 수 없습니다."),
     USER_PASSWORD_NOT_MATCHED("비밀번호가 일치하지 않습니다."),

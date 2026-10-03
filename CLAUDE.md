@@ -308,8 +308,6 @@ class RecordEmotionParameterValidator {
 - `api/.../user/updater/UserUpdaterTest.kt` — updateMask별 필드 업데이트
 - `api/.../user/image/service/UserImageServiceTest.kt` — 프로필 이미지 등록/삭제
 - `api/.../auth/validator/AuthParameterValidatorTest.kt` — 일반/소셜 로그인, 이메일 인증 파라미터 검증
-- `api/.../tag/validator/TagParameterValidatorTest.kt` — NAME/ORDER updateMask 파라미터 검증
-- `api/.../tag/updater/TagUpdaterTest.kt` — updateMask별 필드 업데이트
 - `api/.../upload/validator/UploadValidatorTest.kt` — 허용 prefix/extension 검증
 
 **이번 단계에서 배운 것**
@@ -378,12 +376,10 @@ class RecordEmotionParameterValidator {
 **`@WebMvcTest` 컨트롤러 슬라이스 테스트**
 - `api/.../user/controller/UserControllerTest.kt`
 - `api/.../auth/controller/AuthControllerTest.kt`
-- `api/.../tag/controller/TagControllerTest.kt`
 
 **`@DataJpaTest` 리포지토리 슬라이스 테스트**
 - `api/.../user/repository/UserJpaRepositoryTest.kt`
 - `api/.../user/image/repository/UserImageJpaRepositoryTest.kt`
-- `api/.../tag/repository/TagJpaRepositoryTest.kt`
 
 **공유 테스트 인프라**
 - `api/.../common/config/DomainJpaTestConfig.kt` — `@EnableJpaRepositories` + `@EntityScan`만 담은 `@TestConfiguration`; 멀티 모듈 `@DataJpaTest`에서 공유
@@ -445,7 +441,6 @@ spring:
 
 **작성 완료된 파일**
 - `api/.../common/container/AbstractMySQLContainerTest.kt` — Singleton Container 패턴 기반 클래스
-- `api/.../tag/repository/TagJpaRepositoryContainerTest.kt` — MySQL 8.0 컨테이너로 실행하는 리포지토리 슬라이스 테스트 (3개 케이스)
 - `api/.../user/repository/UserJpaRepositoryContainerTest.kt` — MySQL 8.0 컨테이너로 실행하는 리포지토리 슬라이스 테스트
 
 **이번 단계에서 배운 것**
