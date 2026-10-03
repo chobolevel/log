@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -41,7 +41,7 @@ class NotificationController(
 
     @Operation(summary = "알림 읽음 처리 API")
     @HasAuthorityUser
-    @PutMapping("/notifications/{id}/read")
+    @PostMapping("/notifications/{id}/read")
     fun read(
         authentication: Authentication,
         @PathVariable id: Long
