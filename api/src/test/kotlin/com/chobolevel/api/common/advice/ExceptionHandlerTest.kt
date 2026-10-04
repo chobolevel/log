@@ -1,0 +1,350 @@
+package com.chobolevel.api.common.advice
+
+import com.chobolevel.api.common.exception.ErrorCodeScanner
+import com.chobolevel.api.common.security.AuthErrorCode
+import com.chobolevel.domain.common.exception.BadCredentialException
+import com.chobolevel.domain.common.exception.CommonErrorCode
+import com.chobolevel.domain.common.exception.DataNotFoundException
+import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.common.exception.ExternalApiException
+import com.chobolevel.domain.common.exception.ForbiddenException
+import com.chobolevel.domain.common.exception.InvalidParameterException
+import com.chobolevel.domain.common.exception.PolicyViolationException
+import com.chobolevel.domain.common.exception.SystemErrorCode
+import com.chobolevel.domain.common.exception.UnAuthorizedException
+import com.chobolevel.domain.emotion.exception.EmotionErrorCode
+import com.chobolevel.domain.notification.exception.NotificationErrorCode
+import com.chobolevel.domain.record.exception.RecordErrorCode
+import com.chobolevel.domain.subject.exception.SubjectErrorCode
+import com.chobolevel.domain.user.exception.UserErrorCode
+import io.kotest.matchers.shouldBe
+import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Import
+import org.springframework.dao.DataIntegrityViolationException
+import org.springframework.http.MediaType
+import org.springframework.security.access.AccessDeniedException
+import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.web.SecurityFilterChain
+import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
+import java.util.stream.Stream
+
+// [특성화 테스트] 리팩터링 전 ExceptionHandler의 "현재 동작"을 고정한다.
+// 옳고 그름을 판정하는 테스트가 아니라, 이후 단계에서 바뀌는 지점이 테스트 diff로 드러나게 하는 안전망이다.
+// 의도적으로 바뀔 동작에는 "(현재 동작)"이라고 적어 두었다.
+@WebMvcTest(ExceptionHandlerTest.ThrowingController::class)
+// 테스트 클래스에 중첩된 클래스는 컴포넌트 스캔에서 제외되므로 테스트용 컨트롤러를 명시적으로 등록한다
+@Import(ExceptionHandlerTest.TestSecurityConfig::class, ExceptionHandlerTest.ThrowingController::class)
+@ActiveProfiles("test")
+@DisplayName("ExceptionHandler 특성화 테스트")
+class ExceptionHandlerTest {
+
+    @Autowired
+    private lateinit var mockMvc: MockMvc
+
+    @TestConfiguration
+    class TestSecurityConfig {
+        @Bean
+        fun filterChain(http: HttpSecurity): SecurityFilterChain =
+            http
+                .csrf { it.disable() }
+                .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+                .authorizeHttpRequests { it.anyRequest().permitAll() }
+                .build()
+    }
+
+    // 요청 파라미터로 지정한 예외를 그대로 던지는 테스트 전용 컨트롤러
+    @RestController
+    class ThrowingController {
+
+        @GetMapping("/test/throw")
+        fun throwCustom(@RequestParam thrower: Thrower, @RequestParam code: String): String {
+            val errorCode: ErrorCode = ErrorCodeScanner.findAll().first { it.name == code }
+            throw thrower.create(errorCode)
+        }
+
+        @GetMapping("/test/illegal-argument")
+        fun illegalArgument(): String = throw IllegalArgumentException("엔티티 불변식 위반")
+
+        @GetMapping("/test/data-integrity")
+        fun dataIntegrity(): String = throw DataIntegrityViolationException("duplicate key")
+
+        @GetMapping("/test/access-denied")
+        fun accessDenied(): String = throw AccessDeniedException("Access Denied")
+
+        @GetMapping("/test/bad-credentials")
+        fun badCredentials(): String = throw BadCredentialsException("Bad credentials")
+
+        @GetMapping("/test/runtime-error")
+        fun runtimeError(): String = throw RuntimeException("DB 접속 정보 오류: jdbc:mysql://internal-host/log")
+
+        @PostMapping("/test/body")
+        fun body(
+            @Valid @RequestBody
+            request: BodyRequest
+        ): String = "ok"
+
+        @GetMapping("/test/required-param")
+        fun requiredParam(@RequestParam id: Long): String = "ok"
+
+        @GetMapping("/test/typed/{id}")
+        fun typedPath(@PathVariable id: Long): String = "ok"
+    }
+
+    data class BodyRequest(
+        @field:NotBlank(message = "이름은 필수 값입니다.")
+        val name: String?
+    )
+
+    // 현재 코드가 각 에러코드를 던지는 예외 클래스. 상태 코드는 이 클래스가 결정한다.
+    enum class Thrower(val create: (ErrorCode) -> Throwable) {
+        INVALID_PARAMETER({ InvalidParameterException(errorCode = it) }),
+        POLICY_VIOLATION({ PolicyViolationException(errorCode = it) }),
+        UN_AUTHORIZED({ UnAuthorizedException(errorCode = it) }),
+        BAD_CREDENTIAL({ BadCredentialException(errorCode = it) }),
+        FORBIDDEN({ ForbiddenException(errorCode = it) }),
+        DATA_NOT_FOUND({ DataNotFoundException(errorCode = it) }),
+        EXTERNAL_API({ ExternalApiException(errorCode = it) })
+    }
+
+    // ===== 에러코드별 HTTP 상태 표 =====
+
+    @ParameterizedTest(name = "{1} ({0}) -> {2}")
+    @MethodSource("errorCodeStatusTable")
+    @DisplayName("에러코드를 현재 던지는 예외로 던지면 표의 상태 코드로 응답한다")
+    fun `에러코드별 HTTP 상태`(thrower: Thrower, code: ErrorCode, expectedStatus: Int) {
+        mockMvc.perform(get("/test/throw").param("thrower", thrower.name).param("code", code.name))
+            .andExpect(status().`is`(expectedStatus))
+            .andExpect(jsonPath("$.error_code").value(code.name))
+            .andExpect(jsonPath("$.error_message").value(code.defaultMessage))
+    }
+
+    @Test
+    @DisplayName("모든 에러코드는 상태 표 또는 핸들러 직접 처리 목록에 포함돼 있다")
+    fun `새 에러코드가 표에서 빠지면 실패한다`() {
+        val covered: Set<String> = (tableCodes() + handlerDirectCodes).map { it.name }.toSet()
+
+        val missing: List<String> = ErrorCodeScanner.findAll().map { it.name }.filter { it !in covered }
+
+        missing shouldBe emptyList()
+    }
+
+    // ===== 핸들러가 직접 처리하는 예외 =====
+
+    @Test
+    @DisplayName("IllegalArgumentException은 400 INVALID_PARAMETER로 응답하고 예외 메시지를 노출한다")
+    fun `IllegalArgumentException 처리`() {
+        mockMvc.perform(get("/test/illegal-argument"))
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.error_code").value(CommonErrorCode.INVALID_PARAMETER.name))
+            .andExpect(jsonPath("$.error_message").value("엔티티 불변식 위반"))
+    }
+
+    @Test
+    @DisplayName("(현재 동작) DataIntegrityViolationException은 400 DUPLICATE_REQUEST로 응답한다")
+    fun `DataIntegrityViolationException 처리`() {
+        mockMvc.perform(get("/test/data-integrity"))
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.error_code").value(CommonErrorCode.DUPLICATE_REQUEST.name))
+            .andExpect(jsonPath("$.error_message").value(CommonErrorCode.DUPLICATE_REQUEST.defaultMessage))
+    }
+
+    @Test
+    @DisplayName("(현재 동작) AccessDeniedException은 인증 여부와 무관하게 401 ACCESS_DENIED로 응답한다")
+    fun `AccessDeniedException 처리`() {
+        mockMvc.perform(get("/test/access-denied"))
+            .andExpect(status().isUnauthorized)
+            .andExpect(jsonPath("$.error_code").value(CommonErrorCode.ACCESS_DENIED.name))
+            .andExpect(jsonPath("$.error_message").value("Access Denied"))
+    }
+
+    @Test
+    @DisplayName("Spring Security의 BadCredentialsException은 401 BAD_CREDENTIALS로 응답한다")
+    fun `BadCredentialsException 처리`() {
+        mockMvc.perform(get("/test/bad-credentials"))
+            .andExpect(status().isUnauthorized)
+            .andExpect(jsonPath("$.error_code").value(AuthErrorCode.BAD_CREDENTIALS.name))
+            .andExpect(jsonPath("$.error_message").value("Bad credentials"))
+    }
+
+    @Test
+    @DisplayName("@Valid 검증에 실패하면 400 INVALID_PARAMETER로 응답하고 첫 번째 검증 메시지를 노출한다")
+    fun `MethodArgumentNotValidException 처리`() {
+        mockMvc.perform(post("/test/body").contentType(MediaType.APPLICATION_JSON).content("""{"name": ""}"""))
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.error_code").value(CommonErrorCode.INVALID_PARAMETER.name))
+            .andExpect(jsonPath("$.error_message").value("이름은 필수 값입니다."))
+    }
+
+    @Test
+    @DisplayName("읽을 수 없는 JSON 본문이면 400 INVALID_REQUEST_FORMAT으로 응답한다")
+    fun `HttpMessageNotReadableException 처리`() {
+        mockMvc.perform(post("/test/body").contentType(MediaType.APPLICATION_JSON).content("{"))
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.error_code").value(CommonErrorCode.INVALID_REQUEST_FORMAT.name))
+            .andExpect(jsonPath("$.error_message").value(CommonErrorCode.INVALID_REQUEST_FORMAT.defaultMessage))
+    }
+
+    @Test
+    @DisplayName("(현재 동작) 처리되지 않은 예외는 500 INTERNAL_SERVER_ERROR로 응답하고 예외 메시지를 그대로 노출한다")
+    fun `미처리 예외 처리`() {
+        mockMvc.perform(get("/test/runtime-error"))
+            .andExpect(status().isInternalServerError)
+            .andExpect(jsonPath("$.error_code").value(SystemErrorCode.INTERNAL_SERVER_ERROR.name))
+            .andExpect(jsonPath("$.error_message").value("DB 접속 정보 오류: jdbc:mysql://internal-host/log"))
+    }
+
+    // ===== Spring 표준 예외: 현재 catch-all(Exception) 핸들러에 걸리는지 확인 =====
+
+    @Test
+    @DisplayName("(현재 동작) 필수 쿼리 파라미터가 없으면 400이 아니라 500으로 응답한다")
+    fun `필수 파라미터 누락`() {
+        mockMvc.perform(get("/test/required-param"))
+            .andExpect(status().isInternalServerError)
+            .andExpect(jsonPath("$.error_code").value(SystemErrorCode.INTERNAL_SERVER_ERROR.name))
+    }
+
+    @Test
+    @DisplayName("(현재 동작) 경로 변수 타입이 맞지 않으면 400이 아니라 500으로 응답한다")
+    fun `경로 변수 타입 불일치`() {
+        mockMvc.perform(get("/test/typed/abc"))
+            .andExpect(status().isInternalServerError)
+            .andExpect(jsonPath("$.error_code").value(SystemErrorCode.INTERNAL_SERVER_ERROR.name))
+    }
+
+    @Test
+    @DisplayName("(현재 동작) 지원하지 않는 HTTP 메서드는 405가 아니라 500으로 응답한다")
+    fun `지원하지 않는 HTTP 메서드`() {
+        mockMvc.perform(post("/test/required-param").param("id", "1"))
+            .andExpect(status().isInternalServerError)
+            .andExpect(jsonPath("$.error_code").value(SystemErrorCode.INTERNAL_SERVER_ERROR.name))
+    }
+
+    @Test
+    @DisplayName("(현재 동작) 지원하지 않는 Content-Type은 415가 아니라 500으로 응답한다")
+    fun `지원하지 않는 미디어 타입`() {
+        mockMvc.perform(post("/test/body").contentType(MediaType.TEXT_PLAIN).content("name=a"))
+            .andExpect(status().isInternalServerError)
+            .andExpect(jsonPath("$.error_code").value(SystemErrorCode.INTERNAL_SERVER_ERROR.name))
+    }
+
+    companion object {
+
+        // 현재 코드(2026-10-04 기준)가 각 에러코드를 던지는 예외 클래스별 분류
+        private val table: List<Triple<Thrower, Int, List<ErrorCode>>> = listOf(
+            Triple(
+                Thrower.INVALID_PARAMETER,
+                400,
+                listOf(
+                    CommonErrorCode.INVALID_PARAMETER,
+                    UserErrorCode.EMAIL_VERIFICATION_CODE_NOT_MATCHED,
+                    UserErrorCode.USER_PASSWORD_NOT_MATCHED,
+                    UserErrorCode.USER_EMAIL_NOT_EXISTS,
+                    UserErrorCode.RESET_USER_PASSWORD_CODE_NOT_EXISTS,
+                    UserErrorCode.USER_FOLLOW_ALREADY_EXISTS,
+                    UserErrorCode.USER_FOLLOW_NOT_FOUND,
+                    UserErrorCode.USER_FOLLOW_SELF_NOT_ALLOWED,
+                    RecordErrorCode.RECORD_LIKE_ALREADY_EXISTS,
+                    RecordErrorCode.RECORD_LIKE_NOT_FOUND
+                )
+            ),
+            Triple(
+                Thrower.POLICY_VIOLATION,
+                400,
+                listOf(
+                    SystemErrorCode.LOCK_ACQUISITION_FAILED,
+                    UserErrorCode.USER_PASSWORD_REUSING_NOT_ALLOWED,
+                    UserErrorCode.USER_EMAIL_ALREADY_EXISTS,
+                    UserErrorCode.USER_NICKNAME_ALREADY_EXISTS,
+                    UserErrorCode.USER_FOLLOW_SYNC_EVENT_NOT_FAILED,
+                    RecordErrorCode.RECORD_LIKE_SYNC_EVENT_NOT_FAILED,
+                    RecordErrorCode.RECORD_VIEW_SYNC_EVENT_NOT_FAILED,
+                    EmotionErrorCode.EMOTION_CATEGORY_IN_USE,
+                    EmotionErrorCode.EMOTION_IN_USE
+                )
+            ),
+            Triple(
+                Thrower.UN_AUTHORIZED,
+                401,
+                listOf(AuthErrorCode.INVALID_TOKEN, AuthErrorCode.EXPIRED_TOKEN)
+            ),
+            Triple(
+                Thrower.BAD_CREDENTIAL,
+                401,
+                listOf(AuthErrorCode.BAD_CREDENTIALS)
+            ),
+            Triple(
+                Thrower.FORBIDDEN,
+                403,
+                listOf(
+                    RecordErrorCode.RESTRICTED_TO_RECORD_WRITER,
+                    RecordErrorCode.PRIVATE_RECORD,
+                    NotificationErrorCode.RESTRICTED_TO_NOTIFICATION_OWNER
+                )
+            ),
+            Triple(
+                Thrower.DATA_NOT_FOUND,
+                404,
+                listOf(
+                    UserErrorCode.USER_NOT_FOUND,
+                    UserErrorCode.USER_IMAGE_NOT_FOUND,
+                    UserErrorCode.USER_FOLLOW_SYNC_EVENT_NOT_FOUND,
+                    RecordErrorCode.RECORD_NOT_FOUND,
+                    RecordErrorCode.RECORD_REVIEW_NOT_FOUND,
+                    RecordErrorCode.RECORD_LIKE_SYNC_EVENT_NOT_FOUND,
+                    RecordErrorCode.RECORD_VIEW_SYNC_EVENT_NOT_FOUND,
+                    RecordErrorCode.RECORD_EMOTION_NOT_FOUND,
+                    SubjectErrorCode.SUBJECT_NOT_FOUND,
+                    SubjectErrorCode.SUBJECT_IMAGE_NOT_FOUND,
+                    EmotionErrorCode.EMOTION_CATEGORY_NOT_FOUND,
+                    EmotionErrorCode.EMOTION_NOT_FOUND,
+                    NotificationErrorCode.NOTIFICATION_NOT_FOUND,
+                    NotificationErrorCode.NOTIFICATION_DISPATCH_EVENT_NOT_FOUND
+                )
+            ),
+            Triple(
+                Thrower.EXTERNAL_API,
+                502,
+                listOf(SystemErrorCode.EMAIL_SEND_FAILED)
+            )
+        )
+
+        // 커스텀 예외 클래스가 아니라 핸들러가 직접 에러코드를 정해 응답하는 코드 (위 개별 테스트로 검증)
+        private val handlerDirectCodes: List<ErrorCode> = listOf(
+            CommonErrorCode.INVALID_REQUEST_FORMAT,
+            CommonErrorCode.DUPLICATE_REQUEST,
+            CommonErrorCode.ACCESS_DENIED,
+            SystemErrorCode.INTERNAL_SERVER_ERROR
+        )
+
+        private fun tableCodes(): List<ErrorCode> = table.flatMap { (_, _, codes) -> codes }
+
+        @JvmStatic
+        fun errorCodeStatusTable(): Stream<Arguments> =
+            table.flatMap { (thrower, status, codes) ->
+                codes.map { code -> Arguments.of(thrower, code, status) }
+            }.stream()
+    }
+}
