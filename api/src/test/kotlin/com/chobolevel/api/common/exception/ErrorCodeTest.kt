@@ -1,6 +1,9 @@
 package com.chobolevel.api.common.exception
 
+import com.chobolevel.domain.common.exception.BusinessErrorCode
 import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.common.exception.ErrorType
+import com.chobolevel.domain.common.exception.SystemErrorCode
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
@@ -13,6 +16,7 @@ class ErrorCodeTest : BehaviorSpec({
     // 도메인별 enum이 새로 추가돼도 목록에 따로 등록할 필요가 없어 검증 누락이 생기지 않는다.
     val errorCodeEnums: List<Class<out ErrorCode>> = findErrorCodeEnums()
     val errorCodes: List<ErrorCode> = errorCodeEnums.flatMap { it.enumConstants.toList() }
+    val businessCodes: List<BusinessErrorCode> = errorCodes.filterIsInstance<BusinessErrorCode>()
 
     given("모든 도메인의 ErrorCode 구현체를 수집하면") {
 
@@ -51,6 +55,43 @@ class ErrorCodeTest : BehaviorSpec({
                     .filter { it.defaultMessage.isBlank() }
                     .map { it.name }
                 blankMessageCodes shouldBe emptyList()
+            }
+        }
+    }
+
+    given("비즈니스 에러코드의 분류(ErrorType)를 확인하면") {
+
+        // 이름 접미사가 곧 분류 기준이다. 새 코드가 기준에서 벗어난 type을 받으면 여기서 드러난다.
+        `when`("이름이 의미를 드러내는 코드를 볼 때") {
+            then("_NOT_FOUND로 끝나는 코드는 NOT_FOUND다") {
+                val violations: List<String> = businessCodes
+                    .filter { it.name.endsWith("_NOT_FOUND") && it.type != ErrorType.NOT_FOUND }
+                    .map { it.name }
+                violations shouldBe emptyList()
+            }
+
+            then("_ALREADY_EXISTS, _IN_USE, _NOT_FAILED로 끝나는 코드는 CONFLICT다") {
+                val conflictSuffixes: List<String> = listOf("_ALREADY_EXISTS", "_IN_USE", "_NOT_FAILED")
+                val violations: List<String> = businessCodes
+                    .filter { code: BusinessErrorCode -> conflictSuffixes.any { code.name.endsWith(it) } && code.type != ErrorType.CONFLICT }
+                    .map { it.name }
+                violations shouldBe emptyList()
+            }
+
+            then("RESTRICTED_TO_로 시작하는 코드는 FORBIDDEN이다") {
+                val violations: List<String> = businessCodes
+                    .filter { it.name.startsWith("RESTRICTED_TO_") && it.type != ErrorType.FORBIDDEN }
+                    .map { it.name }
+                violations shouldBe emptyList()
+            }
+        }
+
+        `when`("5xx 시스템 코드를 볼 때") {
+            then("BusinessErrorCode로 구현된 것이 없다") {
+                // 5xx 코드가 비즈니스 예외(4xx)로 흘러 들어가는 것을 타입으로 막는 전제가 유지되는지 확인한다
+                val systemCodeNames: Set<String> = SystemErrorCode.values().map { it.name }.toSet()
+                val misplaced: List<String> = businessCodes.map { it.name }.filter { it in systemCodeNames }
+                misplaced shouldBe emptyList()
             }
         }
     }
