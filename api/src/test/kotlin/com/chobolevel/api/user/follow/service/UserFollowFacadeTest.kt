@@ -2,7 +2,7 @@ package com.chobolevel.api.user.follow.service
 
 import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.common.provider.DistributedLockProvider
-import com.chobolevel.domain.common.exception.PolicyViolationException
+import com.chobolevel.domain.common.exception.InternalSystemException
 import com.chobolevel.domain.common.exception.SystemErrorCode
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -53,7 +53,7 @@ class UserFollowFacadeTest : BehaviorSpec({
         }
 
         `when`("락 획득에 실패하면") {
-            then("PolicyViolationException이 그대로 전파되고 UserFollowService는 호출되지 않는다") {
+            then("InternalSystemException이 그대로 전파되고 UserFollowService는 호출되지 않는다") {
                 // given
                 val followerUserId: Long = DummyUser.ID
                 val followingUserId = 2L
@@ -65,10 +65,10 @@ class UserFollowFacadeTest : BehaviorSpec({
                         unit = any(),
                         action = any(),
                     )
-                } throws PolicyViolationException(errorCode = SystemErrorCode.LOCK_ACQUISITION_FAILED)
+                } throws InternalSystemException(errorCode = SystemErrorCode.LOCK_ACQUISITION_FAILED)
 
                 // when & then
-                shouldThrow<PolicyViolationException> {
+                shouldThrow<InternalSystemException> {
                     facade.follow(followerUserId = followerUserId, followingUserId = followingUserId)
                 }
                 verify(exactly = 0) { userFollowService.follow(any(), any()) }
@@ -106,7 +106,7 @@ class UserFollowFacadeTest : BehaviorSpec({
         }
 
         `when`("락 획득에 실패하면") {
-            then("PolicyViolationException이 그대로 전파되고 UserFollowService는 호출되지 않는다") {
+            then("InternalSystemException이 그대로 전파되고 UserFollowService는 호출되지 않는다") {
                 // given
                 val followerUserId: Long = DummyUser.ID
                 val followingUserId = 2L
@@ -118,10 +118,10 @@ class UserFollowFacadeTest : BehaviorSpec({
                         unit = any(),
                         action = any(),
                     )
-                } throws PolicyViolationException(errorCode = SystemErrorCode.LOCK_ACQUISITION_FAILED)
+                } throws InternalSystemException(errorCode = SystemErrorCode.LOCK_ACQUISITION_FAILED)
 
                 // when & then
-                shouldThrow<PolicyViolationException> {
+                shouldThrow<InternalSystemException> {
                     facade.unfollow(followerUserId = followerUserId, followingUserId = followingUserId)
                 }
                 verify(exactly = 0) { userFollowService.unfollow(any(), any()) }

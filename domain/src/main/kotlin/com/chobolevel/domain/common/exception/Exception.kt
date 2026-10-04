@@ -1,49 +1,34 @@
 package com.chobolevel.domain.common.exception
 
-open class LogException(
-    open val errorCode: ErrorCode,
-    override val message: String?,
-    open val throwable: Throwable? = null
-) : RuntimeException(message)
+// [전환용] 아래 클래스들은 BusinessException으로 치환하면서 제거한다(throw 지점과 테스트 치환 단계).
+// 지금은 BusinessException의 하위 클래스이므로 HTTP 상태는 클래스가 아니라 errorCode.type이 결정한다.
 
 open class InvalidParameterException(
-    override val errorCode: ErrorCode,
-    override val message: String? = null,
-    override val throwable: Throwable? = null
-) : LogException(errorCode, message ?: errorCode.defaultMessage, throwable)
+    errorCode: BusinessErrorCode,
+    message: String? = null
+) : BusinessException(errorCode, message)
 
 open class PolicyViolationException(
-    override val errorCode: ErrorCode,
-    override val message: String? = null,
-    override val throwable: Throwable? = null
-) : LogException(errorCode, message ?: errorCode.defaultMessage, throwable)
+    errorCode: BusinessErrorCode,
+    message: String? = null
+) : BusinessException(errorCode, message)
 
 open class BadCredentialException(
-    override val errorCode: ErrorCode,
-    override val message: String? = null,
-    override val throwable: Throwable? = null
-) : LogException(errorCode, message ?: errorCode.defaultMessage, throwable)
+    errorCode: BusinessErrorCode,
+    message: String? = null
+) : BusinessException(errorCode, message)
 
 open class UnAuthorizedException(
-    override val errorCode: ErrorCode,
-    override val message: String? = null,
-    override val throwable: Throwable? = null
-) : LogException(errorCode, message ?: errorCode.defaultMessage, throwable)
+    errorCode: BusinessErrorCode,
+    message: String? = null
+) : BusinessException(errorCode, message)
 
 open class ForbiddenException(
-    override val errorCode: ErrorCode,
-    override val message: String? = null,
-    override val throwable: Throwable? = null
-) : LogException(errorCode, message ?: errorCode.defaultMessage, throwable)
+    errorCode: BusinessErrorCode,
+    message: String? = null
+) : BusinessException(errorCode, message)
 
 open class DataNotFoundException(
-    override val errorCode: ErrorCode,
-    override val message: String? = null,
-    override val throwable: Throwable? = null
-) : LogException(errorCode, message ?: errorCode.defaultMessage, throwable)
-
-open class ExternalApiException(
-    override val errorCode: ErrorCode,
-    override val message: String? = null,
-    override val throwable: Throwable? = null
-) : LogException(errorCode, message ?: errorCode.defaultMessage, throwable)
+    errorCode: BusinessErrorCode,
+    message: String? = null
+) : BusinessException(errorCode, message)

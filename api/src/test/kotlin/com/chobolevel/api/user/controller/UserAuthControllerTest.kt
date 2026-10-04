@@ -11,7 +11,6 @@ import com.chobolevel.api.user.service.UserAuthService
 import com.chobolevel.api.user.validator.UserAuthParameterValidator
 import com.chobolevel.domain.common.exception.BadCredentialException
 import com.chobolevel.domain.common.exception.UnAuthorizedException
-import com.chobolevel.domain.user.exception.UserErrorCode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.clearAllMocks
@@ -106,7 +105,7 @@ class UserAuthControllerTest {
     fun `비밀번호가 틀린 로그인 요청 시 401을 반환하고 남아있던 토큰 쿠키를 만료시킨다`() {
         // given
         justRun { userAuthParameterValidator.validate(request = any<LoginRequest>()) }
-        every { userAuthService.login(request = any()) } throws BadCredentialException(errorCode = UserErrorCode.USER_PASSWORD_NOT_MATCHED)
+        every { userAuthService.login(request = any()) } throws BadCredentialException(errorCode = AuthErrorCode.BAD_CREDENTIALS)
 
         // when & then
         mockMvc.perform(

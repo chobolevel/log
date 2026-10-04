@@ -1,6 +1,6 @@
 package com.chobolevel.api.common.provider
 
-import com.chobolevel.domain.common.exception.PolicyViolationException
+import com.chobolevel.domain.common.exception.InternalSystemException
 import com.chobolevel.domain.common.exception.SystemErrorCode
 import org.redisson.api.RLock
 import org.redisson.api.RedissonClient
@@ -22,7 +22,7 @@ class RedissonDistributedLockProvider(
         val lock: RLock = redissonClient.getLock(key)
         val acquired: Boolean = lock.tryLock(waitTime, leaseTime, unit)
         if (!acquired) {
-            throw PolicyViolationException(errorCode = SystemErrorCode.LOCK_ACQUISITION_FAILED)
+            throw InternalSystemException(errorCode = SystemErrorCode.LOCK_ACQUISITION_FAILED)
         }
         try {
             return action()

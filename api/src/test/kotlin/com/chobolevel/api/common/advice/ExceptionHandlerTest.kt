@@ -3,11 +3,15 @@ package com.chobolevel.api.common.advice
 import com.chobolevel.api.common.exception.ErrorCodeScanner
 import com.chobolevel.api.common.security.AuthErrorCode
 import com.chobolevel.domain.common.exception.BadCredentialException
+import com.chobolevel.domain.common.exception.BusinessErrorCode
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.common.exception.CommonErrorCode
 import com.chobolevel.domain.common.exception.DataNotFoundException
 import com.chobolevel.domain.common.exception.ErrorCode
-import com.chobolevel.domain.common.exception.ExternalApiException
+import com.chobolevel.domain.common.exception.ErrorType
+import com.chobolevel.domain.common.exception.ExternalSystemException
 import com.chobolevel.domain.common.exception.ForbiddenException
+import com.chobolevel.domain.common.exception.InternalSystemException
 import com.chobolevel.domain.common.exception.InvalidParameterException
 import com.chobolevel.domain.common.exception.PolicyViolationException
 import com.chobolevel.domain.common.exception.SystemErrorCode
@@ -118,15 +122,19 @@ class ExceptionHandlerTest {
         val name: String?
     )
 
-    // 현재 코드가 각 에러코드를 던지는 예외 클래스. 상태 코드는 이 클래스가 결정한다.
+    // 현재 코드가 각 에러코드를 던지는 예외 클래스.
+    // 비즈니스 계열(BusinessException 하위)의 상태는 클래스가 아니라 errorCode.type이 결정한다.
+    // 시스템 계열(InternalSystem, ExternalSystem)의 상태는 클래스가 결정한다.
     enum class Thrower(val create: (ErrorCode) -> Throwable) {
-        INVALID_PARAMETER({ InvalidParameterException(errorCode = it) }),
-        POLICY_VIOLATION({ PolicyViolationException(errorCode = it) }),
-        UN_AUTHORIZED({ UnAuthorizedException(errorCode = it) }),
-        BAD_CREDENTIAL({ BadCredentialException(errorCode = it) }),
-        FORBIDDEN({ ForbiddenException(errorCode = it) }),
-        DATA_NOT_FOUND({ DataNotFoundException(errorCode = it) }),
-        EXTERNAL_API({ ExternalApiException(errorCode = it) })
+        BUSINESS({ BusinessException(errorCode = it as BusinessErrorCode) }),
+        INVALID_PARAMETER({ InvalidParameterException(errorCode = it as BusinessErrorCode) }),
+        POLICY_VIOLATION({ PolicyViolationException(errorCode = it as BusinessErrorCode) }),
+        UN_AUTHORIZED({ UnAuthorizedException(errorCode = it as BusinessErrorCode) }),
+        BAD_CREDENTIAL({ BadCredentialException(errorCode = it as BusinessErrorCode) }),
+        FORBIDDEN({ ForbiddenException(errorCode = it as BusinessErrorCode) }),
+        DATA_NOT_FOUND({ DataNotFoundException(errorCode = it as BusinessErrorCode) }),
+        INTERNAL_SYSTEM({ InternalSystemException(errorCode = it as SystemErrorCode) }),
+        EXTERNAL_SYSTEM({ ExternalSystemException(errorCode = it as SystemErrorCode) })
     }
 
     // ===== 에러코드별 HTTP 상태 표 =====
@@ -139,6 +147,25 @@ class ExceptionHandlerTest {
             .andExpect(status().`is`(expectedStatus))
             .andExpect(jsonPath("$.error_code").value(code.name))
             .andExpect(jsonPath("$.error_message").value(code.defaultMessage))
+    }
+
+    @ParameterizedTest(name = "{0} ({1}) -> {2}")
+    @MethodSource("errorTypeRepresentatives")
+    @DisplayName("BusinessException은 errorCode.type에 따라 상태 코드가 정해진다")
+    fun `BusinessException의 ErrorType별 HTTP 상태`(type: ErrorType, code: ErrorCode, expectedStatus: Int) {
+        mockMvc.perform(get("/test/throw").param("thrower", Thrower.BUSINESS.name).param("code", code.name))
+            .andExpect(status().`is`(expectedStatus))
+            .andExpect(jsonPath("$.error_code").value(code.name))
+    }
+
+    @Test
+    @DisplayName("모든 ErrorType은 대표 코드로 검증되고 있다")
+    fun `새 ErrorType이 추가되면 대표 코드 검증이 빠져 실패한다`() {
+        val verifiedTypes: Set<ErrorType> = errorTypeRepresentatives
+            .map { (type: ErrorType, _, _) -> type }
+            .toSet()
+
+        verifiedTypes shouldBe ErrorType.values().toSet()
     }
 
     @Test
@@ -163,10 +190,10 @@ class ExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("(현재 동작) DataIntegrityViolationException은 400 DUPLICATE_REQUEST로 응답한다")
+    @DisplayName("DataIntegrityViolationException은 409 DUPLICATE_REQUEST로 응답한다")
     fun `DataIntegrityViolationException 처리`() {
         mockMvc.perform(get("/test/data-integrity"))
-            .andExpect(status().isBadRequest)
+            .andExpect(status().isConflict)
             .andExpect(jsonPath("$.error_code").value(CommonErrorCode.DUPLICATE_REQUEST.name))
             .andExpect(jsonPath("$.error_message").value(CommonErrorCode.DUPLICATE_REQUEST.defaultMessage))
     }
@@ -252,8 +279,11 @@ class ExceptionHandlerTest {
 
     companion object {
 
-        // 현재 코드(2026-10-04 기준)가 각 에러코드를 던지는 예외 클래스별 분류
+        // 현재 코드(2026-10-04 기준)가 각 에러코드를 던지는 예외 클래스와, 그 결과로 응답되는 상태.
+        // 비즈니스 계열은 errorCode.type으로 상태가 정해지므로 같은 클래스 안에서도 코드에 따라 상태가 다르다.
+        // "(400 -> 409)"처럼 적힌 행은 예외 구조 개편 이전에는 400이었던 코드다.
         private val table: List<Triple<Thrower, Int, List<ErrorCode>>> = listOf(
+            // ----- 400 INVALID -----
             Triple(
                 Thrower.INVALID_PARAMETER,
                 400,
@@ -261,30 +291,16 @@ class ExceptionHandlerTest {
                     CommonErrorCode.INVALID_PARAMETER,
                     UserErrorCode.EMAIL_VERIFICATION_CODE_NOT_MATCHED,
                     UserErrorCode.USER_PASSWORD_NOT_MATCHED,
-                    UserErrorCode.USER_EMAIL_NOT_EXISTS,
                     UserErrorCode.RESET_USER_PASSWORD_CODE_NOT_EXISTS,
-                    UserErrorCode.USER_FOLLOW_ALREADY_EXISTS,
-                    UserErrorCode.USER_FOLLOW_NOT_FOUND,
-                    UserErrorCode.USER_FOLLOW_SELF_NOT_ALLOWED,
-                    RecordErrorCode.RECORD_LIKE_ALREADY_EXISTS,
-                    RecordErrorCode.RECORD_LIKE_NOT_FOUND
+                    UserErrorCode.USER_FOLLOW_SELF_NOT_ALLOWED
                 )
             ),
             Triple(
                 Thrower.POLICY_VIOLATION,
                 400,
-                listOf(
-                    SystemErrorCode.LOCK_ACQUISITION_FAILED,
-                    UserErrorCode.USER_PASSWORD_REUSING_NOT_ALLOWED,
-                    UserErrorCode.USER_EMAIL_ALREADY_EXISTS,
-                    UserErrorCode.USER_NICKNAME_ALREADY_EXISTS,
-                    UserErrorCode.USER_FOLLOW_SYNC_EVENT_NOT_FAILED,
-                    RecordErrorCode.RECORD_LIKE_SYNC_EVENT_NOT_FAILED,
-                    RecordErrorCode.RECORD_VIEW_SYNC_EVENT_NOT_FAILED,
-                    EmotionErrorCode.EMOTION_CATEGORY_IN_USE,
-                    EmotionErrorCode.EMOTION_IN_USE
-                )
+                listOf(UserErrorCode.USER_PASSWORD_REUSING_NOT_ALLOWED)
             ),
+            // ----- 401 UNAUTHENTICATED -----
             Triple(
                 Thrower.UN_AUTHORIZED,
                 401,
@@ -295,6 +311,7 @@ class ExceptionHandlerTest {
                 401,
                 listOf(AuthErrorCode.BAD_CREDENTIALS)
             ),
+            // ----- 403 FORBIDDEN -----
             Triple(
                 Thrower.FORBIDDEN,
                 403,
@@ -304,6 +321,7 @@ class ExceptionHandlerTest {
                     NotificationErrorCode.RESTRICTED_TO_NOTIFICATION_OWNER
                 )
             ),
+            // ----- 404 NOT_FOUND -----
             Triple(
                 Thrower.DATA_NOT_FOUND,
                 404,
@@ -325,11 +343,63 @@ class ExceptionHandlerTest {
                 )
             ),
             Triple(
-                Thrower.EXTERNAL_API,
+                Thrower.INVALID_PARAMETER,
+                404,
+                listOf(
+                    UserErrorCode.USER_EMAIL_NOT_EXISTS, // 400 -> 404
+                    // 아래 2개는 멱등 처리 단계에서 삭제 예정
+                    UserErrorCode.USER_FOLLOW_NOT_FOUND, // 400 -> 404
+                    RecordErrorCode.RECORD_LIKE_NOT_FOUND // 400 -> 404
+                )
+            ),
+            // ----- 409 CONFLICT -----
+            Triple(
+                Thrower.POLICY_VIOLATION,
+                409,
+                listOf(
+                    UserErrorCode.USER_EMAIL_ALREADY_EXISTS, // 400 -> 409
+                    UserErrorCode.USER_NICKNAME_ALREADY_EXISTS, // 400 -> 409
+                    UserErrorCode.USER_FOLLOW_SYNC_EVENT_NOT_FAILED, // 400 -> 409
+                    RecordErrorCode.RECORD_LIKE_SYNC_EVENT_NOT_FAILED, // 400 -> 409
+                    RecordErrorCode.RECORD_VIEW_SYNC_EVENT_NOT_FAILED, // 400 -> 409
+                    EmotionErrorCode.EMOTION_CATEGORY_IN_USE, // 400 -> 409
+                    EmotionErrorCode.EMOTION_IN_USE // 400 -> 409
+                )
+            ),
+            Triple(
+                Thrower.INVALID_PARAMETER,
+                409,
+                listOf(
+                    // 아래 2개는 멱등 처리 단계에서 삭제 예정
+                    UserErrorCode.USER_FOLLOW_ALREADY_EXISTS, // 400 -> 409
+                    RecordErrorCode.RECORD_LIKE_ALREADY_EXISTS // 400 -> 409
+                )
+            ),
+            // ----- 5xx: 예외 클래스가 상태를 결정 -----
+            Triple(
+                Thrower.INTERNAL_SYSTEM,
+                503,
+                listOf(SystemErrorCode.LOCK_ACQUISITION_FAILED) // 400 -> 503
+            ),
+            Triple(
+                Thrower.EXTERNAL_SYSTEM,
                 502,
                 listOf(SystemErrorCode.EMAIL_SEND_FAILED)
             )
         )
+
+        // ErrorType별 대표 코드: BusinessException이 errorCode.type만으로 상태가 정해지는지 확인한다
+        private val errorTypeRepresentatives: List<Triple<ErrorType, ErrorCode, Int>> = listOf(
+            Triple(ErrorType.INVALID, CommonErrorCode.INVALID_PARAMETER, 400),
+            Triple(ErrorType.UNAUTHENTICATED, AuthErrorCode.INVALID_TOKEN, 401),
+            Triple(ErrorType.FORBIDDEN, RecordErrorCode.PRIVATE_RECORD, 403),
+            Triple(ErrorType.NOT_FOUND, UserErrorCode.USER_NOT_FOUND, 404),
+            Triple(ErrorType.CONFLICT, UserErrorCode.USER_EMAIL_ALREADY_EXISTS, 409)
+        )
+
+        @JvmStatic
+        fun errorTypeRepresentatives(): Stream<Arguments> =
+            errorTypeRepresentatives.map { (type, code, status) -> Arguments.of(type, code, status) }.stream()
 
         // 커스텀 예외 클래스가 아니라 핸들러가 직접 에러코드를 정해 응답하는 코드 (위 개별 테스트로 검증)
         private val handlerDirectCodes: List<ErrorCode> = listOf(

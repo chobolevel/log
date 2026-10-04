@@ -4,7 +4,7 @@ import com.chobolevel.api.common.config.KafkaTopicConfiguration
 import com.chobolevel.api.common.constant.CacheKeyPrefix
 import com.chobolevel.api.common.provider.CacheProvider
 import com.chobolevel.api.record.view.sync.dto.RecordViewSyncEventMessage
-import com.chobolevel.domain.common.exception.LogException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.record.view.repository.RecordViewRepository
 import com.chobolevel.domain.record.view.sync.repository.RecordViewSyncEventRepository
 import org.slf4j.LoggerFactory
@@ -31,13 +31,13 @@ class RecordViewSyncEventConsumer(
     // 델타(증감) 재적용이 아니라 절대값 overwrite이기 때문에, Kafka가 같은 이벤트를 몇 번을 재전달해도
     // 결과가 항상 동일하다 (RecordLikeSyncEventConsumer와 동일 패턴).
     //
-    // LogException 계열(데이터 정합성 문제)은 재시도해도 결과가 달라지지 않으므로 즉시 DLQ로 보낸다.
+    // BusinessException 계열(데이터 정합성 문제)은 재시도해도 결과가 달라지지 않으므로 즉시 DLQ로 보낸다.
     @RetryableTopic(
         attempts = "3",
         backoff = Backoff(delay = 1_000, multiplier = 2.0),
         retryTopicSuffix = "-retry",
         dltTopicSuffix = "-dlq",
-        exclude = [LogException::class],
+        exclude = [BusinessException::class],
         traversingCauses = "true",
     )
     @KafkaListener(topics = [KafkaTopicConfiguration.RECORD_VIEW_SYNC_EVENTS])
