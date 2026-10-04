@@ -8,7 +8,7 @@ import com.chobolevel.api.emotion.category.dto.EmotionCategoryResponse
 import com.chobolevel.api.emotion.category.dto.SearchEmotionCategoryRequest
 import com.chobolevel.api.emotion.category.dto.UpdateEmotionCategoryRequest
 import com.chobolevel.api.emotion.category.updater.EmotionCategoryUpdater
-import com.chobolevel.domain.common.exception.PolicyViolationException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.emotion.category.entity.EmotionCategory
 import com.chobolevel.domain.emotion.category.repository.EmotionCategoryRepository
 import com.chobolevel.domain.emotion.category.vo.EmotionCategoryQueryFilter
@@ -127,7 +127,7 @@ class EmotionCategoryServiceTest : BehaviorSpec({
         }
 
         `when`("하위 감정이 존재하면") {
-            then("PolicyViolationException이 발생하고 삭제되지 않는다") {
+            then("BusinessException이 발생하고 삭제되지 않는다") {
                 // given
                 val emotionCategoryId: Long = DummyEmotionCategory.ID
                 val emotionCategory: EmotionCategory = DummyEmotionCategory.toEntity()
@@ -135,7 +135,7 @@ class EmotionCategoryServiceTest : BehaviorSpec({
                 every { emotionRepository.existsByEmotionCategoryId(emotionCategoryId) } returns true
 
                 // when & then
-                shouldThrow<PolicyViolationException> {
+                shouldThrow<BusinessException> {
                     emotionCategoryService.deleteEmotionCategory(emotionCategoryId)
                 }
                 emotionCategory.isDeleted shouldBe false

@@ -1,7 +1,7 @@
 package com.chobolevel.domain.user.follow.sync.repository
 
 import com.chobolevel.domain.common.dto.Paging
-import com.chobolevel.domain.common.exception.DataNotFoundException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.user.exception.UserErrorCode
 import com.chobolevel.domain.user.follow.sync.entity.UserFollowSyncEvent
 import com.chobolevel.domain.user.follow.sync.vo.UserFollowSyncEventStatus
@@ -20,7 +20,7 @@ class UserFollowSyncEventRepositoryAdapter(
 
     override fun findById(id: Long): UserFollowSyncEvent {
         return userFollowSyncEventJpaRepository.findById(id).orElseThrow {
-            DataNotFoundException(errorCode = UserErrorCode.USER_FOLLOW_SYNC_EVENT_NOT_FOUND)
+            BusinessException(errorCode = UserErrorCode.USER_FOLLOW_SYNC_EVENT_NOT_FOUND)
         }
     }
 

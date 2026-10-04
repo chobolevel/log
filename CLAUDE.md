@@ -225,7 +225,7 @@ class RecordEmotionParameterValidator {
         request.updateMask.forEach {
             when (it) {
                 RecordEmotionUpdateMask.INTENSITY ->
-                    if (request.intensity == null) throw InvalidParameterException(...)
+                    if (request.intensity == null) throw BusinessException(...)
             }
         }
     }

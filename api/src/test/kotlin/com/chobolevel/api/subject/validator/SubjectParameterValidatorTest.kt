@@ -2,7 +2,7 @@ package com.chobolevel.api.subject.validator
 
 import com.chobolevel.api.common.dummy.DummySubject
 import com.chobolevel.api.subject.dto.UpdateSubjectRequest
-import com.chobolevel.domain.common.exception.InvalidParameterException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.subject.vo.SubjectType
 import com.chobolevel.domain.subject.vo.SubjectUpdateMask
 import io.kotest.assertions.throwables.shouldThrow
@@ -31,7 +31,7 @@ class SubjectParameterValidatorTest : BehaviorSpec({
         }
 
         `when`("type 값이 없으면") {
-            then("InvalidParameterException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val request: UpdateSubjectRequest = UpdateSubjectRequest(
                     type = null,
@@ -42,7 +42,7 @@ class SubjectParameterValidatorTest : BehaviorSpec({
                 )
 
                 // when & then
-                val ex: InvalidParameterException = shouldThrow {
+                val ex: BusinessException = shouldThrow {
                     validator.validate(request)
                 }
                 ex.message shouldBe "변경할 주제 유형 파라미터가 유효하지 않습니다."
@@ -62,7 +62,7 @@ class SubjectParameterValidatorTest : BehaviorSpec({
         }
 
         `when`("title 값이 null이면") {
-            then("InvalidParameterException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val request: UpdateSubjectRequest = UpdateSubjectRequest(
                     type = null,
@@ -73,7 +73,7 @@ class SubjectParameterValidatorTest : BehaviorSpec({
                 )
 
                 // when & then
-                val ex: InvalidParameterException = shouldThrow {
+                val ex: BusinessException = shouldThrow {
                     validator.validate(request)
                 }
                 ex.message shouldBe "변경할 주제 제목 파라미터가 유효하지 않습니다."
@@ -81,7 +81,7 @@ class SubjectParameterValidatorTest : BehaviorSpec({
         }
 
         `when`("title 값이 빈 문자열이면") {
-            then("InvalidParameterException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val request: UpdateSubjectRequest = UpdateSubjectRequest(
                     type = null,
@@ -92,7 +92,7 @@ class SubjectParameterValidatorTest : BehaviorSpec({
                 )
 
                 // when & then
-                val ex: InvalidParameterException = shouldThrow {
+                val ex: BusinessException = shouldThrow {
                     validator.validate(request)
                 }
                 ex.message shouldBe "변경할 주제 제목 파라미터가 유효하지 않습니다."
@@ -136,7 +136,7 @@ class SubjectParameterValidatorTest : BehaviorSpec({
         }
 
         `when`("images 값이 null이면") {
-            then("InvalidParameterException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val request: UpdateSubjectRequest = UpdateSubjectRequest(
                     type = null,
@@ -147,7 +147,7 @@ class SubjectParameterValidatorTest : BehaviorSpec({
                 )
 
                 // when & then
-                val ex: InvalidParameterException = shouldThrow {
+                val ex: BusinessException = shouldThrow {
                     validator.validate(request)
                 }
                 ex.message shouldBe "변경할 이미지 목록 파라미터가 유효하지 않습니다."

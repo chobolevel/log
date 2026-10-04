@@ -2,20 +2,14 @@ package com.chobolevel.api.common.advice
 
 import com.chobolevel.api.common.exception.ErrorCodeScanner
 import com.chobolevel.api.common.security.AuthErrorCode
-import com.chobolevel.domain.common.exception.BadCredentialException
 import com.chobolevel.domain.common.exception.BusinessErrorCode
 import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.common.exception.CommonErrorCode
-import com.chobolevel.domain.common.exception.DataNotFoundException
 import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.ErrorType
 import com.chobolevel.domain.common.exception.ExternalSystemException
-import com.chobolevel.domain.common.exception.ForbiddenException
 import com.chobolevel.domain.common.exception.InternalSystemException
-import com.chobolevel.domain.common.exception.InvalidParameterException
-import com.chobolevel.domain.common.exception.PolicyViolationException
 import com.chobolevel.domain.common.exception.SystemErrorCode
-import com.chobolevel.domain.common.exception.UnAuthorizedException
 import com.chobolevel.domain.emotion.exception.EmotionErrorCode
 import com.chobolevel.domain.notification.exception.NotificationErrorCode
 import com.chobolevel.domain.record.exception.RecordErrorCode
@@ -122,17 +116,9 @@ class ExceptionHandlerTest {
         val name: String?
     )
 
-    // 현재 코드가 각 에러코드를 던지는 예외 클래스.
-    // 비즈니스 계열(BusinessException 하위)의 상태는 클래스가 아니라 errorCode.type이 결정한다.
-    // 시스템 계열(InternalSystem, ExternalSystem)의 상태는 클래스가 결정한다.
+    // 던지는 예외 종류. 비즈니스 예외의 상태는 errorCode.type이, 시스템 예외의 상태는 클래스가 결정한다.
     enum class Thrower(val create: (ErrorCode) -> Throwable) {
         BUSINESS({ BusinessException(errorCode = it as BusinessErrorCode) }),
-        INVALID_PARAMETER({ InvalidParameterException(errorCode = it as BusinessErrorCode) }),
-        POLICY_VIOLATION({ PolicyViolationException(errorCode = it as BusinessErrorCode) }),
-        UN_AUTHORIZED({ UnAuthorizedException(errorCode = it as BusinessErrorCode) }),
-        BAD_CREDENTIAL({ BadCredentialException(errorCode = it as BusinessErrorCode) }),
-        FORBIDDEN({ ForbiddenException(errorCode = it as BusinessErrorCode) }),
-        DATA_NOT_FOUND({ DataNotFoundException(errorCode = it as BusinessErrorCode) }),
         INTERNAL_SYSTEM({ InternalSystemException(errorCode = it as SystemErrorCode) }),
         EXTERNAL_SYSTEM({ ExternalSystemException(errorCode = it as SystemErrorCode) })
     }
@@ -279,41 +265,31 @@ class ExceptionHandlerTest {
 
     companion object {
 
-        // 현재 코드(2026-10-04 기준)가 각 에러코드를 던지는 예외 클래스와, 그 결과로 응답되는 상태.
-        // 비즈니스 계열은 errorCode.type으로 상태가 정해지므로 같은 클래스 안에서도 코드에 따라 상태가 다르다.
-        // "(400 -> 409)"처럼 적힌 행은 예외 구조 개편 이전에는 400이었던 코드다.
+        // 에러코드별로 응답되는 HTTP 상태. 비즈니스 코드는 errorCode.type으로, 시스템 코드는 예외 클래스로 정해진다.
+        // "400 -> 409"처럼 적힌 항목은 예외 구조 개편 이전에는 400이었던 코드다.
         private val table: List<Triple<Thrower, Int, List<ErrorCode>>> = listOf(
             // ----- 400 INVALID -----
             Triple(
-                Thrower.INVALID_PARAMETER,
+                Thrower.BUSINESS,
                 400,
                 listOf(
                     CommonErrorCode.INVALID_PARAMETER,
                     UserErrorCode.EMAIL_VERIFICATION_CODE_NOT_MATCHED,
                     UserErrorCode.USER_PASSWORD_NOT_MATCHED,
+                    UserErrorCode.USER_PASSWORD_REUSING_NOT_ALLOWED,
                     UserErrorCode.RESET_USER_PASSWORD_CODE_NOT_EXISTS,
                     UserErrorCode.USER_FOLLOW_SELF_NOT_ALLOWED
                 )
             ),
-            Triple(
-                Thrower.POLICY_VIOLATION,
-                400,
-                listOf(UserErrorCode.USER_PASSWORD_REUSING_NOT_ALLOWED)
-            ),
             // ----- 401 UNAUTHENTICATED -----
             Triple(
-                Thrower.UN_AUTHORIZED,
+                Thrower.BUSINESS,
                 401,
-                listOf(AuthErrorCode.INVALID_TOKEN, AuthErrorCode.EXPIRED_TOKEN)
-            ),
-            Triple(
-                Thrower.BAD_CREDENTIAL,
-                401,
-                listOf(AuthErrorCode.BAD_CREDENTIALS)
+                listOf(AuthErrorCode.INVALID_TOKEN, AuthErrorCode.EXPIRED_TOKEN, AuthErrorCode.BAD_CREDENTIALS)
             ),
             // ----- 403 FORBIDDEN -----
             Triple(
-                Thrower.FORBIDDEN,
+                Thrower.BUSINESS,
                 403,
                 listOf(
                     RecordErrorCode.RESTRICTED_TO_RECORD_WRITER,
@@ -323,12 +299,13 @@ class ExceptionHandlerTest {
             ),
             // ----- 404 NOT_FOUND -----
             Triple(
-                Thrower.DATA_NOT_FOUND,
+                Thrower.BUSINESS,
                 404,
                 listOf(
                     UserErrorCode.USER_NOT_FOUND,
                     UserErrorCode.USER_IMAGE_NOT_FOUND,
                     UserErrorCode.USER_FOLLOW_SYNC_EVENT_NOT_FOUND,
+                    UserErrorCode.USER_EMAIL_NOT_EXISTS, // 400 -> 404
                     RecordErrorCode.RECORD_NOT_FOUND,
                     RecordErrorCode.RECORD_REVIEW_NOT_FOUND,
                     RecordErrorCode.RECORD_LIKE_SYNC_EVENT_NOT_FOUND,
@@ -339,14 +316,7 @@ class ExceptionHandlerTest {
                     EmotionErrorCode.EMOTION_CATEGORY_NOT_FOUND,
                     EmotionErrorCode.EMOTION_NOT_FOUND,
                     NotificationErrorCode.NOTIFICATION_NOT_FOUND,
-                    NotificationErrorCode.NOTIFICATION_DISPATCH_EVENT_NOT_FOUND
-                )
-            ),
-            Triple(
-                Thrower.INVALID_PARAMETER,
-                404,
-                listOf(
-                    UserErrorCode.USER_EMAIL_NOT_EXISTS, // 400 -> 404
+                    NotificationErrorCode.NOTIFICATION_DISPATCH_EVENT_NOT_FOUND,
                     // 아래 2개는 멱등 처리 단계에서 삭제 예정
                     UserErrorCode.USER_FOLLOW_NOT_FOUND, // 400 -> 404
                     RecordErrorCode.RECORD_LIKE_NOT_FOUND // 400 -> 404
@@ -354,7 +324,7 @@ class ExceptionHandlerTest {
             ),
             // ----- 409 CONFLICT -----
             Triple(
-                Thrower.POLICY_VIOLATION,
+                Thrower.BUSINESS,
                 409,
                 listOf(
                     UserErrorCode.USER_EMAIL_ALREADY_EXISTS, // 400 -> 409
@@ -363,13 +333,7 @@ class ExceptionHandlerTest {
                     RecordErrorCode.RECORD_LIKE_SYNC_EVENT_NOT_FAILED, // 400 -> 409
                     RecordErrorCode.RECORD_VIEW_SYNC_EVENT_NOT_FAILED, // 400 -> 409
                     EmotionErrorCode.EMOTION_CATEGORY_IN_USE, // 400 -> 409
-                    EmotionErrorCode.EMOTION_IN_USE // 400 -> 409
-                )
-            ),
-            Triple(
-                Thrower.INVALID_PARAMETER,
-                409,
-                listOf(
+                    EmotionErrorCode.EMOTION_IN_USE, // 400 -> 409
                     // 아래 2개는 멱등 처리 단계에서 삭제 예정
                     UserErrorCode.USER_FOLLOW_ALREADY_EXISTS, // 400 -> 409
                     RecordErrorCode.RECORD_LIKE_ALREADY_EXISTS // 400 -> 409

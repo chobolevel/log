@@ -2,7 +2,7 @@ package com.chobolevel.api.record.emotion.validator
 
 import com.chobolevel.api.common.dummy.DummyRecord
 import com.chobolevel.api.record.emotion.dto.UpdateRecordEmotionRequest
-import com.chobolevel.domain.common.exception.InvalidParameterException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.record.emotion.vo.RecordEmotionUpdateMask
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -24,7 +24,7 @@ class RecordEmotionParameterValidatorTest : BehaviorSpec({
         }
 
         `when`("intensity 값이 null이면") {
-            then("InvalidParameterException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val request: UpdateRecordEmotionRequest = UpdateRecordEmotionRequest(
                     intensity = null,
@@ -32,7 +32,7 @@ class RecordEmotionParameterValidatorTest : BehaviorSpec({
                 )
 
                 // when & then
-                val ex: InvalidParameterException = shouldThrow {
+                val ex: BusinessException = shouldThrow {
                     validator.validate(request)
                 }
                 ex.message shouldBe "변경할 감정 강도가 유효하지 않습니다."

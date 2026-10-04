@@ -1,6 +1,6 @@
 package com.chobolevel.api.subject.entity
 
-import com.chobolevel.domain.common.exception.DataNotFoundException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.subject.dto.CreateSubjectCommand
 import com.chobolevel.domain.subject.dto.SyncSubjectImageCommand
 import com.chobolevel.domain.subject.dto.UpdateSubjectCommand
@@ -261,7 +261,7 @@ class SubjectTest : BehaviorSpec({
         }
 
         `when`("존재하지 않는 이미지 id로 수정하면") {
-            then("DataNotFoundException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val subject: Subject = Subject.create(
                     command = CreateSubjectCommand(type = SubjectType.BOOK, title = "주제")
@@ -277,7 +277,7 @@ class SubjectTest : BehaviorSpec({
                 )
 
                 // when & then
-                shouldThrow<DataNotFoundException> {
+                shouldThrow<BusinessException> {
                     subject.update(command = command)
                 }
             }

@@ -6,7 +6,7 @@ import com.chobolevel.api.common.dummy.DummyRecordView
 import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.common.provider.CacheProvider
 import com.chobolevel.api.record.view.validator.RecordViewValidator
-import com.chobolevel.domain.common.exception.ForbiddenException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.record.exception.RecordErrorCode
 import com.chobolevel.domain.record.view.entity.RecordView
 import com.chobolevel.domain.record.view.repository.RecordViewRepository
@@ -128,16 +128,16 @@ class RecordViewServiceTest : BehaviorSpec({
         }
 
         `when`("비공개 기록이라 조회 권한이 없으면") {
-            then("ForbiddenException이 발생하고 이력을 저장하지 않는다") {
+            then("BusinessException이 발생하고 이력을 저장하지 않는다") {
                 // given
                 val recordId: Long = DummyRecord.ID
                 val userId: Long = DummyUser.ID
                 every {
                     recordViewValidator.validateViewable(requesterId = userId, recordId = recordId)
-                } throws ForbiddenException(errorCode = RecordErrorCode.PRIVATE_RECORD)
+                } throws BusinessException(errorCode = RecordErrorCode.PRIVATE_RECORD)
 
                 // when & then
-                shouldThrow<ForbiddenException> {
+                shouldThrow<BusinessException> {
                     service.recordView(recordId = recordId, userId = userId, guestId = null)
                 }
                 verify(exactly = 0) { recordViewRepository.save(any()) }

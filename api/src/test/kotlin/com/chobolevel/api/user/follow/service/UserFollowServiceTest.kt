@@ -7,7 +7,7 @@ import com.chobolevel.api.notification.constant.NotificationPath
 import com.chobolevel.api.notification.provider.NotificationPublisher
 import com.chobolevel.api.user.follow.dto.UserFollowCounterResponse
 import com.chobolevel.api.user.follow.validator.UserFollowBusinessValidator
-import com.chobolevel.domain.common.exception.InvalidParameterException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.notification.vo.NotificationType
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.exception.UserErrorCode
@@ -147,10 +147,10 @@ class UserFollowServiceTest : BehaviorSpec({
                 val followingUserId = 2L
                 every {
                     userFollowBusinessValidator.validateFollow(followerUserId, followingUserId)
-                } throws InvalidParameterException(errorCode = UserErrorCode.USER_FOLLOW_ALREADY_EXISTS)
+                } throws BusinessException(errorCode = UserErrorCode.USER_FOLLOW_ALREADY_EXISTS)
 
                 // when & then
-                shouldThrow<InvalidParameterException> {
+                shouldThrow<BusinessException> {
                     service.follow(followerUserId = followerUserId, followingUserId = followingUserId)
                 }
                 verify(exactly = 0) { userFollowRepository.save(any()) }
@@ -197,10 +197,10 @@ class UserFollowServiceTest : BehaviorSpec({
                 val followingUserId = 2L
                 every {
                     userFollowBusinessValidator.validateUnfollow(followerUserId, followingUserId)
-                } throws InvalidParameterException(errorCode = UserErrorCode.USER_FOLLOW_NOT_FOUND)
+                } throws BusinessException(errorCode = UserErrorCode.USER_FOLLOW_NOT_FOUND)
 
                 // when & then
-                shouldThrow<InvalidParameterException> {
+                shouldThrow<BusinessException> {
                     service.unfollow(followerUserId = followerUserId, followingUserId = followingUserId)
                 }
                 verify(exactly = 0) { userFollowRepository.deleteByFollowerUserIdAndFollowingUserId(any(), any()) }

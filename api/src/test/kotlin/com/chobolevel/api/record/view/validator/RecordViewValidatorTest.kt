@@ -3,8 +3,7 @@ package com.chobolevel.api.record.view.validator
 import com.chobolevel.api.common.dummy.DummyRecord
 import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.record.validator.RecordBusinessValidator
-import com.chobolevel.domain.common.exception.DataNotFoundException
-import com.chobolevel.domain.common.exception.ForbiddenException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.record.entity.Record
 import com.chobolevel.domain.record.exception.RecordErrorCode
 import com.chobolevel.domain.record.repository.RecordRepository
@@ -43,31 +42,31 @@ class RecordViewValidatorTest : BehaviorSpec({
             }
         }
 
-        `when`("RecordBusinessValidator가 ForbiddenException을 던지면") {
+        `when`("RecordBusinessValidator가 BusinessException을 던지면") {
             then("그대로 전파된다") {
                 // given
                 val record: Record = DummyRecord.toEntity()
                 every { recordRepository.findById(DummyRecord.ID) } returns record
                 every {
                     recordBusinessValidator.validateReadable(requesterId = null, record = record)
-                } throws ForbiddenException(errorCode = RecordErrorCode.PRIVATE_RECORD)
+                } throws BusinessException(errorCode = RecordErrorCode.PRIVATE_RECORD)
 
                 // when & then
-                shouldThrow<ForbiddenException> {
+                shouldThrow<BusinessException> {
                     validator.validateViewable(requesterId = null, recordId = DummyRecord.ID)
                 }
             }
         }
 
         `when`("존재하지 않는 기록이면") {
-            then("DataNotFoundException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
-                every { recordRepository.findById(DummyRecord.ID) } throws DataNotFoundException(
+                every { recordRepository.findById(DummyRecord.ID) } throws BusinessException(
                     errorCode = RecordErrorCode.RECORD_NOT_FOUND
                 )
 
                 // when & then
-                shouldThrow<DataNotFoundException> {
+                shouldThrow<BusinessException> {
                     validator.validateViewable(requesterId = null, recordId = DummyRecord.ID)
                 }
                 verify(exactly = 0) { recordBusinessValidator.validateReadable(any(), any()) }

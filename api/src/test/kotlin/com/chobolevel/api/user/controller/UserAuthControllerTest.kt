@@ -9,8 +9,7 @@ import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest
 import com.chobolevel.api.user.dto.SocialLoginRequest
 import com.chobolevel.api.user.service.UserAuthService
 import com.chobolevel.api.user.validator.UserAuthParameterValidator
-import com.chobolevel.domain.common.exception.BadCredentialException
-import com.chobolevel.domain.common.exception.UnAuthorizedException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.clearAllMocks
@@ -105,7 +104,7 @@ class UserAuthControllerTest {
     fun `비밀번호가 틀린 로그인 요청 시 401을 반환하고 남아있던 토큰 쿠키를 만료시킨다`() {
         // given
         justRun { userAuthParameterValidator.validate(request = any<LoginRequest>()) }
-        every { userAuthService.login(request = any()) } throws BadCredentialException(errorCode = AuthErrorCode.BAD_CREDENTIALS)
+        every { userAuthService.login(request = any()) } throws BusinessException(errorCode = AuthErrorCode.BAD_CREDENTIALS)
 
         // when & then
         mockMvc.perform(
@@ -213,7 +212,7 @@ class UserAuthControllerTest {
         // given
         every {
             userAuthService.reissue(refreshToken = DummyAuth.REFRESH_TOKEN)
-        } throws UnAuthorizedException(errorCode = AuthErrorCode.INVALID_TOKEN, message = "토큰이 만료되었습니다.")
+        } throws BusinessException(errorCode = AuthErrorCode.INVALID_TOKEN, message = "토큰이 만료되었습니다.")
 
         // when & then
         mockMvc.perform(

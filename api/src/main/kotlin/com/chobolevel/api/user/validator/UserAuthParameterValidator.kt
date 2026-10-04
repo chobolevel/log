@@ -5,8 +5,8 @@ import com.chobolevel.api.user.dto.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.user.dto.LoginRequest
 import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest
 import com.chobolevel.api.user.dto.SocialLoginRequest
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.common.exception.CommonErrorCode
-import com.chobolevel.domain.common.exception.InvalidParameterException
 import com.chobolevel.domain.user.vo.UserLoginType
 import org.springframework.stereotype.Component
 
@@ -20,7 +20,7 @@ class UserAuthParameterValidator {
     fun validate(request: SocialLoginRequest) {
         validateEmail(request.email)
         if (request.loginType == UserLoginType.GENERAL) {
-            throw InvalidParameterException(
+            throw BusinessException(
                 errorCode = CommonErrorCode.INVALID_PARAMETER,
                 message = "소셜 로그인 타입이 올바르지 않습니다."
             )
@@ -34,7 +34,7 @@ class UserAuthParameterValidator {
     fun validate(request: CheckEmailVerificationCodeRequest) {
         validateEmail(request.email)
         if (request.verificationCode.length != 13) {
-            throw InvalidParameterException(
+            throw BusinessException(
                 errorCode = CommonErrorCode.INVALID_PARAMETER,
                 message = "인증 코드는 13자리입니다."
             )
@@ -43,7 +43,7 @@ class UserAuthParameterValidator {
 
     private fun validateEmail(email: String) {
         if (!email.matches(Regexp.EMAIL_REGEXP)) {
-            throw InvalidParameterException(
+            throw BusinessException(
                 errorCode = CommonErrorCode.INVALID_PARAMETER,
                 message = "이메일 형식이 올바르지 않습니다."
             )

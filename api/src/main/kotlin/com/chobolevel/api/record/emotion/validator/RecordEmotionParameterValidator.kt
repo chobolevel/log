@@ -1,8 +1,8 @@
 package com.chobolevel.api.record.emotion.validator
 
 import com.chobolevel.api.record.emotion.dto.UpdateRecordEmotionRequest
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.common.exception.CommonErrorCode
-import com.chobolevel.domain.common.exception.InvalidParameterException
 import com.chobolevel.domain.record.emotion.vo.RecordEmotionUpdateMask
 import org.springframework.stereotype.Component
 
@@ -14,7 +14,7 @@ class RecordEmotionParameterValidator {
             when (it) {
                 RecordEmotionUpdateMask.INTENSITY -> {
                     if (request.intensity == null) {
-                        throw InvalidParameterException(
+                        throw BusinessException(
                             errorCode = CommonErrorCode.INVALID_PARAMETER,
                             message = "변경할 감정 강도가 유효하지 않습니다."
                         )

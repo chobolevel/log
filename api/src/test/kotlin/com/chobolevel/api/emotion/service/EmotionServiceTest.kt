@@ -9,7 +9,7 @@ import com.chobolevel.api.emotion.dto.EmotionResponse
 import com.chobolevel.api.emotion.dto.SearchEmotionRequest
 import com.chobolevel.api.emotion.dto.UpdateEmotionRequest
 import com.chobolevel.api.emotion.updater.EmotionUpdater
-import com.chobolevel.domain.common.exception.PolicyViolationException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.emotion.category.entity.EmotionCategory
 import com.chobolevel.domain.emotion.category.repository.EmotionCategoryRepository
 import com.chobolevel.domain.emotion.entity.Emotion
@@ -131,7 +131,7 @@ class EmotionServiceTest : BehaviorSpec({
         }
 
         `when`("참조하는 기록 감정이 있으면") {
-            then("PolicyViolationException이 발생하고 삭제되지 않는다") {
+            then("BusinessException이 발생하고 삭제되지 않는다") {
                 // given
                 val emotionId: Long = DummyEmotion.ID
                 val emotion: Emotion = DummyEmotion.toEntity()
@@ -139,7 +139,7 @@ class EmotionServiceTest : BehaviorSpec({
                 every { recordEmotionRepository.existsByEmotionId(emotionId) } returns true
 
                 // when & then
-                shouldThrow<PolicyViolationException> {
+                shouldThrow<BusinessException> {
                     emotionService.deleteEmotion(emotionId)
                 }
                 emotion.isDeleted shouldBe false

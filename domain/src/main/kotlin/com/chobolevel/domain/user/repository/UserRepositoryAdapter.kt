@@ -1,7 +1,7 @@
 package com.chobolevel.domain.user.repository
 
 import com.chobolevel.domain.common.dto.Paging
-import com.chobolevel.domain.common.exception.DataNotFoundException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.user.entity.QUser.user
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.exception.UserErrorCode
@@ -38,7 +38,7 @@ class UserRepositoryAdapter(
     }
 
     override fun findById(id: Long): User {
-        return userJpaRepository.findByIdOrNull(id) ?: throw DataNotFoundException(
+        return userJpaRepository.findByIdOrNull(id) ?: throw BusinessException(
             errorCode = UserErrorCode.USER_NOT_FOUND
         )
     }
@@ -48,7 +48,7 @@ class UserRepositoryAdapter(
     }
 
     override fun findByEmail(email: String): User {
-        return userJpaRepository.findByEmailAndResignedFalse(email) ?: throw DataNotFoundException(
+        return userJpaRepository.findByEmailAndResignedFalse(email) ?: throw BusinessException(
             errorCode = UserErrorCode.USER_NOT_FOUND
         )
     }

@@ -2,8 +2,7 @@ package com.chobolevel.api.user.follow.validator
 
 import com.chobolevel.api.common.constant.CacheKeyPrefix
 import com.chobolevel.api.common.provider.CacheProvider
-import com.chobolevel.domain.common.exception.DataNotFoundException
-import com.chobolevel.domain.common.exception.InvalidParameterException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.user.exception.UserErrorCode
 import com.chobolevel.domain.user.follow.repository.UserFollowRepository
 import com.chobolevel.domain.user.repository.UserRepository
@@ -18,16 +17,16 @@ class UserFollowBusinessValidator(
 
     fun validateFollow(followerUserId: Long, followingUserId: Long) {
         if (!userRepository.existsById(followingUserId)) {
-            throw DataNotFoundException(errorCode = UserErrorCode.USER_NOT_FOUND)
+            throw BusinessException(errorCode = UserErrorCode.USER_NOT_FOUND)
         }
         if (isCurrentlyFollowing(followerUserId = followerUserId, followingUserId = followingUserId)) {
-            throw InvalidParameterException(errorCode = UserErrorCode.USER_FOLLOW_ALREADY_EXISTS)
+            throw BusinessException(errorCode = UserErrorCode.USER_FOLLOW_ALREADY_EXISTS)
         }
     }
 
     fun validateUnfollow(followerUserId: Long, followingUserId: Long) {
         if (!isCurrentlyFollowing(followerUserId = followerUserId, followingUserId = followingUserId)) {
-            throw InvalidParameterException(errorCode = UserErrorCode.USER_FOLLOW_NOT_FOUND)
+            throw BusinessException(errorCode = UserErrorCode.USER_FOLLOW_NOT_FOUND)
         }
     }
 

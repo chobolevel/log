@@ -14,10 +14,8 @@ import com.chobolevel.api.user.dto.LoginRequest
 import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest
 import com.chobolevel.api.user.dto.SocialLoginRequest
 import com.chobolevel.api.user.validator.UserBusinessValidator
-import com.chobolevel.domain.common.exception.BadCredentialException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.common.exception.CommonErrorCode
-import com.chobolevel.domain.common.exception.InvalidParameterException
-import com.chobolevel.domain.common.exception.UnAuthorizedException
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.exception.UserErrorCode
 import com.chobolevel.domain.user.repository.UserRepository
@@ -46,7 +44,7 @@ class UserAuthService(
     fun login(request: LoginRequest): JwtResponse {
         val user: User? = userRepository.findByEmailOrNull(request.email)
         if (user == null || !passwordProvider.matches(request.password, user.password)) {
-            throw BadCredentialException(
+            throw BusinessException(
                 errorCode = AuthErrorCode.BAD_CREDENTIALS,
                 message = "아이디 또는 비밀번호가 일치하지 않습니다."
             )
@@ -67,7 +65,7 @@ class UserAuthService(
     fun socialLogin(request: SocialLoginRequest): JwtResponse {
         val existingUser: User? = userRepository.findByEmailOrNull(request.email)
         if (existingUser != null && existingUser.loginType != request.loginType) {
-            throw InvalidParameterException(
+            throw BusinessException(
                 errorCode = CommonErrorCode.INVALID_PARAMETER,
                 message = "소셜 로그인에 실패했습니다."
             )
@@ -92,7 +90,7 @@ class UserAuthService(
     fun reissue(refreshToken: String): JwtResponse {
         tokenProvider.validateToken(refreshToken)
 
-        val authentication: Authentication = tokenProvider.getAuthentication(refreshToken) ?: throw UnAuthorizedException(
+        val authentication: Authentication = tokenProvider.getAuthentication(refreshToken) ?: throw BusinessException(
             errorCode = AuthErrorCode.INVALID_TOKEN,
             message = "토큰이 만료되었습니다. 재로그인 해주세요."
         )
@@ -100,7 +98,7 @@ class UserAuthService(
         val userId: Long = authentication.getUserId()
         val cachedRefreshToken: String? = getRefreshTokenByUserId(userId = userId)
         if (cachedRefreshToken == null || cachedRefreshToken != refreshToken) {
-            throw UnAuthorizedException(
+            throw BusinessException(
                 errorCode = AuthErrorCode.INVALID_TOKEN,
                 message = "유효하지 않은 갱신 토큰입니다. 재로그인 해주세요."
             )
@@ -136,7 +134,7 @@ class UserAuthService(
     fun checkEmailVerificationCode(request: CheckEmailVerificationCodeRequest): String {
         val cachedVerificationCode: String? = cacheProvider.get(CacheKeyPrefix.userEmailVerification(request.email))
         if (request.verificationCode != cachedVerificationCode) {
-            throw InvalidParameterException(
+            throw BusinessException(
                 errorCode = UserErrorCode.EMAIL_VERIFICATION_CODE_NOT_MATCHED,
             )
         }

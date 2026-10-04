@@ -1,7 +1,7 @@
 package com.chobolevel.domain.emotion.repository
 
 import com.chobolevel.domain.common.dto.Paging
-import com.chobolevel.domain.common.exception.DataNotFoundException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.emotion.entity.Emotion
 import com.chobolevel.domain.emotion.entity.QEmotion.emotion
 import com.chobolevel.domain.emotion.exception.EmotionErrorCode
@@ -21,7 +21,7 @@ class EmotionRepositoryAdapter(
     }
 
     override fun findById(id: Long): Emotion {
-        return emotionJpaRepository.findByIdAndIsDeletedFalse(id) ?: throw DataNotFoundException(
+        return emotionJpaRepository.findByIdAndIsDeletedFalse(id) ?: throw BusinessException(
             errorCode = EmotionErrorCode.EMOTION_NOT_FOUND
         )
     }

@@ -8,8 +8,7 @@ import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.ResetUserPasswordRequest
 import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
-import com.chobolevel.domain.common.exception.InvalidParameterException
-import com.chobolevel.domain.common.exception.PolicyViolationException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.exception.UserErrorCode
 import com.chobolevel.domain.user.repository.UserRepository
@@ -41,7 +40,7 @@ class UserBusinessValidator(
                 encodedText = user.password
             )
         ) {
-            throw InvalidParameterException(
+            throw BusinessException(
                 errorCode = UserErrorCode.USER_PASSWORD_NOT_MATCHED
             )
         }
@@ -52,7 +51,7 @@ class UserBusinessValidator(
                 encodedText = user.password
             )
         ) {
-            throw PolicyViolationException(
+            throw BusinessException(
                 errorCode = UserErrorCode.USER_PASSWORD_REUSING_NOT_ALLOWED
             )
         }
@@ -61,11 +60,11 @@ class UserBusinessValidator(
     fun validate(request: ResetUserPasswordRequest) {
         validateEmailNotExists(email = request.email)
         // 비밀번호 초기화 코드 검증
-        val cachedCode: String = cacheProvider.get(CacheKeyPrefix.userResetPassword(request.email)) ?: throw InvalidParameterException(
+        val cachedCode: String = cacheProvider.get(CacheKeyPrefix.userResetPassword(request.email)) ?: throw BusinessException(
             errorCode = UserErrorCode.RESET_USER_PASSWORD_CODE_NOT_EXISTS
         )
         if (cachedCode != request.code) {
-            throw InvalidParameterException(
+            throw BusinessException(
                 errorCode = UserErrorCode.USER_PASSWORD_NOT_MATCHED
             )
         }
@@ -77,7 +76,7 @@ class UserBusinessValidator(
 
     private fun validateEmailExists(email: String) {
         if (userRepository.existsByEmail(email = email)) {
-            throw PolicyViolationException(
+            throw BusinessException(
                 errorCode = UserErrorCode.USER_EMAIL_ALREADY_EXISTS
             )
         }
@@ -85,7 +84,7 @@ class UserBusinessValidator(
 
     private fun validateEmailNotExists(email: String) {
         if (!userRepository.existsByEmail(email = email)) {
-            throw InvalidParameterException(
+            throw BusinessException(
                 errorCode = UserErrorCode.USER_EMAIL_NOT_EXISTS
             )
         }
@@ -93,7 +92,7 @@ class UserBusinessValidator(
 
     private fun validateNicknameExists(nickname: String) {
         if (userRepository.existsByNickname(nickname = nickname)) {
-            throw PolicyViolationException(
+            throw BusinessException(
                 errorCode = UserErrorCode.USER_NICKNAME_ALREADY_EXISTS
             )
         }

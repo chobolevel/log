@@ -1,6 +1,6 @@
 package com.chobolevel.domain.user.image.repository
 
-import com.chobolevel.domain.common.exception.DataNotFoundException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.user.exception.UserErrorCode
 import com.chobolevel.domain.user.image.entity.UserImage
 import org.springframework.data.repository.findByIdOrNull
@@ -16,13 +16,13 @@ class UserImageRepositoryAdapter(
     }
 
     override fun findById(id: Long): UserImage {
-        return userImageJpaRepository.findByIdOrNull(id) ?: throw DataNotFoundException(
+        return userImageJpaRepository.findByIdOrNull(id) ?: throw BusinessException(
             errorCode = UserErrorCode.USER_IMAGE_NOT_FOUND
         )
     }
 
     override fun findByIdAndUserId(id: Long, userId: Long): UserImage {
-        return userImageJpaRepository.findByIdAndUserId(id, userId) ?: throw DataNotFoundException(
+        return userImageJpaRepository.findByIdAndUserId(id, userId) ?: throw BusinessException(
             errorCode = UserErrorCode.USER_IMAGE_NOT_FOUND
         )
     }

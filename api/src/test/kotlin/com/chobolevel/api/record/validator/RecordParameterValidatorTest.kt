@@ -5,7 +5,7 @@ import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.common.extension.nowKST
 import com.chobolevel.api.record.dto.FetchRecordContributionsRequest
 import com.chobolevel.api.record.dto.UpdateRecordRequest
-import com.chobolevel.domain.common.exception.InvalidParameterException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.record.vo.RecordType
 import com.chobolevel.domain.record.vo.RecordUpdateMask
 import io.kotest.assertions.throwables.shouldThrow
@@ -39,12 +39,12 @@ class RecordParameterValidatorTest : BehaviorSpec({
         }
 
         `when`("user_id가 없으면") {
-            then("InvalidParameterException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val request: FetchRecordContributionsRequest = FetchRecordContributionsRequest(userId = null, year = 2024)
 
                 // when & then
-                val ex: InvalidParameterException = shouldThrow {
+                val ex: BusinessException = shouldThrow {
                     validator.validate(request)
                 }
                 ex.message shouldBe "user_id는 필수 값입니다."
@@ -62,12 +62,12 @@ class RecordParameterValidatorTest : BehaviorSpec({
         }
 
         `when`("year가 2020년보다 이전이면") {
-            then("InvalidParameterException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val request: FetchRecordContributionsRequest = FetchRecordContributionsRequest(userId = DummyUser.ID, year = 2019)
 
                 // when & then
-                val ex: InvalidParameterException = shouldThrow {
+                val ex: BusinessException = shouldThrow {
                     validator.validate(request)
                 }
                 ex.message shouldBe "유효하지 않은 연도입니다."
@@ -75,13 +75,13 @@ class RecordParameterValidatorTest : BehaviorSpec({
         }
 
         `when`("year가 현재 연도보다 미래이면") {
-            then("InvalidParameterException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val futureYear: Int = nowKST().year + 1
                 val request: FetchRecordContributionsRequest = FetchRecordContributionsRequest(userId = DummyUser.ID, year = futureYear)
 
                 // when & then
-                val ex: InvalidParameterException = shouldThrow {
+                val ex: BusinessException = shouldThrow {
                     validator.validate(request)
                 }
                 ex.message shouldBe "유효하지 않은 연도입니다."
@@ -110,7 +110,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
         }
 
         `when`("type 값이 없으면") {
-            then("InvalidParameterException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val request: UpdateRecordRequest = UpdateRecordRequest(
                     type = null,
@@ -124,7 +124,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
                 )
 
                 // when & then
-                val ex: InvalidParameterException = shouldThrow {
+                val ex: BusinessException = shouldThrow {
                     validator.validate(request)
                 }
                 ex.message shouldBe "변경할 기록 유형이 유효하지 않습니다."
@@ -144,7 +144,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
         }
 
         `when`("title 값이 null이면") {
-            then("InvalidParameterException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val request: UpdateRecordRequest = UpdateRecordRequest(
                     type = null,
@@ -158,7 +158,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
                 )
 
                 // when & then
-                val ex: InvalidParameterException = shouldThrow {
+                val ex: BusinessException = shouldThrow {
                     validator.validate(request)
                 }
                 ex.message shouldBe "변경할 기록 제목이 유효하지 않습니다."
@@ -166,7 +166,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
         }
 
         `when`("title 값이 빈 문자열이면") {
-            then("InvalidParameterException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val request: UpdateRecordRequest = UpdateRecordRequest(
                     type = null,
@@ -180,7 +180,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
                 )
 
                 // when & then
-                val ex: InvalidParameterException = shouldThrow {
+                val ex: BusinessException = shouldThrow {
                     validator.validate(request)
                 }
                 ex.message shouldBe "변경할 기록 제목이 유효하지 않습니다."
@@ -209,7 +209,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
         }
 
         `when`("content 값이 null이면") {
-            then("InvalidParameterException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val request: UpdateRecordRequest = UpdateRecordRequest(
                     type = null,
@@ -223,7 +223,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
                 )
 
                 // when & then
-                val ex: InvalidParameterException = shouldThrow {
+                val ex: BusinessException = shouldThrow {
                     validator.validate(request)
                 }
                 ex.message shouldBe "변경할 기록 내용이 유효하지 않습니다."
@@ -252,7 +252,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
         }
 
         `when`("isPrivate 값이 null이면") {
-            then("InvalidParameterException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val request: UpdateRecordRequest = UpdateRecordRequest(
                     type = null,
@@ -266,7 +266,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
                 )
 
                 // when & then
-                val ex: InvalidParameterException = shouldThrow {
+                val ex: BusinessException = shouldThrow {
                     validator.validate(request)
                 }
                 ex.message shouldBe "변경할 공개 여부가 유효하지 않습니다."
@@ -314,7 +314,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
         }
 
         `when`("tags 값이 null이면") {
-            then("InvalidParameterException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val request: UpdateRecordRequest = UpdateRecordRequest(
                     type = null,
@@ -328,7 +328,7 @@ class RecordParameterValidatorTest : BehaviorSpec({
                 )
 
                 // when & then
-                val ex: InvalidParameterException = shouldThrow {
+                val ex: BusinessException = shouldThrow {
                     validator.validate(request)
                 }
                 ex.message shouldBe "변경할 태그 목록이 유효하지 않습니다."

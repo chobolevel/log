@@ -5,7 +5,7 @@ import com.chobolevel.api.common.dummy.DummyRecordViewSyncEvent
 import com.chobolevel.api.record.view.sync.converter.RecordViewSyncEventConverter
 import com.chobolevel.api.record.view.sync.dto.RecordViewSyncEventResponse
 import com.chobolevel.api.record.view.sync.dto.SearchRecordViewSyncEventRequest
-import com.chobolevel.domain.common.exception.PolicyViolationException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.record.view.sync.entity.RecordViewSyncEvent
 import com.chobolevel.domain.record.view.sync.repository.RecordViewSyncEventRepository
 import com.chobolevel.domain.record.view.sync.vo.RecordViewSyncEventStatus
@@ -72,13 +72,13 @@ class RecordViewSyncEventServiceTest : BehaviorSpec({
         }
 
         `when`("이벤트가 FAILED 상태가 아니면") {
-            then("PolicyViolationException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val event: RecordViewSyncEvent = DummyRecordViewSyncEvent.toEntity()
                 every { recordViewSyncEventRepository.findById(DummyRecordViewSyncEvent.ID) } returns event
 
                 // when & then
-                shouldThrow<PolicyViolationException> {
+                shouldThrow<BusinessException> {
                     service.retry(eventId = DummyRecordViewSyncEvent.ID)
                 }
                 event.status shouldBe RecordViewSyncEventStatus.PENDING

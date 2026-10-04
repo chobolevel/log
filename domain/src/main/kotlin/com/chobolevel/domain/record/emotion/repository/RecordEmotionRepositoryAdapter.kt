@@ -1,6 +1,6 @@
 package com.chobolevel.domain.record.emotion.repository
 
-import com.chobolevel.domain.common.exception.DataNotFoundException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.record.emotion.entity.RecordEmotion
 import com.chobolevel.domain.record.exception.RecordErrorCode
 import org.springframework.stereotype.Component
@@ -11,7 +11,7 @@ class RecordEmotionRepositoryAdapter(
 ) : RecordEmotionRepository {
 
     override fun findById(id: Long): RecordEmotion {
-        return recordEmotionJpaRepository.findByIdAndIsDeletedFalse(id) ?: throw DataNotFoundException(
+        return recordEmotionJpaRepository.findByIdAndIsDeletedFalse(id) ?: throw BusinessException(
             errorCode = RecordErrorCode.RECORD_EMOTION_NOT_FOUND
         )
     }

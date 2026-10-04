@@ -1,7 +1,7 @@
 package com.chobolevel.domain.record.view.sync.repository
 
 import com.chobolevel.domain.common.dto.Paging
-import com.chobolevel.domain.common.exception.DataNotFoundException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.record.exception.RecordErrorCode
 import com.chobolevel.domain.record.view.sync.entity.RecordViewSyncEvent
 import com.chobolevel.domain.record.view.sync.vo.RecordViewSyncEventStatus
@@ -20,7 +20,7 @@ class RecordViewSyncEventRepositoryAdapter(
 
     override fun findById(id: Long): RecordViewSyncEvent {
         return recordViewSyncEventJpaRepository.findById(id).orElseThrow {
-            DataNotFoundException(errorCode = RecordErrorCode.RECORD_VIEW_SYNC_EVENT_NOT_FOUND)
+            BusinessException(errorCode = RecordErrorCode.RECORD_VIEW_SYNC_EVENT_NOT_FOUND)
         }
     }
 

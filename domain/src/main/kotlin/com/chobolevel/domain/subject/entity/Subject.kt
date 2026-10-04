@@ -1,7 +1,7 @@
 package com.chobolevel.domain.subject.entity
 
 import com.chobolevel.domain.common.entity.Audit
-import com.chobolevel.domain.common.exception.DataNotFoundException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.subject.dto.CreateSubjectCommand
 import com.chobolevel.domain.subject.dto.SyncSubjectImageCommand
 import com.chobolevel.domain.subject.dto.UpdateSubjectCommand
@@ -105,7 +105,7 @@ class Subject private constructor(
                 )
             } else {
                 val image: SubjectImage = _images.find { it.id == command.id }
-                    ?: throw DataNotFoundException(errorCode = SubjectErrorCode.SUBJECT_IMAGE_NOT_FOUND)
+                    ?: throw BusinessException(errorCode = SubjectErrorCode.SUBJECT_IMAGE_NOT_FOUND)
                 image.sync(path = command.path, name = command.name, sortOrder = command.sortOrder)
             }
         }

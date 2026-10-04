@@ -5,7 +5,7 @@ import com.chobolevel.api.common.dummy.DummyRecordLikeSyncEvent
 import com.chobolevel.api.record.like.sync.converter.RecordLikeSyncEventConverter
 import com.chobolevel.api.record.like.sync.dto.RecordLikeSyncEventResponse
 import com.chobolevel.api.record.like.sync.dto.SearchRecordLikeSyncEventRequest
-import com.chobolevel.domain.common.exception.PolicyViolationException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.record.like.sync.entity.RecordLikeSyncEvent
 import com.chobolevel.domain.record.like.sync.repository.RecordLikeSyncEventRepository
 import com.chobolevel.domain.record.like.sync.vo.RecordLikeSyncEventStatus
@@ -72,13 +72,13 @@ class RecordLikeSyncEventServiceTest : BehaviorSpec({
         }
 
         `when`("이벤트가 FAILED 상태가 아니면") {
-            then("PolicyViolationException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val event: RecordLikeSyncEvent = DummyRecordLikeSyncEvent.toEntity()
                 every { recordLikeSyncEventRepository.findById(DummyRecordLikeSyncEvent.ID) } returns event
 
                 // when & then
-                shouldThrow<PolicyViolationException> {
+                shouldThrow<BusinessException> {
                     service.retry(eventId = DummyRecordLikeSyncEvent.ID)
                 }
                 event.status shouldBe RecordLikeSyncEventStatus.PENDING

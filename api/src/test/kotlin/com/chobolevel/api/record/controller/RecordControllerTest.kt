@@ -10,8 +10,8 @@ import com.chobolevel.api.record.dto.RecordResponse
 import com.chobolevel.api.record.dto.UpdateRecordRequest
 import com.chobolevel.api.record.service.RecordService
 import com.chobolevel.api.record.validator.RecordParameterValidator
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.common.exception.CommonErrorCode
-import com.chobolevel.domain.common.exception.InvalidParameterException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.clearAllMocks
@@ -195,7 +195,7 @@ class RecordControllerTest {
         // given
         every {
             recordParameterValidator.validate(request = any<FetchRecordContributionsRequest>())
-        } throws InvalidParameterException(errorCode = CommonErrorCode.INVALID_PARAMETER, message = "user_id는 필수 값입니다.")
+        } throws BusinessException(errorCode = CommonErrorCode.INVALID_PARAMETER, message = "user_id는 필수 값입니다.")
 
         // when & then
         mockMvc.perform(get("/api/v1/records/contributions?year=2026"))

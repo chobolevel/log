@@ -1,7 +1,7 @@
 package com.chobolevel.domain.notification.dispatch.repository
 
 import com.chobolevel.domain.common.dto.Paging
-import com.chobolevel.domain.common.exception.DataNotFoundException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.notification.dispatch.entity.NotificationDispatchEvent
 import com.chobolevel.domain.notification.dispatch.vo.NotificationDispatchEventStatus
 import com.chobolevel.domain.notification.exception.NotificationErrorCode
@@ -20,7 +20,7 @@ class NotificationDispatchEventRepositoryAdapter(
 
     override fun findById(id: Long): NotificationDispatchEvent {
         return notificationDispatchEventJpaRepository.findById(id).orElseThrow {
-            DataNotFoundException(errorCode = NotificationErrorCode.NOTIFICATION_DISPATCH_EVENT_NOT_FOUND)
+            BusinessException(errorCode = NotificationErrorCode.NOTIFICATION_DISPATCH_EVENT_NOT_FOUND)
         }
     }
 

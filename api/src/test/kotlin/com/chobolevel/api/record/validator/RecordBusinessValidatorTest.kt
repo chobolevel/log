@@ -2,7 +2,7 @@ package com.chobolevel.api.record.validator
 
 import com.chobolevel.api.common.dummy.DummyRecord
 import com.chobolevel.api.common.dummy.DummyUser
-import com.chobolevel.domain.common.exception.ForbiddenException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.record.entity.Record
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -25,13 +25,13 @@ class RecordBusinessValidatorTest : BehaviorSpec({
         }
 
         `when`("요청자가 기록 작성자가 아니면") {
-            then("ForbiddenException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val record: Record = DummyRecord.toEntity()
                 val otherUserId: Long = DummyUser.ID + 1L
 
                 // when & then
-                shouldThrow<ForbiddenException> {
+                shouldThrow<BusinessException> {
                     validator.validateWriter(userId = otherUserId, record = record)
                 }
             }
@@ -61,13 +61,13 @@ class RecordBusinessValidatorTest : BehaviorSpec({
         }
 
         `when`("비공개 기록이고 요청자가 작성자가 아니면") {
-            then("ForbiddenException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val otherUserId: Long = DummyUser.ID + 1L
                 val record: Record = DummyRecord.toEntity().also { ReflectionTestUtils.setField(it, "isPrivate", true) }
 
                 // when & then
-                shouldThrow<ForbiddenException> {
+                shouldThrow<BusinessException> {
                     validator.validateReadable(requesterId = otherUserId, record = record)
                 }
             }

@@ -8,8 +8,7 @@ import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.ResetUserPasswordRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
-import com.chobolevel.domain.common.exception.InvalidParameterException
-import com.chobolevel.domain.common.exception.PolicyViolationException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.exception.UserErrorCode
 import com.chobolevel.domain.user.repository.UserRepository
@@ -53,7 +52,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 every { userRepository.existsByEmail(DummyUser.EMAIL) } returns true
 
                 // when
-                val exception: PolicyViolationException = shouldThrow<PolicyViolationException> {
+                val exception: BusinessException = shouldThrow<BusinessException> {
                     validator.validate(request)
                 }
 
@@ -74,7 +73,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 every { userRepository.existsByNickname(DummyUser.NICKNAME) } returns true
 
                 // when
-                val exception: PolicyViolationException = shouldThrow<PolicyViolationException> {
+                val exception: BusinessException = shouldThrow<BusinessException> {
                     validator.validate(request)
                 }
 
@@ -126,7 +125,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 every { userRepository.existsByNickname(DummyUser.NICKNAME) } returns true
 
                 // when
-                val exception: PolicyViolationException = shouldThrow<PolicyViolationException> {
+                val exception: BusinessException = shouldThrow<BusinessException> {
                     validator.validate(request)
                 }
 
@@ -165,7 +164,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 } returns false
 
                 // when
-                val exception: InvalidParameterException = shouldThrow<InvalidParameterException> {
+                val exception: BusinessException = shouldThrow<BusinessException> {
                     validator.validate(user, request)
                 }
 
@@ -187,7 +186,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 } returns true
 
                 // when
-                val exception: PolicyViolationException = shouldThrow<PolicyViolationException> {
+                val exception: BusinessException = shouldThrow<BusinessException> {
                     validator.validate(user, request)
                 }
 
@@ -226,7 +225,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 every { userRepository.existsByEmail(DummyUser.EMAIL) } returns false
 
                 // when
-                val exception: InvalidParameterException = shouldThrow<InvalidParameterException> {
+                val exception: BusinessException = shouldThrow<BusinessException> {
                     validator.validate(request)
                 }
 
@@ -243,7 +242,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 every { cacheProvider.get(CacheKeyPrefix.userResetPassword(DummyUser.EMAIL)) } returns null
 
                 // when
-                val exception: InvalidParameterException = shouldThrow<InvalidParameterException> {
+                val exception: BusinessException = shouldThrow<BusinessException> {
                     validator.validate(request)
                 }
 
@@ -260,7 +259,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 every { cacheProvider.get(CacheKeyPrefix.userResetPassword(DummyUser.EMAIL)) } returns "wrongCode"
 
                 // when
-                val exception: InvalidParameterException = shouldThrow<InvalidParameterException> {
+                val exception: BusinessException = shouldThrow<BusinessException> {
                     validator.validate(request)
                 }
 

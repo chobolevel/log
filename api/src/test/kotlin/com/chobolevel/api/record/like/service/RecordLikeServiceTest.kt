@@ -7,7 +7,7 @@ import com.chobolevel.api.common.provider.CacheProvider
 import com.chobolevel.api.notification.constant.NotificationPath
 import com.chobolevel.api.notification.provider.NotificationPublisher
 import com.chobolevel.api.record.like.validator.RecordLikeValidator
-import com.chobolevel.domain.common.exception.InvalidParameterException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.notification.vo.NotificationType
 import com.chobolevel.domain.record.entity.Record
 import com.chobolevel.domain.record.exception.RecordErrorCode
@@ -203,17 +203,17 @@ class RecordLikeServiceTest : BehaviorSpec({
         }
 
         `when`("이미 좋아요를 누른 상태에서 다시 누르면") {
-            then("InvalidParameterException이 발생하고 저장 로직은 수행되지 않는다") {
+            then("BusinessException이 발생하고 저장 로직은 수행되지 않는다") {
                 // given
                 val userId: Long = DummyUser.ID
                 val recordId: Long = DummyRecord.ID
                 justRun { recordLikeValidator.validateRecordExists(recordId = recordId) }
                 every {
                     recordLikeValidator.validateNotAlreadyLiked(recordId = recordId, userId = userId)
-                } throws InvalidParameterException(errorCode = RecordErrorCode.RECORD_LIKE_ALREADY_EXISTS)
+                } throws BusinessException(errorCode = RecordErrorCode.RECORD_LIKE_ALREADY_EXISTS)
 
                 // when & then
-                shouldThrow<InvalidParameterException> {
+                shouldThrow<BusinessException> {
                     service.like(userId = userId, recordId = recordId)
                 }
                 verify(exactly = 0) { recordLikeRepository.save(any()) }
@@ -303,17 +303,17 @@ class RecordLikeServiceTest : BehaviorSpec({
         }
 
         `when`("좋아요를 누르지 않은 상태에서 취소하면") {
-            then("InvalidParameterException이 발생하고 삭제 로직은 수행되지 않는다") {
+            then("BusinessException이 발생하고 삭제 로직은 수행되지 않는다") {
                 // given
                 val userId: Long = DummyUser.ID
                 val recordId: Long = DummyRecord.ID
                 justRun { recordLikeValidator.validateRecordExists(recordId = recordId) }
                 every {
                     recordLikeValidator.validateAlreadyLiked(recordId = recordId, userId = userId)
-                } throws InvalidParameterException(errorCode = RecordErrorCode.RECORD_LIKE_NOT_FOUND)
+                } throws BusinessException(errorCode = RecordErrorCode.RECORD_LIKE_NOT_FOUND)
 
                 // when & then
-                shouldThrow<InvalidParameterException> {
+                shouldThrow<BusinessException> {
                     service.dislike(userId = userId, recordId = recordId)
                 }
                 verify(exactly = 0) { recordLikeRepository.deleteByRecordIdAndUserId(any(), any()) }

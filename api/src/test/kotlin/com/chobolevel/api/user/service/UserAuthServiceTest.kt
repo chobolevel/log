@@ -12,9 +12,7 @@ import com.chobolevel.api.user.dto.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.user.dto.JwtResponse
 import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest
 import com.chobolevel.api.user.validator.UserBusinessValidator
-import com.chobolevel.domain.common.exception.BadCredentialException
-import com.chobolevel.domain.common.exception.InvalidParameterException
-import com.chobolevel.domain.common.exception.UnAuthorizedException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.exception.UserErrorCode
 import com.chobolevel.domain.user.repository.UserRepository
@@ -84,20 +82,20 @@ class UserAuthServiceTest : BehaviorSpec({
         }
 
         `when`("회원이 존재하지 않으면") {
-            then("BadCredentialException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val request = DummyAuth.toGeneralLoginRequest()
                 every { userRepository.findByEmailOrNull(request.email) } returns null
 
                 // when & then
-                shouldThrow<BadCredentialException> {
+                shouldThrow<BusinessException> {
                     service.login(request)
                 }
             }
         }
 
         `when`("비밀번호가 일치하지 않으면") {
-            then("BadCredentialException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val request = DummyAuth.toGeneralLoginRequest()
                 val user: User = DummyUser.toEntity()
@@ -105,7 +103,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 every { passwordProvider.matches(request.password, user.password) } returns false
 
                 // when & then
-                shouldThrow<BadCredentialException> {
+                shouldThrow<BusinessException> {
                     service.login(request)
                 }
             }
@@ -210,14 +208,14 @@ class UserAuthServiceTest : BehaviorSpec({
         }
 
         `when`("이메일이 GENERAL 타입으로 이미 가입되어 있으면") {
-            then("InvalidParameterException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val request = DummyAuth.toGithubSocialLoginRequest()
                 val user: User = DummyUser.toEntity()
                 every { userRepository.findByEmailOrNull(request.email) } returns user
 
                 // when & then
-                shouldThrow<InvalidParameterException> {
+                shouldThrow<BusinessException> {
                     service.socialLogin(request)
                 }
             }
@@ -254,7 +252,7 @@ class UserAuthServiceTest : BehaviorSpec({
         }
 
         `when`("Redis에 저장된 refresh token이 없으면") {
-            then("UnAuthorizedException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val authentication = UsernamePasswordAuthenticationToken(DummyUser.ID.toString(), null)
                 every { tokenProvider.validateToken(DummyAuth.REFRESH_TOKEN) } returns true
@@ -262,14 +260,14 @@ class UserAuthServiceTest : BehaviorSpec({
                 every { cacheProvider.get(CacheKeyPrefix.userRefreshToken(DummyUser.ID)) } returns null
 
                 // when & then
-                shouldThrow<UnAuthorizedException> {
+                shouldThrow<BusinessException> {
                     service.reissue(DummyAuth.REFRESH_TOKEN)
                 }
             }
         }
 
         `when`("Redis에 저장된 토큰과 요청 토큰이 다르면") {
-            then("UnAuthorizedException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val authentication = UsernamePasswordAuthenticationToken(DummyUser.ID.toString(), null)
                 every { tokenProvider.validateToken(DummyAuth.REFRESH_TOKEN) } returns true
@@ -277,7 +275,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 every { cacheProvider.get(CacheKeyPrefix.userRefreshToken(DummyUser.ID)) } returns "other.refresh.token"
 
                 // when & then
-                shouldThrow<UnAuthorizedException> {
+                shouldThrow<BusinessException> {
                     service.reissue(DummyAuth.REFRESH_TOKEN)
                 }
             }
@@ -304,15 +302,15 @@ class UserAuthServiceTest : BehaviorSpec({
         }
 
         `when`("등록되지 않은 이메일이라면") {
-            then("InvalidParameterException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val request: SendEmailVerificationCodeRequest = SendEmailVerificationCodeRequest(email = DummyUser.EMAIL)
-                every { userBusinessValidator.validate(request = any<SendEmailVerificationCodeRequest>()) } throws InvalidParameterException(
+                every { userBusinessValidator.validate(request = any<SendEmailVerificationCodeRequest>()) } throws BusinessException(
                     errorCode = UserErrorCode.USER_EMAIL_NOT_EXISTS
                 )
 
                 // when & then
-                shouldThrow<InvalidParameterException> {
+                shouldThrow<BusinessException> {
                     service.sendEmailVerificationCode(request)
                 }
             }
@@ -340,7 +338,7 @@ class UserAuthServiceTest : BehaviorSpec({
         }
 
         `when`("Redis에 인증 코드가 없으면") {
-            then("InvalidParameterException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val request: CheckEmailVerificationCodeRequest = CheckEmailVerificationCodeRequest(
                     email = DummyUser.EMAIL,
@@ -349,14 +347,14 @@ class UserAuthServiceTest : BehaviorSpec({
                 every { cacheProvider.get(CacheKeyPrefix.userEmailVerification(DummyUser.EMAIL)) } returns null
 
                 // when & then
-                shouldThrow<InvalidParameterException> {
+                shouldThrow<BusinessException> {
                     service.checkEmailVerificationCode(request)
                 }
             }
         }
 
         `when`("인증 코드가 일치하지 않으면") {
-            then("InvalidParameterException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val request: CheckEmailVerificationCodeRequest = CheckEmailVerificationCodeRequest(
                     email = DummyUser.EMAIL,
@@ -365,7 +363,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 every { cacheProvider.get(CacheKeyPrefix.userEmailVerification(DummyUser.EMAIL)) } returns DummyAuth.VERIFICATION_CODE
 
                 // when & then
-                shouldThrow<InvalidParameterException> {
+                shouldThrow<BusinessException> {
                     service.checkEmailVerificationCode(request)
                 }
             }

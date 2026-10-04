@@ -18,7 +18,7 @@ import com.chobolevel.api.record.like.service.RecordLikeQueryService
 import com.chobolevel.api.record.updater.RecordUpdater
 import com.chobolevel.api.record.validator.RecordBusinessValidator
 import com.chobolevel.api.record.view.service.RecordViewQueryService
-import com.chobolevel.domain.common.exception.ForbiddenException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.emotion.entity.Emotion
 import com.chobolevel.domain.emotion.repository.EmotionRepository
 import com.chobolevel.domain.record.entity.Record
@@ -218,17 +218,17 @@ class RecordServiceTest : BehaviorSpec({
         }
 
         `when`("비공개 기록이고 요청자가 작성자가 아니면") {
-            then("ForbiddenException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val otherUserId: Long = DummyUser.ID + 1L
                 val record: Record = DummyRecord.toEntity().also { ReflectionTestUtils.setField(it, "isPrivate", true) }
                 every { recordRepository.findById(DummyRecord.ID) } returns record
                 every {
                     recordBusinessValidator.validateReadable(requesterId = otherUserId, record = record)
-                } throws ForbiddenException(errorCode = RecordErrorCode.PRIVATE_RECORD)
+                } throws BusinessException(errorCode = RecordErrorCode.PRIVATE_RECORD)
 
                 // when & then
-                shouldThrow<ForbiddenException> {
+                shouldThrow<BusinessException> {
                     recordService.fetchRecord(requesterId = otherUserId, recordId = DummyRecord.ID)
                 }
             }

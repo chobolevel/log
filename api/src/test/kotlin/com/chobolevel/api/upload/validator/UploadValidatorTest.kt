@@ -1,7 +1,7 @@
 package com.chobolevel.api.upload.validator
 
 import com.chobolevel.api.upload.dto.UploadRequest
-import com.chobolevel.domain.common.exception.InvalidParameterException
+import com.chobolevel.domain.common.exception.BusinessException
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -19,7 +19,7 @@ class UploadValidatorTest : BehaviorSpec({
                     filename = "test",
                     extension = "jpg"
                 )
-                shouldThrow<InvalidParameterException> { validator.validate(request) }
+                shouldThrow<BusinessException> { validator.validate(request) }
             }
         }
 
@@ -30,7 +30,7 @@ class UploadValidatorTest : BehaviorSpec({
                     filename = "test",
                     extension = "pdf"
                 )
-                shouldThrow<InvalidParameterException> { validator.validate(request) }
+                shouldThrow<BusinessException> { validator.validate(request) }
             }
         }
 

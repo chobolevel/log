@@ -1,8 +1,8 @@
 package com.chobolevel.domain.record.entity
 
 import com.chobolevel.domain.common.entity.Audit
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.common.exception.CommonErrorCode
-import com.chobolevel.domain.common.exception.InvalidParameterException
 import com.chobolevel.domain.emotion.entity.Emotion
 import com.chobolevel.domain.record.emotion.entity.RecordEmotion
 import com.chobolevel.domain.record.review.entity.RecordReview
@@ -92,7 +92,7 @@ class Record private constructor(
         when (type) {
             RecordType.REVIEW -> {
                 if (reviewSubject == null || reviewRating == null) {
-                    throw InvalidParameterException(
+                    throw BusinessException(
                         errorCode = CommonErrorCode.INVALID_PARAMETER,
                         message = "리뷰 유형의 기록은 리뷰 정보가 필수입니다."
                     )
@@ -114,7 +114,7 @@ class Record private constructor(
             }
             RecordType.DIARY -> {
                 if (emotion == null || emotionIntensity == null) {
-                    throw InvalidParameterException(
+                    throw BusinessException(
                         errorCode = CommonErrorCode.INVALID_PARAMETER,
                         message = "일기 유형의 기록은 감정 정보가 필수입니다."
                     )
@@ -190,7 +190,7 @@ class Record private constructor(
             when (type) {
                 RecordType.REVIEW -> {
                     if (reviewSubject == null || reviewRating == null) {
-                        throw InvalidParameterException(
+                        throw BusinessException(
                             errorCode = CommonErrorCode.INVALID_PARAMETER,
                             message = "리뷰 유형의 기록은 리뷰 정보가 필수입니다."
                         )
@@ -205,7 +205,7 @@ class Record private constructor(
                 }
                 RecordType.DIARY -> {
                     if (emotion == null || emotionIntensity == null) {
-                        throw InvalidParameterException(
+                        throw BusinessException(
                             errorCode = CommonErrorCode.INVALID_PARAMETER,
                             message = "일기 유형의 기록은 감정 정보가 필수입니다."
                         )

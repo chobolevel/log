@@ -7,7 +7,7 @@ import com.chobolevel.api.notification.converter.NotificationConverter
 import com.chobolevel.api.notification.dto.NotificationResponse
 import com.chobolevel.api.notification.dto.SearchNotificationRequest
 import com.chobolevel.api.notification.validator.NotificationBusinessValidator
-import com.chobolevel.domain.common.exception.ForbiddenException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.notification.entity.Notification
 import com.chobolevel.domain.notification.exception.NotificationErrorCode
 import com.chobolevel.domain.notification.repository.NotificationRepository
@@ -78,17 +78,17 @@ class NotificationServiceTest : BehaviorSpec({
         }
 
         `when`("요청자가 알림 수신자가 아니면") {
-            then("ForbiddenException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val otherUserId: Long = DummyUser.ID + 1L
                 val notification: Notification = DummyNotification.toEntity()
                 every { notificationRepository.findById(DummyNotification.ID) } returns notification
                 every {
                     notificationBusinessValidator.validateOwner(userId = otherUserId, notification = notification)
-                } throws ForbiddenException(errorCode = NotificationErrorCode.RESTRICTED_TO_NOTIFICATION_OWNER)
+                } throws BusinessException(errorCode = NotificationErrorCode.RESTRICTED_TO_NOTIFICATION_OWNER)
 
                 // when & then
-                shouldThrow<ForbiddenException> {
+                shouldThrow<BusinessException> {
                     service.read(userId = otherUserId, notificationId = DummyNotification.ID)
                 }
                 notification.isRead shouldBe false

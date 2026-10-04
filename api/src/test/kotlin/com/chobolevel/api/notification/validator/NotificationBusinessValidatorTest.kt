@@ -2,7 +2,7 @@ package com.chobolevel.api.notification.validator
 
 import com.chobolevel.api.common.dummy.DummyNotification
 import com.chobolevel.api.common.dummy.DummyUser
-import com.chobolevel.domain.common.exception.ForbiddenException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.notification.entity.Notification
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -24,13 +24,13 @@ class NotificationBusinessValidatorTest : BehaviorSpec({
         }
 
         `when`("요청자가 알림 수신자가 아니면") {
-            then("ForbiddenException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 // given
                 val notification: Notification = DummyNotification.toEntity()
                 val otherUserId: Long = DummyUser.ID + 1L
 
                 // when & then
-                shouldThrow<ForbiddenException> {
+                shouldThrow<BusinessException> {
                     validator.validateOwner(userId = otherUserId, notification = notification)
                 }
             }

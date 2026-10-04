@@ -1,8 +1,8 @@
 package com.chobolevel.api.subject.validator
 
 import com.chobolevel.api.subject.dto.UpdateSubjectRequest
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.common.exception.CommonErrorCode
-import com.chobolevel.domain.common.exception.InvalidParameterException
 import com.chobolevel.domain.subject.vo.SubjectUpdateMask
 import org.springframework.stereotype.Component
 
@@ -14,7 +14,7 @@ class SubjectParameterValidator {
             when (it) {
                 SubjectUpdateMask.TYPE -> {
                     if (request.type == null) {
-                        throw InvalidParameterException(
+                        throw BusinessException(
                             errorCode = CommonErrorCode.INVALID_PARAMETER,
                             message = "변경할 주제 유형 파라미터가 유효하지 않습니다."
                         )
@@ -23,7 +23,7 @@ class SubjectParameterValidator {
 
                 SubjectUpdateMask.TITLE -> {
                     if (request.title.isNullOrEmpty()) {
-                        throw InvalidParameterException(
+                        throw BusinessException(
                             errorCode = CommonErrorCode.INVALID_PARAMETER,
                             message = "변경할 주제 제목 파라미터가 유효하지 않습니다."
                         )
@@ -34,7 +34,7 @@ class SubjectParameterValidator {
 
                 SubjectUpdateMask.IMAGES -> {
                     if (request.images == null) {
-                        throw InvalidParameterException(
+                        throw BusinessException(
                             errorCode = CommonErrorCode.INVALID_PARAMETER,
                             message = "변경할 이미지 목록 파라미터가 유효하지 않습니다."
                         )

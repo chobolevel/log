@@ -4,7 +4,7 @@ import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.ResetUserPasswordRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
-import com.chobolevel.domain.common.exception.InvalidParameterException
+import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.user.vo.UserUpdateMask
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
@@ -23,7 +23,7 @@ class UserParameterValidatorTest : BehaviorSpec({
                     password = "Pass1234!",
                     nickname = "nick123"
                 )
-                shouldThrow<InvalidParameterException> { validator.validate(request) }
+                shouldThrow<BusinessException> { validator.validate(request) }
             }
         }
 
@@ -34,7 +34,7 @@ class UserParameterValidatorTest : BehaviorSpec({
                     password = "tooshort",
                     nickname = "홍길동"
                 )
-                shouldThrow<InvalidParameterException> { validator.validate(request) }
+                shouldThrow<BusinessException> { validator.validate(request) }
             }
         }
 
@@ -68,7 +68,7 @@ class UserParameterValidatorTest : BehaviorSpec({
                     nickname = null,
                     updateMask = listOf(UserUpdateMask.NICKNAME)
                 )
-                shouldThrow<InvalidParameterException> { validator.validate(request) }
+                shouldThrow<BusinessException> { validator.validate(request) }
             }
         }
 
@@ -78,7 +78,7 @@ class UserParameterValidatorTest : BehaviorSpec({
                     nickname = "nick123",
                     updateMask = listOf(UserUpdateMask.NICKNAME)
                 )
-                shouldThrow<InvalidParameterException> { validator.validate(request) }
+                shouldThrow<BusinessException> { validator.validate(request) }
             }
         }
 
@@ -101,7 +101,7 @@ class UserParameterValidatorTest : BehaviorSpec({
                     curPassword = "oldPass1!",
                     newPassword = "short"
                 )
-                shouldThrow<InvalidParameterException> { validator.validate(request) }
+                shouldThrow<BusinessException> { validator.validate(request) }
             }
         }
 
@@ -125,7 +125,7 @@ class UserParameterValidatorTest : BehaviorSpec({
                     code = "someCode",
                     password = "short"
                 )
-                shouldThrow<InvalidParameterException> { validator.validate(request) }
+                shouldThrow<BusinessException> { validator.validate(request) }
             }
         }
 
