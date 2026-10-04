@@ -230,7 +230,7 @@ class RecordServiceTest : BehaviorSpec({
                 // when & then
                 shouldThrow<BusinessException> {
                     recordService.fetchRecord(requesterId = otherUserId, recordId = DummyRecord.ID)
-                }
+                }.errorCode shouldBe RecordErrorCode.PRIVATE_RECORD
             }
         }
     }

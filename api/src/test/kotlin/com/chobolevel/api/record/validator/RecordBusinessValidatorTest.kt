@@ -4,8 +4,10 @@ import com.chobolevel.api.common.dummy.DummyRecord
 import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.record.entity.Record
+import com.chobolevel.domain.record.exception.RecordErrorCode
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
 import org.springframework.test.util.ReflectionTestUtils
 
 class RecordBusinessValidatorTest : BehaviorSpec({
@@ -33,7 +35,7 @@ class RecordBusinessValidatorTest : BehaviorSpec({
                 // when & then
                 shouldThrow<BusinessException> {
                     validator.validateWriter(userId = otherUserId, record = record)
-                }
+                }.errorCode shouldBe RecordErrorCode.RESTRICTED_TO_RECORD_WRITER
             }
         }
     }
@@ -69,7 +71,7 @@ class RecordBusinessValidatorTest : BehaviorSpec({
                 // when & then
                 shouldThrow<BusinessException> {
                     validator.validateReadable(requesterId = otherUserId, record = record)
-                }
+                }.errorCode shouldBe RecordErrorCode.PRIVATE_RECORD
             }
         }
     }

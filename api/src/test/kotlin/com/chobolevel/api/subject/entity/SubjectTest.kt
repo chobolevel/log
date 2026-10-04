@@ -5,6 +5,7 @@ import com.chobolevel.domain.subject.dto.CreateSubjectCommand
 import com.chobolevel.domain.subject.dto.SyncSubjectImageCommand
 import com.chobolevel.domain.subject.dto.UpdateSubjectCommand
 import com.chobolevel.domain.subject.entity.Subject
+import com.chobolevel.domain.subject.exception.SubjectErrorCode
 import com.chobolevel.domain.subject.vo.SubjectType
 import com.chobolevel.domain.subject.vo.SubjectUpdateMask
 import io.kotest.assertions.throwables.shouldThrow
@@ -279,7 +280,7 @@ class SubjectTest : BehaviorSpec({
                 // when & then
                 shouldThrow<BusinessException> {
                     subject.update(command = command)
-                }
+                }.errorCode shouldBe SubjectErrorCode.SUBJECT_IMAGE_NOT_FOUND
             }
         }
     }

@@ -152,7 +152,7 @@ class UserFollowServiceTest : BehaviorSpec({
                 // when & then
                 shouldThrow<BusinessException> {
                     service.follow(followerUserId = followerUserId, followingUserId = followingUserId)
-                }
+                }.errorCode shouldBe UserErrorCode.USER_FOLLOW_ALREADY_EXISTS
                 verify(exactly = 0) { userFollowRepository.save(any()) }
                 verify(exactly = 0) { userFollowSyncEventRepository.save(any()) }
             }
@@ -202,7 +202,7 @@ class UserFollowServiceTest : BehaviorSpec({
                 // when & then
                 shouldThrow<BusinessException> {
                     service.unfollow(followerUserId = followerUserId, followingUserId = followingUserId)
-                }
+                }.errorCode shouldBe UserErrorCode.USER_FOLLOW_NOT_FOUND
                 verify(exactly = 0) { userFollowRepository.deleteByFollowerUserIdAndFollowingUserId(any(), any()) }
                 verify(exactly = 0) { userFollowSyncEventRepository.save(any()) }
             }

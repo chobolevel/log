@@ -9,6 +9,7 @@ import com.chobolevel.domain.record.exception.RecordErrorCode
 import com.chobolevel.domain.record.repository.RecordRepository
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.justRun
@@ -54,7 +55,7 @@ class RecordViewValidatorTest : BehaviorSpec({
                 // when & then
                 shouldThrow<BusinessException> {
                     validator.validateViewable(requesterId = null, recordId = DummyRecord.ID)
-                }
+                }.errorCode shouldBe RecordErrorCode.PRIVATE_RECORD
             }
         }
 
@@ -68,7 +69,7 @@ class RecordViewValidatorTest : BehaviorSpec({
                 // when & then
                 shouldThrow<BusinessException> {
                     validator.validateViewable(requesterId = null, recordId = DummyRecord.ID)
-                }
+                }.errorCode shouldBe RecordErrorCode.RECORD_NOT_FOUND
                 verify(exactly = 0) { recordBusinessValidator.validateReadable(any(), any()) }
             }
         }

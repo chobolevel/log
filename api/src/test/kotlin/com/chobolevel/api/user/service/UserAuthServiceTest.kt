@@ -6,6 +6,7 @@ import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.common.provider.PasswordProvider
 import com.chobolevel.api.common.provider.RedisCacheProvider
 import com.chobolevel.api.common.provider.ResendEmailProvider
+import com.chobolevel.api.common.security.AuthErrorCode
 import com.chobolevel.api.common.security.TokenProvider
 import com.chobolevel.api.user.converter.UserConverter
 import com.chobolevel.api.user.dto.CheckEmailVerificationCodeRequest
@@ -13,6 +14,7 @@ import com.chobolevel.api.user.dto.JwtResponse
 import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest
 import com.chobolevel.api.user.validator.UserBusinessValidator
 import com.chobolevel.domain.common.exception.BusinessException
+import com.chobolevel.domain.common.exception.CommonErrorCode
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.exception.UserErrorCode
 import com.chobolevel.domain.user.repository.UserRepository
@@ -90,7 +92,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 // when & then
                 shouldThrow<BusinessException> {
                     service.login(request)
-                }
+                }.errorCode shouldBe AuthErrorCode.BAD_CREDENTIALS
             }
         }
 
@@ -105,7 +107,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 // when & then
                 shouldThrow<BusinessException> {
                     service.login(request)
-                }
+                }.errorCode shouldBe AuthErrorCode.BAD_CREDENTIALS
             }
         }
     }
@@ -217,7 +219,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 // when & then
                 shouldThrow<BusinessException> {
                     service.socialLogin(request)
-                }
+                }.errorCode shouldBe CommonErrorCode.INVALID_PARAMETER
             }
         }
     }
@@ -262,7 +264,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 // when & then
                 shouldThrow<BusinessException> {
                     service.reissue(DummyAuth.REFRESH_TOKEN)
-                }
+                }.errorCode shouldBe AuthErrorCode.INVALID_TOKEN
             }
         }
 
@@ -277,7 +279,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 // when & then
                 shouldThrow<BusinessException> {
                     service.reissue(DummyAuth.REFRESH_TOKEN)
-                }
+                }.errorCode shouldBe AuthErrorCode.INVALID_TOKEN
             }
         }
     }
@@ -312,7 +314,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 // when & then
                 shouldThrow<BusinessException> {
                     service.sendEmailVerificationCode(request)
-                }
+                }.errorCode shouldBe UserErrorCode.USER_EMAIL_NOT_EXISTS
             }
         }
     }
@@ -349,7 +351,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 // when & then
                 shouldThrow<BusinessException> {
                     service.checkEmailVerificationCode(request)
-                }
+                }.errorCode shouldBe UserErrorCode.EMAIL_VERIFICATION_CODE_NOT_MATCHED
             }
         }
 
@@ -365,7 +367,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 // when & then
                 shouldThrow<BusinessException> {
                     service.checkEmailVerificationCode(request)
-                }
+                }.errorCode shouldBe UserErrorCode.EMAIL_VERIFICATION_CODE_NOT_MATCHED
             }
         }
     }

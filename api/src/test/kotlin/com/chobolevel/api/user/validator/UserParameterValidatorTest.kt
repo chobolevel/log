@@ -5,10 +5,12 @@ import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.ResetUserPasswordRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
 import com.chobolevel.domain.common.exception.BusinessException
+import com.chobolevel.domain.common.exception.CommonErrorCode
 import com.chobolevel.domain.user.vo.UserUpdateMask
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
 
 class UserParameterValidatorTest : BehaviorSpec({
 
@@ -17,24 +19,24 @@ class UserParameterValidatorTest : BehaviorSpec({
     given("회원가입 요청 파라미터를 검증할 때") {
 
         `when`("닉네임에 숫자가 포함되면") {
-            then("ApiException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 val request: CreateUserRequest = CreateUserRequest(
                     email = "test@test.com",
                     password = "Pass1234!",
                     nickname = "nick123"
                 )
-                shouldThrow<BusinessException> { validator.validate(request) }
+                shouldThrow<BusinessException> { validator.validate(request) }.errorCode shouldBe CommonErrorCode.INVALID_PARAMETER
             }
         }
 
         `when`("GENERAL 타입인데 비밀번호가 규칙에 맞지 않으면") {
-            then("ApiException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 val request: CreateUserRequest = CreateUserRequest(
                     email = "test@test.com",
                     password = "tooshort",
                     nickname = "홍길동"
                 )
-                shouldThrow<BusinessException> { validator.validate(request) }
+                shouldThrow<BusinessException> { validator.validate(request) }.errorCode shouldBe CommonErrorCode.INVALID_PARAMETER
             }
         }
 
@@ -63,22 +65,22 @@ class UserParameterValidatorTest : BehaviorSpec({
         }
 
         `when`("NICKNAME 마스크인데 닉네임이 null이면") {
-            then("ApiException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 val request: UpdateUserRequest = UpdateUserRequest(
                     nickname = null,
                     updateMask = listOf(UserUpdateMask.NICKNAME)
                 )
-                shouldThrow<BusinessException> { validator.validate(request) }
+                shouldThrow<BusinessException> { validator.validate(request) }.errorCode shouldBe CommonErrorCode.INVALID_PARAMETER
             }
         }
 
         `when`("NICKNAME 마스크인데 닉네임에 숫자가 포함되면") {
-            then("ApiException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 val request: UpdateUserRequest = UpdateUserRequest(
                     nickname = "nick123",
                     updateMask = listOf(UserUpdateMask.NICKNAME)
                 )
-                shouldThrow<BusinessException> { validator.validate(request) }
+                shouldThrow<BusinessException> { validator.validate(request) }.errorCode shouldBe CommonErrorCode.INVALID_PARAMETER
             }
         }
 
@@ -96,12 +98,12 @@ class UserParameterValidatorTest : BehaviorSpec({
     given("비밀번호 변경 요청 파라미터를 검증할 때") {
 
         `when`("새 비밀번호가 규칙에 맞지 않으면") {
-            then("ApiException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 val request: ChangeUserPasswordRequest = ChangeUserPasswordRequest(
                     curPassword = "oldPass1!",
                     newPassword = "short"
                 )
-                shouldThrow<BusinessException> { validator.validate(request) }
+                shouldThrow<BusinessException> { validator.validate(request) }.errorCode shouldBe CommonErrorCode.INVALID_PARAMETER
             }
         }
 
@@ -119,13 +121,13 @@ class UserParameterValidatorTest : BehaviorSpec({
     given("비밀번호 초기화 요청 파라미터를 검증할 때") {
 
         `when`("초기화할 비밀번호가 규칙에 맞지 않으면") {
-            then("ApiException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 val request: ResetUserPasswordRequest = ResetUserPasswordRequest(
                     email = "test@test.com",
                     code = "someCode",
                     password = "short"
                 )
-                shouldThrow<BusinessException> { validator.validate(request) }
+                shouldThrow<BusinessException> { validator.validate(request) }.errorCode shouldBe CommonErrorCode.INVALID_PARAMETER
             }
         }
 

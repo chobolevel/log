@@ -90,7 +90,7 @@ class NotificationServiceTest : BehaviorSpec({
                 // when & then
                 shouldThrow<BusinessException> {
                     service.read(userId = otherUserId, notificationId = DummyNotification.ID)
-                }
+                }.errorCode shouldBe NotificationErrorCode.RESTRICTED_TO_NOTIFICATION_OWNER
                 notification.isRead shouldBe false
             }
         }

@@ -4,8 +4,10 @@ import com.chobolevel.api.common.dummy.DummyNotification
 import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.notification.entity.Notification
+import com.chobolevel.domain.notification.exception.NotificationErrorCode
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
 
 class NotificationBusinessValidatorTest : BehaviorSpec({
 
@@ -32,7 +34,7 @@ class NotificationBusinessValidatorTest : BehaviorSpec({
                 // when & then
                 shouldThrow<BusinessException> {
                     validator.validateOwner(userId = otherUserId, notification = notification)
-                }
+                }.errorCode shouldBe NotificationErrorCode.RESTRICTED_TO_NOTIFICATION_OWNER
             }
         }
     }

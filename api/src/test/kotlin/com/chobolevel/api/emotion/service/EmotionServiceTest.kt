@@ -13,6 +13,7 @@ import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.emotion.category.entity.EmotionCategory
 import com.chobolevel.domain.emotion.category.repository.EmotionCategoryRepository
 import com.chobolevel.domain.emotion.entity.Emotion
+import com.chobolevel.domain.emotion.exception.EmotionErrorCode
 import com.chobolevel.domain.emotion.repository.EmotionRepository
 import com.chobolevel.domain.emotion.vo.EmotionQueryFilter
 import com.chobolevel.domain.record.emotion.repository.RecordEmotionRepository
@@ -141,7 +142,7 @@ class EmotionServiceTest : BehaviorSpec({
                 // when & then
                 shouldThrow<BusinessException> {
                     emotionService.deleteEmotion(emotionId)
-                }
+                }.errorCode shouldBe EmotionErrorCode.EMOTION_IN_USE
                 emotion.isDeleted shouldBe false
                 verify { recordEmotionRepository.existsByEmotionId(emotionId) }
             }

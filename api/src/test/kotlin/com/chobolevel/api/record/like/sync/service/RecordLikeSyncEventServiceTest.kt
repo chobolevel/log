@@ -6,6 +6,7 @@ import com.chobolevel.api.record.like.sync.converter.RecordLikeSyncEventConverte
 import com.chobolevel.api.record.like.sync.dto.RecordLikeSyncEventResponse
 import com.chobolevel.api.record.like.sync.dto.SearchRecordLikeSyncEventRequest
 import com.chobolevel.domain.common.exception.BusinessException
+import com.chobolevel.domain.record.exception.RecordErrorCode
 import com.chobolevel.domain.record.like.sync.entity.RecordLikeSyncEvent
 import com.chobolevel.domain.record.like.sync.repository.RecordLikeSyncEventRepository
 import com.chobolevel.domain.record.like.sync.vo.RecordLikeSyncEventStatus
@@ -80,7 +81,7 @@ class RecordLikeSyncEventServiceTest : BehaviorSpec({
                 // when & then
                 shouldThrow<BusinessException> {
                     service.retry(eventId = DummyRecordLikeSyncEvent.ID)
-                }
+                }.errorCode shouldBe RecordErrorCode.RECORD_LIKE_SYNC_EVENT_NOT_FAILED
                 event.status shouldBe RecordLikeSyncEventStatus.PENDING
             }
         }

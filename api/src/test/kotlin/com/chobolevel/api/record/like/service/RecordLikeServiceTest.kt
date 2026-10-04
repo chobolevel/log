@@ -215,7 +215,7 @@ class RecordLikeServiceTest : BehaviorSpec({
                 // when & then
                 shouldThrow<BusinessException> {
                     service.like(userId = userId, recordId = recordId)
-                }
+                }.errorCode shouldBe RecordErrorCode.RECORD_LIKE_ALREADY_EXISTS
                 verify(exactly = 0) { recordLikeRepository.save(any()) }
                 verify(exactly = 0) { recordLikeSyncEventRepository.save(any()) }
             }
@@ -315,7 +315,7 @@ class RecordLikeServiceTest : BehaviorSpec({
                 // when & then
                 shouldThrow<BusinessException> {
                     service.dislike(userId = userId, recordId = recordId)
-                }
+                }.errorCode shouldBe RecordErrorCode.RECORD_LIKE_NOT_FOUND
                 verify(exactly = 0) { recordLikeRepository.deleteByRecordIdAndUserId(any(), any()) }
                 verify(exactly = 0) { recordLikeSyncEventRepository.save(any()) }
             }

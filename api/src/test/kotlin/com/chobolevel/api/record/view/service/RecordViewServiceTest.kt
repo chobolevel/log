@@ -139,7 +139,7 @@ class RecordViewServiceTest : BehaviorSpec({
                 // when & then
                 shouldThrow<BusinessException> {
                     service.recordView(recordId = recordId, userId = userId, guestId = null)
-                }
+                }.errorCode shouldBe RecordErrorCode.PRIVATE_RECORD
                 verify(exactly = 0) { recordViewRepository.save(any()) }
             }
         }

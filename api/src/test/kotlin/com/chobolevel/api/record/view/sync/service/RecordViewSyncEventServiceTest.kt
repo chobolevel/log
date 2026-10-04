@@ -6,6 +6,7 @@ import com.chobolevel.api.record.view.sync.converter.RecordViewSyncEventConverte
 import com.chobolevel.api.record.view.sync.dto.RecordViewSyncEventResponse
 import com.chobolevel.api.record.view.sync.dto.SearchRecordViewSyncEventRequest
 import com.chobolevel.domain.common.exception.BusinessException
+import com.chobolevel.domain.record.exception.RecordErrorCode
 import com.chobolevel.domain.record.view.sync.entity.RecordViewSyncEvent
 import com.chobolevel.domain.record.view.sync.repository.RecordViewSyncEventRepository
 import com.chobolevel.domain.record.view.sync.vo.RecordViewSyncEventStatus
@@ -80,7 +81,7 @@ class RecordViewSyncEventServiceTest : BehaviorSpec({
                 // when & then
                 shouldThrow<BusinessException> {
                     service.retry(eventId = DummyRecordViewSyncEvent.ID)
-                }
+                }.errorCode shouldBe RecordErrorCode.RECORD_VIEW_SYNC_EVENT_NOT_FAILED
                 event.status shouldBe RecordViewSyncEventStatus.PENDING
             }
         }

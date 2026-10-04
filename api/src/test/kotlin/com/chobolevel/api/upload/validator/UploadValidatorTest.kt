@@ -2,9 +2,11 @@ package com.chobolevel.api.upload.validator
 
 import com.chobolevel.api.upload.dto.UploadRequest
 import com.chobolevel.domain.common.exception.BusinessException
+import com.chobolevel.domain.common.exception.CommonErrorCode
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
 
 class UploadValidatorTest : BehaviorSpec({
 
@@ -13,24 +15,24 @@ class UploadValidatorTest : BehaviorSpec({
     given("업로드 요청 파라미터를 검증할 때") {
 
         `when`("지원하지 않는 prefix이면") {
-            then("ApiException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 val request: UploadRequest = UploadRequest(
                     prefix = "video",
                     filename = "test",
                     extension = "jpg"
                 )
-                shouldThrow<BusinessException> { validator.validate(request) }
+                shouldThrow<BusinessException> { validator.validate(request) }.errorCode shouldBe CommonErrorCode.INVALID_PARAMETER
             }
         }
 
         `when`("지원하지 않는 extension이면") {
-            then("ApiException이 발생한다") {
+            then("BusinessException이 발생한다") {
                 val request: UploadRequest = UploadRequest(
                     prefix = "image",
                     filename = "test",
                     extension = "pdf"
                 )
-                shouldThrow<BusinessException> { validator.validate(request) }
+                shouldThrow<BusinessException> { validator.validate(request) }.errorCode shouldBe CommonErrorCode.INVALID_PARAMETER
             }
         }
 
