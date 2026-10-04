@@ -5,8 +5,8 @@ import com.chobolevel.api.user.follow.sync.converter.UserFollowSyncEventConverte
 import com.chobolevel.api.user.follow.sync.dto.SearchUserFollowSyncEventRequest
 import com.chobolevel.api.user.follow.sync.dto.UserFollowSyncEventResponse
 import com.chobolevel.domain.common.dto.Paging
-import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.PolicyViolationException
+import com.chobolevel.domain.user.exception.UserErrorCode
 import com.chobolevel.domain.user.follow.sync.entity.UserFollowSyncEvent
 import com.chobolevel.domain.user.follow.sync.repository.UserFollowSyncEventRepository
 import com.chobolevel.domain.user.follow.sync.vo.UserFollowSyncEventStatus
@@ -39,7 +39,7 @@ class UserFollowSyncEventService(
     fun retry(eventId: Long): Long {
         val event: UserFollowSyncEvent = userFollowSyncEventRepository.findById(eventId)
         if (event.status != UserFollowSyncEventStatus.FAILED) {
-            throw PolicyViolationException(errorCode = ErrorCode.USER_FOLLOW_SYNC_EVENT_NOT_FAILED)
+            throw PolicyViolationException(errorCode = UserErrorCode.USER_FOLLOW_SYNC_EVENT_NOT_FAILED)
         }
         event.retry()
         return event.id!!

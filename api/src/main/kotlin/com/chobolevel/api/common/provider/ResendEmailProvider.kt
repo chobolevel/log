@@ -1,8 +1,8 @@
 package com.chobolevel.api.common.provider
 
 import com.chobolevel.api.common.properties.ResendProperties
-import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.ExternalApiException
+import com.chobolevel.domain.common.exception.SystemErrorCode
 import com.resend.Resend
 import com.resend.core.exception.ResendException
 import com.resend.services.emails.model.CreateEmailOptions
@@ -25,7 +25,7 @@ class ResendEmailProvider(
             resend.emails().send(params)
         } catch (e: ResendException) {
             throw ExternalApiException(
-                errorCode = ErrorCode.EMAIL_SEND_FAILED,
+                errorCode = SystemErrorCode.EMAIL_SEND_FAILED,
                 message = "이메일 발송에 실패했습니다. (to=$to)",
                 throwable = e
             )

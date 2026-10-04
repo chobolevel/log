@@ -1,7 +1,7 @@
 package com.chobolevel.api.record.review.validator
 
 import com.chobolevel.api.record.review.dto.UpdateRecordReviewRequest
-import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.common.exception.CommonErrorCode
 import com.chobolevel.domain.common.exception.InvalidParameterException
 import com.chobolevel.domain.record.review.vo.RecordReviewUpdateMask
 import org.springframework.stereotype.Component
@@ -15,7 +15,7 @@ class RecordReviewParameterValidator {
                 RecordReviewUpdateMask.RATING -> {
                     if (request.rating == null) {
                         throw InvalidParameterException(
-                            errorCode = ErrorCode.INVALID_PARAMETER,
+                            errorCode = CommonErrorCode.INVALID_PARAMETER,
                             message = "변경할 평점이 유효하지 않습니다."
                         )
                     }

@@ -7,10 +7,10 @@ import com.chobolevel.api.common.provider.CacheProvider
 import com.chobolevel.api.notification.constant.NotificationPath
 import com.chobolevel.api.notification.provider.NotificationPublisher
 import com.chobolevel.api.record.like.validator.RecordLikeValidator
-import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.InvalidParameterException
 import com.chobolevel.domain.notification.vo.NotificationType
 import com.chobolevel.domain.record.entity.Record
+import com.chobolevel.domain.record.exception.RecordErrorCode
 import com.chobolevel.domain.record.like.entity.RecordLike
 import com.chobolevel.domain.record.like.repository.RecordLikeRepository
 import com.chobolevel.domain.record.like.sync.entity.RecordLikeSyncEvent
@@ -210,7 +210,7 @@ class RecordLikeServiceTest : BehaviorSpec({
                 justRun { recordLikeValidator.validateRecordExists(recordId = recordId) }
                 every {
                     recordLikeValidator.validateNotAlreadyLiked(recordId = recordId, userId = userId)
-                } throws InvalidParameterException(errorCode = ErrorCode.RECORD_LIKE_ALREADY_EXISTS)
+                } throws InvalidParameterException(errorCode = RecordErrorCode.RECORD_LIKE_ALREADY_EXISTS)
 
                 // when & then
                 shouldThrow<InvalidParameterException> {
@@ -310,7 +310,7 @@ class RecordLikeServiceTest : BehaviorSpec({
                 justRun { recordLikeValidator.validateRecordExists(recordId = recordId) }
                 every {
                     recordLikeValidator.validateAlreadyLiked(recordId = recordId, userId = userId)
-                } throws InvalidParameterException(errorCode = ErrorCode.RECORD_LIKE_NOT_FOUND)
+                } throws InvalidParameterException(errorCode = RecordErrorCode.RECORD_LIKE_NOT_FOUND)
 
                 // when & then
                 shouldThrow<InvalidParameterException> {

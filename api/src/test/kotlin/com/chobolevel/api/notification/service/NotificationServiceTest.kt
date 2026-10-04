@@ -7,9 +7,9 @@ import com.chobolevel.api.notification.converter.NotificationConverter
 import com.chobolevel.api.notification.dto.NotificationResponse
 import com.chobolevel.api.notification.dto.SearchNotificationRequest
 import com.chobolevel.api.notification.validator.NotificationBusinessValidator
-import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.ForbiddenException
 import com.chobolevel.domain.notification.entity.Notification
+import com.chobolevel.domain.notification.exception.NotificationErrorCode
 import com.chobolevel.domain.notification.repository.NotificationRepository
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -85,7 +85,7 @@ class NotificationServiceTest : BehaviorSpec({
                 every { notificationRepository.findById(DummyNotification.ID) } returns notification
                 every {
                     notificationBusinessValidator.validateOwner(userId = otherUserId, notification = notification)
-                } throws ForbiddenException(errorCode = ErrorCode.RESTRICTED_TO_NOTIFICATION_OWNER)
+                } throws ForbiddenException(errorCode = NotificationErrorCode.RESTRICTED_TO_NOTIFICATION_OWNER)
 
                 // when & then
                 shouldThrow<ForbiddenException> {

@@ -2,10 +2,10 @@ package com.chobolevel.domain.subject.entity
 
 import com.chobolevel.domain.common.entity.Audit
 import com.chobolevel.domain.common.exception.DataNotFoundException
-import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.subject.dto.CreateSubjectCommand
 import com.chobolevel.domain.subject.dto.SyncSubjectImageCommand
 import com.chobolevel.domain.subject.dto.UpdateSubjectCommand
+import com.chobolevel.domain.subject.exception.SubjectErrorCode
 import com.chobolevel.domain.subject.image.entity.SubjectImage
 import com.chobolevel.domain.subject.vo.SubjectType
 import com.chobolevel.domain.subject.vo.SubjectUpdateMask
@@ -105,7 +105,7 @@ class Subject private constructor(
                 )
             } else {
                 val image: SubjectImage = _images.find { it.id == command.id }
-                    ?: throw DataNotFoundException(errorCode = ErrorCode.SUBJECT_IMAGE_NOT_FOUND)
+                    ?: throw DataNotFoundException(errorCode = SubjectErrorCode.SUBJECT_IMAGE_NOT_FOUND)
                 image.sync(path = command.path, name = command.name, sortOrder = command.sortOrder)
             }
         }

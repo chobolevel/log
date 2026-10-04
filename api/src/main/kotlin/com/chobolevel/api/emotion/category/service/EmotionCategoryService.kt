@@ -8,11 +8,11 @@ import com.chobolevel.api.emotion.category.dto.SearchEmotionCategoryRequest
 import com.chobolevel.api.emotion.category.dto.UpdateEmotionCategoryRequest
 import com.chobolevel.api.emotion.category.updater.EmotionCategoryUpdater
 import com.chobolevel.domain.common.dto.Paging
-import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.PolicyViolationException
 import com.chobolevel.domain.emotion.category.entity.EmotionCategory
 import com.chobolevel.domain.emotion.category.repository.EmotionCategoryRepository
 import com.chobolevel.domain.emotion.category.vo.EmotionCategoryQueryFilter
+import com.chobolevel.domain.emotion.exception.EmotionErrorCode
 import com.chobolevel.domain.emotion.repository.EmotionRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -61,7 +61,7 @@ class EmotionCategoryService(
     fun deleteEmotionCategory(emotionCategoryId: Long): Boolean {
         val emotionCategory: EmotionCategory = emotionCategoryRepository.findById(emotionCategoryId)
         if (emotionRepository.existsByEmotionCategoryId(emotionCategoryId)) {
-            throw PolicyViolationException(errorCode = ErrorCode.EMOTION_CATEGORY_IN_USE)
+            throw PolicyViolationException(errorCode = EmotionErrorCode.EMOTION_CATEGORY_IN_USE)
         }
         emotionCategory.delete()
         return true

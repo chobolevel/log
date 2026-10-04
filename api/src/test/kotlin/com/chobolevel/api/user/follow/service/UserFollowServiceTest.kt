@@ -7,10 +7,10 @@ import com.chobolevel.api.notification.constant.NotificationPath
 import com.chobolevel.api.notification.provider.NotificationPublisher
 import com.chobolevel.api.user.follow.dto.UserFollowCounterResponse
 import com.chobolevel.api.user.follow.validator.UserFollowBusinessValidator
-import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.InvalidParameterException
 import com.chobolevel.domain.notification.vo.NotificationType
 import com.chobolevel.domain.user.entity.User
+import com.chobolevel.domain.user.exception.UserErrorCode
 import com.chobolevel.domain.user.follow.entity.UserFollow
 import com.chobolevel.domain.user.follow.repository.UserFollowRepository
 import com.chobolevel.domain.user.follow.sync.entity.UserFollowSyncEvent
@@ -147,7 +147,7 @@ class UserFollowServiceTest : BehaviorSpec({
                 val followingUserId = 2L
                 every {
                     userFollowBusinessValidator.validateFollow(followerUserId, followingUserId)
-                } throws InvalidParameterException(errorCode = ErrorCode.USER_FOLLOW_ALREADY_EXISTS)
+                } throws InvalidParameterException(errorCode = UserErrorCode.USER_FOLLOW_ALREADY_EXISTS)
 
                 // when & then
                 shouldThrow<InvalidParameterException> {
@@ -197,7 +197,7 @@ class UserFollowServiceTest : BehaviorSpec({
                 val followingUserId = 2L
                 every {
                     userFollowBusinessValidator.validateUnfollow(followerUserId, followingUserId)
-                } throws InvalidParameterException(errorCode = ErrorCode.USER_FOLLOW_NOT_FOUND)
+                } throws InvalidParameterException(errorCode = UserErrorCode.USER_FOLLOW_NOT_FOUND)
 
                 // when & then
                 shouldThrow<InvalidParameterException> {

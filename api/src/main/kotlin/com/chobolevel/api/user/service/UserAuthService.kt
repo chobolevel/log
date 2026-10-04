@@ -5,6 +5,7 @@ import com.chobolevel.api.common.extension.getUserId
 import com.chobolevel.api.common.provider.CacheProvider
 import com.chobolevel.api.common.provider.EmailProvider
 import com.chobolevel.api.common.provider.PasswordProvider
+import com.chobolevel.api.common.security.AuthErrorCode
 import com.chobolevel.api.common.security.TokenProvider
 import com.chobolevel.api.user.converter.UserConverter
 import com.chobolevel.api.user.dto.CheckEmailVerificationCodeRequest
@@ -14,10 +15,11 @@ import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest
 import com.chobolevel.api.user.dto.SocialLoginRequest
 import com.chobolevel.api.user.validator.UserBusinessValidator
 import com.chobolevel.domain.common.exception.BadCredentialException
-import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.common.exception.CommonErrorCode
 import com.chobolevel.domain.common.exception.InvalidParameterException
 import com.chobolevel.domain.common.exception.UnAuthorizedException
 import com.chobolevel.domain.user.entity.User
+import com.chobolevel.domain.user.exception.UserErrorCode
 import com.chobolevel.domain.user.repository.UserRepository
 import io.hypersistence.tsid.TSID
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -45,7 +47,7 @@ class UserAuthService(
         val user: User? = userRepository.findByEmailOrNull(request.email)
         if (user == null || !passwordProvider.matches(request.password, user.password)) {
             throw BadCredentialException(
-                errorCode = ErrorCode.BAD_CREDENTIALS,
+                errorCode = AuthErrorCode.BAD_CREDENTIALS,
                 message = "아이디 또는 비밀번호가 일치하지 않습니다."
             )
         }
@@ -66,7 +68,7 @@ class UserAuthService(
         val existingUser: User? = userRepository.findByEmailOrNull(request.email)
         if (existingUser != null && existingUser.loginType != request.loginType) {
             throw InvalidParameterException(
-                errorCode = ErrorCode.INVALID_PARAMETER,
+                errorCode = CommonErrorCode.INVALID_PARAMETER,
                 message = "소셜 로그인에 실패했습니다."
             )
         }
@@ -91,7 +93,7 @@ class UserAuthService(
         tokenProvider.validateToken(refreshToken)
 
         val authentication: Authentication = tokenProvider.getAuthentication(refreshToken) ?: throw UnAuthorizedException(
-            errorCode = ErrorCode.INVALID_TOKEN,
+            errorCode = AuthErrorCode.INVALID_TOKEN,
             message = "토큰이 만료되었습니다. 재로그인 해주세요."
         )
 
@@ -99,7 +101,7 @@ class UserAuthService(
         val cachedRefreshToken: String? = getRefreshTokenByUserId(userId = userId)
         if (cachedRefreshToken == null || cachedRefreshToken != refreshToken) {
             throw UnAuthorizedException(
-                errorCode = ErrorCode.INVALID_TOKEN,
+                errorCode = AuthErrorCode.INVALID_TOKEN,
                 message = "유효하지 않은 갱신 토큰입니다. 재로그인 해주세요."
             )
         }
@@ -135,7 +137,7 @@ class UserAuthService(
         val cachedVerificationCode: String? = cacheProvider.get(CacheKeyPrefix.userEmailVerification(request.email))
         if (request.verificationCode != cachedVerificationCode) {
             throw InvalidParameterException(
-                errorCode = ErrorCode.EMAIL_VERIFICATION_CODE_NOT_MATCHED,
+                errorCode = UserErrorCode.EMAIL_VERIFICATION_CODE_NOT_MATCHED,
             )
         }
         cacheProvider.delete(CacheKeyPrefix.userEmailVerification(request.email))

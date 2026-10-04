@@ -2,9 +2,9 @@ package com.chobolevel.domain.user.repository
 
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.DataNotFoundException
-import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.user.entity.QUser.user
 import com.chobolevel.domain.user.entity.User
+import com.chobolevel.domain.user.exception.UserErrorCode
 import com.chobolevel.domain.user.vo.UserOrderType
 import com.chobolevel.domain.user.vo.UserQueryFilter
 import com.querydsl.core.types.OrderSpecifier
@@ -39,7 +39,7 @@ class UserRepositoryAdapter(
 
     override fun findById(id: Long): User {
         return userJpaRepository.findByIdOrNull(id) ?: throw DataNotFoundException(
-            errorCode = ErrorCode.USER_NOT_FOUND
+            errorCode = UserErrorCode.USER_NOT_FOUND
         )
     }
 
@@ -49,7 +49,7 @@ class UserRepositoryAdapter(
 
     override fun findByEmail(email: String): User {
         return userJpaRepository.findByEmailAndResignedFalse(email) ?: throw DataNotFoundException(
-            errorCode = ErrorCode.USER_NOT_FOUND
+            errorCode = UserErrorCode.USER_NOT_FOUND
         )
     }
 

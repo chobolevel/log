@@ -5,8 +5,8 @@ import com.chobolevel.api.record.view.sync.converter.RecordViewSyncEventConverte
 import com.chobolevel.api.record.view.sync.dto.RecordViewSyncEventResponse
 import com.chobolevel.api.record.view.sync.dto.SearchRecordViewSyncEventRequest
 import com.chobolevel.domain.common.dto.Paging
-import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.PolicyViolationException
+import com.chobolevel.domain.record.exception.RecordErrorCode
 import com.chobolevel.domain.record.view.sync.entity.RecordViewSyncEvent
 import com.chobolevel.domain.record.view.sync.repository.RecordViewSyncEventRepository
 import com.chobolevel.domain.record.view.sync.vo.RecordViewSyncEventStatus
@@ -39,7 +39,7 @@ class RecordViewSyncEventService(
     fun retry(eventId: Long): Long {
         val event: RecordViewSyncEvent = recordViewSyncEventRepository.findById(eventId)
         if (event.status != RecordViewSyncEventStatus.FAILED) {
-            throw PolicyViolationException(errorCode = ErrorCode.RECORD_VIEW_SYNC_EVENT_NOT_FAILED)
+            throw PolicyViolationException(errorCode = RecordErrorCode.RECORD_VIEW_SYNC_EVENT_NOT_FAILED)
         }
         event.retry()
         return event.id!!

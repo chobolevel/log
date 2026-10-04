@@ -4,9 +4,9 @@ import com.chobolevel.api.common.dummy.DummyRecord
 import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.record.validator.RecordBusinessValidator
 import com.chobolevel.domain.common.exception.DataNotFoundException
-import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.ForbiddenException
 import com.chobolevel.domain.record.entity.Record
+import com.chobolevel.domain.record.exception.RecordErrorCode
 import com.chobolevel.domain.record.repository.RecordRepository
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -50,7 +50,7 @@ class RecordViewValidatorTest : BehaviorSpec({
                 every { recordRepository.findById(DummyRecord.ID) } returns record
                 every {
                     recordBusinessValidator.validateReadable(requesterId = null, record = record)
-                } throws ForbiddenException(errorCode = ErrorCode.PRIVATE_RECORD)
+                } throws ForbiddenException(errorCode = RecordErrorCode.PRIVATE_RECORD)
 
                 // when & then
                 shouldThrow<ForbiddenException> {
@@ -63,7 +63,7 @@ class RecordViewValidatorTest : BehaviorSpec({
             then("DataNotFoundException이 발생한다") {
                 // given
                 every { recordRepository.findById(DummyRecord.ID) } throws DataNotFoundException(
-                    errorCode = ErrorCode.RECORD_NOT_FOUND
+                    errorCode = RecordErrorCode.RECORD_NOT_FOUND
                 )
 
                 // when & then

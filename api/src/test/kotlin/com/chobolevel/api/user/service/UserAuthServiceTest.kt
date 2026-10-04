@@ -13,10 +13,10 @@ import com.chobolevel.api.user.dto.JwtResponse
 import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest
 import com.chobolevel.api.user.validator.UserBusinessValidator
 import com.chobolevel.domain.common.exception.BadCredentialException
-import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.InvalidParameterException
 import com.chobolevel.domain.common.exception.UnAuthorizedException
 import com.chobolevel.domain.user.entity.User
+import com.chobolevel.domain.user.exception.UserErrorCode
 import com.chobolevel.domain.user.repository.UserRepository
 import com.chobolevel.domain.user.vo.UserLoginType
 import com.chobolevel.domain.user.vo.UserRoleType
@@ -308,7 +308,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 // given
                 val request: SendEmailVerificationCodeRequest = SendEmailVerificationCodeRequest(email = DummyUser.EMAIL)
                 every { userBusinessValidator.validate(request = any<SendEmailVerificationCodeRequest>()) } throws InvalidParameterException(
-                    errorCode = ErrorCode.USER_EMAIL_NOT_EXISTS
+                    errorCode = UserErrorCode.USER_EMAIL_NOT_EXISTS
                 )
 
                 // when & then

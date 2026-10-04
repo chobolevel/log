@@ -2,9 +2,9 @@ package com.chobolevel.domain.subject.repository
 
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.DataNotFoundException
-import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.subject.entity.QSubject.subject
 import com.chobolevel.domain.subject.entity.Subject
+import com.chobolevel.domain.subject.exception.SubjectErrorCode
 import com.chobolevel.domain.subject.vo.SubjectOrderType
 import com.chobolevel.domain.subject.vo.SubjectQueryFilter
 import com.querydsl.core.types.OrderSpecifier
@@ -26,7 +26,7 @@ class SubjectRepositoryAdapter(
 
     override fun findById(id: Long): Subject {
         return subjectJpaRepository.findByIdAndIsDeletedFalse(id) ?: throw DataNotFoundException(
-            errorCode = ErrorCode.SUBJECT_NOT_FOUND
+            errorCode = SubjectErrorCode.SUBJECT_NOT_FOUND
         )
     }
 

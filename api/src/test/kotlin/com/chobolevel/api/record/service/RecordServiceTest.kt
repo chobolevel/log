@@ -18,11 +18,11 @@ import com.chobolevel.api.record.like.service.RecordLikeQueryService
 import com.chobolevel.api.record.updater.RecordUpdater
 import com.chobolevel.api.record.validator.RecordBusinessValidator
 import com.chobolevel.api.record.view.service.RecordViewQueryService
-import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.ForbiddenException
 import com.chobolevel.domain.emotion.entity.Emotion
 import com.chobolevel.domain.emotion.repository.EmotionRepository
 import com.chobolevel.domain.record.entity.Record
+import com.chobolevel.domain.record.exception.RecordErrorCode
 import com.chobolevel.domain.record.repository.RecordRepository
 import com.chobolevel.domain.record.vo.RecordQueryFilter
 import com.chobolevel.domain.subject.entity.Subject
@@ -225,7 +225,7 @@ class RecordServiceTest : BehaviorSpec({
                 every { recordRepository.findById(DummyRecord.ID) } returns record
                 every {
                     recordBusinessValidator.validateReadable(requesterId = otherUserId, record = record)
-                } throws ForbiddenException(errorCode = ErrorCode.PRIVATE_RECORD)
+                } throws ForbiddenException(errorCode = RecordErrorCode.PRIVATE_RECORD)
 
                 // when & then
                 shouldThrow<ForbiddenException> {

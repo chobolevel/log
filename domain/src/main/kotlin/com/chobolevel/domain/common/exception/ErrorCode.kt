@@ -1,89 +1,9 @@
 package com.chobolevel.domain.common.exception
 
-enum class ErrorCode(val defaultMessage: String) {
-    // COMMON
-    INVALID_PARAMETER("파라미터가 유효하지 않습니다."),
-    INVALID_REQUEST_FORMAT("요청 형식이 올바르지 않습니다."),
-    INTERNAL_SERVER_ERROR("내부 서버에서 에러가 발생하였습니다."),
-    LOCK_ACQUISITION_FAILED("요청이 많아 처리할 수 없습니다. 잠시 후 다시 시도해주세요."),
-    DUPLICATE_REQUEST("이미 처리된 요청입니다."),
-
-    // AUTH
-    BAD_CREDENTIAL("아이디 또는 비밀번호가 일치하지 않습니다."),
-    INVALID_TOKEN("유효하지 않은 토큰입니다."),
-    EXPIRED_TOKEN("만료된 토큰입니다."),
-    EMAIL_VERIFICATION_CODE_NOT_SENT("이메일 확인 코드가 전송되지 않았습니다."),
-    EMAIL_VERIFICATION_CODE_NOT_MATCHED("이메일 확인 코드가 일치하지 않습니다."),
-    ACCESS_DENIED("접근 권한이 없습니다."),
-    BAD_CREDENTIALS("유효하지 않은 접근입니다."),
-
-    // USER
-    USER_NOT_FOUND("회원을 찾을 수 없습니다."),
-    USER_PASSWORD_NOT_MATCHED("비밀번호가 일치하지 않습니다."),
-    USER_PASSWORD_REUSING_NOT_ALLOWED("동일한 비밀번호를 사용할 수 없습니다."),
-    USER_EMAIL_ALREADY_EXISTS("이미 존재하는 이메일입니다."),
-    USER_EMAIL_NOT_EXISTS("존재하지 않는 이메일입니다."),
-    USER_NICKNAME_ALREADY_EXISTS("이미 존재하는 닉네임입니다."),
-    RESET_USER_PASSWORD_CODE_NOT_EXISTS("비밀번호 초기화 코드가 없습니다."),
-    RESET_USER_PASSWORD_CODE_NOT_MATCHED("비밀번호 초기화 코드가 일치하지 않습니다."),
-
-    // USER IMAGE
-    USER_IMAGE_NOT_FOUND("회원 이미지를 찾을 수 없습니다."),
-
-    // USER FOLLOW
-    USER_FOLLOW_ALREADY_EXISTS("이미 팔로우한 회원입니다."),
-    USER_FOLLOW_NOT_FOUND("팔로우하지 않은 회원입니다."),
-    USER_FOLLOW_SELF_NOT_ALLOWED("자기 자신은 팔로우할 수 없습니다."),
-
-    // USER FOLLOW SYNC EVENT
-    USER_FOLLOW_SYNC_EVENT_NOT_FOUND("팔로우 동기화 이벤트를 찾을 수 없습니다."),
-    USER_FOLLOW_SYNC_EVENT_NOT_FAILED("실패한 이벤트만 재발행할 수 있습니다."),
-
-    // RECORD
-    RECORD_NOT_FOUND("기록을 찾을 수 없습니다."),
-    RESTRICTED_TO_RECORD_WRITER("기록 작성자만 접근 가능합니다."),
-    PRIVATE_RECORD("비밀 기록입니다."),
-
-    // RECORD REVIEW
-    RECORD_REVIEW_NOT_FOUND("기록 리뷰를 찾을 수 없습니다."),
-    RECORD_REVIEW_ALREADY_EXISTS("이미 등록된 리뷰가 있습니다."),
-
-    // RECORD LIKE
-    RECORD_LIKE_ALREADY_EXISTS("이미 좋아요한 기록입니다."),
-    RECORD_LIKE_NOT_FOUND("좋아요하지 않은 기록입니다."),
-
-    // RECORD LIKE SYNC EVENT
-    RECORD_LIKE_SYNC_EVENT_NOT_FOUND("좋아요 동기화 이벤트를 찾을 수 없습니다."),
-    RECORD_LIKE_SYNC_EVENT_NOT_FAILED("실패한 이벤트만 재발행할 수 있습니다."),
-
-    // RECORD VIEW SYNC EVENT
-    RECORD_VIEW_SYNC_EVENT_NOT_FOUND("조회 동기화 이벤트를 찾을 수 없습니다."),
-    RECORD_VIEW_SYNC_EVENT_NOT_FAILED("실패한 이벤트만 재발행할 수 있습니다."),
-
-    // SUBJECT
-    SUBJECT_NOT_FOUND("주제를 찾을 수 없습니다."),
-
-    // SUBJECT IMAGE
-    SUBJECT_IMAGE_NOT_FOUND("주제 이미지를 찾을 수 없습니다."),
-
-    // EMOTION CATEGORY
-    EMOTION_CATEGORY_NOT_FOUND("감정 카테고리를 찾을 수 없습니다."),
-    EMOTION_CATEGORY_IN_USE("사용 중인 감정 카테고리는 삭제할 수 없습니다."),
-
-    // EMOTION
-    EMOTION_NOT_FOUND("감정을 찾을 수 없습니다."),
-    EMOTION_IN_USE("사용 중인 감정은 삭제할 수 없습니다."),
-
-    // RECORD EMOTION
-    RECORD_EMOTION_NOT_FOUND("기록 감정을 찾을 수 없습니다."),
-
-    // NOTIFICATION
-    NOTIFICATION_NOT_FOUND("알림을 찾을 수 없습니다."),
-    RESTRICTED_TO_NOTIFICATION_OWNER("알림 수신자만 접근 가능합니다."),
-
-    // NOTIFICATION DISPATCH EVENT
-    NOTIFICATION_DISPATCH_EVENT_NOT_FOUND("알림 디스패치 이벤트를 찾을 수 없습니다."),
-
-    // EXTERNAL API
-    EMAIL_SEND_FAILED("이메일 발송에 실패했습니다.")
+// 모든 에러코드 enum이 구현하는 공통 계약.
+// 에러코드는 도메인 경계를 따라 소유 도메인의 enum에 둔다(예: user/exception/UserErrorCode).
+// 클라이언트는 상수 이름(name)만 보므로 도메인 접두사로 이름 충돌을 피하고, 이름 유일성은 테스트로 검증한다.
+interface ErrorCode {
+    val name: String
+    val defaultMessage: String
 }

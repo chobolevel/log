@@ -3,7 +3,7 @@ package com.chobolevel.api.record.validator
 import com.chobolevel.api.common.extension.nowKST
 import com.chobolevel.api.record.dto.FetchRecordContributionsRequest
 import com.chobolevel.api.record.dto.UpdateRecordRequest
-import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.common.exception.CommonErrorCode
 import com.chobolevel.domain.common.exception.InvalidParameterException
 import com.chobolevel.domain.record.vo.RecordUpdateMask
 import org.springframework.stereotype.Component
@@ -20,14 +20,14 @@ class RecordParameterValidator {
     fun validate(request: FetchRecordContributionsRequest) {
         if (request.userId == null) {
             throw InvalidParameterException(
-                errorCode = ErrorCode.INVALID_PARAMETER,
+                errorCode = CommonErrorCode.INVALID_PARAMETER,
                 message = "user_id는 필수 값입니다."
             )
         }
         val currentYear: Int = nowKST().year
         if (request.year < CONTRIBUTIONS_MIN_YEAR || request.year > currentYear) {
             throw InvalidParameterException(
-                errorCode = ErrorCode.INVALID_PARAMETER,
+                errorCode = CommonErrorCode.INVALID_PARAMETER,
                 message = "유효하지 않은 연도입니다."
             )
         }
@@ -39,7 +39,7 @@ class RecordParameterValidator {
                 RecordUpdateMask.TYPE -> {
                     if (request.type == null) {
                         throw InvalidParameterException(
-                            errorCode = ErrorCode.INVALID_PARAMETER,
+                            errorCode = CommonErrorCode.INVALID_PARAMETER,
                             message = "변경할 기록 유형이 유효하지 않습니다."
                         )
                     }
@@ -47,7 +47,7 @@ class RecordParameterValidator {
                 RecordUpdateMask.TITLE -> {
                     if (request.title.isNullOrEmpty()) {
                         throw InvalidParameterException(
-                            errorCode = ErrorCode.INVALID_PARAMETER,
+                            errorCode = CommonErrorCode.INVALID_PARAMETER,
                             message = "변경할 기록 제목이 유효하지 않습니다."
                         )
                     }
@@ -55,7 +55,7 @@ class RecordParameterValidator {
                 RecordUpdateMask.CONTENT -> {
                     if (request.content.isNullOrEmpty()) {
                         throw InvalidParameterException(
-                            errorCode = ErrorCode.INVALID_PARAMETER,
+                            errorCode = CommonErrorCode.INVALID_PARAMETER,
                             message = "변경할 기록 내용이 유효하지 않습니다."
                         )
                     }
@@ -63,7 +63,7 @@ class RecordParameterValidator {
                 RecordUpdateMask.IS_PRIVATE -> {
                     if (request.isPrivate == null) {
                         throw InvalidParameterException(
-                            errorCode = ErrorCode.INVALID_PARAMETER,
+                            errorCode = CommonErrorCode.INVALID_PARAMETER,
                             message = "변경할 공개 여부가 유효하지 않습니다."
                         )
                     }
@@ -71,7 +71,7 @@ class RecordParameterValidator {
                 RecordUpdateMask.TAGS -> {
                     if (request.tags == null) {
                         throw InvalidParameterException(
-                            errorCode = ErrorCode.INVALID_PARAMETER,
+                            errorCode = CommonErrorCode.INVALID_PARAMETER,
                             message = "변경할 태그 목록이 유효하지 않습니다."
                         )
                     }

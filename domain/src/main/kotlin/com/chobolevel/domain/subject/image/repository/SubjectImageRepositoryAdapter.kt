@@ -1,7 +1,7 @@
 package com.chobolevel.domain.subject.image.repository
 
 import com.chobolevel.domain.common.exception.DataNotFoundException
-import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.subject.exception.SubjectErrorCode
 import com.chobolevel.domain.subject.image.entity.SubjectImage
 import org.springframework.stereotype.Component
 
@@ -16,7 +16,7 @@ class SubjectImageRepositoryAdapter(
 
     override fun findById(id: Long): SubjectImage {
         return subjectImageJpaRepository.findByIdAndIsDeletedFalse(id) ?: throw DataNotFoundException(
-            errorCode = ErrorCode.SUBJECT_IMAGE_NOT_FOUND
+            errorCode = SubjectErrorCode.SUBJECT_IMAGE_NOT_FOUND
         )
     }
 }

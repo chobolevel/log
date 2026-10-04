@@ -2,8 +2,8 @@ package com.chobolevel.api.user.follow.service
 
 import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.common.provider.DistributedLockProvider
-import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.PolicyViolationException
+import com.chobolevel.domain.common.exception.SystemErrorCode
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -65,7 +65,7 @@ class UserFollowFacadeTest : BehaviorSpec({
                         unit = any(),
                         action = any(),
                     )
-                } throws PolicyViolationException(errorCode = ErrorCode.LOCK_ACQUISITION_FAILED)
+                } throws PolicyViolationException(errorCode = SystemErrorCode.LOCK_ACQUISITION_FAILED)
 
                 // when & then
                 shouldThrow<PolicyViolationException> {
@@ -118,7 +118,7 @@ class UserFollowFacadeTest : BehaviorSpec({
                         unit = any(),
                         action = any(),
                     )
-                } throws PolicyViolationException(errorCode = ErrorCode.LOCK_ACQUISITION_FAILED)
+                } throws PolicyViolationException(errorCode = SystemErrorCode.LOCK_ACQUISITION_FAILED)
 
                 // when & then
                 shouldThrow<PolicyViolationException> {

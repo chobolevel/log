@@ -8,10 +8,10 @@ import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.ResetUserPasswordRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
-import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.InvalidParameterException
 import com.chobolevel.domain.common.exception.PolicyViolationException
 import com.chobolevel.domain.user.entity.User
+import com.chobolevel.domain.user.exception.UserErrorCode
 import com.chobolevel.domain.user.repository.UserRepository
 import com.chobolevel.domain.user.vo.UserUpdateMask
 import io.kotest.assertions.throwables.shouldNotThrow
@@ -58,7 +58,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 }
 
                 // then
-                exception.errorCode shouldBe ErrorCode.USER_EMAIL_ALREADY_EXISTS
+                exception.errorCode shouldBe UserErrorCode.USER_EMAIL_ALREADY_EXISTS
             }
         }
 
@@ -79,7 +79,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 }
 
                 // then
-                exception.errorCode shouldBe ErrorCode.USER_NICKNAME_ALREADY_EXISTS
+                exception.errorCode shouldBe UserErrorCode.USER_NICKNAME_ALREADY_EXISTS
             }
         }
 
@@ -131,7 +131,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 }
 
                 // then
-                exception.errorCode shouldBe ErrorCode.USER_NICKNAME_ALREADY_EXISTS
+                exception.errorCode shouldBe UserErrorCode.USER_NICKNAME_ALREADY_EXISTS
             }
         }
 
@@ -170,7 +170,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 }
 
                 // then
-                exception.errorCode shouldBe ErrorCode.USER_PASSWORD_NOT_MATCHED
+                exception.errorCode shouldBe UserErrorCode.USER_PASSWORD_NOT_MATCHED
             }
         }
 
@@ -192,7 +192,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 }
 
                 // then
-                exception.errorCode shouldBe ErrorCode.USER_PASSWORD_REUSING_NOT_ALLOWED
+                exception.errorCode shouldBe UserErrorCode.USER_PASSWORD_REUSING_NOT_ALLOWED
             }
         }
 
@@ -231,7 +231,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 }
 
                 // then
-                exception.errorCode shouldBe ErrorCode.USER_EMAIL_NOT_EXISTS
+                exception.errorCode shouldBe UserErrorCode.USER_EMAIL_NOT_EXISTS
             }
         }
 
@@ -248,7 +248,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 }
 
                 // then
-                exception.errorCode shouldBe ErrorCode.RESET_USER_PASSWORD_CODE_NOT_EXISTS
+                exception.errorCode shouldBe UserErrorCode.RESET_USER_PASSWORD_CODE_NOT_EXISTS
             }
         }
 
@@ -265,7 +265,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 }
 
                 // then
-                exception.errorCode shouldBe ErrorCode.USER_PASSWORD_NOT_MATCHED
+                exception.errorCode shouldBe UserErrorCode.USER_PASSWORD_NOT_MATCHED
             }
         }
 

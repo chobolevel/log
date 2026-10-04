@@ -2,9 +2,9 @@ package com.chobolevel.domain.notification.dispatch.repository
 
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.DataNotFoundException
-import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.notification.dispatch.entity.NotificationDispatchEvent
 import com.chobolevel.domain.notification.dispatch.vo.NotificationDispatchEventStatus
+import com.chobolevel.domain.notification.exception.NotificationErrorCode
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
@@ -20,7 +20,7 @@ class NotificationDispatchEventRepositoryAdapter(
 
     override fun findById(id: Long): NotificationDispatchEvent {
         return notificationDispatchEventJpaRepository.findById(id).orElseThrow {
-            DataNotFoundException(errorCode = ErrorCode.NOTIFICATION_DISPATCH_EVENT_NOT_FOUND)
+            DataNotFoundException(errorCode = NotificationErrorCode.NOTIFICATION_DISPATCH_EVENT_NOT_FOUND)
         }
     }
 

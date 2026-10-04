@@ -2,11 +2,11 @@ package com.chobolevel.domain.emotion.category.repository
 
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.DataNotFoundException
-import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.emotion.category.entity.EmotionCategory
 import com.chobolevel.domain.emotion.category.entity.QEmotionCategory.emotionCategory
 import com.chobolevel.domain.emotion.category.vo.EmotionCategoryOrderType
 import com.chobolevel.domain.emotion.category.vo.EmotionCategoryQueryFilter
+import com.chobolevel.domain.emotion.exception.EmotionErrorCode
 import com.querydsl.core.types.OrderSpecifier
 import org.springframework.stereotype.Component
 
@@ -22,7 +22,7 @@ class EmotionCategoryRepositoryAdapter(
 
     override fun findById(id: Long): EmotionCategory {
         return emotionCategoryJpaRepository.findByIdAndIsDeletedFalse(id) ?: throw DataNotFoundException(
-            errorCode = ErrorCode.EMOTION_CATEGORY_NOT_FOUND
+            errorCode = EmotionErrorCode.EMOTION_CATEGORY_NOT_FOUND
         )
     }
 

@@ -2,9 +2,9 @@ package com.chobolevel.domain.notification.repository
 
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.DataNotFoundException
-import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.notification.entity.Notification
 import com.chobolevel.domain.notification.entity.QNotification.notification
+import com.chobolevel.domain.notification.exception.NotificationErrorCode
 import com.chobolevel.domain.notification.vo.NotificationOrderType
 import com.chobolevel.domain.notification.vo.NotificationQueryFilter
 import com.querydsl.core.types.OrderSpecifier
@@ -22,7 +22,7 @@ class NotificationRepositoryAdapter(
 
     override fun findById(id: Long): Notification {
         return notificationJpaRepository.findById(id).orElseThrow {
-            DataNotFoundException(errorCode = ErrorCode.NOTIFICATION_NOT_FOUND)
+            DataNotFoundException(errorCode = NotificationErrorCode.NOTIFICATION_NOT_FOUND)
         }
     }
 

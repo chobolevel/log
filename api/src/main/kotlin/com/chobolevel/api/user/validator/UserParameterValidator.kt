@@ -5,7 +5,7 @@ import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.ResetUserPasswordRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
-import com.chobolevel.domain.common.exception.ErrorCode
+import com.chobolevel.domain.common.exception.CommonErrorCode
 import com.chobolevel.domain.common.exception.InvalidParameterException
 import com.chobolevel.domain.user.vo.UserUpdateMask
 import org.springframework.stereotype.Component
@@ -24,7 +24,7 @@ class UserParameterValidator {
                 UserUpdateMask.NICKNAME -> {
                     if (request.nickname.isNullOrEmpty()) {
                         throw InvalidParameterException(
-                            errorCode = ErrorCode.INVALID_PARAMETER,
+                            errorCode = CommonErrorCode.INVALID_PARAMETER,
                             message = "변경할 닉네임이 유효하지 않습니다."
                         )
                     }
@@ -45,7 +45,7 @@ class UserParameterValidator {
     private fun validateNicknameFormat(nickname: String) {
         if (!nickname.matches(Regexp.NICKNAME_REGEXP)) {
             throw InvalidParameterException(
-                errorCode = ErrorCode.INVALID_PARAMETER,
+                errorCode = CommonErrorCode.INVALID_PARAMETER,
                 message = "닉네임은 영어 또는 한글만 사용할 수 있습니다."
             )
         }
@@ -54,7 +54,7 @@ class UserParameterValidator {
     private fun validatePasswordFormat(password: String) {
         if (!password.matches(Regexp.PASSWORD_REGEXP)) {
             throw InvalidParameterException(
-                errorCode = ErrorCode.INVALID_PARAMETER,
+                errorCode = CommonErrorCode.INVALID_PARAMETER,
                 message = "비밀번호는 영문 + 숫자 + 특수문자 조합으로 8자리 이상이어야 합니다."
             )
         }

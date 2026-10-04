@@ -8,11 +8,11 @@ import com.chobolevel.api.emotion.dto.SearchEmotionRequest
 import com.chobolevel.api.emotion.dto.UpdateEmotionRequest
 import com.chobolevel.api.emotion.updater.EmotionUpdater
 import com.chobolevel.domain.common.dto.Paging
-import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.PolicyViolationException
 import com.chobolevel.domain.emotion.category.entity.EmotionCategory
 import com.chobolevel.domain.emotion.category.repository.EmotionCategoryRepository
 import com.chobolevel.domain.emotion.entity.Emotion
+import com.chobolevel.domain.emotion.exception.EmotionErrorCode
 import com.chobolevel.domain.emotion.repository.EmotionRepository
 import com.chobolevel.domain.emotion.vo.EmotionQueryFilter
 import com.chobolevel.domain.record.emotion.repository.RecordEmotionRepository
@@ -69,7 +69,7 @@ class EmotionService(
     fun deleteEmotion(emotionId: Long): Boolean {
         val emotion: Emotion = emotionRepository.findById(emotionId)
         if (recordEmotionRepository.existsByEmotionId(emotionId)) {
-            throw PolicyViolationException(errorCode = ErrorCode.EMOTION_IN_USE)
+            throw PolicyViolationException(errorCode = EmotionErrorCode.EMOTION_IN_USE)
         }
         emotion.delete()
         return true

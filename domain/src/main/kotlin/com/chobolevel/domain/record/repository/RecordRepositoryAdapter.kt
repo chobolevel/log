@@ -2,9 +2,9 @@ package com.chobolevel.domain.record.repository
 
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.DataNotFoundException
-import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.record.entity.QRecord.record
 import com.chobolevel.domain.record.entity.Record
+import com.chobolevel.domain.record.exception.RecordErrorCode
 import com.chobolevel.domain.record.vo.RecordOrderType
 import com.chobolevel.domain.record.vo.RecordQueryFilter
 import com.querydsl.core.types.OrderSpecifier
@@ -23,7 +23,7 @@ class RecordRepositoryAdapter(
 
     override fun findById(id: Long): Record {
         return recordJpaRepository.findByIdAndIsDeletedFalse(id) ?: throw DataNotFoundException(
-            errorCode = ErrorCode.RECORD_NOT_FOUND
+            errorCode = RecordErrorCode.RECORD_NOT_FOUND
         )
     }
 

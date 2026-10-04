@@ -3,6 +3,7 @@ package com.chobolevel.api.user.controller
 import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getCookie
 import com.chobolevel.api.common.properties.JwtProperties
+import com.chobolevel.api.common.security.AuthErrorCode
 import com.chobolevel.api.user.dto.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.user.dto.JwtResponse
 import com.chobolevel.api.user.dto.LoginRequest
@@ -10,7 +11,6 @@ import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest
 import com.chobolevel.api.user.dto.SocialLoginRequest
 import com.chobolevel.api.user.service.UserAuthService
 import com.chobolevel.api.user.validator.UserAuthParameterValidator
-import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.UnAuthorizedException
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -103,7 +103,7 @@ class UserAuthController(
         val refreshToken: String = req.getCookie(jwtProperties.refreshTokenKey) ?: run {
             clearAuthCookies(res)
             throw UnAuthorizedException(
-                errorCode = ErrorCode.INVALID_TOKEN,
+                errorCode = AuthErrorCode.INVALID_TOKEN,
                 message = "토큰이 만료되었습니다. 재로그인 해주세요."
             )
         }

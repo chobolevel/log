@@ -5,8 +5,8 @@ import com.chobolevel.api.record.like.sync.converter.RecordLikeSyncEventConverte
 import com.chobolevel.api.record.like.sync.dto.RecordLikeSyncEventResponse
 import com.chobolevel.api.record.like.sync.dto.SearchRecordLikeSyncEventRequest
 import com.chobolevel.domain.common.dto.Paging
-import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.PolicyViolationException
+import com.chobolevel.domain.record.exception.RecordErrorCode
 import com.chobolevel.domain.record.like.sync.entity.RecordLikeSyncEvent
 import com.chobolevel.domain.record.like.sync.repository.RecordLikeSyncEventRepository
 import com.chobolevel.domain.record.like.sync.vo.RecordLikeSyncEventStatus
@@ -39,7 +39,7 @@ class RecordLikeSyncEventService(
     fun retry(eventId: Long): Long {
         val event: RecordLikeSyncEvent = recordLikeSyncEventRepository.findById(eventId)
         if (event.status != RecordLikeSyncEventStatus.FAILED) {
-            throw PolicyViolationException(errorCode = ErrorCode.RECORD_LIKE_SYNC_EVENT_NOT_FAILED)
+            throw PolicyViolationException(errorCode = RecordErrorCode.RECORD_LIKE_SYNC_EVENT_NOT_FAILED)
         }
         event.retry()
         return event.id!!

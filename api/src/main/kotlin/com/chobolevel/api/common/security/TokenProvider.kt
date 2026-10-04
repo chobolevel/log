@@ -2,7 +2,6 @@ package com.chobolevel.api.common.security
 
 import com.chobolevel.api.common.properties.JwtProperties
 import com.chobolevel.api.user.dto.JwtResponse
-import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.UnAuthorizedException
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Header
@@ -82,12 +81,12 @@ class TokenProvider(
             true
         } catch (e: ExpiredJwtException) {
             throw UnAuthorizedException(
-                errorCode = ErrorCode.EXPIRED_TOKEN,
+                errorCode = AuthErrorCode.EXPIRED_TOKEN,
                 message = "토큰이 만료되었습니다."
             )
         } catch (e: JwtException) {
             throw UnAuthorizedException(
-                errorCode = ErrorCode.INVALID_TOKEN,
+                errorCode = AuthErrorCode.INVALID_TOKEN,
                 message = "유효하지 않은 토큰입니다."
             )
         }

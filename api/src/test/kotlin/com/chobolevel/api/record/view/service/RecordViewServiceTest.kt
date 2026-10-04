@@ -6,8 +6,8 @@ import com.chobolevel.api.common.dummy.DummyRecordView
 import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.common.provider.CacheProvider
 import com.chobolevel.api.record.view.validator.RecordViewValidator
-import com.chobolevel.domain.common.exception.ErrorCode
 import com.chobolevel.domain.common.exception.ForbiddenException
+import com.chobolevel.domain.record.exception.RecordErrorCode
 import com.chobolevel.domain.record.view.entity.RecordView
 import com.chobolevel.domain.record.view.repository.RecordViewRepository
 import com.chobolevel.domain.record.view.sync.repository.RecordViewSyncEventRepository
@@ -134,7 +134,7 @@ class RecordViewServiceTest : BehaviorSpec({
                 val userId: Long = DummyUser.ID
                 every {
                     recordViewValidator.validateViewable(requesterId = userId, recordId = recordId)
-                } throws ForbiddenException(errorCode = ErrorCode.PRIVATE_RECORD)
+                } throws ForbiddenException(errorCode = RecordErrorCode.PRIVATE_RECORD)
 
                 // when & then
                 shouldThrow<ForbiddenException> {
