@@ -81,12 +81,12 @@ class RecordLikeSyncEventControllerTest {
 
     @Test
     @WithMockUser(username = "${DummyUser.ID}", roles = ["USER"])
-    fun `인증된 사용자가 실패한 이벤트 목록 조회 요청 시 401을 반환한다`() {
+    fun `인증된 사용자가 실패한 이벤트 목록 조회 요청 시 403을 반환한다`() {
         // given & when & then
         mockMvc.perform(
             get("/api/v1/record-like-sync-events/failed")
         )
-            .andExpect(status().isUnauthorized)
+            .andExpect(status().isForbidden)
     }
 
     @Test
@@ -107,11 +107,11 @@ class RecordLikeSyncEventControllerTest {
 
     @Test
     @WithMockUser(username = "${DummyUser.ID}", roles = ["USER"])
-    fun `인증된 사용자가 이벤트 재발행 요청 시 401을 반환한다`() {
+    fun `인증된 사용자가 이벤트 재발행 요청 시 403을 반환한다`() {
         // given & when & then
         mockMvc.perform(
             post("/api/v1/record-like-sync-events/${DummyRecordLikeSyncEvent.ID}/retry")
         )
-            .andExpect(status().isUnauthorized)
+            .andExpect(status().isForbidden)
     }
 }

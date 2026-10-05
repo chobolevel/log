@@ -116,9 +116,9 @@ class UserFollowControllerTest {
 
     @Test
     @WithMockUser(username = "1")
-    fun `관리자가 아닌 사용자가 카운터 재계산을 시도하면 401을 반환한다`() {
+    fun `관리자가 아닌 사용자가 카운터 재계산을 시도하면 403을 반환한다`() {
         mockMvc.perform(post("/api/v1/users/2/follow-counters/recalculate"))
-            .andExpect(status().isUnauthorized)
+            .andExpect(status().isForbidden)
     }
 
     @Test

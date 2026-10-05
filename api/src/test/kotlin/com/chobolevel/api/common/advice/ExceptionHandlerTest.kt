@@ -18,6 +18,8 @@ import com.chobolevel.domain.user.exception.UserErrorCode
 import io.kotest.matchers.shouldBe
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
+import org.hamcrest.Matchers.containsString
+import org.hamcrest.Matchers.not
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -34,11 +36,13 @@ import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.web.bind.annotation.GetMapping
@@ -185,21 +189,31 @@ class ExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("(현재 동작) AccessDeniedException은 인증 여부와 무관하게 401 ACCESS_DENIED로 응답한다")
-    fun `AccessDeniedException 처리`() {
+    @DisplayName("AccessDeniedException은 인증되지 않은 요청이면 401 AUTHENTICATION_REQUIRED로 응답한다")
+    fun `익명 요청의 AccessDeniedException 처리`() {
         mockMvc.perform(get("/test/access-denied"))
             .andExpect(status().isUnauthorized)
-            .andExpect(jsonPath("$.error_code").value(CommonErrorCode.ACCESS_DENIED.name))
-            .andExpect(jsonPath("$.error_message").value("Access Denied"))
+            .andExpect(jsonPath("$.error_code").value(AuthErrorCode.AUTHENTICATION_REQUIRED.name))
+            .andExpect(jsonPath("$.error_message").value(AuthErrorCode.AUTHENTICATION_REQUIRED.defaultMessage))
     }
 
     @Test
-    @DisplayName("Spring Security의 BadCredentialsException은 401 BAD_CREDENTIALS로 응답한다")
+    @WithMockUser(username = "1", roles = ["USER"])
+    @DisplayName("AccessDeniedException은 인증된 요청이면 403 ACCESS_DENIED로 응답하고 영문 기본 메시지를 노출하지 않는다")
+    fun `인증된 요청의 AccessDeniedException 처리`() {
+        mockMvc.perform(get("/test/access-denied"))
+            .andExpect(status().isForbidden)
+            .andExpect(jsonPath("$.error_code").value(CommonErrorCode.ACCESS_DENIED.name))
+            .andExpect(jsonPath("$.error_message").value(CommonErrorCode.ACCESS_DENIED.defaultMessage))
+    }
+
+    @Test
+    @DisplayName("Spring Security의 BadCredentialsException은 401 BAD_CREDENTIALS로 응답하고 영문 기본 메시지를 노출하지 않는다")
     fun `BadCredentialsException 처리`() {
         mockMvc.perform(get("/test/bad-credentials"))
             .andExpect(status().isUnauthorized)
             .andExpect(jsonPath("$.error_code").value(AuthErrorCode.BAD_CREDENTIALS.name))
-            .andExpect(jsonPath("$.error_message").value("Bad credentials"))
+            .andExpect(jsonPath("$.error_message").value(AuthErrorCode.BAD_CREDENTIALS.defaultMessage))
     }
 
     @Test
@@ -221,12 +235,13 @@ class ExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("(현재 동작) 처리되지 않은 예외는 500 INTERNAL_SERVER_ERROR로 응답하고 예외 메시지를 그대로 노출한다")
+    @DisplayName("처리되지 않은 예외는 500 INTERNAL_SERVER_ERROR로 응답하고 내부 예외 메시지를 노출하지 않는다")
     fun `미처리 예외 처리`() {
         mockMvc.perform(get("/test/runtime-error"))
             .andExpect(status().isInternalServerError)
             .andExpect(jsonPath("$.error_code").value(SystemErrorCode.INTERNAL_SERVER_ERROR.name))
-            .andExpect(jsonPath("$.error_message").value("DB 접속 정보 오류: jdbc:mysql://internal-host/log"))
+            .andExpect(jsonPath("$.error_message").value(SystemErrorCode.INTERNAL_SERVER_ERROR.defaultMessage))
+            .andExpect(content().string(not(containsString("internal-host"))))
     }
 
     // ===== Spring 표준 예외: 현재 catch-all(Exception) 핸들러에 걸리는지 확인 =====
@@ -285,7 +300,12 @@ class ExceptionHandlerTest {
             Triple(
                 Thrower.BUSINESS,
                 401,
-                listOf(AuthErrorCode.INVALID_TOKEN, AuthErrorCode.EXPIRED_TOKEN, AuthErrorCode.BAD_CREDENTIALS)
+                listOf(
+                    AuthErrorCode.INVALID_TOKEN,
+                    AuthErrorCode.EXPIRED_TOKEN,
+                    AuthErrorCode.BAD_CREDENTIALS,
+                    AuthErrorCode.AUTHENTICATION_REQUIRED
+                )
             ),
             // ----- 403 FORBIDDEN -----
             Triple(

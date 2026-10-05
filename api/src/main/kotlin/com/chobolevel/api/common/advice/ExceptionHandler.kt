@@ -15,7 +15,11 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.access.AccessDeniedException
+import org.springframework.security.authentication.AuthenticationTrustResolver
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl
 import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -24,6 +28,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 class ExceptionHandler {
 
     private val logger = LoggerFactory.getLogger(ExceptionHandler::class.java)
+    private val authenticationTrustResolver: AuthenticationTrustResolver = AuthenticationTrustResolverImpl()
 
     // 예상된 비즈니스 실패(4xx). 상태는 errorCode.type으로 결정한다(ErrorType.toHttpStatus).
     @ExceptionHandler(BusinessException::class)
@@ -61,18 +66,24 @@ class ExceptionHandler {
         return businessResponse(errorCode = CommonErrorCode.DUPLICATE_REQUEST)
     }
 
-    // 현재는 인증 여부와 무관하게 401로 응답한다. 인증/권한 구분(401/403)은 응답 정리 단계에서 다룬다.
+    // 메서드 시큐리티(@PreAuthorize)는 익명 요청과 권한 부족 요청 모두 같은 예외를 던지므로, 인증 여부로 구분한다.
+    // 인증되지 않았으면 401(로그인 필요), 인증은 됐지만 권한이 없으면 403.
+    // 응답 메시지는 Spring 기본 영문 메시지("Access Denied")를 노출하지 않고 에러코드의 기본 메시지를 쓴다.
     @ExceptionHandler(AccessDeniedException::class)
     fun handleAccessDeniedException(e: AccessDeniedException): ResponseEntity<ErrorResponse> {
-        val errorCode: BusinessErrorCode = CommonErrorCode.ACCESS_DENIED
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-            ErrorResponse(errorCode = errorCode.name, errorMessage = e.message ?: errorCode.defaultMessage)
-        )
+        val authentication: Authentication? = SecurityContextHolder.getContext().authentication
+        val isAnonymous: Boolean = authentication == null || authenticationTrustResolver.isAnonymous(authentication)
+        return if (isAnonymous) {
+            businessResponse(errorCode = AuthErrorCode.AUTHENTICATION_REQUIRED)
+        } else {
+            businessResponse(errorCode = CommonErrorCode.ACCESS_DENIED)
+        }
     }
 
+    // Spring 기본 영문 메시지("Bad credentials")를 노출하지 않고 에러코드의 기본 메시지를 쓴다.
     @ExceptionHandler(BadCredentialsException::class)
     fun handleBadCredentialsException(e: BadCredentialsException): ResponseEntity<ErrorResponse> {
-        return businessResponse(errorCode = AuthErrorCode.BAD_CREDENTIALS, message = e.message)
+        return businessResponse(errorCode = AuthErrorCode.BAD_CREDENTIALS)
     }
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
@@ -86,11 +97,13 @@ class ExceptionHandler {
         return businessResponse(errorCode = CommonErrorCode.INVALID_REQUEST_FORMAT)
     }
 
+    // 예상하지 못한 실패. 응답에는 내부 예외 메시지(DB 접속 정보, 쿼리 등이 섞일 수 있음)를 담지 않고 고정 메시지만 준다.
+    // 상세 원인은 로그에만 남긴다.
     @ExceptionHandler(Exception::class)
     fun handleException(e: Exception, request: HttpServletRequest): ResponseEntity<ErrorResponse> {
         val error: ErrorResponse = ErrorResponse(
             errorCode = SystemErrorCode.INTERNAL_SERVER_ERROR.name,
-            errorMessage = e.message ?: "알 수 없는 에러입니다."
+            errorMessage = SystemErrorCode.INTERNAL_SERVER_ERROR.defaultMessage
         )
         logger.error("[(${request.method}) ${request.requestURL} ] Internal server error: ${e.message}", e)
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error)

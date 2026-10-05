@@ -10,5 +10,8 @@ enum class AuthErrorCode(
 ) : BusinessErrorCode {
     INVALID_TOKEN(ErrorType.UNAUTHENTICATED, "유효하지 않은 토큰입니다."),
     EXPIRED_TOKEN(ErrorType.UNAUTHENTICATED, "만료된 토큰입니다."),
-    BAD_CREDENTIALS(ErrorType.UNAUTHENTICATED, "유효하지 않은 접근입니다.")
+    BAD_CREDENTIALS(ErrorType.UNAUTHENTICATED, "유효하지 않은 접근입니다."),
+
+    // 인증이 필요한 요청을 인증 없이 보냈을 때. 인증은 됐지만 권한이 없는 경우는 CommonErrorCode.ACCESS_DENIED(403)이다.
+    AUTHENTICATION_REQUIRED(ErrorType.UNAUTHENTICATED, "로그인이 필요합니다.")
 }

@@ -87,14 +87,14 @@ class SubjectControllerTest {
 
     @Test
     @WithMockUser(username = "${DummyUser.ID}", roles = ["USER"])
-    fun `인증된 사용자가 주제 등록 요청 시 401을 반환한다`() {
+    fun `인증된 사용자가 주제 등록 요청 시 403을 반환한다`() {
         // given & when & then
         mockMvc.perform(
             post("/api/v1/subjects")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(DummySubject.toCreateRequest()))
         )
-            .andExpect(status().isUnauthorized)
+            .andExpect(status().isForbidden)
     }
 
     @Test
@@ -146,14 +146,14 @@ class SubjectControllerTest {
 
     @Test
     @WithMockUser(username = "${DummyUser.ID}", roles = ["USER"])
-    fun `인증된 사용자가 주제 수정 요청 시 401을 반환한다`() {
+    fun `인증된 사용자가 주제 수정 요청 시 403을 반환한다`() {
         // given & when & then
         mockMvc.perform(
             put("/api/v1/subjects/${DummySubject.ID}")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(DummySubject.toUpdateRequest()))
         )
-            .andExpect(status().isUnauthorized)
+            .andExpect(status().isForbidden)
     }
 
     @Test
@@ -170,9 +170,9 @@ class SubjectControllerTest {
 
     @Test
     @WithMockUser(username = "${DummyUser.ID}", roles = ["USER"])
-    fun `인증된 사용자가 주제 삭제 요청 시 401을 반환한다`() {
+    fun `인증된 사용자가 주제 삭제 요청 시 403을 반환한다`() {
         // given & when & then
         mockMvc.perform(delete("/api/v1/subjects/${DummySubject.ID}"))
-            .andExpect(status().isUnauthorized)
+            .andExpect(status().isForbidden)
     }
 }
