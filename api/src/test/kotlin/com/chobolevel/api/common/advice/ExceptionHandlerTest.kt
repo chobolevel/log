@@ -316,10 +316,7 @@ class ExceptionHandlerTest {
                     EmotionErrorCode.EMOTION_CATEGORY_NOT_FOUND,
                     EmotionErrorCode.EMOTION_NOT_FOUND,
                     NotificationErrorCode.NOTIFICATION_NOT_FOUND,
-                    NotificationErrorCode.NOTIFICATION_DISPATCH_EVENT_NOT_FOUND,
-                    // 아래 2개는 멱등 처리 단계에서 삭제 예정
-                    UserErrorCode.USER_FOLLOW_NOT_FOUND, // 400 -> 404
-                    RecordErrorCode.RECORD_LIKE_NOT_FOUND // 400 -> 404
+                    NotificationErrorCode.NOTIFICATION_DISPATCH_EVENT_NOT_FOUND
                 )
             ),
             // ----- 409 CONFLICT -----
@@ -333,10 +330,7 @@ class ExceptionHandlerTest {
                     RecordErrorCode.RECORD_LIKE_SYNC_EVENT_NOT_FAILED, // 400 -> 409
                     RecordErrorCode.RECORD_VIEW_SYNC_EVENT_NOT_FAILED, // 400 -> 409
                     EmotionErrorCode.EMOTION_CATEGORY_IN_USE, // 400 -> 409
-                    EmotionErrorCode.EMOTION_IN_USE, // 400 -> 409
-                    // 아래 2개는 멱등 처리 단계에서 삭제 예정
-                    UserErrorCode.USER_FOLLOW_ALREADY_EXISTS, // 400 -> 409
-                    RecordErrorCode.RECORD_LIKE_ALREADY_EXISTS // 400 -> 409
+                    EmotionErrorCode.EMOTION_IN_USE // 400 -> 409
                 )
             ),
             // ----- 5xx: 예외 클래스가 상태를 결정 -----

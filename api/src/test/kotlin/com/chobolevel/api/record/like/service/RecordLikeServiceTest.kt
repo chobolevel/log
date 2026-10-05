@@ -61,7 +61,7 @@ class RecordLikeServiceTest : BehaviorSpec({
                 val record: Record = DummyRecord.toEntity()
                 val countKey: String = CacheKeyPrefix.recordLikeCount(recordId)
                 justRun { recordLikeValidator.validateRecordExists(recordId = recordId) }
-                justRun { recordLikeValidator.validateNotAlreadyLiked(recordId = recordId, userId = userId) }
+                every { recordLikeRepository.existsByRecordIdAndUserId(recordId = recordId, userId = userId) } returns false
                 every { userRepository.findById(id = userId) } returns user
                 every { recordRepository.findById(id = recordId) } returns record
                 every { recordLikeRepository.save(any<RecordLike>()) } answers { firstArg() }
@@ -121,7 +121,7 @@ class RecordLikeServiceTest : BehaviorSpec({
                 ).also { ReflectionTestUtils.setField(it, "id", recordId) }
                 val countKey: String = CacheKeyPrefix.recordLikeCount(recordId)
                 justRun { recordLikeValidator.validateRecordExists(recordId = recordId) }
-                justRun { recordLikeValidator.validateNotAlreadyLiked(recordId = recordId, userId = userId) }
+                every { recordLikeRepository.existsByRecordIdAndUserId(recordId = recordId, userId = userId) } returns false
                 every { userRepository.findById(id = userId) } returns user
                 every { recordRepository.findById(id = recordId) } returns record
                 every { recordLikeRepository.save(any<RecordLike>()) } answers { firstArg() }
@@ -170,7 +170,7 @@ class RecordLikeServiceTest : BehaviorSpec({
                 val record: Record = DummyRecord.toEntity()
                 val countKey: String = CacheKeyPrefix.recordLikeCount(recordId)
                 justRun { recordLikeValidator.validateRecordExists(recordId = recordId) }
-                justRun { recordLikeValidator.validateNotAlreadyLiked(recordId = recordId, userId = userId) }
+                every { recordLikeRepository.existsByRecordIdAndUserId(recordId = recordId, userId = userId) } returns false
                 every { userRepository.findById(id = userId) } returns user
                 every { recordRepository.findById(id = recordId) } returns record
                 every { recordLikeRepository.save(any<RecordLike>()) } answers { firstArg() }
@@ -203,21 +203,43 @@ class RecordLikeServiceTest : BehaviorSpec({
         }
 
         `when`("이미 좋아요를 누른 상태에서 다시 누르면") {
-            then("BusinessException이 발생하고 저장 로직은 수행되지 않는다") {
+            then("예외 없이 true를 반환하고 저장, 이벤트, 캐시, 알림 등 부수효과가 발생하지 않는다") {
                 // given
                 val userId: Long = DummyUser.ID
                 val recordId: Long = DummyRecord.ID
                 justRun { recordLikeValidator.validateRecordExists(recordId = recordId) }
+                every { recordLikeRepository.existsByRecordIdAndUserId(recordId = recordId, userId = userId) } returns true
+
+                // when
+                val result: Boolean = service.like(userId = userId, recordId = recordId)
+
+                // then
+                result shouldBe true
+                verify(exactly = 0) { recordLikeRepository.save(any()) }
+                verify(exactly = 0) { recordLikeSyncEventRepository.save(any()) }
+                verify(exactly = 0) { recordLikeRepository.countByRecordId(any()) }
+                verify(exactly = 0) { cacheProvider.hasKey(any()) }
+                verify(exactly = 0) { cacheProvider.increment(any()) }
+                verify(exactly = 0) { cacheProvider.put(any(), any(), any(), any()) }
+                verify(exactly = 0) { notificationPublisher.publish(any(), any(), any(), any()) }
+            }
+        }
+
+        `when`("존재하지 않는 기록에 좋아요를 누르면") {
+            then("RECORD_NOT_FOUND BusinessException이 발생하고 좋아요 여부를 조회하지 않는다") {
+                // given
+                val userId: Long = DummyUser.ID
+                val recordId: Long = DummyRecord.ID
                 every {
-                    recordLikeValidator.validateNotAlreadyLiked(recordId = recordId, userId = userId)
-                } throws BusinessException(errorCode = RecordErrorCode.RECORD_LIKE_ALREADY_EXISTS)
+                    recordLikeValidator.validateRecordExists(recordId = recordId)
+                } throws BusinessException(errorCode = RecordErrorCode.RECORD_NOT_FOUND)
 
                 // when & then
                 shouldThrow<BusinessException> {
                     service.like(userId = userId, recordId = recordId)
-                }.errorCode shouldBe RecordErrorCode.RECORD_LIKE_ALREADY_EXISTS
+                }.errorCode shouldBe RecordErrorCode.RECORD_NOT_FOUND
+                verify(exactly = 0) { recordLikeRepository.existsByRecordIdAndUserId(any(), any()) }
                 verify(exactly = 0) { recordLikeRepository.save(any()) }
-                verify(exactly = 0) { recordLikeSyncEventRepository.save(any()) }
             }
         }
     }
@@ -230,7 +252,7 @@ class RecordLikeServiceTest : BehaviorSpec({
                 val recordId: Long = DummyRecord.ID
                 val countKey: String = CacheKeyPrefix.recordLikeCount(recordId)
                 justRun { recordLikeValidator.validateRecordExists(recordId = recordId) }
-                justRun { recordLikeValidator.validateAlreadyLiked(recordId = recordId, userId = userId) }
+                every { recordLikeRepository.existsByRecordIdAndUserId(recordId = recordId, userId = userId) } returns true
                 justRun { recordLikeRepository.deleteByRecordIdAndUserId(recordId = recordId, userId = userId) }
                 every { recordLikeSyncEventRepository.save(any()) } answers { firstArg() }
                 every { cacheProvider.hasKey(countKey) } returns true
@@ -272,7 +294,7 @@ class RecordLikeServiceTest : BehaviorSpec({
                 val recordId: Long = DummyRecord.ID
                 val countKey: String = CacheKeyPrefix.recordLikeCount(recordId)
                 justRun { recordLikeValidator.validateRecordExists(recordId = recordId) }
-                justRun { recordLikeValidator.validateAlreadyLiked(recordId = recordId, userId = userId) }
+                every { recordLikeRepository.existsByRecordIdAndUserId(recordId = recordId, userId = userId) } returns true
                 justRun { recordLikeRepository.deleteByRecordIdAndUserId(recordId = recordId, userId = userId) }
                 every { recordLikeSyncEventRepository.save(any()) } answers { firstArg() }
                 every { cacheProvider.hasKey(countKey) } returns false
@@ -303,21 +325,42 @@ class RecordLikeServiceTest : BehaviorSpec({
         }
 
         `when`("좋아요를 누르지 않은 상태에서 취소하면") {
-            then("BusinessException이 발생하고 삭제 로직은 수행되지 않는다") {
+            then("예외 없이 true를 반환하고 삭제, 이벤트, 카운터 감소 등 부수효과가 발생하지 않는다") {
                 // given
                 val userId: Long = DummyUser.ID
                 val recordId: Long = DummyRecord.ID
                 justRun { recordLikeValidator.validateRecordExists(recordId = recordId) }
+                every { recordLikeRepository.existsByRecordIdAndUserId(recordId = recordId, userId = userId) } returns false
+
+                // when
+                val result: Boolean = service.dislike(userId = userId, recordId = recordId)
+
+                // then
+                result shouldBe true
+                verify(exactly = 0) { recordLikeRepository.deleteByRecordIdAndUserId(any(), any()) }
+                verify(exactly = 0) { recordLikeSyncEventRepository.save(any()) }
+                verify(exactly = 0) { recordLikeRepository.countByRecordId(any()) }
+                verify(exactly = 0) { cacheProvider.hasKey(any()) }
+                verify(exactly = 0) { cacheProvider.decrement(any()) }
+                verify(exactly = 0) { cacheProvider.put(any(), any(), any(), any()) }
+            }
+        }
+
+        `when`("존재하지 않는 기록의 좋아요를 취소하면") {
+            then("RECORD_NOT_FOUND BusinessException이 발생하고 좋아요 여부를 조회하지 않는다") {
+                // given
+                val userId: Long = DummyUser.ID
+                val recordId: Long = DummyRecord.ID
                 every {
-                    recordLikeValidator.validateAlreadyLiked(recordId = recordId, userId = userId)
-                } throws BusinessException(errorCode = RecordErrorCode.RECORD_LIKE_NOT_FOUND)
+                    recordLikeValidator.validateRecordExists(recordId = recordId)
+                } throws BusinessException(errorCode = RecordErrorCode.RECORD_NOT_FOUND)
 
                 // when & then
                 shouldThrow<BusinessException> {
                     service.dislike(userId = userId, recordId = recordId)
-                }.errorCode shouldBe RecordErrorCode.RECORD_LIKE_NOT_FOUND
+                }.errorCode shouldBe RecordErrorCode.RECORD_NOT_FOUND
+                verify(exactly = 0) { recordLikeRepository.existsByRecordIdAndUserId(any(), any()) }
                 verify(exactly = 0) { recordLikeRepository.deleteByRecordIdAndUserId(any(), any()) }
-                verify(exactly = 0) { recordLikeSyncEventRepository.save(any()) }
             }
         }
     }

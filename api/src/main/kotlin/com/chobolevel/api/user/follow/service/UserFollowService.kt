@@ -31,7 +31,13 @@ class UserFollowService(
     // 동시 요청에 대한 락은 UserFollowFacade가 이 메서드 호출 전체(커밋까지)를 감싸며 책임진다.
     @Transactional
     fun follow(followerUserId: Long, followingUserId: Long): Boolean {
-        userFollowBusinessValidator.validateFollow(followerUserId = followerUserId, followingUserId = followingUserId)
+        userFollowBusinessValidator.validateFollowingUserExists(followingUserId = followingUserId)
+
+        // 이미 팔로우 중이면 원하는 최종 상태가 달성돼 있으므로 성공으로 응답한다(멱등).
+        // 캐시 웜업·저장·동기화 이벤트·알림 등 부수효과는 모두 수행하지 않아야 하므로 반드시 그 앞에서 반환한다.
+        if (isCurrentlyFollowing(followerUserId = followerUserId, followingUserId = followingUserId)) {
+            return true
+        }
 
         // 이번 팔로우가 DB에 반영되기 전에 웜업해야 "이전" COUNT(*)로 시드된다 — 그래야 이후 increment 한 번으로 정확해진다
         // (RecordLikeService.warmLikeCountCacheIfCold와 동일 원리)
@@ -76,7 +82,11 @@ class UserFollowService(
 
     @Transactional
     fun unfollow(followerUserId: Long, followingUserId: Long): Boolean {
-        userFollowBusinessValidator.validateUnfollow(followerUserId = followerUserId, followingUserId = followingUserId)
+        // 이미 팔로우 중이 아니면 원하는 최종 상태가 달성돼 있으므로 성공으로 응답한다(멱등).
+        // 이벤트 저장과 카운터 감소가 일어나면 아무것도 취소하지 않았는데 카운트만 줄어드므로 그 앞에서 반환한다.
+        if (!isCurrentlyFollowing(followerUserId = followerUserId, followingUserId = followingUserId)) {
+            return true
+        }
 
         warmFollowingCountCacheIfCold(followerUserId)
         warmFollowerCountCacheIfCold(followingUserId)
@@ -102,6 +112,22 @@ class UserFollowService(
         }
 
         return true
+    }
+
+    // 관계 캐시가 없으면 DB로 확인 후 있으면 재적재 (좋아요 Set과 동일한 역할 — TTL 없이 즉시 상태 반영)
+    private fun isCurrentlyFollowing(followerUserId: Long, followingUserId: Long): Boolean {
+        val relationKey: String = CacheKeyPrefix.userFollowRelation(followerUserId, followingUserId)
+        if (cacheProvider.hasKey(relationKey)) {
+            return true
+        }
+        val exists: Boolean = userFollowRepository.existsByFollowerUserIdAndFollowingUserId(
+            followerUserId = followerUserId,
+            followingUserId = followingUserId,
+        )
+        if (exists) {
+            cacheProvider.put(relationKey, "1")
+        }
+        return exists
     }
 
     // 콜드스타트: Redis에 카운터 키가 없으면 이번 변경이 반영되기 전의 DB COUNT로 시드값 세팅

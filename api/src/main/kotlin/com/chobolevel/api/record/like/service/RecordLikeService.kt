@@ -34,7 +34,12 @@ class RecordLikeService(
     @Transactional
     fun like(userId: Long, recordId: Long): Boolean {
         recordLikeValidator.validateRecordExists(recordId = recordId)
-        recordLikeValidator.validateNotAlreadyLiked(recordId = recordId, userId = userId)
+
+        // 이미 좋아요한 상태면 원하는 최종 상태가 달성돼 있으므로 성공으로 응답한다(멱등).
+        // 캐시 웜업·저장·동기화 이벤트·알림 등 부수효과는 모두 수행하지 않아야 하므로 반드시 그 앞에서 반환한다.
+        if (recordLikeRepository.existsByRecordIdAndUserId(recordId = recordId, userId = userId)) {
+            return true
+        }
 
         // 이번 좋아요가 DB에 반영되기 전에 웜업해야 "이전" COUNT(*)로 시드된다 — 그래야 이후 increment 한 번으로 정확해진다
         warmLikeCountCacheIfCold(recordId = recordId)
@@ -83,7 +88,12 @@ class RecordLikeService(
     @Transactional
     fun dislike(userId: Long, recordId: Long): Boolean {
         recordLikeValidator.validateRecordExists(recordId = recordId)
-        recordLikeValidator.validateAlreadyLiked(recordId = recordId, userId = userId)
+
+        // 이미 좋아요하지 않은 상태면 원하는 최종 상태가 달성돼 있으므로 성공으로 응답한다(멱등).
+        // 이벤트 저장과 카운터 감소가 일어나면 아무것도 취소하지 않았는데 카운트만 줄어드므로 그 앞에서 반환한다.
+        if (!recordLikeRepository.existsByRecordIdAndUserId(recordId = recordId, userId = userId)) {
+            return true
+        }
 
         // 이번 취소가 DB에 반영되기 전에 웜업해야 "이전" COUNT(*)로 시드된다 — 그래야 이후 decrement 한 번으로 정확해진다
         warmLikeCountCacheIfCold(recordId = recordId)

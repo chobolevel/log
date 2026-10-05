@@ -20,9 +20,7 @@ enum class UserErrorCode(
     // USER IMAGE
     USER_IMAGE_NOT_FOUND(ErrorType.NOT_FOUND, "회원 이미지를 찾을 수 없습니다."),
 
-    // USER FOLLOW (ALREADY_EXISTS / NOT_FOUND 는 멱등 처리 단계에서 삭제 예정)
-    USER_FOLLOW_ALREADY_EXISTS(ErrorType.CONFLICT, "이미 팔로우한 회원입니다."),
-    USER_FOLLOW_NOT_FOUND(ErrorType.NOT_FOUND, "팔로우하지 않은 회원입니다."),
+    // USER FOLLOW
     USER_FOLLOW_SELF_NOT_ALLOWED(ErrorType.INVALID, "자기 자신은 팔로우할 수 없습니다."),
 
     // USER FOLLOW SYNC EVENT

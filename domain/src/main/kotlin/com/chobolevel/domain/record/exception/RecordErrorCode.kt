@@ -15,10 +15,6 @@ enum class RecordErrorCode(
     // RECORD REVIEW
     RECORD_REVIEW_NOT_FOUND(ErrorType.NOT_FOUND, "기록 리뷰를 찾을 수 없습니다."),
 
-    // RECORD LIKE (ALREADY_EXISTS / NOT_FOUND 는 멱등 처리 단계에서 삭제 예정)
-    RECORD_LIKE_ALREADY_EXISTS(ErrorType.CONFLICT, "이미 좋아요한 기록입니다."),
-    RECORD_LIKE_NOT_FOUND(ErrorType.NOT_FOUND, "좋아요하지 않은 기록입니다."),
-
     // RECORD LIKE SYNC EVENT
     RECORD_LIKE_SYNC_EVENT_NOT_FOUND(ErrorType.NOT_FOUND, "좋아요 동기화 이벤트를 찾을 수 없습니다."),
     RECORD_LIKE_SYNC_EVENT_NOT_FAILED(ErrorType.CONFLICT, "실패한 이벤트만 재발행할 수 있습니다."),

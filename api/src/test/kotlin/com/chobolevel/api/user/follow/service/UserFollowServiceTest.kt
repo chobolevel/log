@@ -55,7 +55,9 @@ class UserFollowServiceTest : BehaviorSpec({
                 val relationKey: String = CacheKeyPrefix.userFollowRelation(followerUserId, followingUserId)
                 val followingCountKey: String = CacheKeyPrefix.userFollowingCount(followerUserId)
                 val followerCountKey: String = CacheKeyPrefix.userFollowerCount(followingUserId)
-                every { userFollowBusinessValidator.validateFollow(followerUserId, followingUserId) } returns Unit
+                every { userFollowBusinessValidator.validateFollowingUserExists(followingUserId) } returns Unit
+                every { cacheProvider.hasKey(relationKey) } returns false
+                every { userFollowRepository.existsByFollowerUserIdAndFollowingUserId(followerUserId, followingUserId) } returns false
                 every { cacheProvider.hasKey(followingCountKey) } returns true
                 every { cacheProvider.hasKey(followerCountKey) } returns true
                 every { userRepository.findById(id = followerUserId) } returns followerUser
@@ -107,7 +109,9 @@ class UserFollowServiceTest : BehaviorSpec({
                 val relationKey: String = CacheKeyPrefix.userFollowRelation(followerUserId, followingUserId)
                 val followingCountKey: String = CacheKeyPrefix.userFollowingCount(followerUserId)
                 val followerCountKey: String = CacheKeyPrefix.userFollowerCount(followingUserId)
-                every { userFollowBusinessValidator.validateFollow(followerUserId, followingUserId) } returns Unit
+                every { userFollowBusinessValidator.validateFollowingUserExists(followingUserId) } returns Unit
+                every { cacheProvider.hasKey(relationKey) } returns false
+                every { userFollowRepository.existsByFollowerUserIdAndFollowingUserId(followerUserId, followingUserId) } returns false
                 every { cacheProvider.hasKey(followingCountKey) } returns false
                 every { cacheProvider.hasKey(followerCountKey) } returns false
                 every { userFollowRepository.countByFollowerUserId(followerUserId) } returns 3L
@@ -140,21 +144,66 @@ class UserFollowServiceTest : BehaviorSpec({
             }
         }
 
-        `when`("이미 팔로우 중이면") {
-            then("BusinessValidator의 예외가 그대로 전파되고 row/이벤트는 저장되지 않는다") {
+        `when`("이미 팔로우 중이면 (관계 캐시 적중)") {
+            then("예외 없이 true를 반환하고 저장, 이벤트, 카운터, 알림 등 부수효과가 발생하지 않는다") {
+                // given
+                val followerUserId: Long = DummyUser.ID
+                val followingUserId = 2L
+                val relationKey: String = CacheKeyPrefix.userFollowRelation(followerUserId, followingUserId)
+                every { userFollowBusinessValidator.validateFollowingUserExists(followingUserId) } returns Unit
+                every { cacheProvider.hasKey(relationKey) } returns true
+
+                // when
+                val result: Boolean = service.follow(followerUserId = followerUserId, followingUserId = followingUserId)
+
+                // then
+                result shouldBe true
+                verify(exactly = 0) { userFollowRepository.save(any()) }
+                verify(exactly = 0) { userFollowSyncEventRepository.save(any()) }
+                verify(exactly = 0) { cacheProvider.increment(any()) }
+                verify(exactly = 0) { notificationPublisher.publish(any(), any(), any(), any()) }
+            }
+        }
+
+        `when`("이미 팔로우 중이고 관계 캐시가 비어 있으면") {
+            then("DB로 확인해 관계 캐시를 재적재하고 true를 반환하며 부수효과는 발생하지 않는다") {
+                // given
+                val followerUserId: Long = DummyUser.ID
+                val followingUserId = 2L
+                val relationKey: String = CacheKeyPrefix.userFollowRelation(followerUserId, followingUserId)
+                every { userFollowBusinessValidator.validateFollowingUserExists(followingUserId) } returns Unit
+                every { cacheProvider.hasKey(relationKey) } returns false
+                every { userFollowRepository.existsByFollowerUserIdAndFollowingUserId(followerUserId, followingUserId) } returns true
+                every { cacheProvider.put(relationKey, "1") } returns Unit
+
+                // when
+                val result: Boolean = service.follow(followerUserId = followerUserId, followingUserId = followingUserId)
+
+                // then
+                result shouldBe true
+                verify(exactly = 1) { cacheProvider.put(relationKey, "1") }
+                verify(exactly = 0) { userFollowRepository.save(any()) }
+                verify(exactly = 0) { userFollowSyncEventRepository.save(any()) }
+                verify(exactly = 0) { cacheProvider.increment(any()) }
+                verify(exactly = 0) { notificationPublisher.publish(any(), any(), any(), any()) }
+            }
+        }
+
+        `when`("팔로우 대상 사용자가 존재하지 않으면") {
+            then("USER_NOT_FOUND BusinessException이 발생하고 팔로우 여부를 조회하지 않는다") {
                 // given
                 val followerUserId: Long = DummyUser.ID
                 val followingUserId = 2L
                 every {
-                    userFollowBusinessValidator.validateFollow(followerUserId, followingUserId)
-                } throws BusinessException(errorCode = UserErrorCode.USER_FOLLOW_ALREADY_EXISTS)
+                    userFollowBusinessValidator.validateFollowingUserExists(followingUserId)
+                } throws BusinessException(errorCode = UserErrorCode.USER_NOT_FOUND)
 
                 // when & then
                 shouldThrow<BusinessException> {
                     service.follow(followerUserId = followerUserId, followingUserId = followingUserId)
-                }.errorCode shouldBe UserErrorCode.USER_FOLLOW_ALREADY_EXISTS
+                }.errorCode shouldBe UserErrorCode.USER_NOT_FOUND
+                verify(exactly = 0) { cacheProvider.hasKey(any()) }
                 verify(exactly = 0) { userFollowRepository.save(any()) }
-                verify(exactly = 0) { userFollowSyncEventRepository.save(any()) }
             }
         }
     }
@@ -168,7 +217,7 @@ class UserFollowServiceTest : BehaviorSpec({
                 val relationKey: String = CacheKeyPrefix.userFollowRelation(followerUserId, followingUserId)
                 val followingCountKey: String = CacheKeyPrefix.userFollowingCount(followerUserId)
                 val followerCountKey: String = CacheKeyPrefix.userFollowerCount(followingUserId)
-                every { userFollowBusinessValidator.validateUnfollow(followerUserId, followingUserId) } returns Unit
+                every { cacheProvider.hasKey(relationKey) } returns true
                 every { cacheProvider.hasKey(followingCountKey) } returns true
                 every { cacheProvider.hasKey(followerCountKey) } returns true
                 every { userFollowRepository.deleteByFollowerUserIdAndFollowingUserId(followerUserId, followingUserId) } returns Unit
@@ -191,20 +240,23 @@ class UserFollowServiceTest : BehaviorSpec({
         }
 
         `when`("팔로우 중이 아니면") {
-            then("BusinessValidator의 예외가 그대로 전파되고 이벤트는 저장되지 않는다") {
+            then("예외 없이 true를 반환하고 삭제, 이벤트, 카운터 감소 등 부수효과가 발생하지 않는다") {
                 // given
                 val followerUserId: Long = DummyUser.ID
                 val followingUserId = 2L
-                every {
-                    userFollowBusinessValidator.validateUnfollow(followerUserId, followingUserId)
-                } throws BusinessException(errorCode = UserErrorCode.USER_FOLLOW_NOT_FOUND)
+                val relationKey: String = CacheKeyPrefix.userFollowRelation(followerUserId, followingUserId)
+                every { cacheProvider.hasKey(relationKey) } returns false
+                every { userFollowRepository.existsByFollowerUserIdAndFollowingUserId(followerUserId, followingUserId) } returns false
 
-                // when & then
-                shouldThrow<BusinessException> {
-                    service.unfollow(followerUserId = followerUserId, followingUserId = followingUserId)
-                }.errorCode shouldBe UserErrorCode.USER_FOLLOW_NOT_FOUND
+                // when
+                val result: Boolean = service.unfollow(followerUserId = followerUserId, followingUserId = followingUserId)
+
+                // then
+                result shouldBe true
                 verify(exactly = 0) { userFollowRepository.deleteByFollowerUserIdAndFollowingUserId(any(), any()) }
                 verify(exactly = 0) { userFollowSyncEventRepository.save(any()) }
+                verify(exactly = 0) { cacheProvider.delete(any()) }
+                verify(exactly = 0) { cacheProvider.decrement(any()) }
             }
         }
     }

@@ -1,48 +1,20 @@
 package com.chobolevel.api.user.follow.validator
 
-import com.chobolevel.api.common.constant.CacheKeyPrefix
-import com.chobolevel.api.common.provider.CacheProvider
 import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.user.exception.UserErrorCode
-import com.chobolevel.domain.user.follow.repository.UserFollowRepository
 import com.chobolevel.domain.user.repository.UserRepository
 import org.springframework.stereotype.Component
 
 @Component
 class UserFollowBusinessValidator(
     private val userRepository: UserRepository,
-    private val userFollowRepository: UserFollowRepository,
-    private val cacheProvider: CacheProvider,
 ) {
 
-    fun validateFollow(followerUserId: Long, followingUserId: Long) {
+    // 팔로우 대상 사용자가 존재해야 한다. 이미 팔로우 중인지는 오류가 아니라 서비스의 분기 조건이다(멱등 처리).
+    // 언팔로우는 대상 사용자 존재를 검증하지 않는다: 탈퇴한 사용자를 팔로우 중이었다면 그 관계를 정리할 수 있어야 한다.
+    fun validateFollowingUserExists(followingUserId: Long) {
         if (!userRepository.existsById(followingUserId)) {
             throw BusinessException(errorCode = UserErrorCode.USER_NOT_FOUND)
         }
-        if (isCurrentlyFollowing(followerUserId = followerUserId, followingUserId = followingUserId)) {
-            throw BusinessException(errorCode = UserErrorCode.USER_FOLLOW_ALREADY_EXISTS)
-        }
-    }
-
-    fun validateUnfollow(followerUserId: Long, followingUserId: Long) {
-        if (!isCurrentlyFollowing(followerUserId = followerUserId, followingUserId = followingUserId)) {
-            throw BusinessException(errorCode = UserErrorCode.USER_FOLLOW_NOT_FOUND)
-        }
-    }
-
-    // 관계 캐시가 없으면 DB로 확인 후 있으면 재적재 (좋아요 Set과 동일한 역할 — TTL 없이 즉시 상태 반영)
-    private fun isCurrentlyFollowing(followerUserId: Long, followingUserId: Long): Boolean {
-        val relationKey: String = CacheKeyPrefix.userFollowRelation(followerUserId, followingUserId)
-        if (cacheProvider.hasKey(relationKey)) {
-            return true
-        }
-        val exists: Boolean = userFollowRepository.existsByFollowerUserIdAndFollowingUserId(
-            followerUserId = followerUserId,
-            followingUserId = followingUserId,
-        )
-        if (exists) {
-            cacheProvider.put(relationKey, "1")
-        }
-        return exists
     }
 }
