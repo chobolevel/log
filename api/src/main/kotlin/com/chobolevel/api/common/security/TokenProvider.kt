@@ -67,8 +67,19 @@ class TokenProvider(
                 .body
             val userDetails = userDetailService.loadUserByUsername(claims.subject)
             UsernamePasswordAuthenticationToken(userDetails, token, userDetails.authorities)
+        } catch (e: BusinessException) {
+            // validateToken이 던진 토큰 오류. 만료는 1시간마다 모든 사용자에게 일어나는 정상 흐름이라 요청마다 WARN을
+            // 남기면 노이즈가 되므로 DEBUG 한 줄만 남긴다. 위조·손상 등 그 밖의 거절은 비정상 징후라 WARN 한 줄(스택 없음).
+            // 에러코드 이름을 남겨 만료(EXPIRED_TOKEN)와 위조(INVALID_TOKEN)를 로그에서 구분할 수 있게 한다.
+            if (e.errorCode == AuthErrorCode.EXPIRED_TOKEN) {
+                logger.debug("Token rejected: {}", e.errorCode.name)
+            } else {
+                logger.warn("Token rejected: {}", e.errorCode.name)
+            }
+            null
         } catch (e: Exception) {
-            logger.warn("Token is invalid", e)
+            // 사용자 조회 실패 등 예상하지 못한 오류. 원인을 알아야 하므로 스택트레이스를 포함한다.
+            logger.warn("Failed to authenticate token", e)
             null
         }
     }
