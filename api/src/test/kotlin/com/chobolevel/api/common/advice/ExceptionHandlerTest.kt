@@ -43,6 +43,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.header
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.web.bind.annotation.GetMapping
@@ -113,7 +114,15 @@ class ExceptionHandlerTest {
 
         @GetMapping("/test/typed/{id}")
         fun typedPath(@PathVariable id: Long): String = "ok"
+
+        @GetMapping("/test/json-only", produces = [MediaType.APPLICATION_JSON_VALUE])
+        fun jsonOnly(): String = "ok"
+
+        @GetMapping("/test/model-attribute")
+        fun modelAttribute(request: AgeRequest): String = "ok"
     }
+
+    data class AgeRequest(val age: Int?)
 
     data class BodyRequest(
         @field:NotBlank(message = "이름은 필수 값입니다.")
@@ -247,35 +256,71 @@ class ExceptionHandlerTest {
     // ===== Spring 표준 예외: 현재 catch-all(Exception) 핸들러에 걸리는지 확인 =====
 
     @Test
-    @DisplayName("(현재 동작) 필수 쿼리 파라미터가 없으면 400이 아니라 500으로 응답한다")
+    @DisplayName("필수 쿼리 파라미터가 없으면 400 INVALID_PARAMETER로 응답한다")
     fun `필수 파라미터 누락`() {
         mockMvc.perform(get("/test/required-param"))
-            .andExpect(status().isInternalServerError)
-            .andExpect(jsonPath("$.error_code").value(SystemErrorCode.INTERNAL_SERVER_ERROR.name))
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.error_code").value(CommonErrorCode.INVALID_PARAMETER.name))
+            .andExpect(jsonPath("$.error_message").value(CommonErrorCode.INVALID_PARAMETER.defaultMessage))
     }
 
     @Test
-    @DisplayName("(현재 동작) 경로 변수 타입이 맞지 않으면 400이 아니라 500으로 응답한다")
+    @DisplayName("경로 변수 타입이 맞지 않으면 400 INVALID_PARAMETER로 응답한다")
     fun `경로 변수 타입 불일치`() {
         mockMvc.perform(get("/test/typed/abc"))
-            .andExpect(status().isInternalServerError)
-            .andExpect(jsonPath("$.error_code").value(SystemErrorCode.INTERNAL_SERVER_ERROR.name))
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.error_code").value(CommonErrorCode.INVALID_PARAMETER.name))
     }
 
     @Test
-    @DisplayName("(현재 동작) 지원하지 않는 HTTP 메서드는 405가 아니라 500으로 응답한다")
+    @DisplayName("@ModelAttribute 바인딩 오류는 400 INVALID_PARAMETER로 응답하고 Spring의 영문 변환 오류 메시지를 노출하지 않는다")
+    fun `모델 바인딩 타입 불일치`() {
+        mockMvc.perform(get("/test/model-attribute").param("age", "abc"))
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.error_code").value(CommonErrorCode.INVALID_PARAMETER.name))
+            .andExpect(jsonPath("$.error_message").value(CommonErrorCode.INVALID_PARAMETER.defaultMessage))
+    }
+
+    @Test
+    @DisplayName("지원하지 않는 HTTP 메서드는 405 METHOD_NOT_ALLOWED로 응답하고 Allow 헤더를 유지한다")
     fun `지원하지 않는 HTTP 메서드`() {
         mockMvc.perform(post("/test/required-param").param("id", "1"))
-            .andExpect(status().isInternalServerError)
-            .andExpect(jsonPath("$.error_code").value(SystemErrorCode.INTERNAL_SERVER_ERROR.name))
+            .andExpect(status().isMethodNotAllowed)
+            .andExpect(header().string("Allow", containsString("GET")))
+            .andExpect(jsonPath("$.error_code").value(HttpErrorCode.METHOD_NOT_ALLOWED.name))
+            .andExpect(jsonPath("$.error_message").value(HttpErrorCode.METHOD_NOT_ALLOWED.defaultMessage))
     }
 
     @Test
-    @DisplayName("(현재 동작) 지원하지 않는 Content-Type은 415가 아니라 500으로 응답한다")
+    @DisplayName("지원하지 않는 Content-Type은 415 UNSUPPORTED_MEDIA_TYPE으로 응답한다")
     fun `지원하지 않는 미디어 타입`() {
         mockMvc.perform(post("/test/body").contentType(MediaType.TEXT_PLAIN).content("name=a"))
-            .andExpect(status().isInternalServerError)
-            .andExpect(jsonPath("$.error_code").value(SystemErrorCode.INTERNAL_SERVER_ERROR.name))
+            .andExpect(status().isUnsupportedMediaType)
+            .andExpect(jsonPath("$.error_code").value(HttpErrorCode.UNSUPPORTED_MEDIA_TYPE.name))
+            .andExpect(jsonPath("$.error_message").value(HttpErrorCode.UNSUPPORTED_MEDIA_TYPE.defaultMessage))
+    }
+
+    @Test
+    @DisplayName("요청한 응답 형식(Accept)을 제공할 수 없으면 406 NOT_ACCEPTABLE로 응답하고 본문은 JSON이다")
+    fun `제공할 수 없는 Accept`() {
+        mockMvc.perform(get("/test/json-only").accept(MediaType.APPLICATION_XML))
+            .andExpect(status().isNotAcceptable)
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.error_code").value(HttpErrorCode.NOT_ACCEPTABLE.name))
+    }
+
+    @Test
+    @DisplayName("Accept가 JSON이 아니어도 비즈니스 에러 응답은 JSON으로 렌더링된다")
+    fun `비JSON Accept의 비즈니스 에러`() {
+        mockMvc.perform(
+            get("/test/throw")
+                .param("thrower", Thrower.BUSINESS.name)
+                .param("code", UserErrorCode.USER_NOT_FOUND.name)
+                .accept(MediaType.APPLICATION_XML)
+        )
+            .andExpect(status().isNotFound)
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.error_code").value(UserErrorCode.USER_NOT_FOUND.name))
     }
 
     companion object {
@@ -384,7 +429,11 @@ class ExceptionHandlerTest {
             CommonErrorCode.INVALID_REQUEST_FORMAT,
             CommonErrorCode.DUPLICATE_REQUEST,
             CommonErrorCode.ACCESS_DENIED,
-            SystemErrorCode.INTERNAL_SERVER_ERROR
+            SystemErrorCode.INTERNAL_SERVER_ERROR,
+            HttpErrorCode.PATH_NOT_FOUND,
+            HttpErrorCode.METHOD_NOT_ALLOWED,
+            HttpErrorCode.NOT_ACCEPTABLE,
+            HttpErrorCode.UNSUPPORTED_MEDIA_TYPE
         )
 
         private fun tableCodes(): List<ErrorCode> = table.flatMap { (_, _, codes) -> codes }
