@@ -10,6 +10,7 @@ import com.chobolevel.domain.common.exception.ExternalSystemException
 import com.chobolevel.domain.common.exception.InternalSystemException
 import com.chobolevel.domain.common.exception.SystemErrorCode
 import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.HttpHeaders
@@ -18,6 +19,7 @@ import org.springframework.http.HttpStatusCode
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.http.converter.HttpMessageNotWritableException
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.authentication.AuthenticationTrustResolver
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl
@@ -28,6 +30,7 @@ import org.springframework.validation.ObjectError
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.context.request.ServletWebRequest
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
 
@@ -123,6 +126,22 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
         request: WebRequest
     ): ResponseEntity<Any> {
         return errorResponse(status = status, errorCode = CommonErrorCode.INVALID_REQUEST_FORMAT, headers = headers)
+    }
+
+    // 응답 본문을 직렬화하다 실패한 경우. Jackson은 실패 전까지 쓴 일부(예: "{}")를 이미 응답 버퍼에 남겨 두므로,
+    // 비우지 않으면 그 뒤에 에러 JSON이 이어 붙어 클라이언트가 파싱할 수 없는 본문이 된다.
+    // 아직 커밋되지 않았다면 버퍼를 비운 뒤 에러 본문을 쓴다(상태와 헤더는 유지된다). 이미 커밋됐다면 되돌릴 수 없다.
+    override fun handleHttpMessageNotWritable(
+        ex: HttpMessageNotWritableException,
+        headers: HttpHeaders,
+        status: HttpStatusCode,
+        request: WebRequest
+    ): ResponseEntity<Any>? {
+        val response: HttpServletResponse? = (request as? ServletWebRequest)?.response
+        if (response != null && !response.isCommitted) {
+            response.resetBuffer()
+        }
+        return super.handleHttpMessageNotWritable(ex, headers, status, request)
     }
 
     // 그 밖의 표준 예외(필수 파라미터 누락, 타입 불일치, 405, 406, 415 등)의 응답 본문을 만드는 단일 지점.

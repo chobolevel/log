@@ -20,6 +20,7 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import org.hamcrest.Matchers.containsString
 import org.hamcrest.Matchers.not
+import org.hamcrest.Matchers.startsWith
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -120,9 +121,19 @@ class ExceptionHandlerTest {
 
         @GetMapping("/test/model-attribute")
         fun modelAttribute(request: AgeRequest): String = "ok"
+
+        // 직렬화 도중 예외가 나는 응답 본문 -> HttpMessageNotWritableException(500)
+        @GetMapping("/test/not-writable")
+        fun notWritable(): ExplodingBody = ExplodingBody()
     }
 
     data class AgeRequest(val age: Int?)
+
+    // Jackson이 객체를 쓰기 시작한 뒤(응답 버퍼에 "{" 등이 쓰인 뒤) getter에서 실패하는 본문
+    class ExplodingBody {
+        val value: String
+            get() = throw IllegalStateException("직렬화 실패: 내부 상세 정보")
+    }
 
     data class BodyRequest(
         @field:NotBlank(message = "이름은 필수 값입니다.")
@@ -321,6 +332,19 @@ class ExceptionHandlerTest {
             .andExpect(status().isNotFound)
             .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.error_code").value(UserErrorCode.USER_NOT_FOUND.name))
+    }
+
+    @Test
+    @DisplayName("응답 직렬화가 중간에 실패해도 에러 본문은 쓰다 만 본문과 섞이지 않은 하나의 JSON이다")
+    fun `응답 직렬화 실패`() {
+        mockMvc.perform(get("/test/not-writable"))
+            .andExpect(status().isInternalServerError)
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            // 쓰다 만 "{}"가 남아 있으면 에러 JSON이 이어 붙어 파싱할 수 없는 본문이 된다
+            .andExpect(content().string(not(startsWith("{}"))))
+            .andExpect(jsonPath("$.error_code").value(SystemErrorCode.INTERNAL_SERVER_ERROR.name))
+            .andExpect(jsonPath("$.error_message").value(SystemErrorCode.INTERNAL_SERVER_ERROR.defaultMessage))
+            .andExpect(content().string(not(containsString("내부 상세 정보"))))
     }
 
     companion object {
