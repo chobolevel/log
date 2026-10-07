@@ -25,6 +25,9 @@ dependencies {
 
     // web
     implementation("org.springframework.boot:spring-boot-starter-web")
+    // ErrorType이 HttpStatus를 공개 프로퍼티로 노출하므로 spring-web은 domain의 공개 API의 일부다.
+    // 웹이 없는 모듈이 domain에 의존해도 컴파일되도록 api로 선언한다. (모듈 구조 재편 시 함께 재검토)
+    api("org.springframework:spring-web")
 
     // email
     implementation("org.springframework.boot:spring-boot-starter-mail")

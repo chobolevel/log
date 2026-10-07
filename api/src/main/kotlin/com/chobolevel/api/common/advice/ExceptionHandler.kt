@@ -39,7 +39,7 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
     private val logger = LoggerFactory.getLogger(ExceptionHandler::class.java)
     private val authenticationTrustResolver: AuthenticationTrustResolver = AuthenticationTrustResolverImpl()
 
-    // 예상된 비즈니스 실패(4xx). 상태는 errorCode.type으로 결정한다(ErrorType.toHttpStatus).
+    // 예상된 비즈니스 실패(4xx). 상태는 errorCode.type의 httpStatus로 결정한다(ErrorType 참고).
     @ExceptionHandler(BusinessException::class)
     fun handleBusinessException(e: BusinessException): ResponseEntity<Any> {
         return businessResponse(errorCode = e.errorCode, message = e.message)
@@ -163,7 +163,7 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
     }
 
     private fun businessResponse(errorCode: BusinessErrorCode, message: String? = null): ResponseEntity<Any> {
-        return errorResponse(status = errorCode.type.toHttpStatus(), errorCode = errorCode, message = message)
+        return errorResponse(status = errorCode.type.httpStatus, errorCode = errorCode, message = message)
     }
 
     // 모든 에러 응답이 거치는 지점. 요청의 Accept가 JSON이 아니어도(예: 406 상황) 에러 본문을 쓸 수 있도록

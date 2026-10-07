@@ -7,6 +7,7 @@ import com.chobolevel.domain.common.exception.SystemErrorCode
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
+import org.springframework.http.HttpStatus
 
 class ErrorCodeTest : BehaviorSpec({
 
@@ -80,6 +81,28 @@ class ErrorCodeTest : BehaviorSpec({
                     .filter { it.name.startsWith("RESTRICTED_TO_") && it.type != ErrorType.FORBIDDEN }
                     .map { it.name }
                 violations shouldBe emptyList()
+            }
+        }
+
+        `when`("ErrorType이 가진 HTTP 상태 코드를 볼 때") {
+            then("분류별로 정해진 상태를 가진다") {
+                // ErrorType이 추가되면 이 표도 함께 고치도록 강제하는 역할을 한다
+                val statusByType: Map<ErrorType, HttpStatus> = ErrorType.values().associateWith { it.httpStatus }
+
+                statusByType shouldBe mapOf(
+                    ErrorType.INVALID to HttpStatus.BAD_REQUEST,
+                    ErrorType.UNAUTHENTICATED to HttpStatus.UNAUTHORIZED,
+                    ErrorType.FORBIDDEN to HttpStatus.FORBIDDEN,
+                    ErrorType.NOT_FOUND to HttpStatus.NOT_FOUND,
+                    ErrorType.CONFLICT to HttpStatus.CONFLICT
+                )
+            }
+
+            then("모두 4xx이고 서로 다른 값이다") {
+                val statuses: List<HttpStatus> = ErrorType.values().map { it.httpStatus }
+
+                statuses.all { it.is4xxClientError } shouldBe true
+                statuses.distinct().size shouldBe statuses.size
             }
         }
 
