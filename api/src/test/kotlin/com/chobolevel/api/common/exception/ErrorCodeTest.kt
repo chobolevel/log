@@ -25,7 +25,6 @@ class ErrorCodeTest : BehaviorSpec({
                     "CommonErrorCode",
                     "SystemErrorCode",
                     "AuthErrorCode",
-                    "HttpErrorCode",
                     "UserErrorCode",
                     "RecordErrorCode",
                     "SubjectErrorCode",

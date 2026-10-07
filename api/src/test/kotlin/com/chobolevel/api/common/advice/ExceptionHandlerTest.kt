@@ -282,31 +282,31 @@ class ExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("지원하지 않는 HTTP 메서드는 405 METHOD_NOT_ALLOWED로 응답하고 Allow 헤더를 유지한다")
+    @DisplayName("지원하지 않는 HTTP 메서드는 405로 응답하고 Allow 헤더를 유지하며 에러코드는 INVALID_REQUEST_FORMAT이다")
     fun `지원하지 않는 HTTP 메서드`() {
         mockMvc.perform(post("/test/required-param").param("id", "1"))
             .andExpect(status().isMethodNotAllowed)
             .andExpect(header().string("Allow", containsString("GET")))
-            .andExpect(jsonPath("$.error_code").value(HttpErrorCode.METHOD_NOT_ALLOWED.name))
-            .andExpect(jsonPath("$.error_message").value(HttpErrorCode.METHOD_NOT_ALLOWED.defaultMessage))
+            .andExpect(jsonPath("$.error_code").value(CommonErrorCode.INVALID_REQUEST_FORMAT.name))
+            .andExpect(jsonPath("$.error_message").value(CommonErrorCode.INVALID_REQUEST_FORMAT.defaultMessage))
     }
 
     @Test
-    @DisplayName("지원하지 않는 Content-Type은 415 UNSUPPORTED_MEDIA_TYPE으로 응답한다")
+    @DisplayName("지원하지 않는 Content-Type은 415로 응답하고 에러코드는 INVALID_REQUEST_FORMAT이다")
     fun `지원하지 않는 미디어 타입`() {
         mockMvc.perform(post("/test/body").contentType(MediaType.TEXT_PLAIN).content("name=a"))
             .andExpect(status().isUnsupportedMediaType)
-            .andExpect(jsonPath("$.error_code").value(HttpErrorCode.UNSUPPORTED_MEDIA_TYPE.name))
-            .andExpect(jsonPath("$.error_message").value(HttpErrorCode.UNSUPPORTED_MEDIA_TYPE.defaultMessage))
+            .andExpect(jsonPath("$.error_code").value(CommonErrorCode.INVALID_REQUEST_FORMAT.name))
+            .andExpect(jsonPath("$.error_message").value(CommonErrorCode.INVALID_REQUEST_FORMAT.defaultMessage))
     }
 
     @Test
-    @DisplayName("요청한 응답 형식(Accept)을 제공할 수 없으면 406 NOT_ACCEPTABLE로 응답하고 본문은 JSON이다")
+    @DisplayName("요청한 응답 형식(Accept)을 제공할 수 없으면 406으로 응답하고 본문은 JSON이며 에러코드는 INVALID_REQUEST_FORMAT이다")
     fun `제공할 수 없는 Accept`() {
         mockMvc.perform(get("/test/json-only").accept(MediaType.APPLICATION_XML))
             .andExpect(status().isNotAcceptable)
             .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.error_code").value(HttpErrorCode.NOT_ACCEPTABLE.name))
+            .andExpect(jsonPath("$.error_code").value(CommonErrorCode.INVALID_REQUEST_FORMAT.name))
     }
 
     @Test
@@ -429,11 +429,7 @@ class ExceptionHandlerTest {
             CommonErrorCode.INVALID_REQUEST_FORMAT,
             CommonErrorCode.DUPLICATE_REQUEST,
             CommonErrorCode.ACCESS_DENIED,
-            SystemErrorCode.INTERNAL_SERVER_ERROR,
-            HttpErrorCode.PATH_NOT_FOUND,
-            HttpErrorCode.METHOD_NOT_ALLOWED,
-            HttpErrorCode.NOT_ACCEPTABLE,
-            HttpErrorCode.UNSUPPORTED_MEDIA_TYPE
+            SystemErrorCode.INTERNAL_SERVER_ERROR
         )
 
         private fun tableCodes(): List<ErrorCode> = table.flatMap { (_, _, codes) -> codes }

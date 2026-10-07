@@ -140,13 +140,13 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
         return errorResponse(status = statusCode, errorCode = errorCodeOf(statusCode), headers = headers)
     }
 
+    // 상태 코드가 프로토콜 수준의 구체적 의미(405, 406, 415 등)를 이미 전달하므로, 에러코드는
+    // 400이면 파라미터 오류, 그 밖의 4xx는 요청 형식 오류로 묶는다.
     private fun errorCodeOf(status: HttpStatusCode): ErrorCode {
-        return when (status.value()) {
-            HttpStatus.NOT_FOUND.value() -> HttpErrorCode.PATH_NOT_FOUND
-            HttpStatus.METHOD_NOT_ALLOWED.value() -> HttpErrorCode.METHOD_NOT_ALLOWED
-            HttpStatus.NOT_ACCEPTABLE.value() -> HttpErrorCode.NOT_ACCEPTABLE
-            HttpStatus.UNSUPPORTED_MEDIA_TYPE.value() -> HttpErrorCode.UNSUPPORTED_MEDIA_TYPE
-            else -> if (status.is5xxServerError) SystemErrorCode.INTERNAL_SERVER_ERROR else CommonErrorCode.INVALID_PARAMETER
+        return when {
+            status.is5xxServerError -> SystemErrorCode.INTERNAL_SERVER_ERROR
+            status.value() == HttpStatus.BAD_REQUEST.value() -> CommonErrorCode.INVALID_PARAMETER
+            else -> CommonErrorCode.INVALID_REQUEST_FORMAT
         }
     }
 
