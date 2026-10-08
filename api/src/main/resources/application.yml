@@ -138,26 +138,6 @@ cloud:
 resend:
   api-key: ENC(xIuVp1noF1bvorsPRXxcGgA2zDOtBfIBshLc1l+CCly10ibBWnux4sjLdJRslWZRS8C1LAYSG3vIQvSV92vOeGq4j72HNuJSCE0p4kqwwuI=)
 
-management:
-  info:
-    java:
-      enabled: true
-    os:
-      enabled: true
-  endpoint:
-    health:
-      show-components: always
-    loggers:
-      enabled: true
-    httpexchanges:
-      enabled: true
-  endpoints:
-    web:
-      base-path: "/monitors"
-      exposure:
-        include: "*"
-        exclude: "env, beans"
-
 front-server:
   host: ENC(iIDc474VWyr0OeuqBtw75vX+5iz0jV7saAHU7yp54xZaopMpE1NFJeuBCEcre+CKCLvZafVB5rXl5OJHBDBEtg==)
   reset-password-path: ENC(60AoXTy3ShObIRElkoGiGNrCHqs0WGQltKxi34eDx+Ck3FIKWkbeK06tDKnnbVJX)

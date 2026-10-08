@@ -38,9 +38,6 @@ dependencies {
     // prometheus
     implementation("io.micrometer:micrometer-registry-prometheus")
 
-    // aop
-    implementation("org.springframework.boot:spring-boot-starter-aop")
-
     // tsid
     implementation("io.hypersistence:hypersistence-utils-hibernate-60:3.7.3")
 

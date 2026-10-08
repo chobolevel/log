@@ -94,14 +94,6 @@ cloud:
       accessKey: ENC(GMumFZ/5G1XpFKj72WjhSqCJ3n5e5ifte+vJEvMLWU9o3AvSxFXpN6O5tsbfwKYpRq549fOg6ojgXsngKYKgrw==)
       secretKey: ENC(xPz8JOi1oc56tbbVa7R4lkYaPCcxxzuRu0eO3DHKzHd+KoYqUoRP8Adj9zMsT0D3iAu/8j6OBG7/kf2m7xJe3we+emtlf0pvERMr4I4ibBI=)
 
-management:
-  endpoints:
-    web:
-      base-path: "/monitors"
-      exposure:
-        include: "*"
-        exclude: "env, beans"
-
 front-server:
   host: ENC(Z2iJ3VqodudXfditzY9BpLIpwMcEzgC2E9YYADmUmhK8RRlQRQQJKSw7nFQjunx+YNZjxOTdG3uaSaNVG+ri/g==)
   reset-password-path: ENC(60AoXTy3ShObIRElkoGiGNrCHqs0WGQltKxi34eDx+Ck3FIKWkbeK06tDKnnbVJX)
