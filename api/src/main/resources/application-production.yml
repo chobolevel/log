@@ -91,8 +91,8 @@ cloud:
     stack.auto: false
     region.static: "ap-northeast-2"
     credentials:
-      accessKey: ENC(GMumFZ/5G1XpFKj72WjhSqCJ3n5e5ifte+vJEvMLWU9o3AvSxFXpN6O5tsbfwKYpRq549fOg6ojgXsngKYKgrw==)
-      secretKey: ENC(xPz8JOi1oc56tbbVa7R4lkYaPCcxxzuRu0eO3DHKzHd+KoYqUoRP8Adj9zMsT0D3iAu/8j6OBG7/kf2m7xJe3we+emtlf0pvERMr4I4ibBI=)
+      accessKey: ENC(lilehd0wiE0Ugdqqagp4sz+fWH0ep2JIXbau58Qq2Kv+eolABQuJKflwYSvMwzrolmF3rlSK+AyjlHRbWVnE1Q==)
+      secretKey: ENC(h8asCJ9TT6Owc7zYCbAqZ4AkIBpvIq+JzVWqyVtnJVGj+6V94UxKX+wi2FIyBEkM7kSjeIJ4BugZPMjlbYPnRXNe1lna5IAi6kS7MImtYH8=)
 
 front-server:
   host: ENC(Z2iJ3VqodudXfditzY9BpLIpwMcEzgC2E9YYADmUmhK8RRlQRQQJKSw7nFQjunx+YNZjxOTdG3uaSaNVG+ri/g==)
