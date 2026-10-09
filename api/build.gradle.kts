@@ -69,6 +69,9 @@ dependencies {
     // domain 모듈의 querydsl-jpa는 implementation이라 테스트 classpath에 전파되지 않는다.
     testImplementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
 
+    // test: 패키지·모듈 의존 규칙 검증 (decisions/module-and-package-structure.md)
+    testImplementation("com.tngtech.archunit:archunit:1.0.1")
+
     // test: Spring Security MockMvc 지원 (@WithMockUser 등)
     testImplementation("org.springframework.security:spring-security-test")
 

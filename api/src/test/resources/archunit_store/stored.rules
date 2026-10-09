@@ -1,0 +1,8 @@
+#
+#Fri Oct 09 20:17:22 KST 2026
+no\ classes\ that\ reside\ in\ a\ package\ 'com.chobolevel.domain..'\ should\ depend\ on\ classes\ that\ reside\ in\ any\ package\ ['org.springframework.web..',\ 'org.springframework.kafka..',\ 'org.springframework.data.redis..',\ 'org.springframework.mail..',\ 'org.redisson..',\ 'okhttp3..']=ddc66395-19cf-4306-b57a-783559a0a62b
+slices\ matching\ 'com.chobolevel.api.(*)..'\ that\ common\uC774\ \uC544\uB2CC\ \uC2AC\uB77C\uC774\uC2A4\ should\ be\ free\ of\ cycles=b7cd1d77-2c08-40ea-9f26-d01af02708f1
+no\ classes\ that\ reside\ in\ a\ package\ 'com.chobolevel.api.common..'\ should\ depend\ on\ classes\ that\ reside\ in\ any\ package\ ['com.chobolevel.api.emotion..',\ 'com.chobolevel.api.notification..',\ 'com.chobolevel.api.record..',\ 'com.chobolevel.api.subject..',\ 'com.chobolevel.api.upload..',\ 'com.chobolevel.api.user..']=61879311-6e68-4c78-9d56-6318e1178aa7
+no\ classes\ that\ reside\ in\ a\ package\ 'com.chobolevel.domain..'\ should\ depend\ on\ classes\ that\ reside\ in\ a\ package\ 'com.chobolevel.api..'=6de7e169-8ea3-425f-9267-0ce5d821dcc4
+slices\ matching\ 'com.chobolevel.domain.(*)..'\ should\ be\ free\ of\ cycles=51796296-97f3-451d-b4dd-4f1bd0162294
+no\ classes\ that\ reside\ in\ a\ package\ 'com.chobolevel.domain.common..'\ should\ depend\ on\ classes\ that\ reside\ in\ any\ package\ ['com.chobolevel.domain.emotion..',\ 'com.chobolevel.domain.notification..',\ 'com.chobolevel.domain.record..',\ 'com.chobolevel.domain.subject..',\ 'com.chobolevel.domain.user..']=e7e85cb5-a9ec-4ef6-83b4-98cc69399652
