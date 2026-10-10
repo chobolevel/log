@@ -123,18 +123,29 @@
 > 2. **ArchUnit 테스트** — 모듈 안에서 막지 못하는 규칙: 패키지 순환 금지, `domain`에서 Spring web/kafka/redis import 금지, Controller→Repository 직접 접근 금지, `common`이 기능 패키지를 참조 금지.
 > 3. 기존 `ActuatorExposureConfigTest` 처럼 "규칙을 테스트로 고정 → 위반이 리뷰에 드러남" 방식을 따른다.
 
-### 5. 마이그레이션 단계 (모든 단계: 이동만, 동작 변경 없음, 테스트 409개 통과, 커밋 전 사용자 확인)
+### 5. 마이그레이션 단계 (모든 단계: 이동만, 동작 변경 없음, 테스트 전체 통과, 커밋 전 사용자 확인)
 
-> | 단계 | 내용 | 위험 |
-> |---|---|---|
-> | 0 | ArchUnit 의존 규칙 테스트를 현재 위반 목록을 허용 목록(freeze)으로 두고 추가 | 낮음 |
-> | 1 | 빌드 정리: `domain`의 미사용 의존(starter-mail, okhttp 등) 제거, 루트 `subprojects` 일괄 의존을 각 모듈로 분산(루트에는 플러그인·테스트 라이브러리 등 공통 규칙만 유지), 버전 카탈로그 도입(범위가 크면 별도 커밋) | 낮음 |
-> | 2 | 비활성 코드 제거 (`ChunkBatchScheduler`, `TaskletBatchScheduler`, 미사용 batch SQL) | 낮음 |
-> | 3 | 패키지 정리: `api` 단일 파일 패키지 평탄화, `common` 해체 | 중간 (import 대량 변경) |
-> | 4 | 패키지 정리: `domain` 애그리거트 기준 재배치, 순환 제거 | 중간 |
-> | 5 | `infrastructure` 모듈 신설: Repository 구현·Provider 구현·Kafka/Redis 설정 이동, Flyway 위치 결정 | 높음 (Q-type, 자동 구성) |
-> | 6 | `worker` 모듈 신설: relay 스케줄러·상태 동기화 Consumer 이동, 별도 Jib 이미지 | 높음 |
-> | 7 | (게이트 통과 시) `application` 모듈 | 매우 높음 |
+> | 단계 | 내용 | 위험 | 상태 |
+> |---|---|---|---|
+> | 0 | ArchUnit 의존 규칙 테스트 추가, 현재 위반은 허용 목록(freeze)으로 고정 | 낮음 | 완료 (`ae6f255`) |
+> | 1-a | `domain`의 미사용 `RestTemplateConfiguration`과 web/mail/okhttp 의존 제거 | 낮음 | 완료 (`e5d11f9`) |
+> | 1-b | 루트 `subprojects` 일괄 의존(redis, jackson, aws)을 모듈별로 분산, 미사용 coroutines 제거 | 낮음 | 완료 (`faa7839`) |
+> | 1-c | 버전 카탈로그(`gradle/libs.versions.toml`) 도입, `resend-java` 버전 고정 | 낮음 | 완료 (`2a0a2d8`) |
+> | 1-d | Jib용 `ext` 설정을 `api` 모듈로 이동 | 낮음 | 완료 (`56b901d`) |
+> | 2 | 비활성 코드 제거 (`ChunkBatchScheduler`, `TaskletBatchScheduler`, 미사용 batch SQL) | 낮음 | 예정 |
+> | 3 | 패키지 정리: `api` 단일 파일 패키지 평탄화, `common` 해체 | 중간 (import 대량 변경) | 예정 |
+> | 4 | 패키지 정리: `domain` 애그리거트 기준 재배치, 순환 제거. 시작 전 하위 패키지 단위 순환 규칙을 ArchUnit에 추가해 현황을 고정 | 중간 | 예정 |
+> | 4.5 | `QueryFilter` 7개를 순수 데이터 클래스로 변환(조건식 변환은 Repository 쪽으로) | 중간 | 예정 |
+> | 5 | `infrastructure` 모듈 신설: Repository 구현·Provider 구현·Kafka/Redis/S3 설정 이동, `CLAUDE.md` 규칙 수정. Flyway SQL은 `domain`에 유지 | 높음 (Q-type, 자동 구성) | 예정 |
+> | 6 | `worker` 모듈 신설: relay 스케줄러·상태 동기화 Consumer 이동, 별도 Jib 이미지, `worker`는 `spring.flyway.enabled=false` | 높음 | 예정 |
+> | 7 | (게이트 통과 시) `application` 모듈 | 매우 높음 | 보류 |
+>
+> **1단계 결과**: 테스트 415개 통과. 변경 전후 `:api` 의존성 classpath diff로 의도한 변경만 있음을 확인했다(`okhttp:4.11.0`, `jakarta.mail`, coroutines 계열이 빠졌고 Jib 설정값은 동일).
+>
+> **이번 재편 범위 밖 후속 과제**
+> - Jib JVM 플래그의 `-Djasypt.encryptor.password` 평문 값: 시크릿 로테이션 항목으로 별도 처리
+> - worker 다중 인스턴스 시 relay 중복 실행(분산락 또는 `SKIP LOCKED`)
+> - 마이그레이션 job 분리(배포 재설계)
 
 ## 결과(Consequences)
 
