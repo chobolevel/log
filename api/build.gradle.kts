@@ -91,11 +91,31 @@ dependencies {
     testImplementation("org.testcontainers:mysql")
 }
 
-val baseJvmFlags: (memory: String, imageTag: String?, stage: String?) -> List<String> by ext
-val dockerEnv: (stage: String?, port: String, applicationUser: String) -> Map<String, String> by ext
-val dockerUser: String? by ext
-val containerCreationTime: String? by ext
-val dockerBaseImage: String? by ext
+// Jib 이미지 설정. 이미지를 만드는 모듈은 api뿐이다. worker가 생기면 공통화 여부를 그때 판단한다.
+val dockerUser: String = "nobody"
+val containerCreationTime: String = "USE_CURRENT_TIMESTAMP"
+val dockerBaseImage: String = "eclipse-temurin:17.0.6_10-jdk-alpine"
+
+fun baseJvmFlags(memory: String, imageTag: String?, stage: String?): List<String> = listOf(
+    "-server",
+    "-Xms$memory",
+    "-Xmx$memory",
+    "-XX:+UseContainerSupport",
+    "-Dspring.profiles.active=$stage",
+    "-XX:+UseStringDeduplication",
+    "-Dfile.encoding=UTF8",
+    "-Dsun.net.inetaddr.ttl=0",
+    "-Dtag=$imageTag",
+    "-Djasypt.encryptor.password=chobolevel"
+)
+
+fun dockerEnv(stage: String?, port: String, applicationUser: String): Map<String, String?> = mapOf(
+    "SPRING_PROFILES_ACTIVE" to stage,
+    "TZ" to "Asia/Seoul",
+    "PORT" to port,
+    "APPLICATION_USER" to applicationUser
+)
+
 val stage: String? by project
 val imageTag: String? by project
 val containerImage: String? by project

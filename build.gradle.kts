@@ -54,36 +54,6 @@ subprojects {
         }
     }
 
-    ext {
-        set("springBootVersion", "3.1.0")
-
-        set("baseJvmFlags", { memory: String, imageTag: String?, stage: String? ->
-            listOf(
-                "-server",
-                "-Xms$memory",
-                "-Xmx$memory",
-                "-XX:+UseContainerSupport",
-                "-Dspring.profiles.active=$stage",
-                "-XX:+UseStringDeduplication",
-                "-Dfile.encoding=UTF8",
-                "-Dsun.net.inetaddr.ttl=0",
-                "-Dtag=$imageTag",
-                "-Djasypt.encryptor.password=chobolevel"
-            )
-        })
-        set("dockerEnv", { stage: String?, port: String, applicationUser: String ->
-            mapOf(
-                "SPRING_PROFILES_ACTIVE" to stage,
-                "TZ" to "Asia/Seoul",
-                "PORT" to port,
-                "APPLICATION_USER" to applicationUser
-            )
-        })
-        set("dockerUser", "nobody")
-        set("containerCreationTime", "USE_CURRENT_TIMESTAMP")
-        set("dockerBaseImage", "eclipse-temurin:17.0.6_10-jdk-alpine")
-    }
-
     // 모듈별 런타임 의존성은 각 모듈의 build.gradle.kts에서 선언한다. 여기에는 모든 모듈에 공통인 테스트 도구만 둔다.
     dependencies {
         // test
