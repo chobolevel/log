@@ -8,8 +8,20 @@ plugins {
     id("com.google.cloud.tools.jib")
 }
 
+val jacksonVersion: String = "2.14.2"
+
 dependencies {
     api(project(":domain"))
+
+    // redis
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
+    // jackson
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+
+    // aws s3
+    implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
 
     // web
     implementation("org.springframework.boot:spring-boot-starter-web")

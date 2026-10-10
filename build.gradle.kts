@@ -38,7 +38,6 @@ allprojects {
 // 프로젝트 하위에 있는 모듈 관리(settings.gradle 파일 내 include 모듈)
 subprojects {
     val kotestVersion = "5.5.5"
-    val jacksonVersion = "2.14.2"
 
     apply {
         plugin("kotlin")
@@ -83,21 +82,8 @@ subprojects {
         set("dockerBaseImage", "eclipse-temurin:17.0.6_10-jdk-alpine")
     }
 
+    // 모듈별 런타임 의존성은 각 모듈의 build.gradle.kts에서 선언한다. 여기에는 모든 모듈에 공통인 테스트 도구만 둔다.
     dependencies {
-        // starter
-        implementation("org.springframework.boot:spring-boot-starter-data-redis")
-
-        // jackson
-        implementation("com.fasterxml.jackson.module:jackson-module-kotlin:${jacksonVersion}")
-        implementation("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
-
-        // 코틀린 내장 기능 외의 고수준 API 사용하기 위해 의존성 추가
-        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
-        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
-
-        // aws s3
-        implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
-
         // test
         testImplementation("org.springframework.boot:spring-boot-starter-test")
         testImplementation("io.kotest:kotest-runner-junit5:${kotestVersion}")
