@@ -23,14 +23,9 @@ val queryDslVersion: String = "5.0.0"
 dependencies {
     api("org.springframework.boot:spring-boot-starter-data-jpa")
 
-    // web
-    implementation("org.springframework.boot:spring-boot-starter-web")
     // ErrorType이 HttpStatus를 공개 프로퍼티로 노출하므로 spring-web은 domain의 공개 API의 일부다.
-    // 웹이 없는 모듈이 domain에 의존해도 컴파일되도록 api로 선언한다. (모듈 구조 재편 시 함께 재검토)
+    // 웹이 없는 모듈(worker)이 domain에 의존해도 컴파일되도록 api로 선언한다.
     api("org.springframework:spring-web")
-
-    // email
-    implementation("org.springframework.boot:spring-boot-starter-mail")
 
     // envers
     implementation("org.springframework.data:spring-data-envers")
@@ -47,9 +42,6 @@ dependencies {
 
     // devtools
     developmentOnly("org.springframework.boot:spring-boot-devtools")
-
-    // rest template(okhttp)
-    implementation("com.squareup.okhttp3:okhttp:4.11.0")
 
     // kapt(java annotation -> kotlin annotation)
     kapt("com.querydsl:querydsl-apt:${queryDslVersion}:jakarta")
