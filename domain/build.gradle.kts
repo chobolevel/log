@@ -18,8 +18,6 @@ allOpen {
     annotations("jakarta.persistence.Embeddable")
 }
 
-val queryDslVersion: String = "5.0.0"
-
 dependencies {
     api("org.springframework.boot:spring-boot-starter-data-jpa")
 
@@ -28,13 +26,14 @@ dependencies {
     api("org.springframework:spring-web")
 
     // aws s3 (S3Configuration)
-    implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
+    implementation(libs.spring.cloud.aws)
 
     // envers
     implementation("org.springframework.data:spring-data-envers")
 
     // querydsl
-    implementation("com.querydsl:querydsl-jpa:${queryDslVersion}:jakarta")
+    // jakarta classifier는 카탈로그에 표현할 수 없어 버전만 참조한다.
+    implementation("com.querydsl:querydsl-jpa:${libs.versions.querydsl.get()}:jakarta")
 
     // mysql
     runtimeOnly("com.mysql:mysql-connector-j")
@@ -47,7 +46,7 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
     // kapt(java annotation -> kotlin annotation)
-    kapt("com.querydsl:querydsl-apt:${queryDslVersion}:jakarta")
+    kapt("com.querydsl:querydsl-apt:${libs.versions.querydsl.get()}:jakarta")
     kapt("jakarta.annotation:jakarta.annotation-api")
     kapt("jakarta.persistence:jakarta.persistence-api")
     kapt("org.springframework.boot:spring-boot-configuration-processor")

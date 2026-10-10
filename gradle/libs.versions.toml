@@ -1,0 +1,42 @@
+# 라이브러리 버전은 이 파일에서만 정의한다. Spring Boot BOM이 관리하는 라이브러리는 버전 없이 모듈에서 선언한다.
+# 모듈이 어떤 라이브러리를 쓰는지는 각 모듈의 build.gradle.kts에서 선언한다.
+[versions]
+archunit = "1.0.1"
+hypersistence = "3.7.3"
+jackson = "2.14.2"
+jasypt = "3.0.5"
+jaxb = "2.3.1"
+jjwt = "0.9.1"
+jsoup = "1.16.1"
+kotest = "5.5.5"
+kotest-spring = "1.1.2"
+mockk = "1.13.4"
+querydsl = "5.0.0"
+redisson = "3.23.5"
+resend = "4.28.0"
+spring-cloud-aws = "2.2.6.RELEASE"
+springdoc = "2.2.0"
+springmockk = "4.0.2"
+
+[libraries]
+archunit = { module = "com.tngtech.archunit:archunit", version.ref = "archunit" }
+hypersistence-utils = { module = "io.hypersistence:hypersistence-utils-hibernate-60", version.ref = "hypersistence" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
+jasypt-starter = { module = "com.github.ulisesbocchio:jasypt-spring-boot-starter", version.ref = "jasypt" }
+jaxb-api = { module = "javax.xml.bind:jaxb-api", version.ref = "jaxb" }
+jjwt = { module = "io.jsonwebtoken:jjwt", version.ref = "jjwt" }
+jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
+kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+kotest-framework-datatest = { module = "io.kotest:kotest-framework-datatest", version.ref = "kotest" }
+kotest-property = { module = "io.kotest:kotest-property", version.ref = "kotest" }
+kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
+kotest-extensions-spring = { module = "io.kotest.extensions:kotest-extensions-spring", version.ref = "kotest-spring" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+querydsl-apt = { module = "com.querydsl:querydsl-apt", version.ref = "querydsl" }
+querydsl-jpa = { module = "com.querydsl:querydsl-jpa", version.ref = "querydsl" }
+redisson-starter = { module = "org.redisson:redisson-spring-boot-starter", version.ref = "redisson" }
+resend = { module = "com.resend:resend-java", version.ref = "resend" }
+spring-cloud-aws = { module = "org.springframework.cloud:spring-cloud-starter-aws", version.ref = "spring-cloud-aws" }
+springdoc-webmvc-ui = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc" }
+springmockk = { module = "com.ninja-squad:springmockk", version.ref = "springmockk" }

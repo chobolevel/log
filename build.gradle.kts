@@ -13,6 +13,9 @@ plugins {
     id("com.google.cloud.tools.jib") version "3.4.4" apply false
 }
 
+// subprojects {} 안에서는 타입 안전 접근자 `libs`가 서브프로젝트 기준으로 해석되어 실패하므로, 루트에서 미리 잡아 둔다.
+val catalog = libs
+
 // 프로젝트에 있는 모든 모듈 관리
 allprojects {
     group = "com.chobolevel"
@@ -37,7 +40,6 @@ allprojects {
 
 // 프로젝트 하위에 있는 모듈 관리(settings.gradle 파일 내 include 모듈)
 subprojects {
-    val kotestVersion = "5.5.5"
 
     apply {
         plugin("kotlin")
@@ -86,12 +88,12 @@ subprojects {
     dependencies {
         // test
         testImplementation("org.springframework.boot:spring-boot-starter-test")
-        testImplementation("io.kotest:kotest-runner-junit5:${kotestVersion}")
-        testImplementation("io.kotest:kotest-assertions-core:${kotestVersion}")
-        testImplementation("io.kotest:kotest-property:${kotestVersion}")
-        testImplementation("io.kotest:kotest-framework-datatest:${kotestVersion}")
-        testImplementation("io.kotest.extensions:kotest-extensions-spring:1.1.2")
-        testImplementation("io.mockk:mockk:1.13.4")
+        testImplementation(catalog.kotest.runner.junit5)
+        testImplementation(catalog.kotest.assertions.core)
+        testImplementation(catalog.kotest.property)
+        testImplementation(catalog.kotest.framework.datatest)
+        testImplementation(catalog.kotest.extensions.spring)
+        testImplementation(catalog.mockk)
     }
 
     tasks.withType<KotlinCompile> {

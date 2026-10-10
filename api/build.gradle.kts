@@ -8,8 +8,6 @@ plugins {
     id("com.google.cloud.tools.jib")
 }
 
-val jacksonVersion: String = "2.14.2"
-
 dependencies {
     api(project(":domain"))
 
@@ -17,11 +15,11 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
 
     // jackson
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
-    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+    implementation(libs.jackson.module.kotlin)
+    implementation(libs.jackson.databind)
 
     // aws s3
-    implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
+    implementation(libs.spring.cloud.aws)
 
     // web
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -33,16 +31,16 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
 
     // spring doc(register of doc)
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
+    implementation(libs.springdoc.webmvc.ui)
 
     // jasypt
-    implementation("com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5")
+    implementation(libs.jasypt.starter)
 
     // Java JWT 라이브러리
-    implementation("io.jsonwebtoken:jjwt:0.9.1")
+    implementation(libs.jjwt)
 
     // XML 문서의 Java 객체 간 매핑 자동화
-    implementation("javax.xml.bind:jaxb-api:2.3.1")
+    implementation(libs.jaxb.api)
 
     // actuator + micrometer
     implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -51,13 +49,13 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus")
 
     // tsid
-    implementation("io.hypersistence:hypersistence-utils-hibernate-60:3.7.3")
+    implementation(libs.hypersistence.utils)
 
     // thymeleaf
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 
     // jsoup for crawling
-    implementation("org.jsoup:jsoup:1.16.1")
+    implementation(libs.jsoup)
 
     // batch
     implementation("org.springframework.boot:spring-boot-starter-batch")
@@ -66,23 +64,23 @@ dependencies {
     implementation("org.springframework.kafka:spring-kafka")
 
     // redisson: 분산 락
-    implementation("org.redisson:redisson-spring-boot-starter:3.23.5")
+    implementation(libs.redisson.starter)
 
     // Resend(sending email SDK)
-    implementation("com.resend:resend-java:+")
+    implementation(libs.resend)
 
     // test: @WebMvcTest에서 MockK 기반 Bean 등록 지원
-    testImplementation("com.ninja-squad:springmockk:4.0.2")
+    testImplementation(libs.springmockk)
 
     // test: @DataJpaTest용 인메모리 DB
     testRuntimeOnly("com.h2database:h2")
 
     // test: @DataJpaTest에서 QueryDSL Q타입 직접 사용 시 필요
     // domain 모듈의 querydsl-jpa는 implementation이라 테스트 classpath에 전파되지 않는다.
-    testImplementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
+    testImplementation("com.querydsl:querydsl-jpa:${libs.versions.querydsl.get()}:jakarta")
 
     // test: 패키지·모듈 의존 규칙 검증 (decisions/module-and-package-structure.md)
-    testImplementation("com.tngtech.archunit:archunit:1.0.1")
+    testImplementation(libs.archunit)
 
     // test: Spring Security MockMvc 지원 (@WithMockUser 등)
     testImplementation("org.springframework.security:spring-security-test")
