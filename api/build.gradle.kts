@@ -57,9 +57,6 @@ dependencies {
     // jsoup for crawling
     implementation(libs.jsoup)
 
-    // batch
-    implementation("org.springframework.boot:spring-boot-starter-batch")
-
     // kafka
     implementation("org.springframework.kafka:spring-kafka")
 
