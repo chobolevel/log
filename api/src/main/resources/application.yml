@@ -61,18 +61,6 @@ spring:
     baseline-on-migrate: true
     baseline-version: 1
     out-of-order: false
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: ENC(aNYjVeV/XYpu2UF4lwkU9o0YU/Fc2zC7Vxoz49efWlSfFq+2RH4nYkOD3Le1lQyHxy+jH2VhjShNBWairQU9BA==)
-    password: ENC(EQ6YpplFR/5Es9fbdxZqnEXzgrSfU6DtRjh6RPHFdjCA6DgwYflX6pR92U04FsjgQjATnq3vS2DLpPFd3/JYUg==)
-    properties:
-      mail:
-        smtp:
-          auth: true
-          timeout: 5000
-          starttls:
-            enable: true
   jackson:
     property-naming-str ategy: SNAKE_CASE
 
