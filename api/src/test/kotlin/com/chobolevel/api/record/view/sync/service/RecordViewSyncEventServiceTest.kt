@@ -1,7 +1,7 @@
 package com.chobolevel.api.record.view.sync.service
 
-import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dummy.DummyRecordViewSyncEvent
+import com.chobolevel.api.common.web.PagingResponse
 import com.chobolevel.api.record.view.sync.converter.RecordViewSyncEventConverter
 import com.chobolevel.api.record.view.sync.dto.RecordViewSyncEventResponse
 import com.chobolevel.api.record.view.sync.dto.SearchRecordViewSyncEventRequest

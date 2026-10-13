@@ -1,6 +1,6 @@
 package com.chobolevel.api.common.controller
 
-import com.chobolevel.api.common.dto.ResultResponse
+import com.chobolevel.api.common.web.ResultResponse
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements

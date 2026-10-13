@@ -1,8 +1,8 @@
 package com.chobolevel.api.record.emotion.controller
 
 import com.chobolevel.api.common.annotation.HasAuthorityUser
-import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getUserId
+import com.chobolevel.api.common.web.ResultResponse
 import com.chobolevel.api.record.emotion.dto.UpdateRecordEmotionRequest
 import com.chobolevel.api.record.emotion.service.RecordEmotionService
 import com.chobolevel.api.record.emotion.validator.RecordEmotionParameterValidator

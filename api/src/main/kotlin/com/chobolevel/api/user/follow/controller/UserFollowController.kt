@@ -2,10 +2,10 @@ package com.chobolevel.api.user.follow.controller
 
 import com.chobolevel.api.common.annotation.HasAuthorityAdmin
 import com.chobolevel.api.common.annotation.HasAuthorityUser
-import com.chobolevel.api.common.annotation.QueryObject
-import com.chobolevel.api.common.dto.PagingResponse
-import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getUserId
+import com.chobolevel.api.common.web.PagingResponse
+import com.chobolevel.api.common.web.QueryObject
+import com.chobolevel.api.common.web.ResultResponse
 import com.chobolevel.api.user.follow.dto.SearchUserFollowerRequest
 import com.chobolevel.api.user.follow.dto.SearchUserFollowingRequest
 import com.chobolevel.api.user.follow.dto.UserFollowCounterResponse

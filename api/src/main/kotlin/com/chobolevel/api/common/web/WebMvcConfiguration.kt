@@ -1,7 +1,4 @@
-package com.chobolevel.api.common.config
-
-import com.chobolevel.api.common.resolver.GuestIdArgumentResolver
-import com.chobolevel.api.common.resolver.QueryObjectArgumentResolver
+package com.chobolevel.api.common.web
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.method.support.HandlerMethodArgumentResolver

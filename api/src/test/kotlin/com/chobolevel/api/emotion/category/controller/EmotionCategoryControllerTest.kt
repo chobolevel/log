@@ -1,8 +1,8 @@
 package com.chobolevel.api.emotion.category.controller
 
-import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dummy.DummyEmotionCategory
 import com.chobolevel.api.common.dummy.DummyUser
+import com.chobolevel.api.common.web.PagingResponse
 import com.chobolevel.api.emotion.category.dto.EmotionCategoryResponse
 import com.chobolevel.api.emotion.category.service.EmotionCategoryService
 import com.chobolevel.api.emotion.category.validator.EmotionCategoryParameterValidator

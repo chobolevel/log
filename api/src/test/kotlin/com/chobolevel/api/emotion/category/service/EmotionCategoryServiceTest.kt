@@ -1,7 +1,7 @@
 package com.chobolevel.api.emotion.category.service
 
-import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dummy.DummyEmotionCategory
+import com.chobolevel.api.common.web.PagingResponse
 import com.chobolevel.api.emotion.category.converter.EmotionCategoryConverter
 import com.chobolevel.api.emotion.category.dto.CreateEmotionCategoryRequest
 import com.chobolevel.api.emotion.category.dto.EmotionCategoryResponse

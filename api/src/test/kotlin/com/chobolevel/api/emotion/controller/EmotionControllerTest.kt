@@ -1,8 +1,8 @@
 package com.chobolevel.api.emotion.controller
 
-import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dummy.DummyEmotion
 import com.chobolevel.api.common.dummy.DummyUser
+import com.chobolevel.api.common.web.PagingResponse
 import com.chobolevel.api.emotion.dto.EmotionResponse
 import com.chobolevel.api.emotion.service.EmotionService
 import com.chobolevel.api.emotion.validator.EmotionParameterValidator

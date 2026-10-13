@@ -1,5 +1,4 @@
-package com.chobolevel.api.common.advice
-
+package com.chobolevel.api.common.web
 import com.chobolevel.api.common.exception.ErrorCodeScanner
 import com.chobolevel.api.common.security.AuthErrorCode
 import com.chobolevel.domain.common.exception.BusinessErrorCode

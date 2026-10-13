@@ -1,6 +1,6 @@
 package com.chobolevel.api.subject.service
 
-import com.chobolevel.api.common.dto.PagingResponse
+import com.chobolevel.api.common.web.PagingResponse
 import com.chobolevel.api.subject.converter.SubjectConverter
 import com.chobolevel.api.subject.dto.CreateSubjectRequest
 import com.chobolevel.api.subject.dto.SearchSubjectRequest

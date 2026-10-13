@@ -1,8 +1,8 @@
 package com.chobolevel.api.common.security
 
-import com.chobolevel.api.common.constant.RequestAttributeKey
 import com.chobolevel.api.common.extension.getCookie
 import com.chobolevel.api.common.properties.GuestProperties
+import com.chobolevel.api.common.web.RequestAttributeKey
 import io.hypersistence.tsid.TSID
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.Cookie

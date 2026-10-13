@@ -1,9 +1,9 @@
 package com.chobolevel.api.record.service
 
 import com.chobolevel.api.common.constant.CacheKeyPrefix
-import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.extension.toKST
 import com.chobolevel.api.common.provider.CacheProvider
+import com.chobolevel.api.common.web.PagingResponse
 import com.chobolevel.api.record.converter.RecordConverter
 import com.chobolevel.api.record.dto.CreateRecordRequest
 import com.chobolevel.api.record.dto.RecordContributionResponse

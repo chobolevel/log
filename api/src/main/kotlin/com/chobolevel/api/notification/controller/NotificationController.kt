@@ -1,10 +1,10 @@
 package com.chobolevel.api.notification.controller
 
 import com.chobolevel.api.common.annotation.HasAuthorityUser
-import com.chobolevel.api.common.annotation.QueryObject
-import com.chobolevel.api.common.dto.PagingResponse
-import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getUserId
+import com.chobolevel.api.common.web.PagingResponse
+import com.chobolevel.api.common.web.QueryObject
+import com.chobolevel.api.common.web.ResultResponse
 import com.chobolevel.api.notification.dto.NotificationResponse
 import com.chobolevel.api.notification.dto.SearchNotificationRequest
 import com.chobolevel.api.notification.service.NotificationService

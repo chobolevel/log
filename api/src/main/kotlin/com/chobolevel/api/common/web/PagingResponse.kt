@@ -1,5 +1,4 @@
-package com.chobolevel.api.common.dto
-
+package com.chobolevel.api.common.web
 data class PagingResponse<T>(
     val page: Long,
     val size: Long,

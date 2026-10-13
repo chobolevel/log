@@ -1,8 +1,8 @@
 package com.chobolevel.api.record.like.controller
 
 import com.chobolevel.api.common.annotation.HasAuthorityUser
-import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getUserId
+import com.chobolevel.api.common.web.ResultResponse
 import com.chobolevel.api.record.like.service.RecordLikeQueryService
 import com.chobolevel.api.record.like.service.RecordLikeService
 import io.swagger.v3.oas.annotations.Operation

@@ -1,6 +1,4 @@
-package com.chobolevel.api.common.resolver
-
-import com.chobolevel.api.common.annotation.QueryObject
+package com.chobolevel.api.common.web
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.core.MethodParameter

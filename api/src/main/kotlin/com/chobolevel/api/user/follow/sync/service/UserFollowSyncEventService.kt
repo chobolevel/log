@@ -1,6 +1,6 @@
 package com.chobolevel.api.user.follow.sync.service
 
-import com.chobolevel.api.common.dto.PagingResponse
+import com.chobolevel.api.common.web.PagingResponse
 import com.chobolevel.api.user.follow.sync.converter.UserFollowSyncEventConverter
 import com.chobolevel.api.user.follow.sync.dto.SearchUserFollowSyncEventRequest
 import com.chobolevel.api.user.follow.sync.dto.UserFollowSyncEventResponse

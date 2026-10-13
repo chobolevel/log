@@ -1,8 +1,8 @@
 package com.chobolevel.api.notification.service
 
-import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dummy.DummyNotification
 import com.chobolevel.api.common.dummy.DummyUser
+import com.chobolevel.api.common.web.PagingResponse
 import com.chobolevel.api.notification.converter.NotificationConverter
 import com.chobolevel.api.notification.dto.NotificationResponse
 import com.chobolevel.api.notification.dto.SearchNotificationRequest

@@ -1,9 +1,9 @@
 package com.chobolevel.api.record.view.sync.controller
 
 import com.chobolevel.api.common.annotation.HasAuthorityAdmin
-import com.chobolevel.api.common.annotation.QueryObject
-import com.chobolevel.api.common.dto.PagingResponse
-import com.chobolevel.api.common.dto.ResultResponse
+import com.chobolevel.api.common.web.PagingResponse
+import com.chobolevel.api.common.web.QueryObject
+import com.chobolevel.api.common.web.ResultResponse
 import com.chobolevel.api.record.view.sync.dto.RecordViewSyncEventResponse
 import com.chobolevel.api.record.view.sync.dto.SearchRecordViewSyncEventRequest
 import com.chobolevel.api.record.view.sync.service.RecordViewSyncEventService

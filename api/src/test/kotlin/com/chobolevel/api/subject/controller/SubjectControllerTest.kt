@@ -1,8 +1,8 @@
 package com.chobolevel.api.subject.controller
 
-import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.dummy.DummySubject
 import com.chobolevel.api.common.dummy.DummyUser
+import com.chobolevel.api.common.web.PagingResponse
 import com.chobolevel.api.subject.dto.SubjectResponse
 import com.chobolevel.api.subject.service.SubjectService
 import com.chobolevel.api.subject.validator.SubjectParameterValidator

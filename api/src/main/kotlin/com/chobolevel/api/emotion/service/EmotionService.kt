@@ -1,6 +1,6 @@
 package com.chobolevel.api.emotion.service
 
-import com.chobolevel.api.common.dto.PagingResponse
+import com.chobolevel.api.common.web.PagingResponse
 import com.chobolevel.api.emotion.converter.EmotionConverter
 import com.chobolevel.api.emotion.dto.CreateEmotionRequest
 import com.chobolevel.api.emotion.dto.EmotionResponse

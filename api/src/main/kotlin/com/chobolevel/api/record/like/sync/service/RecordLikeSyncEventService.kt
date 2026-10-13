@@ -1,6 +1,6 @@
 package com.chobolevel.api.record.like.sync.service
 
-import com.chobolevel.api.common.dto.PagingResponse
+import com.chobolevel.api.common.web.PagingResponse
 import com.chobolevel.api.record.like.sync.converter.RecordLikeSyncEventConverter
 import com.chobolevel.api.record.like.sync.dto.RecordLikeSyncEventResponse
 import com.chobolevel.api.record.like.sync.dto.SearchRecordLikeSyncEventRequest

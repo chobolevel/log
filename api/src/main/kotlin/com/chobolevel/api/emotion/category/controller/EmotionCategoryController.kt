@@ -1,9 +1,9 @@
 package com.chobolevel.api.emotion.category.controller
 
 import com.chobolevel.api.common.annotation.HasAuthorityAdmin
-import com.chobolevel.api.common.annotation.QueryObject
-import com.chobolevel.api.common.dto.PagingResponse
-import com.chobolevel.api.common.dto.ResultResponse
+import com.chobolevel.api.common.web.PagingResponse
+import com.chobolevel.api.common.web.QueryObject
+import com.chobolevel.api.common.web.ResultResponse
 import com.chobolevel.api.emotion.category.dto.CreateEmotionCategoryRequest
 import com.chobolevel.api.emotion.category.dto.EmotionCategoryResponse
 import com.chobolevel.api.emotion.category.dto.SearchEmotionCategoryRequest

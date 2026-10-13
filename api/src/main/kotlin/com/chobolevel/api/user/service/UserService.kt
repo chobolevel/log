@@ -1,11 +1,11 @@
 package com.chobolevel.api.user.service
 
 import com.chobolevel.api.common.constant.CacheKeyPrefix
-import com.chobolevel.api.common.dto.PagingResponse
 import com.chobolevel.api.common.properties.FrontServerProperties
 import com.chobolevel.api.common.provider.CacheProvider
 import com.chobolevel.api.common.provider.EmailProvider
 import com.chobolevel.api.common.provider.PasswordProvider
+import com.chobolevel.api.common.web.PagingResponse
 import com.chobolevel.api.user.converter.UserConverter
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest

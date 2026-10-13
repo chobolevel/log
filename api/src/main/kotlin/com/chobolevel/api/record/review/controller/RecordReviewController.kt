@@ -1,8 +1,8 @@
 package com.chobolevel.api.record.review.controller
 
 import com.chobolevel.api.common.annotation.HasAuthorityUser
-import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getUserId
+import com.chobolevel.api.common.web.ResultResponse
 import com.chobolevel.api.record.review.dto.UpdateRecordReviewRequest
 import com.chobolevel.api.record.review.service.RecordReviewService
 import com.chobolevel.api.record.review.validator.RecordReviewParameterValidator

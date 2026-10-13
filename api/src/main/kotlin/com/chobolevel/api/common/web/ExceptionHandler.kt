@@ -1,6 +1,4 @@
-package com.chobolevel.api.common.advice
-
-import com.chobolevel.api.common.dto.ErrorResponse
+package com.chobolevel.api.common.web
 import com.chobolevel.api.common.security.AuthErrorCode
 import com.chobolevel.domain.common.exception.BusinessErrorCode
 import com.chobolevel.domain.common.exception.BusinessException

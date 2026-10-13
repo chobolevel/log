@@ -1,8 +1,8 @@
 package com.chobolevel.api.record.view.controller
 
-import com.chobolevel.api.common.annotation.GuestId
-import com.chobolevel.api.common.dto.ResultResponse
 import com.chobolevel.api.common.extension.getUserId
+import com.chobolevel.api.common.web.GuestId
+import com.chobolevel.api.common.web.ResultResponse
 import com.chobolevel.api.record.view.service.RecordViewService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
