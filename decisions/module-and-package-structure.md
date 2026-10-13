@@ -132,7 +132,10 @@
 > | 1-b | 루트 `subprojects` 일괄 의존(redis, jackson, aws)을 모듈별로 분산, 미사용 coroutines 제거 | 낮음 | 완료 (`faa7839`) |
 > | 1-c | 버전 카탈로그(`gradle/libs.versions.toml`) 도입, `resend-java` 버전 고정 | 낮음 | 완료 (`2a0a2d8`) |
 > | 1-d | Jib용 `ext` 설정을 `api` 모듈로 이동 | 낮음 | 완료 (`56b901d`) |
-> | 2 | 비활성 코드 제거 (`ChunkBatchScheduler`, `TaskletBatchScheduler`, 미사용 batch SQL) | 낮음 | 예정 |
+> | 2-a | 비활성 배치 스케줄러·설정 클래스 4개 제거 (모두 빈으로 등록되지 않던 코드) | 낮음 | 완료 (`0e8f34c`) |
+> | 2-b | `spring-boot-starter-batch` 의존성과 `spring.batch.job.enabled` 설정 제거 | 낮음 | 완료 (`01aa8d7`) |
+> | 2-c | Flyway가 읽지 않던 `db/migration/batch/schema-*.sql` 11개 제거 | 낮음 | 완료 (`8ce6cfc`) |
+> | 2-d | 쓰는 코드가 없는 `spring.mail` 설정 제거 | 낮음 | 완료 (`5ed875c`) |
 > | 3 | 패키지 정리: `api` 단일 파일 패키지 평탄화, `common` 해체 | 중간 (import 대량 변경) | 예정 |
 > | 4 | 패키지 정리: `domain` 애그리거트 기준 재배치, 순환 제거. 시작 전 하위 패키지 단위 순환 규칙을 ArchUnit에 추가해 현황을 고정 | 중간 | 예정 |
 > | 4.5 | `QueryFilter` 7개를 순수 데이터 클래스로 변환(조건식 변환은 Repository 쪽으로) | 중간 | 예정 |
@@ -142,10 +145,15 @@
 >
 > **1단계 결과**: 테스트 415개 통과. 변경 전후 `:api` 의존성 classpath diff로 의도한 변경만 있음을 확인했다(`okhttp:4.11.0`, `jakarta.mail`, coroutines 계열이 빠졌고 Jib 설정값은 동일).
 >
+> **2단계 결과**: 테스트 415개 통과. `api` classpath diff로 `spring-batch-*`와 낮은 버전 후보 `micrometer-core:1.10.7`만 빠졌고(`micrometer-core:1.11.0`은 유지), bootJar에 spring-batch가 남지 않음을 확인했다.
+>
 > **이번 재편 범위 밖 후속 과제**
 > - Jib JVM 플래그의 `-Djasypt.encryptor.password` 평문 값: 시크릿 로테이션 항목으로 별도 처리
 > - worker 다중 인스턴스 시 relay 중복 실행(분산락 또는 `SKIP LOCKED`)
 > - 마이그레이션 job 분리(배포 재설계)
+> - `V1__init_tables.sql`이 만든 `BATCH_*` 테이블 9개: 이미 적용된 마이그레이션이라 수정할 수 없고, 지우려면 DROP 마이그레이션을 새로 만들어야 한다. 운영 DB 변경이므로 의도적으로 할 때만 진행
+> - `application.yml`의 `spring.jackson` 오타(`property-naming-str ategy`, 키 중간 공백): 현재 설정이 적용되지 않아 응답이 camelCase로 나가는 것으로 보인다. 고치면 모든 응답 필드명이 바뀌므로, 의도(camelCase 유지 / snake_case)를 먼저 정하고 프론트와 맞춰 처리
+> - `application.yml`의 `spring.datasource.password`가 평문: 시크릿 로테이션 항목과 함께 처리
 
 ## 결과(Consequences)
 
