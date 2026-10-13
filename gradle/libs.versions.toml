@@ -7,7 +7,6 @@ jackson = "2.14.2"
 jasypt = "3.0.5"
 jaxb = "2.3.1"
 jjwt = "0.9.1"
-jsoup = "1.16.1"
 kotest = "5.5.5"
 kotest-spring = "1.1.2"
 mockk = "1.13.4"
@@ -26,7 +25,6 @@ jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-
 jasypt-starter = { module = "com.github.ulisesbocchio:jasypt-spring-boot-starter", version.ref = "jasypt" }
 jaxb-api = { module = "javax.xml.bind:jaxb-api", version.ref = "jaxb" }
 jjwt = { module = "io.jsonwebtoken:jjwt", version.ref = "jjwt" }
-jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 kotest-framework-datatest = { module = "io.kotest:kotest-framework-datatest", version.ref = "kotest" }
 kotest-property = { module = "io.kotest:kotest-property", version.ref = "kotest" }

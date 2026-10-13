@@ -54,9 +54,6 @@ dependencies {
     // thymeleaf
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 
-    // jsoup for crawling
-    implementation(libs.jsoup)
-
     // kafka
     implementation("org.springframework.kafka:spring-kafka")
 
