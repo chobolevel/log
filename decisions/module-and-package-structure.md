@@ -96,26 +96,56 @@
 
 ### 3. 패키지 표준
 
+> **아키텍처 이름**: 헥사고날(Ports & Adapters)을 단순화한 구조. 도메인(`domain`) 바깥의 인바운드 어댑터와 유스케이스는 지금은 `api`/`worker`가 함께 갖고(`application` 모듈 보류), 아웃바운드 어댑터는 `infrastructure`가 갖는다. 기능 단위로 패키지를 나누는 방식(package-by-feature)을 따른다.
+>
+> **원칙: 레이어 폴더는 파일 수와 관계없이 일관되게 유지한다.** 파일 수에 따라 폴더를 만들거나 합치면 파일이 하나 늘 때마다 구조와 import가 바뀌고, 기능마다 모양이 달라진다. 단일 파일 패키지는 문제가 아니다. 문제는 순환, `common` 잡동사니, 잘못 놓인 파일이다.
+>
+> **기능 패키지 안의 레이어 이름 (허용 목록)** — 현재 이름을 유지하고 역할을 고정한다. 목록에 없는 이름은 ArchUnit 규칙이 막는다.
+>
+> | 이름 | 역할 (헥사고날 대응) | 위치 |
+> |---|---|---|
+> | `controller` | 인바운드 웹 어댑터 | `api` |
+> | `service` | 유스케이스(애플리케이션 서비스) | `api`, `worker` |
+> | `dto` | 요청·응답·메시지 페이로드 | 기능 패키지 |
+> | `converter` | 도메인 ↔ DTO 변환 | 기능 패키지 |
+> | `validator` | 파라미터·비즈니스 검증 | 기능 패키지 |
+> | `updater` | 변경 마스크 기반 엔티티 갱신 | 기능 패키지 |
+> | `consumer` | 인바운드 메시지 어댑터 | 6단계에서 `worker`로 |
+> | `scheduler` | 인바운드 스케줄러 어댑터 | 6단계에서 `worker`로 |
+> | `provider` | 아웃바운드 포트 (예: `CacheProvider`). 구현은 `infrastructure` | 인터페이스는 `domain`/`api`(5단계에서 결정) |
+> | `config` | 해당 기능 전용 설정 클래스 | 기능 패키지 |
+>
+> `sync` 하위 패키지(`record/like/sync` 등)는 위 레이어 이름을 그대로 쓰는 하위 기능이다. `consumer/`, `scheduler/` 폴더는 6단계에서 폴더째 `worker`로 옮긴다.
+>
+> **api 정리 대상 (3단계)**
+> - 모호한 이름: `notification/constant/NotificationPath`는 상수가 아니라 알림 경로 규칙이므로 `notification` 패키지 직하위로, `record/vo/RecordTagPolicy`는 도메인 규칙이므로 `domain/record`로 옮긴다(`domain` 쪽 이동은 4단계 전에 처리).
+> - `common`은 레이어가 아니라 **역할**로 다시 묶는다. 횡단 관심사만 남긴다.
+>
+>   | 새 패키지 | 내용 |
+>   |---|---|
+>   | `common/web` | `ExceptionHandler`, `WebMvcConfiguration`, ArgumentResolver, `@GuestId`, `@QueryObject`, 공용 응답 DTO(`ErrorResponse`, `PagingRequest`, `PagingResponse`, `ResultResponse`), `RequestAttributeKey` |
+>   | `common/security` | 필터·설정, `TokenProvider`, `AuthErrorCode`, `@HasAuthority*`, Jwt/Security/Guest Properties, `JwtResponse`(ArchUnit 위반 1건 해소) |
+>   | `common/redis` | `CacheProvider`·구현, `DistributedLockProvider`·구현, `RedisConfiguration`, `RedisProperties`, `CacheKeyPrefix`(5단계까지 임시) |
+>   | `common/kafka` | `KafkaTopicConfiguration` |
+>   | `common/email` | `EmailProvider`, `ResendEmailProvider`, `ResendProperties` |
+>   | `common/s3` | `S3Properties` |
+>   | `common/password` | `PasswordProvider`, `BCryptPasswordProvider` |
+>
+>   기술별로 묶는 이유는 5단계에서 `infrastructure`로 패키지 단위로 옮기기 위해서다.
+> - 확인 후 결정: `RootController`/`CrawlingController` 소속, `Extensions.kt`(getUserId, getCookie, toKST, registerAfterCommit 등 역할이 섞인 확장 함수) 분배.
+> - `CacheKeyPrefix`: 12개 키의 사용처가 모두 해당 기능 안이므로 `common`에 있을 이유가 없다. 다만 sync consumer(6단계에서 `worker`로 이동)가 서비스와 같은 키를 쓰므로 `api` 안에 두면 안 되고, `api`·`worker`가 모두 접근하는 `infrastructure`에서 기능별로 소유하게 한다. **5단계에서 분리**하고, 그전에는 `common/redis`에 둔다. 서비스가 키 문자열을 직접 조립하지 않고 기능별 캐시 클래스(`RecordLikeCache` 등)가 감싸는 구조는 별도 후속 과제로 둔다.
+>
 > **domain / infrastructure: 애그리거트 기준**
 > ```
 > domain/record/            ← 애그리거트 루트와 소속 하위 엔티티를 한 패키지 아래에
->   Record.kt, RecordRepository.kt, RecordQueryFilter.kt, RecordTagPolicy.kt ...
+>   entity/ repository/ vo/ ...
 >   like/, view/, emotion/, review/ ...   ← 같은 애그리거트에 속하는 것만 하위에
 > ```
-> - 현재의 `entity/repository/vo` 레이어 폴더는 애그리거트 안에서 파일이 적으면 만들지 않는다 (파일 3개 이하이면 평평하게).
+> - 현재의 `entity/repository/vo` 레이어 폴더는 유지한다(일관성 원칙).
 > - 애그리거트 간 참조는 ID 또는 읽기 전용 조회로. 서브 엔티티의 팩토리는 `internal`, 루트가 단일 진입점.
 > - 순환 의존(`follow`/`image`/`emotion`/`review`/`tag`/`vo`)은 소속 애그리거트로 흡수해 제거한다.
->
-> **api: 기능(유스케이스) 기준**
-> ```
-> api/record/   RecordController, RecordService, RecordConverter, RecordRequest/Response ...
-> api/record/like/...
-> ```
-> - 파일 1~2개짜리 레이어 폴더(`dto/` 등)는 만들지 않고 기능 패키지에 둔다. 파일이 많아질 때(대략 7개 이상)만 레이어 하위 폴더를 둔다.
-> - `common`은 **횡단 관심사만** (예외 핸들러, 응답 래퍼, 보안 필터 등). 도메인 규칙·도메인별 상수·기능 Controller는 해당 기능/도메인으로 옮긴다.
->   - `CacheKeyPrefix` → 각 기능이 자기 키를 소유 (또는 infrastructure의 캐시 키 정의)
->   - `RecordTagPolicy` → `domain/record`
-> - `sync` 패키지는 Outbox 엔티티의 실제 의미(`outbox`)로 이름을 바꾼다.
+> - Outbox 엔티티를 담은 `sync` 패키지는 의미에 맞게 `outbox`로 이름을 바꾼다(4단계).
+> - 헥사고날 용어(adapter, port)로의 전면 개명은 `application` 모듈 분리(7단계)와 함께 판단한다.
 
 ### 4. 강제 장치
 
@@ -136,10 +166,14 @@
 > | 2-b | `spring-boot-starter-batch` 의존성과 `spring.batch.job.enabled` 설정 제거 | 낮음 | 완료 (`01aa8d7`) |
 > | 2-c | Flyway가 읽지 않던 `db/migration/batch/schema-*.sql` 11개 제거 | 낮음 | 완료 (`8ce6cfc`) |
 > | 2-d | 쓰는 코드가 없는 `spring.mail` 설정 제거 | 낮음 | 완료 (`5ed875c`) |
-> | 3 | 패키지 정리: `api` 단일 파일 패키지 평탄화, `common` 해체 | 중간 (import 대량 변경) | 예정 |
-> | 4 | 패키지 정리: `domain` 애그리거트 기준 재배치, 순환 제거. 시작 전 하위 패키지 단위 순환 규칙을 ArchUnit에 추가해 현황을 고정 | 중간 | 예정 |
+> | 3-a | 레이어 이름 허용 목록 ArchUnit 규칙 추가(현재 위반은 freeze). `notification/constant/NotificationPath` 이동 | 낮음 | 예정 |
+> | 3-b | `common/web` 구성: `ExceptionHandler`, `WebMvcConfiguration`, resolver, annotation, 응답 DTO, `RequestAttributeKey` | 중간 | 예정 |
+> | 3-c | `common/security` 구성 + `JwtResponse` 이동(ArchUnit 위반 해소) | 중간 | 예정 |
+> | 3-d | `common/redis`, `kafka`, `email`, `s3`, `password` 구성 | 중간 | 예정 |
+> | 3-e | `common/controller`, `common/extension` 정리(소속 확인 후) | 낮음 | 예정 |
+> | 4 | 패키지 정리: `domain` 애그리거트 기준 재배치, 순환 제거, `RecordTagPolicy`를 `domain/record`로 이동, `sync`→`outbox` 이름 변경. 시작 전 하위 패키지 단위 순환 규칙을 ArchUnit에 추가해 현황을 고정 | 중간 | 예정 |
 > | 4.5 | `QueryFilter` 7개를 순수 데이터 클래스로 변환(조건식 변환은 Repository 쪽으로) | 중간 | 예정 |
-> | 5 | `infrastructure` 모듈 신설: Repository 구현·Provider 구현·Kafka/Redis/S3 설정 이동, `CLAUDE.md` 규칙 수정. Flyway SQL은 `domain`에 유지 | 높음 (Q-type, 자동 구성) | 예정 |
+> | 5 | `infrastructure` 모듈 신설: Repository 구현·Provider 구현·Kafka/Redis/S3 설정 이동, `CacheKeyPrefix`를 기능별로 분리해 `infrastructure`로, `CLAUDE.md` 규칙 수정. Flyway SQL은 `domain`에 유지 | 높음 (Q-type, 자동 구성) | 예정 |
 > | 6 | `worker` 모듈 신설: relay 스케줄러·상태 동기화 Consumer 이동, 별도 Jib 이미지, `worker`는 `spring.flyway.enabled=false` | 높음 | 예정 |
 > | 7 | (게이트 통과 시) `application` 모듈 | 매우 높음 | 보류 |
 >
@@ -177,6 +211,7 @@
 > 2. `CLAUDE.md`의 "Repository 구현체는 domain에 둔다" 규칙은 `infrastructure` 이동(5단계) 커밋에서 함께 고친다. 이동 전에 고치면 규칙이 현실과 어긋난다.
 > 3. C' 채택: `application` 모듈은 서비스의 api DTO 의존이 해소된 뒤로 미룬다.
 > 4. 모듈 이름은 `infrastructure`.
+> 7. 패키지 표준: 레이어 폴더는 파일 수와 관계없이 일관되게 유지하고, 허용 이름 목록을 ArchUnit으로 강제한다. `common`은 역할별로 재구성한다. `CacheKeyPrefix`는 5단계에서 기능별로 분리해 `infrastructure`로 옮긴다. (2026-10-13)
 >
 > 5. **Flyway SQL은 `domain`에 둔다. (확정)** 컬럼 추가 시 마이그레이션 SQL과 엔티티 필드가 항상 같은 변경 단위이므로 같은 모듈에 있어야 리뷰와 롤백이 한 번에 된다.
 >    - 단, 실행 주체를 정한다: 마이그레이션은 `api`만 실행하고 `worker`는 `spring.flyway.enabled=false`. (Flyway 락이 동시 실행은 막지만, 어느 프로세스가 스키마를 바꾸는지 모호해지는 것을 피한다.) 또는 worker는 `validate`만. 배포 단계에서 마이그레이션 job을 분리하는 것은 배포 재설계 때 다룬다.
