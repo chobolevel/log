@@ -1,8 +1,8 @@
 package com.chobolevel.api.user.controller
 
 import com.chobolevel.api.common.dummy.DummyAuth
-import com.chobolevel.api.common.properties.JwtProperties
 import com.chobolevel.api.common.security.AuthErrorCode
+import com.chobolevel.api.common.security.JwtProperties
 import com.chobolevel.api.user.dto.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.user.dto.LoginRequest
 import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest

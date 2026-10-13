@@ -1,5 +1,4 @@
-package com.chobolevel.api.user.dto
-
+package com.chobolevel.api.common.security
 import java.util.Date
 
 data class JwtResponse(

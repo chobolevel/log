@@ -1,8 +1,5 @@
 package com.chobolevel.api.common.security
 
-import com.chobolevel.api.common.properties.GuestProperties
-import com.chobolevel.api.common.properties.JwtProperties
-import com.chobolevel.api.common.properties.SecurityProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod

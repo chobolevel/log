@@ -7,10 +7,10 @@ import com.chobolevel.api.common.provider.PasswordProvider
 import com.chobolevel.api.common.provider.RedisCacheProvider
 import com.chobolevel.api.common.provider.ResendEmailProvider
 import com.chobolevel.api.common.security.AuthErrorCode
+import com.chobolevel.api.common.security.JwtResponse
 import com.chobolevel.api.common.security.TokenProvider
 import com.chobolevel.api.user.converter.UserConverter
 import com.chobolevel.api.user.dto.CheckEmailVerificationCodeRequest
-import com.chobolevel.api.user.dto.JwtResponse
 import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest
 import com.chobolevel.api.user.validator.UserBusinessValidator
 import com.chobolevel.domain.common.exception.BusinessException

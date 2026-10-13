@@ -1,7 +1,7 @@
 package com.chobolevel.api.user.image.controller
 
-import com.chobolevel.api.common.annotation.HasAuthorityUser
 import com.chobolevel.api.common.extension.getUserId
+import com.chobolevel.api.common.security.HasAuthorityUser
 import com.chobolevel.api.common.web.ResultResponse
 import com.chobolevel.api.user.image.dto.CreateUserImageRequest
 import com.chobolevel.api.user.image.service.UserImageService

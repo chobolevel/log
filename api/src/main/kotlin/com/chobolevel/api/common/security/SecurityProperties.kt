@@ -1,5 +1,4 @@
-package com.chobolevel.api.common.properties
-
+package com.chobolevel.api.common.security
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 @ConfigurationProperties(prefix = "security")

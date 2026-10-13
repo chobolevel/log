@@ -6,10 +6,10 @@ import com.chobolevel.api.common.provider.CacheProvider
 import com.chobolevel.api.common.provider.EmailProvider
 import com.chobolevel.api.common.provider.PasswordProvider
 import com.chobolevel.api.common.security.AuthErrorCode
+import com.chobolevel.api.common.security.JwtResponse
 import com.chobolevel.api.common.security.TokenProvider
 import com.chobolevel.api.user.converter.UserConverter
 import com.chobolevel.api.user.dto.CheckEmailVerificationCodeRequest
-import com.chobolevel.api.user.dto.JwtResponse
 import com.chobolevel.api.user.dto.LoginRequest
 import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest
 import com.chobolevel.api.user.dto.SocialLoginRequest

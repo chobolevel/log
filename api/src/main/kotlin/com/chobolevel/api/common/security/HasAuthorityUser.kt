@@ -1,5 +1,4 @@
-package com.chobolevel.api.common.annotation
-
+package com.chobolevel.api.common.security
 import org.springframework.security.access.prepost.PreAuthorize
 
 @Retention(AnnotationRetention.RUNTIME)

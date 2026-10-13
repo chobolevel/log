@@ -1,7 +1,5 @@
 package com.chobolevel.api.common.security
 
-import com.chobolevel.api.common.properties.JwtProperties
-import com.chobolevel.api.user.dto.JwtResponse
 import com.chobolevel.domain.common.exception.BusinessException
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Header

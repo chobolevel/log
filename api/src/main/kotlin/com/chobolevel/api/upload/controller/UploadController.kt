@@ -1,6 +1,6 @@
 package com.chobolevel.api.upload.controller
 
-import com.chobolevel.api.common.annotation.HasAuthorityUser
+import com.chobolevel.api.common.security.HasAuthorityUser
 import com.chobolevel.api.common.web.ResultResponse
 import com.chobolevel.api.upload.dto.UploadRequest
 import com.chobolevel.api.upload.dto.UploadResponse

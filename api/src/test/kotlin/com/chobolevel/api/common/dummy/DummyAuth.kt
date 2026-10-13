@@ -1,7 +1,7 @@
 package com.chobolevel.api.common.dummy
 
+import com.chobolevel.api.common.security.JwtResponse
 import com.chobolevel.api.user.dto.CheckEmailVerificationCodeRequest
-import com.chobolevel.api.user.dto.JwtResponse
 import com.chobolevel.api.user.dto.LoginRequest
 import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest
 import com.chobolevel.api.user.dto.SocialLoginRequest

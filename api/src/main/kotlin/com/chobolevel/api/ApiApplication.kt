@@ -9,7 +9,7 @@ import org.springframework.scheduling.annotation.EnableScheduling
 @EnableAsync
 @EnableScheduling
 @SpringBootApplication
-@ConfigurationPropertiesScan("com.chobolevel.api.common.properties")
+@ConfigurationPropertiesScan("com.chobolevel.api.common")
 class ApiApplication
 
 fun main(args: Array<String>) {
