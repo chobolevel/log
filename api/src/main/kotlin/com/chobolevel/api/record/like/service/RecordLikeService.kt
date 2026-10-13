@@ -1,8 +1,8 @@
 package com.chobolevel.api.record.like.service
 
-import com.chobolevel.api.common.extension.registerAfterCommit
 import com.chobolevel.api.common.redis.CacheKeyPrefix
 import com.chobolevel.api.common.redis.CacheProvider
+import com.chobolevel.api.common.transaction.registerAfterCommit
 import com.chobolevel.api.notification.NotificationPath
 import com.chobolevel.api.notification.provider.NotificationPublisher
 import com.chobolevel.api.record.like.validator.RecordLikeValidator

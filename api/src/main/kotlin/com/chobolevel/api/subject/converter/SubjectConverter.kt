@@ -1,6 +1,6 @@
 package com.chobolevel.api.subject.converter
 
-import com.chobolevel.api.common.extension.toMillis
+import com.chobolevel.api.common.time.toMillis
 import com.chobolevel.api.subject.dto.CreateSubjectRequest
 import com.chobolevel.api.subject.dto.SearchSubjectRequest
 import com.chobolevel.api.subject.dto.SubjectResponse

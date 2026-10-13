@@ -1,8 +1,8 @@
 package com.chobolevel.api.record.view.service
 
-import com.chobolevel.api.common.extension.registerAfterCommit
 import com.chobolevel.api.common.redis.CacheKeyPrefix
 import com.chobolevel.api.common.redis.CacheProvider
+import com.chobolevel.api.common.transaction.registerAfterCommit
 import com.chobolevel.api.record.view.validator.RecordViewValidator
 import com.chobolevel.domain.record.view.entity.RecordView
 import com.chobolevel.domain.record.view.repository.RecordViewRepository

@@ -1,6 +1,6 @@
 package com.chobolevel.api.common.security
 
-import com.chobolevel.api.common.extension.getCookie
+import com.chobolevel.api.common.web.getCookie
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse

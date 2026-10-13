@@ -1,6 +1,6 @@
 package com.chobolevel.api.notification.converter
 
-import com.chobolevel.api.common.extension.toMillis
+import com.chobolevel.api.common.time.toMillis
 import com.chobolevel.api.notification.dto.NotificationResponse
 import com.chobolevel.domain.notification.entity.Notification
 import org.springframework.stereotype.Component

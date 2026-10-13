@@ -2,7 +2,7 @@ package com.chobolevel.api.record.controller
 
 import com.chobolevel.api.common.dummy.DummyRecord
 import com.chobolevel.api.common.dummy.DummyUser
-import com.chobolevel.api.common.extension.nowKST
+import com.chobolevel.api.common.time.nowKST
 import com.chobolevel.api.common.web.PagingResponse
 import com.chobolevel.api.record.dto.CreateRecordRequest
 import com.chobolevel.api.record.dto.FetchRecordContributionsRequest

@@ -1,8 +1,8 @@
 package com.chobolevel.api.user.follow.controller
 
-import com.chobolevel.api.common.extension.getUserId
 import com.chobolevel.api.common.security.HasAuthorityAdmin
 import com.chobolevel.api.common.security.HasAuthorityUser
+import com.chobolevel.api.common.security.getUserId
 import com.chobolevel.api.common.web.PagingResponse
 import com.chobolevel.api.common.web.QueryObject
 import com.chobolevel.api.common.web.ResultResponse

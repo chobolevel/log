@@ -1,10 +1,10 @@
 package com.chobolevel.api.user.controller
 
-import com.chobolevel.api.common.extension.getCookie
 import com.chobolevel.api.common.security.AuthErrorCode
 import com.chobolevel.api.common.security.JwtProperties
 import com.chobolevel.api.common.security.JwtResponse
 import com.chobolevel.api.common.web.ResultResponse
+import com.chobolevel.api.common.web.getCookie
 import com.chobolevel.api.user.dto.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.user.dto.LoginRequest
 import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest

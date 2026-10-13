@@ -1,6 +1,6 @@
 package com.chobolevel.api.record.view.controller
 
-import com.chobolevel.api.common.extension.getUserId
+import com.chobolevel.api.common.security.getUserId
 import com.chobolevel.api.common.web.GuestId
 import com.chobolevel.api.common.web.ResultResponse
 import com.chobolevel.api.record.view.service.RecordViewService

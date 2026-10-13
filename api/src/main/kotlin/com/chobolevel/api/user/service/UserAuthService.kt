@@ -1,13 +1,13 @@
 package com.chobolevel.api.user.service
 
 import com.chobolevel.api.common.email.EmailProvider
-import com.chobolevel.api.common.extension.getUserId
 import com.chobolevel.api.common.password.PasswordProvider
 import com.chobolevel.api.common.redis.CacheKeyPrefix
 import com.chobolevel.api.common.redis.CacheProvider
 import com.chobolevel.api.common.security.AuthErrorCode
 import com.chobolevel.api.common.security.JwtResponse
 import com.chobolevel.api.common.security.TokenProvider
+import com.chobolevel.api.common.security.getUserId
 import com.chobolevel.api.user.converter.UserConverter
 import com.chobolevel.api.user.dto.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.user.dto.LoginRequest

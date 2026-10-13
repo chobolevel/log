@@ -1,6 +1,6 @@
 package com.chobolevel.api.record.converter
 
-import com.chobolevel.api.common.extension.toMillis
+import com.chobolevel.api.common.time.toMillis
 import com.chobolevel.api.record.dto.RecordContributionResponse
 import com.chobolevel.api.record.dto.RecordDetailResponse
 import com.chobolevel.api.record.dto.RecordResponse

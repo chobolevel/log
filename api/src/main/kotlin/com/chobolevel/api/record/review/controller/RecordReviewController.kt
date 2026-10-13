@@ -1,7 +1,7 @@
 package com.chobolevel.api.record.review.controller
 
-import com.chobolevel.api.common.extension.getUserId
 import com.chobolevel.api.common.security.HasAuthorityUser
+import com.chobolevel.api.common.security.getUserId
 import com.chobolevel.api.common.web.ResultResponse
 import com.chobolevel.api.record.review.dto.UpdateRecordReviewRequest
 import com.chobolevel.api.record.review.service.RecordReviewService

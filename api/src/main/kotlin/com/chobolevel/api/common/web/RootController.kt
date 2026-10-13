@@ -1,5 +1,4 @@
-package com.chobolevel.api.common.controller
-
+package com.chobolevel.api.common.web
 import io.swagger.v3.oas.annotations.Hidden
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController

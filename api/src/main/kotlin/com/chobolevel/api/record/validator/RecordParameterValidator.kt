@@ -1,6 +1,6 @@
 package com.chobolevel.api.record.validator
 
-import com.chobolevel.api.common.extension.nowKST
+import com.chobolevel.api.common.time.nowKST
 import com.chobolevel.api.record.dto.FetchRecordContributionsRequest
 import com.chobolevel.api.record.dto.UpdateRecordRequest
 import com.chobolevel.domain.common.exception.BusinessException
