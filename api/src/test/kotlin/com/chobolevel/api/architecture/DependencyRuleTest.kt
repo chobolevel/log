@@ -1,10 +1,15 @@
 package com.chobolevel.api.architecture
 
 import com.tngtech.archunit.base.DescribedPredicate
+import com.tngtech.archunit.core.domain.JavaClass
 import com.tngtech.archunit.core.domain.JavaClasses
 import com.tngtech.archunit.core.importer.ClassFileImporter
 import com.tngtech.archunit.core.importer.ImportOption
+import com.tngtech.archunit.lang.ArchCondition
 import com.tngtech.archunit.lang.ArchRule
+import com.tngtech.archunit.lang.ConditionEvents
+import com.tngtech.archunit.lang.SimpleConditionEvent
+import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses
 import com.tngtech.archunit.library.dependencies.Slice
 import com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices
@@ -19,6 +24,13 @@ class DependencyRuleTest : BehaviorSpec({
     val classes: JavaClasses = ClassFileImporter()
         .withImportOption(ImportOption.DoNotIncludeTests())
         .importPackages("com.chobolevel")
+
+    // 기능 패키지 안에서 허용하는 레이어 이름(decisions/module-and-package-structure.md의 "패키지 표준").
+    val allowedLayerNames: Set<String> = setOf(
+        "controller", "service", "dto", "converter", "validator", "updater",
+        "consumer", "scheduler", "provider", "config"
+    )
+    val featureNames: List<String> = listOf("emotion", "notification", "record", "subject", "upload", "user")
 
     fun check(rule: ArchRule) {
         FreezingArchRule.freeze(rule).check(classes)
@@ -90,6 +102,25 @@ class DependencyRuleTest : BehaviorSpec({
                         "com.chobolevel.domain.subject..",
                         "com.chobolevel.domain.user.."
                     )
+            )
+        }
+    }
+
+    given("기능 패키지의 레이어 이름") {
+        then("기능 패키지의 클래스는 허용된 레이어 이름의 패키지에 있다") {
+            val featureRoots: Set<String> = featureNames.map { "com.chobolevel.api.$it" }.toSet()
+            val inAllowedLayer: ArchCondition<JavaClass> = object : ArchCondition<JavaClass>("reside in a package named after an allowed layer") {
+                override fun check(item: JavaClass, events: ConditionEvents) {
+                    val packageName: String = item.packageName
+                    val layerName: String = packageName.substringAfterLast('.')
+                    if (packageName !in featureRoots && layerName !in allowedLayerNames) {
+                        events.add(SimpleConditionEvent.violated(item, "${item.name} is in package '$packageName' whose name '$layerName' is not an allowed layer name"))
+                    }
+                }
+            }
+            check(
+                classes().that().resideInAnyPackage(*featureNames.map { "com.chobolevel.api.$it.." }.toTypedArray())
+                    .should(inAllowedLayer)
             )
         }
     }

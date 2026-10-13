@@ -3,7 +3,7 @@ package com.chobolevel.api.record.like.service
 import com.chobolevel.api.common.constant.CacheKeyPrefix
 import com.chobolevel.api.common.extension.registerAfterCommit
 import com.chobolevel.api.common.provider.CacheProvider
-import com.chobolevel.api.notification.constant.NotificationPath
+import com.chobolevel.api.notification.NotificationPath
 import com.chobolevel.api.notification.provider.NotificationPublisher
 import com.chobolevel.api.record.like.validator.RecordLikeValidator
 import com.chobolevel.domain.notification.vo.NotificationType

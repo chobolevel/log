@@ -4,7 +4,7 @@ import com.chobolevel.api.common.constant.CacheKeyPrefix
 import com.chobolevel.api.common.dummy.DummyRecord
 import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.common.provider.CacheProvider
-import com.chobolevel.api.notification.constant.NotificationPath
+import com.chobolevel.api.notification.NotificationPath
 import com.chobolevel.api.notification.provider.NotificationPublisher
 import com.chobolevel.api.record.like.validator.RecordLikeValidator
 import com.chobolevel.domain.common.exception.BusinessException

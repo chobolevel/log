@@ -1,4 +1,4 @@
-package com.chobolevel.api.notification.constant
+package com.chobolevel.api.notification
 
 object NotificationPath {
     fun userProfile(userId: Long): String = "/users/$userId"

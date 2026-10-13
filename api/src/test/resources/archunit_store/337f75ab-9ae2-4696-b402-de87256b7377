@@ -1,0 +1,5 @@
+com.chobolevel.api.notification.sse.LocalSseEmitterRegistry is in package 'com.chobolevel.api.notification.sse' whose name 'sse' is not an allowed layer name
+com.chobolevel.api.notification.sse.NotificationSseDispatcher is in package 'com.chobolevel.api.notification.sse' whose name 'sse' is not an allowed layer name
+com.chobolevel.api.notification.sse.SseEmitterRegistry is in package 'com.chobolevel.api.notification.sse' whose name 'sse' is not an allowed layer name
+com.chobolevel.api.notification.sse.SseEventName is in package 'com.chobolevel.api.notification.sse' whose name 'sse' is not an allowed layer name
+com.chobolevel.api.record.vo.RecordTagPolicy is in package 'com.chobolevel.api.record.vo' whose name 'vo' is not an allowed layer name
