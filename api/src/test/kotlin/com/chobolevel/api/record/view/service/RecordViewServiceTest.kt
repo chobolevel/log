@@ -1,10 +1,10 @@
 package com.chobolevel.api.record.view.service
 
-import com.chobolevel.api.common.constant.CacheKeyPrefix
 import com.chobolevel.api.common.dummy.DummyRecord
 import com.chobolevel.api.common.dummy.DummyRecordView
 import com.chobolevel.api.common.dummy.DummyUser
-import com.chobolevel.api.common.provider.CacheProvider
+import com.chobolevel.api.common.redis.CacheKeyPrefix
+import com.chobolevel.api.common.redis.CacheProvider
 import com.chobolevel.api.record.view.validator.RecordViewValidator
 import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.record.exception.RecordErrorCode

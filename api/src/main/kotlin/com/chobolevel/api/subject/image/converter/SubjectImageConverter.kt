@@ -1,7 +1,7 @@
 package com.chobolevel.api.subject.image.converter
 
 import com.chobolevel.api.common.extension.toMillis
-import com.chobolevel.api.common.properties.S3Properties
+import com.chobolevel.api.common.s3.S3Properties
 import com.chobolevel.api.subject.dto.SyncSubjectImageRequest
 import com.chobolevel.api.subject.image.dto.SubjectImageResponse
 import com.chobolevel.domain.subject.dto.SyncSubjectImageCommand

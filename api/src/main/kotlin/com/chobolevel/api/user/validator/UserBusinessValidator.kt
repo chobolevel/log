@@ -1,8 +1,8 @@
 package com.chobolevel.api.user.validator
 
-import com.chobolevel.api.common.constant.CacheKeyPrefix
-import com.chobolevel.api.common.provider.CacheProvider
-import com.chobolevel.api.common.provider.PasswordProvider
+import com.chobolevel.api.common.password.PasswordProvider
+import com.chobolevel.api.common.redis.CacheKeyPrefix
+import com.chobolevel.api.common.redis.CacheProvider
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.ResetUserPasswordRequest

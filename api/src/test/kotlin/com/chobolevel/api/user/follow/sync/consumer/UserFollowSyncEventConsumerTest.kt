@@ -1,8 +1,8 @@
 package com.chobolevel.api.user.follow.sync.consumer
 
-import com.chobolevel.api.common.constant.CacheKeyPrefix
 import com.chobolevel.api.common.dummy.DummyUserFollowSyncEvent
-import com.chobolevel.api.common.provider.CacheProvider
+import com.chobolevel.api.common.redis.CacheKeyPrefix
+import com.chobolevel.api.common.redis.CacheProvider
 import com.chobolevel.api.user.follow.sync.dto.UserFollowSyncEventMessage
 import com.chobolevel.domain.user.follow.repository.UserFollowRepository
 import com.chobolevel.domain.user.follow.sync.entity.UserFollowSyncEvent

@@ -1,11 +1,11 @@
 package com.chobolevel.api.record.service
 
-import com.chobolevel.api.common.constant.CacheKeyPrefix
 import com.chobolevel.api.common.dummy.DummyEmotion
 import com.chobolevel.api.common.dummy.DummyRecord
 import com.chobolevel.api.common.dummy.DummySubject
 import com.chobolevel.api.common.dummy.DummyUser
-import com.chobolevel.api.common.provider.CacheProvider
+import com.chobolevel.api.common.redis.CacheKeyPrefix
+import com.chobolevel.api.common.redis.CacheProvider
 import com.chobolevel.api.common.web.PagingResponse
 import com.chobolevel.api.record.converter.RecordConverter
 import com.chobolevel.api.record.dto.CreateRecordRequest

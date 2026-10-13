@@ -1,10 +1,10 @@
 package com.chobolevel.api.user.service
 
-import com.chobolevel.api.common.constant.CacheKeyPrefix
+import com.chobolevel.api.common.email.EmailProvider
 import com.chobolevel.api.common.extension.getUserId
-import com.chobolevel.api.common.provider.CacheProvider
-import com.chobolevel.api.common.provider.EmailProvider
-import com.chobolevel.api.common.provider.PasswordProvider
+import com.chobolevel.api.common.password.PasswordProvider
+import com.chobolevel.api.common.redis.CacheKeyPrefix
+import com.chobolevel.api.common.redis.CacheProvider
 import com.chobolevel.api.common.security.AuthErrorCode
 import com.chobolevel.api.common.security.JwtResponse
 import com.chobolevel.api.common.security.TokenProvider

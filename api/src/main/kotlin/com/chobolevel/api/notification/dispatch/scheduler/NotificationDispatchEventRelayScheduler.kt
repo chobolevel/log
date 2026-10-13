@@ -1,6 +1,6 @@
 package com.chobolevel.api.notification.dispatch.scheduler
 
-import com.chobolevel.api.common.config.KafkaTopicConfiguration
+import com.chobolevel.api.common.kafka.KafkaTopicConfiguration
 import com.chobolevel.api.notification.dispatch.dto.NotificationDispatchEventMessage
 import com.chobolevel.domain.notification.dispatch.entity.NotificationDispatchEvent
 import com.chobolevel.domain.notification.dispatch.repository.NotificationDispatchEventRepository

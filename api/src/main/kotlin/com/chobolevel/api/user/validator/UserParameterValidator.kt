@@ -1,6 +1,5 @@
 package com.chobolevel.api.user.validator
 
-import com.chobolevel.api.common.constant.Regexp
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.ResetUserPasswordRequest

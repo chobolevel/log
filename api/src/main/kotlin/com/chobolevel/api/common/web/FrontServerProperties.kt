@@ -1,5 +1,4 @@
-package com.chobolevel.api.common.properties
-
+package com.chobolevel.api.common.web
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 @ConfigurationProperties(prefix = "front-server")

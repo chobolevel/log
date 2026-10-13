@@ -1,7 +1,7 @@
 package com.chobolevel.api.user.follow.service
 
-import com.chobolevel.api.common.constant.CacheKeyPrefix
-import com.chobolevel.api.common.provider.CacheProvider
+import com.chobolevel.api.common.redis.CacheKeyPrefix
+import com.chobolevel.api.common.redis.CacheProvider
 import com.chobolevel.api.common.web.PagingResponse
 import com.chobolevel.api.user.follow.converter.UserFollowConverter
 import com.chobolevel.api.user.follow.dto.SearchUserFollowerRequest

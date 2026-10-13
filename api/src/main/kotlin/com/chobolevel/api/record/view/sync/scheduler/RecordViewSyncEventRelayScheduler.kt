@@ -1,6 +1,6 @@
 package com.chobolevel.api.record.view.sync.scheduler
 
-import com.chobolevel.api.common.config.KafkaTopicConfiguration
+import com.chobolevel.api.common.kafka.KafkaTopicConfiguration
 import com.chobolevel.api.record.view.sync.dto.RecordViewSyncEventMessage
 import com.chobolevel.domain.record.view.sync.entity.RecordViewSyncEvent
 import com.chobolevel.domain.record.view.sync.repository.RecordViewSyncEventRepository

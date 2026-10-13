@@ -1,5 +1,4 @@
-package com.chobolevel.api.common.config
-
+package com.chobolevel.api.common.redis
 import org.redisson.Redisson
 import org.redisson.api.RedissonClient
 import org.redisson.config.Config

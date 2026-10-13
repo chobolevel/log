@@ -1,6 +1,6 @@
 package com.chobolevel.api.user.converter
 
-import com.chobolevel.api.common.provider.PasswordProvider
+import com.chobolevel.api.common.password.PasswordProvider
 import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.SearchUserRequest
 import com.chobolevel.api.user.dto.SocialLoginRequest

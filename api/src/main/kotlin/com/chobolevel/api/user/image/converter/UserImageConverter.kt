@@ -1,6 +1,6 @@
 package com.chobolevel.api.user.image.converter
 
-import com.chobolevel.api.common.properties.S3Properties
+import com.chobolevel.api.common.s3.S3Properties
 import com.chobolevel.api.user.image.dto.CreateUserImageRequest
 import com.chobolevel.api.user.image.dto.UserImageResponse
 import com.chobolevel.domain.user.image.entity.UserImage

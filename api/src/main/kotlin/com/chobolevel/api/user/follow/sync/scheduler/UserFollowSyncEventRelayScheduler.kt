@@ -1,6 +1,6 @@
 package com.chobolevel.api.user.follow.sync.scheduler
 
-import com.chobolevel.api.common.config.KafkaTopicConfiguration
+import com.chobolevel.api.common.kafka.KafkaTopicConfiguration
 import com.chobolevel.api.user.follow.sync.dto.UserFollowSyncEventMessage
 import com.chobolevel.domain.user.follow.sync.entity.UserFollowSyncEvent
 import com.chobolevel.domain.user.follow.sync.repository.UserFollowSyncEventRepository

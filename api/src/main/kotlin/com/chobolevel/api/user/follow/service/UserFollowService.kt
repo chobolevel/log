@@ -1,8 +1,8 @@
 package com.chobolevel.api.user.follow.service
 
-import com.chobolevel.api.common.constant.CacheKeyPrefix
 import com.chobolevel.api.common.extension.registerAfterCommit
-import com.chobolevel.api.common.provider.CacheProvider
+import com.chobolevel.api.common.redis.CacheKeyPrefix
+import com.chobolevel.api.common.redis.CacheProvider
 import com.chobolevel.api.notification.NotificationPath
 import com.chobolevel.api.notification.provider.NotificationPublisher
 import com.chobolevel.api.user.follow.dto.UserFollowCounterResponse

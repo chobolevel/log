@@ -1,8 +1,8 @@
 package com.chobolevel.api.record.view.service
 
-import com.chobolevel.api.common.constant.CacheKeyPrefix
 import com.chobolevel.api.common.dummy.DummyRecord
-import com.chobolevel.api.common.provider.CacheProvider
+import com.chobolevel.api.common.redis.CacheKeyPrefix
+import com.chobolevel.api.common.redis.CacheProvider
 import com.chobolevel.domain.record.view.repository.RecordViewRepository
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe

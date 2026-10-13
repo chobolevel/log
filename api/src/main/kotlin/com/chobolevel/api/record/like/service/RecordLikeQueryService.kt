@@ -1,7 +1,7 @@
 package com.chobolevel.api.record.like.service
 
-import com.chobolevel.api.common.constant.CacheKeyPrefix
-import com.chobolevel.api.common.provider.CacheProvider
+import com.chobolevel.api.common.redis.CacheKeyPrefix
+import com.chobolevel.api.common.redis.CacheProvider
 import com.chobolevel.domain.record.like.repository.RecordLikeRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

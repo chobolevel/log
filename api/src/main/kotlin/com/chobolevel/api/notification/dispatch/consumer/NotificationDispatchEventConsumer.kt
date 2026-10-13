@@ -1,6 +1,6 @@
 package com.chobolevel.api.notification.dispatch.consumer
 
-import com.chobolevel.api.common.config.KafkaTopicConfiguration
+import com.chobolevel.api.common.kafka.KafkaTopicConfiguration
 import com.chobolevel.api.notification.dispatch.dto.NotificationDispatchEventMessage
 import com.chobolevel.api.notification.sse.NotificationSseDispatcher
 import com.chobolevel.api.notification.sse.dto.NotificationSsePayload

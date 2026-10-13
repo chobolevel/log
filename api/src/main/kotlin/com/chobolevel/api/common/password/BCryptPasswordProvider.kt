@@ -1,5 +1,4 @@
-package com.chobolevel.api.common.provider
-
+package com.chobolevel.api.common.password
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component
 

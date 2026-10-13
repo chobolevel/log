@@ -1,6 +1,5 @@
 package com.chobolevel.api.user.validator
 
-import com.chobolevel.api.common.constant.Regexp
 import com.chobolevel.api.user.dto.CheckEmailVerificationCodeRequest
 import com.chobolevel.api.user.dto.LoginRequest
 import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest

@@ -1,6 +1,6 @@
 package com.chobolevel.api.record.like.sync.scheduler
 
-import com.chobolevel.api.common.config.KafkaTopicConfiguration
+import com.chobolevel.api.common.kafka.KafkaTopicConfiguration
 import com.chobolevel.api.record.like.sync.dto.RecordLikeSyncEventMessage
 import com.chobolevel.domain.record.like.sync.entity.RecordLikeSyncEvent
 import com.chobolevel.domain.record.like.sync.repository.RecordLikeSyncEventRepository

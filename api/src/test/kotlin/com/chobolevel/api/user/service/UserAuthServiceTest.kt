@@ -1,11 +1,11 @@
 package com.chobolevel.api.user.service
 
-import com.chobolevel.api.common.constant.CacheKeyPrefix
 import com.chobolevel.api.common.dummy.DummyAuth
 import com.chobolevel.api.common.dummy.DummyUser
-import com.chobolevel.api.common.provider.PasswordProvider
-import com.chobolevel.api.common.provider.RedisCacheProvider
-import com.chobolevel.api.common.provider.ResendEmailProvider
+import com.chobolevel.api.common.email.ResendEmailProvider
+import com.chobolevel.api.common.password.PasswordProvider
+import com.chobolevel.api.common.redis.CacheKeyPrefix
+import com.chobolevel.api.common.redis.RedisCacheProvider
 import com.chobolevel.api.common.security.AuthErrorCode
 import com.chobolevel.api.common.security.JwtResponse
 import com.chobolevel.api.common.security.TokenProvider
