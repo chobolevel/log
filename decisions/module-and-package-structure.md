@@ -132,7 +132,7 @@
 >   | `common/password` | `PasswordProvider`, `BCryptPasswordProvider` |
 >
 >   기술별로 묶는 이유는 5단계에서 `infrastructure`로 패키지 단위로 옮기기 위해서다.
-> - 확인 후 결정: `RootController`/`CrawlingController` 소속, `Extensions.kt`(getUserId, getCookie, toKST, registerAfterCommit 등 역할이 섞인 확장 함수) 분배.
+> - 처리 결과: `CrawlingController`는 테스트용이라 jsoup과 함께 제거했고, `Extensions.kt`는 역할별 파일로 나눴으며, `Regexp`는 사용처인 `user/validator`로 옮겼다.
 > - `CacheKeyPrefix`: 12개 키의 사용처가 모두 해당 기능 안이므로 `common`에 있을 이유가 없다. 다만 sync consumer(6단계에서 `worker`로 이동)가 서비스와 같은 키를 쓰므로 `api` 안에 두면 안 되고, `api`·`worker`가 모두 접근하는 `infrastructure`에서 기능별로 소유하게 한다. **5단계에서 분리**하고, 그전에는 `common/redis`에 둔다. 서비스가 키 문자열을 직접 조립하지 않고 기능별 캐시 클래스(`RecordLikeCache` 등)가 감싸는 구조는 별도 후속 과제로 둔다.
 >
 > **domain / infrastructure: 애그리거트 기준**
@@ -166,11 +166,13 @@
 > | 2-b | `spring-boot-starter-batch` 의존성과 `spring.batch.job.enabled` 설정 제거 | 낮음 | 완료 (`01aa8d7`) |
 > | 2-c | Flyway가 읽지 않던 `db/migration/batch/schema-*.sql` 11개 제거 | 낮음 | 완료 (`8ce6cfc`) |
 > | 2-d | 쓰는 코드가 없는 `spring.mail` 설정 제거 | 낮음 | 완료 (`5ed875c`) |
-> | 3-a | 레이어 이름 허용 목록 ArchUnit 규칙 추가(현재 위반은 freeze). `notification/constant/NotificationPath` 이동 | 낮음 | 예정 |
-> | 3-b | `common/web` 구성: `ExceptionHandler`, `WebMvcConfiguration`, resolver, annotation, 응답 DTO, `RequestAttributeKey` | 중간 | 예정 |
-> | 3-c | `common/security` 구성 + `JwtResponse` 이동(ArchUnit 위반 해소) | 중간 | 예정 |
-> | 3-d | `common/redis`, `kafka`, `email`, `s3`, `password` 구성 | 중간 | 예정 |
-> | 3-e | `common/controller`, `common/extension` 정리(소속 확인 후) | 낮음 | 예정 |
+> | 3-a | 레이어 이름 허용 목록 ArchUnit 규칙 추가(현재 위반은 freeze), `NotificationPath` 이동 | 낮음 | 완료 (`96d745c`) |
+> | 3-b | `common/web` 구성 (`WebMvcConfiguration`, resolver, annotation, 응답 DTO, `RequestAttributeKey`) | 중간 | 완료 (`1ba38f4`) |
+> | 3-c | `common/security` 구성, `JwtResponse` 이동으로 ArchUnit 위반 1건 해소 | 중간 | 완료 (`db50333`) |
+> | 3-d | `common/redis`·`kafka`·`email`·`s3`·`password` 구성, `Regexp`를 `user/validator`로, `FrontServerProperties`를 `common/web`으로 | 중간 | 완료 (`80bf67a`) |
+> | 3-e | `Extensions.kt`를 역할별(`security`·`web`·`time`·`transaction`)로 분리, `RootController`를 `common/web`으로, 테스트용 `CrawlingController`와 jsoup 제거 | 낮음 | 완료 (`b44e075`, `eed2ae4`) |
+> | 3-f | `ExceptionHandler`를 `common/exception`으로 이동해 `web`↔`security` 순환 제거 | 낮음 | 완료 (`89c71eb`) |
+> | 3-g | `common` 역할 패키지 허용 목록과 순환 금지 ArchUnit 규칙 추가 | 낮음 | 완료 (`ee67a5f`) |
 > | 4 | 패키지 정리: `domain` 애그리거트 기준 재배치, 순환 제거, `RecordTagPolicy`를 `domain/record`로 이동, `sync`→`outbox` 이름 변경. 시작 전 하위 패키지 단위 순환 규칙을 ArchUnit에 추가해 현황을 고정 | 중간 | 예정 |
 > | 4.5 | `QueryFilter` 7개를 순수 데이터 클래스로 변환(조건식 변환은 Repository 쪽으로) | 중간 | 예정 |
 > | 5 | `infrastructure` 모듈 신설: Repository 구현·Provider 구현·Kafka/Redis/S3 설정 이동, `CacheKeyPrefix`를 기능별로 분리해 `infrastructure`로, `CLAUDE.md` 규칙 수정. Flyway SQL은 `domain`에 유지 | 높음 (Q-type, 자동 구성) | 예정 |
@@ -181,6 +183,8 @@
 >
 > **2단계 결과**: 테스트 415개 통과. `api` classpath diff로 `spring-batch-*`와 낮은 버전 후보 `micrometer-core:1.10.7`만 빠졌고(`micrometer-core:1.11.0`은 유지), bootJar에 spring-batch가 남지 않음을 확인했다.
 >
+> **3단계 결과**: 테스트 418개 통과(규칙 테스트 3개 추가). `common`은 `web`, `security`, `redis`, `kafka`, `email`, `s3`, `password`, `time`, `transaction`, `exception` 10개 역할 패키지만 남았고, `common` → 기능 패키지 의존과 역할 패키지 간 순환은 0건이다. ArchUnit 허용 목록에 남은 위반은 레이어 이름 규칙 5건(`notification/sse` 직하위 4개, `record/vo/RecordTagPolicy` 1개)이다. 변경은 `package`/`import` 외 로직 변경 없이 이동만 했다(예외: 테스트용 크롤링 엔드포인트 제거).
+>
 > **이번 재편 범위 밖 후속 과제**
 > - Jib JVM 플래그의 `-Djasypt.encryptor.password` 평문 값: 시크릿 로테이션 항목으로 별도 처리
 > - worker 다중 인스턴스 시 relay 중복 실행(분산락 또는 `SKIP LOCKED`)
@@ -188,6 +192,8 @@
 > - `V1__init_tables.sql`이 만든 `BATCH_*` 테이블 9개: 이미 적용된 마이그레이션이라 수정할 수 없고, 지우려면 DROP 마이그레이션을 새로 만들어야 한다. 운영 DB 변경이므로 의도적으로 할 때만 진행
 > - `application.yml`의 `spring.jackson` 오타(`property-naming-str ategy`, 키 중간 공백): 현재 설정이 적용되지 않아 응답이 camelCase로 나가는 것으로 보인다. 고치면 모든 응답 필드명이 바뀌므로, 의도(camelCase 유지 / snake_case)를 먼저 정하고 프론트와 맞춰 처리
 > - `application.yml`의 `spring.datasource.password`가 평문: 시크릿 로테이션 항목과 함께 처리
+> - `notification/sse/` 직하위 4개 클래스(`SseEmitterRegistry`, `LocalSseEmitterRegistry`, `NotificationSseDispatcher`, `SseEventName`)의 레이어 배치: `provider`/`service`/`dto`로 나눌지 결정
+> - `common/redis/RedisProperties.kt`의 `RedisData` 빈: 주입하는 곳이 없는 것으로 보여 삭제 후보
 
 ## 결과(Consequences)
 
