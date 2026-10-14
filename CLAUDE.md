@@ -97,26 +97,37 @@ domain/
         ...
 ```
 
-**api 모듈** — 서브도메인은 별도 디렉토리로 분리하고, 그 안에서 레이어를 나눈다.
+**api 모듈** — 기능(user, record 등)별 패키지 안에서 레이어를 나눈다. 서브 기능은 하위 디렉토리로 분리한다.
 
 ```
 api/
-  post/
+  record/                  ← 기능
     controller/
     service/
     dto/
     converter/
-    comment/       ← PostComment 서브도메인
+    validator/
+    updater/
+    like/                  ← 하위 기능
       controller/
       service/
-      dto/
-      converter/
       validator/
-      updater/
-    image/         ← PostImage 서브도메인
-      converter/
-      dto/
+      sync/                ← 상태 동기화 하위 기능
+        consumer/          ← 6단계(worker 신설)에서 worker 모듈로 이동 예정
+        scheduler/         ← 〃
+        service/
+        controller/
+        converter/
+        dto/
+  common/                  ← 횡단 관심사. 레이어가 아니라 역할로 나눈다
+    web/ security/ redis/ kafka/ email/ s3/ password/ time/ transaction/ exception/
 ```
+
+- **레이어 폴더는 파일이 1개여도 만든다.** 파일 수에 따라 폴더를 만들거나 합치면 구조가 기능마다 달라지고, 파일이 늘 때마다 import가 바뀐다.
+- **허용 레이어 이름**: `controller`, `service`, `dto`, `converter`, `validator`, `updater`, `consumer`, `scheduler`, `provider`, `config`. 기능 패키지 직하위에 클래스를 두는 것도 허용한다.
+- **`common`은 허용된 역할만 둔다**: `web`, `security`, `redis`, `kafka`, `email`, `s3`, `password`, `time`, `transaction`, `exception`. `common`은 기능 패키지에 의존하지 않고, 역할 패키지끼리 순환하지 않는다.
+- 위 규칙은 `DependencyRuleTest`(ArchUnit)가 검증한다. 기존 위반은 `api/src/test/resources/archunit_store`에 고정되어 있고, 새로운 위반은 테스트가 실패한다. 위반을 고치면 해당 항목이 자동으로 사라진다.
+- 설계 배경과 단계별 계획은 `decisions/module-and-package-structure.md`를 따른다.
 
 ### 3. Repository 계층 패턴
 
