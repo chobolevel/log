@@ -30,6 +30,10 @@ class DependencyRuleTest : BehaviorSpec({
         "controller", "service", "dto", "converter", "validator", "updater",
         "consumer", "scheduler", "provider", "config"
     )
+    // common은 레이어가 아니라 역할로 나눈다. 새 잡동사니 패키지가 생기지 않도록 허용 역할을 고정한다.
+    val allowedCommonRoles: Set<String> = setOf(
+        "web", "security", "redis", "kafka", "email", "s3", "password", "time", "transaction", "exception"
+    )
     val featureNames: List<String> = listOf("emotion", "notification", "record", "subject", "upload", "user")
 
     fun check(rule: ArchRule) {
@@ -122,6 +126,25 @@ class DependencyRuleTest : BehaviorSpec({
                 classes().that().resideInAnyPackage(*featureNames.map { "com.chobolevel.api.$it.." }.toTypedArray())
                     .should(inAllowedLayer)
             )
+        }
+    }
+
+    given("common의 역할 구성") {
+        then("common 하위 패키지는 허용된 역할 이름만 사용한다") {
+            val inAllowedRole: ArchCondition<JavaClass> = object : ArchCondition<JavaClass>("reside in a common package named after an allowed role") {
+                override fun check(item: JavaClass, events: ConditionEvents) {
+                    val relative: String = item.packageName.removePrefix("com.chobolevel.api.common").removePrefix(".")
+                    val role: String = relative.substringBefore('.')
+                    if (role !in allowedCommonRoles) {
+                        events.add(SimpleConditionEvent.violated(item, "${item.name} is in package '${item.packageName}' whose role '$role' is not an allowed common role"))
+                    }
+                }
+            }
+            check(classes().that().resideInAPackage("com.chobolevel.api.common..").should(inAllowedRole))
+        }
+
+        then("common의 역할 패키지끼리 순환 참조하지 않는다") {
+            check(slices().matching("com.chobolevel.api.common.(*)..").should().beFreeOfCycles())
         }
     }
 })
