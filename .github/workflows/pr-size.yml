@@ -1,0 +1,27 @@
+name: PR SIZE
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  size:
+    name: PR Size
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 경고만 하고 실패시키지 않는다. 필수 체크(branch protection)에 넣지 않는다.
+      - name: Check PR size
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          THRESHOLD: '500'
+        run: bash .github/scripts/pr-size.sh "$BASE_SHA" "$HEAD_SHA" "$THRESHOLD"
