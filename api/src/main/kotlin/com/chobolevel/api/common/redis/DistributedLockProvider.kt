@@ -1,4 +1,5 @@
 package com.chobolevel.api.common.redis
+
 import java.util.concurrent.TimeUnit
 
 // 현재는 호출부(UserFollowFacade)에서 직접 호출 + try/finally로 해제하는 방식으로 사용한다.

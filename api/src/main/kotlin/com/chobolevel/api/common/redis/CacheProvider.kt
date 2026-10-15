@@ -1,4 +1,5 @@
 package com.chobolevel.api.common.redis
+
 import java.util.concurrent.TimeUnit
 
 interface CacheProvider {

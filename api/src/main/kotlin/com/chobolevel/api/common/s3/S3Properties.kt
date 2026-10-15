@@ -1,4 +1,5 @@
 package com.chobolevel.api.common.s3
+
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 @ConfigurationProperties(prefix = "cloud.aws.s3")

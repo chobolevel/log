@@ -1,4 +1,5 @@
 package com.chobolevel.api.common.exception
+
 import com.chobolevel.api.common.security.AuthErrorCode
 import com.chobolevel.domain.common.exception.BusinessErrorCode
 import com.chobolevel.domain.common.exception.BusinessException

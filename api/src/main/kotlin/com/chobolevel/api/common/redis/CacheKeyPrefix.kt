@@ -1,4 +1,5 @@
 package com.chobolevel.api.common.redis
+
 // 키 컨벤션: object-type:id:field[:subId]:v1 (Redis 공식 권장 패턴, object-type은 단수)
 object CacheKeyPrefix {
     // 좋아요 수/여부 캐시 TTL — DB read-repair(Consumer)가 이벤트마다 갱신하므로,

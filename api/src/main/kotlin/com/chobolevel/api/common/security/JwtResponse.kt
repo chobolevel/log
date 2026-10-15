@@ -1,4 +1,5 @@
 package com.chobolevel.api.common.security
+
 import java.util.Date
 
 data class JwtResponse(
