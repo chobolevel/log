@@ -34,6 +34,14 @@ class DependencyRuleTest : BehaviorSpec({
     val allowedCommonRoles: Set<String> = setOf(
         "web", "security", "redis", "kafka", "email", "s3", "password", "time", "transaction", "exception"
     )
+    // 애그리거트(루트 + 소속 하위 엔티티) 구성. 외부에서는 루트 패키지로만 접근한다.
+    val aggregateMembers: Map<String, List<String>> = mapOf(
+        "user" to listOf("follow", "image"),
+        "record" to listOf("emotion", "like", "review", "tag", "view"),
+        "subject" to listOf("image"),
+        "emotion" to listOf("category"),
+        "notification" to listOf("dispatch")
+    )
     val featureNames: List<String> = listOf("emotion", "notification", "record", "subject", "upload", "user")
 
     fun check(rule: ArchRule) {
@@ -145,6 +153,39 @@ class DependencyRuleTest : BehaviorSpec({
 
         then("common의 역할 패키지끼리 순환 참조하지 않는다") {
             check(slices().matching("com.chobolevel.api.common.(*)..").should().beFreeOfCycles())
+        }
+    }
+
+    given("domain의 애그리거트 경계") {
+        aggregateMembers.forEach { (root, members) ->
+            then("$root 애그리거트의 하위 패키지(${members.joinToString()})는 애그리거트 밖의 domain 코드가 직접 참조하지 않는다") {
+                check(
+                    noClasses().that().resideInAPackage("com.chobolevel.domain..")
+                        .and().resideOutsideOfPackage("com.chobolevel.domain.$root..")
+                        .should().dependOnClassesThat().resideInAnyPackage(
+                            *members.map { "com.chobolevel.domain.$root.$it.." }.toTypedArray()
+                        )
+                )
+            }
+        }
+    }
+
+    given("domain의 레이어 방향") {
+        then("entity는 repository에 의존하지 않는다") {
+            check(
+                noClasses().that().resideInAPackage("com.chobolevel.domain..entity..")
+                    .should().dependOnClassesThat().resideInAPackage("com.chobolevel.domain..repository..")
+            )
+        }
+
+        then("vo는 entity와 repository에 의존하지 않는다") {
+            check(
+                noClasses().that().resideInAPackage("com.chobolevel.domain..vo..")
+                    .should().dependOnClassesThat().resideInAnyPackage(
+                        "com.chobolevel.domain..entity..",
+                        "com.chobolevel.domain..repository.."
+                    )
+            )
         }
     }
 })
