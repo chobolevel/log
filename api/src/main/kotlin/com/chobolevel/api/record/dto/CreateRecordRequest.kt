@@ -2,7 +2,7 @@ package com.chobolevel.api.record.dto
 
 import com.chobolevel.api.record.emotion.dto.CreateRecordEmotionRequest
 import com.chobolevel.api.record.review.dto.CreateRecordReviewRequest
-import com.chobolevel.api.record.vo.RecordTagPolicy
+import com.chobolevel.domain.record.tag.vo.RecordTagPolicy
 import com.chobolevel.domain.record.vo.RecordType
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotEmpty

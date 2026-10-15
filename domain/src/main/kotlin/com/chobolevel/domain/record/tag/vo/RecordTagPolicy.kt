@@ -1,4 +1,4 @@
-package com.chobolevel.api.record.vo
+package com.chobolevel.domain.record.tag.vo
 
 object RecordTagPolicy {
     const val NAME_PATTERN = "^[가-힣a-zA-Z]{2,50}$"
