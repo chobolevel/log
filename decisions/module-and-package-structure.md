@@ -143,8 +143,8 @@
 > ```
 > - 현재의 `entity/repository/vo` 레이어 폴더는 유지한다(일관성 원칙).
 > - 애그리거트 간 참조는 ID 또는 읽기 전용 조회로. 서브 엔티티의 팩토리는 `internal`, 루트가 단일 진입점.
-> - 순환 의존(`follow`/`image`/`emotion`/`review`/`tag`/`vo`)은 소속 애그리거트로 흡수해 제거한다.
-> - Outbox 엔티티를 담은 `sync` 패키지는 의미에 맞게 `outbox`로 이름을 바꾼다(4단계).
+> - 루트 ↔ 자식 패키지 순환(`user`↔`user.follow`/`image` 등)은 JPA 양방향 연관이 그대로 드러난 것으로, 한 애그리거트 안의 정상 구조다. 합치지 않고, 애그리거트 밖에서는 루트 패키지로만 접근하도록 ArchUnit으로 고정한다.
+> - Outbox 엔티티를 담은 `sync` 패키지는 `api`의 `sync`, 클래스명 `*SyncEvent`, 테이블명과 일관되므로 이름을 유지한다.
 > - 헥사고날 용어(adapter, port)로의 전면 개명은 `application` 모듈 분리(7단계)와 함께 판단한다.
 
 ### 4. 강제 장치
@@ -173,7 +173,10 @@
 > | 3-e | `Extensions.kt`를 역할별(`security`·`web`·`time`·`transaction`)로 분리, `RootController`를 `common/web`으로, 테스트용 `CrawlingController`와 jsoup 제거 | 낮음 | 완료 (`b44e075`, `eed2ae4`) |
 > | 3-f | `ExceptionHandler`를 `common/exception`으로 이동해 `web`↔`security` 순환 제거 | 낮음 | 완료 (`89c71eb`) |
 > | 3-g | `common` 역할 패키지 허용 목록과 순환 금지 ArchUnit 규칙 추가 | 낮음 | 완료 (`ee67a5f`) |
-> | 4 | 패키지 정리: `domain` 애그리거트 기준 재배치, 순환 제거, `RecordTagPolicy`를 `domain/record`로 이동, `sync`→`outbox` 이름 변경. 시작 전 하위 패키지 단위 순환 규칙을 ArchUnit에 추가해 현황을 고정 | 중간 | 예정 |
+> | 4-a | `domain` 애그리거트 경계·레이어 방향 ArchUnit 규칙 추가 (측정 결과는 아래). `QueryFilter`의 `vo`→`entity` 의존 7건만 허용 목록으로 고정 | 낮음 | 완료 (규칙 7개 추가) |
+> | 4-b | `RecordTagPolicy`를 `domain/record/vo`로 이동 (레이어 이름 위반 1건 해소) | 낮음 | 예정 |
+> | ~~4-c~~ | ~~애그리거트 기준 재배치~~ → 측정 결과 이미 애그리거트 단위라 **삭제** | - | 삭제 |
+> | ~~4-d~~ | ~~`sync`→`outbox` 이름 변경~~ → 클래스명(`*SyncEvent`)·`api` 패키지·테이블명과 어긋나는 대량 개명이라 **보류**(7단계에서 용어와 함께 판단) | - | 보류 |
 > | 4.5 | `QueryFilter` 7개를 순수 데이터 클래스로 변환(조건식 변환은 Repository 쪽으로) | 중간 | 예정 |
 > | 5 | `infrastructure` 모듈 신설: Repository 구현·Provider 구현·Kafka/Redis/S3 설정 이동, `CacheKeyPrefix`를 기능별로 분리해 `infrastructure`로, `CLAUDE.md` 규칙 수정. Flyway SQL은 `domain`에 유지 | 높음 (Q-type, 자동 구성) | 예정 |
 > | 6 | `worker` 모듈 신설: relay 스케줄러·상태 동기화 Consumer 이동, 별도 Jib 이미지, `worker`는 `spring.flyway.enabled=false` | 높음 | 예정 |
@@ -184,6 +187,8 @@
 > **2단계 결과**: 테스트 415개 통과. `api` classpath diff로 `spring-batch-*`와 낮은 버전 후보 `micrometer-core:1.10.7`만 빠졌고(`micrometer-core:1.11.0`은 유지), bootJar에 spring-batch가 남지 않음을 확인했다.
 >
 > **3단계 결과**: 테스트 418개 통과(규칙 테스트 3개 추가). `common`은 `web`, `security`, `redis`, `kafka`, `email`, `s3`, `password`, `time`, `transaction`, `exception` 10개 역할 패키지만 남았고, `common` → 기능 패키지 의존과 역할 패키지 간 순환은 0건이다. ArchUnit 허용 목록에 남은 위반은 레이어 이름 규칙 5건(`notification/sse` 직하위 4개, `record/vo/RecordTagPolicy` 1개)이다. 변경은 `package`/`import` 외 로직 변경 없이 이동만 했다(예외: 테스트용 크롤링 엔드포인트 제거).
+>
+> **4단계 측정 결과(4-a)**: 서브 기능 단위 의존 그래프에서 순환은 4개(`emotion`↔`category`, `subject`↔`image`, `user`↔`follow`↔`image`, `record`↔`emotion`/`review`/`tag`)였고, 모두 루트 ↔ 자식 순환이었다. 애그리거트 사이의 의존은 전부 루트 패키지로만 향하고(`record`→`emotion`/`subject`/`user`, `record.like`→`user`, `record.review`→`subject`), 최상위 도메인 간 순환·`repository` 간 교차 의존·`entity`→`repository` 의존은 0건이다. 레이어 방향의 위반은 `QueryFilter` 7개의 `vo`→`entity`(Q-type) 의존뿐이며 4.5단계에서 해소한다. 따라서 3단계 이전에 적었던 "순환을 소속 애그리거트로 흡수한다"는 진단은 근거가 약했고, 재배치 대신 경계를 규칙으로 고정했다. 테스트 425개 통과(규칙 테스트 7개 추가).
 >
 > **이번 재편 범위 밖 후속 과제**
 > - Jib JVM 플래그의 `-Djasypt.encryptor.password` 평문 값: 시크릿 로테이션 항목으로 별도 처리
