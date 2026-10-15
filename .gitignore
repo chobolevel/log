@@ -43,6 +43,7 @@ out/
 ### Claude ###
 .claude/settings.local.json
 .claude/worktrees/
+.claude/format-kotlin.stamp
 
 ### private docs (개인 메모·학습 기록, 커밋하지 않음) ###
 /private-docs/

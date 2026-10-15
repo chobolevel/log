@@ -23,5 +23,19 @@
       "Read(**/*.pem)",
       "Read(**/*.key)"
     ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/format-kotlin.sh\"",
+            "timeout": 120,
+            "statusMessage": "ktlintFormat 확인 중"
+          }
+        ]
+      }
+    ]
   }
 }
