@@ -2,6 +2,7 @@ package com.chobolevel.domain.record.tag.entity
 
 import com.chobolevel.domain.common.entity.Audit
 import com.chobolevel.domain.record.entity.Record
+import com.chobolevel.domain.record.tag.vo.RecordTagPolicy
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
@@ -33,6 +34,9 @@ class RecordTag private constructor(
     val name: String = name
 
     companion object {
-        fun create(record: Record, name: String): RecordTag = RecordTag(record = record, name = name)
+        fun create(record: Record, name: String): RecordTag {
+            require(name.matches(RecordTagPolicy.NAME_REGEX)) { RecordTagPolicy.NAME_PATTERN_MESSAGE }
+            return RecordTag(record = record, name = name)
+        }
     }
 }
