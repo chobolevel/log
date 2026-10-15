@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew :api:test *)",
+      "Bash(./gradlew ktlintCheck *)",
+      "Bash(./gradlew ktlintFormat *)"
+    ],
+    "ask": [
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(git reset --hard *)",
+      "Bash(git clean *)",
+      "Bash(rm -rf *)"
+    ],
+    "deny": [
+      "Bash(git push *--force*)",
+      "Bash(git push -f *)",
+      "Bash(git push * -f)",
+      "Bash(git push * -f *)",
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)"
+    ]
+  }
+}
