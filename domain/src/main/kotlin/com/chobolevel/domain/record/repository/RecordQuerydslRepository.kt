@@ -3,8 +3,12 @@ package com.chobolevel.domain.record.repository
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.record.entity.QRecord.record
 import com.chobolevel.domain.record.entity.Record
+import com.chobolevel.domain.record.tag.entity.QRecordTag
+import com.chobolevel.domain.record.vo.RecordOrderType
+import com.chobolevel.domain.record.vo.RecordQueryFilter
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.core.types.dsl.BooleanExpression
+import com.querydsl.jpa.JPAExpressions
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import org.springframework.stereotype.Repository
 import java.time.OffsetDateTime
@@ -12,22 +16,22 @@ import java.time.OffsetDateTime
 @Repository
 class RecordQuerydslRepository : QuerydslRepositorySupport(Record::class.java) {
 
-    fun searchByPredicates(
-        predicates: Array<BooleanExpression>,
+    fun searchByFilter(
+        filter: RecordQueryFilter,
         paging: Paging,
-        orderSpecifiers: Array<OrderSpecifier<*>>
+        orderTypes: List<RecordOrderType>
     ): List<Record> {
         return from(record)
-            .where(*predicates)
-            .orderBy(*orderSpecifiers)
+            .where(*predicatesOf(filter))
+            .orderBy(*orderSpecifiersOf(orderTypes))
             .offset(paging.offset)
             .limit(paging.limit)
             .fetch()
     }
 
-    fun countByPredicates(predicates: Array<BooleanExpression>): Long {
+    fun countByFilter(filter: RecordQueryFilter): Long {
         return from(record)
-            .where(*predicates)
+            .where(*predicatesOf(filter))
             .fetchCount()
     }
 
@@ -41,5 +45,37 @@ class RecordQuerydslRepository : QuerydslRepositorySupport(Record::class.java) {
                 record.createdAt.lt(end),
             )
             .fetch()
+    }
+
+    // 필터를 QueryDSL 조건식으로 번역한다. BooleanExpression은 이 클래스 밖으로 나가지 않는다.
+    private fun predicatesOf(filter: RecordQueryFilter): Array<BooleanExpression> {
+        return listOfNotNull(
+            filter.userId?.let { record.user.id.eq(it) },
+            filter.type?.let { record.type.eq(it) },
+            filter.title?.let { record.title.contains(it) },
+            filter.tagName?.let {
+                val qRecordTag = QRecordTag.recordTag
+                JPAExpressions.selectOne()
+                    .from(qRecordTag)
+                    .where(
+                        qRecordTag.record.id.eq(record.id),
+                        qRecordTag.name.eq(it)
+                    )
+                    .exists()
+            },
+            record.isPrivate.isFalse,
+            record.isDeleted.isFalse
+        ).toTypedArray()
+    }
+
+    private fun orderSpecifiersOf(orderTypes: List<RecordOrderType>): Array<OrderSpecifier<*>> {
+        return orderTypes.map {
+            when (it) {
+                RecordOrderType.CREATED_AT_ASC -> record.createdAt.asc()
+                RecordOrderType.CREATED_AT_DESC -> record.createdAt.desc()
+                RecordOrderType.UPDATED_AT_ASC -> record.updatedAt.asc()
+                RecordOrderType.UPDATED_AT_DESC -> record.updatedAt.desc()
+            }
+        }.toTypedArray()
     }
 }

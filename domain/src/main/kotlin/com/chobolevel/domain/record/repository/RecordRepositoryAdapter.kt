@@ -2,12 +2,10 @@ package com.chobolevel.domain.record.repository
 
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.BusinessException
-import com.chobolevel.domain.record.entity.QRecord.record
 import com.chobolevel.domain.record.entity.Record
 import com.chobolevel.domain.record.exception.RecordErrorCode
 import com.chobolevel.domain.record.vo.RecordOrderType
 import com.chobolevel.domain.record.vo.RecordQueryFilter
-import com.querydsl.core.types.OrderSpecifier
 import org.springframework.stereotype.Component
 import java.time.OffsetDateTime
 
@@ -36,29 +34,18 @@ class RecordRepositoryAdapter(
         paging: Paging,
         orderTypes: List<RecordOrderType>
     ): List<Record> {
-        return recordQuerydslRepository.searchByPredicates(
-            predicates = queryFilter.toPredicates(),
+        return recordQuerydslRepository.searchByFilter(
+            filter = queryFilter,
             paging = paging,
-            orderSpecifiers = orderTypes.toOrderSpecifiers()
+            orderTypes = orderTypes
         )
     }
 
     override fun searchRecordsCount(queryFilter: RecordQueryFilter): Long {
-        return recordQuerydslRepository.countByPredicates(predicates = queryFilter.toPredicates())
+        return recordQuerydslRepository.countByFilter(filter = queryFilter)
     }
 
     override fun findCreatedAtsByUserIdAndCreatedAtBetween(userId: Long, start: OffsetDateTime, end: OffsetDateTime): List<OffsetDateTime> {
         return recordQuerydslRepository.findCreatedAtsByUserIdAndCreatedAtBetween(userId = userId, start = start, end = end)
-    }
-
-    private fun List<RecordOrderType>.toOrderSpecifiers(): Array<OrderSpecifier<*>> {
-        return this.map {
-            when (it) {
-                RecordOrderType.CREATED_AT_ASC -> record.createdAt.asc()
-                RecordOrderType.CREATED_AT_DESC -> record.createdAt.desc()
-                RecordOrderType.UPDATED_AT_ASC -> record.updatedAt.asc()
-                RecordOrderType.UPDATED_AT_DESC -> record.updatedAt.desc()
-            }
-        }.toTypedArray()
     }
 }
