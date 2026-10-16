@@ -38,12 +38,13 @@ class UserRepositorySearchTest {
 
     private fun savedUser(
         nickname: String,
+        email: String = "$nickname@test.com",
         loginType: UserLoginType = UserLoginType.GENERAL,
         role: UserRoleType = UserRoleType.ROLE_USER,
         resigned: Boolean = false
     ): User {
         val user: User = User.create(
-            email = "$nickname@test.com",
+            email = email,
             password = if (loginType == UserLoginType.GENERAL) "password" else null,
             socialId = if (loginType == UserLoginType.GENERAL) null else "social-$nickname",
             loginType = loginType,
@@ -140,5 +141,49 @@ class UserRepositorySearchTest {
         assertThat(userRepository.searchUsersCount(filter(role = UserRoleType.ROLE_ADMIN))).isEqualTo(2)
         assertThat(userRepository.searchUsersCount(filter(role = UserRoleType.ROLE_ADMIN, resigned = false))).isEqualTo(1)
         assertThat(userRepository.searchUsersCount(filter())).isEqualTo(3)
+    }
+
+    // 이메일 순서와 닉네임 순서가 서로 다르게 저장해, 정렬 기준 컬럼이 바뀌면 결과 순서가 달라지도록 한다.
+    //   이메일: a < b < c / 닉네임: aa(b) < bb(c) < cc(a)
+    private fun savedUsersForOrdering() {
+        savedUser(nickname = "cc", email = "a@test.com")
+        savedUser(nickname = "aa", email = "b@test.com")
+        savedUser(nickname = "bb", email = "c@test.com")
+        entityManager.clear()
+    }
+
+    private fun emailsOrderedBy(orderType: UserOrderType): List<String> {
+        entityManager.clear()
+        return userRepository.searchUsers(queryFilter = filter(), paging = paging, orderTypes = listOf(orderType)).map { it.email }
+    }
+
+    @Test
+    fun `EMAIL_ASC는 이메일 오름차순으로 정렬한다`() {
+        savedUsersForOrdering()
+
+        assertThat(emailsOrderedBy(UserOrderType.EMAIL_ASC)).containsExactly("a@test.com", "b@test.com", "c@test.com")
+    }
+
+    @Test
+    fun `EMAIL_DESC는 이메일 내림차순으로 정렬한다`() {
+        savedUsersForOrdering()
+
+        assertThat(emailsOrderedBy(UserOrderType.EMAIL_DESC)).containsExactly("c@test.com", "b@test.com", "a@test.com")
+    }
+
+    @Test
+    fun `NICKNAME_ASC는 닉네임 오름차순으로 정렬한다`() {
+        savedUsersForOrdering()
+
+        // 닉네임 aa(b) → bb(c) → cc(a)
+        assertThat(emailsOrderedBy(UserOrderType.NICKNAME_ASC)).containsExactly("b@test.com", "c@test.com", "a@test.com")
+    }
+
+    @Test
+    fun `NICKNAME_DESC는 닉네임 내림차순으로 정렬한다`() {
+        savedUsersForOrdering()
+
+        // 닉네임 cc(a) → bb(c) → aa(b)
+        assertThat(emailsOrderedBy(UserOrderType.NICKNAME_DESC)).containsExactly("a@test.com", "c@test.com", "b@test.com")
     }
 }

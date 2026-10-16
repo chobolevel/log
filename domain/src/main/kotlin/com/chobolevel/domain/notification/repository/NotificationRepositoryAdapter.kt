@@ -3,11 +3,9 @@ package com.chobolevel.domain.notification.repository
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.notification.entity.Notification
-import com.chobolevel.domain.notification.entity.QNotification.notification
 import com.chobolevel.domain.notification.exception.NotificationErrorCode
 import com.chobolevel.domain.notification.vo.NotificationOrderType
 import com.chobolevel.domain.notification.vo.NotificationQueryFilter
-import com.querydsl.core.types.OrderSpecifier
 import org.springframework.stereotype.Component
 
 @Component
@@ -35,23 +33,14 @@ class NotificationRepositoryAdapter(
         paging: Paging,
         orderTypes: List<NotificationOrderType>
     ): List<Notification> {
-        return notificationQuerydslRepository.searchByPredicates(
-            predicates = queryFilter.toPredicates(),
+        return notificationQuerydslRepository.searchByFilter(
+            filter = queryFilter,
             paging = paging,
-            orderSpecifiers = orderTypes.toOrderSpecifiers()
+            orderTypes = orderTypes
         )
     }
 
     override fun searchNotificationsCount(queryFilter: NotificationQueryFilter): Long {
-        return notificationQuerydslRepository.countByPredicates(predicates = queryFilter.toPredicates())
-    }
-
-    private fun List<NotificationOrderType>.toOrderSpecifiers(): Array<OrderSpecifier<*>> {
-        return this.map {
-            when (it) {
-                NotificationOrderType.CREATED_AT_ASC -> notification.createdAt.asc()
-                NotificationOrderType.CREATED_AT_DESC -> notification.createdAt.desc()
-            }
-        }.toTypedArray()
+        return notificationQuerydslRepository.countByFilter(filter = queryFilter)
     }
 }

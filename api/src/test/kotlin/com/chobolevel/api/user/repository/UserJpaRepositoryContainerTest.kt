@@ -9,9 +9,9 @@ import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserJpaRepository
 import com.chobolevel.domain.user.repository.UserQuerydslRepository
 import com.chobolevel.domain.user.vo.UserLoginType
+import com.chobolevel.domain.user.vo.UserOrderType
 import com.chobolevel.domain.user.vo.UserQueryFilter
 import com.chobolevel.domain.user.vo.UserRoleType
-import com.querydsl.core.types.OrderSpecifier
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -140,13 +140,13 @@ class UserJpaRepositoryContainerTest : AbstractMySQLContainerTest() {
             excludeUserIds = null
         )
         val paging: Paging = Paging(page = 1, size = 10)
-        val orderSpecifiers: Array<OrderSpecifier<*>> = arrayOf(user.createdAt.asc())
+        val orderTypes: List<UserOrderType> = listOf(UserOrderType.CREATED_AT_ASC)
 
         // when
-        val results: List<User> = userQuerydslRepository.searchByPredicates(
-            predicates = queryFilter.toPredicates(),
+        val results: List<User> = userQuerydslRepository.searchByFilter(
+            filter = queryFilter,
             paging = paging,
-            orderSpecifiers = orderSpecifiers
+            orderTypes = orderTypes
         )
 
         // then
@@ -170,13 +170,13 @@ class UserJpaRepositoryContainerTest : AbstractMySQLContainerTest() {
             excludeUserIds = setOf(userA.id!!)
         )
         val paging: Paging = Paging(page = 1, size = 10)
-        val orderSpecifiers: Array<OrderSpecifier<*>> = arrayOf(user.createdAt.asc())
+        val orderTypes: List<UserOrderType> = listOf(UserOrderType.CREATED_AT_ASC)
 
         // when
-        val results: List<User> = userQuerydslRepository.searchByPredicates(
-            predicates = queryFilter.toPredicates(),
+        val results: List<User> = userQuerydslRepository.searchByFilter(
+            filter = queryFilter,
             paging = paging,
-            orderSpecifiers = orderSpecifiers
+            orderTypes = orderTypes
         )
 
         // then

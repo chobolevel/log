@@ -174,10 +174,11 @@
 > | 3-f | `ExceptionHandler`를 `common/exception`으로 이동해 `web`↔`security` 순환 제거 | 낮음 | 완료 (`89c71eb`) |
 > | 3-g | `common` 역할 패키지 허용 목록과 순환 금지 ArchUnit 규칙 추가 | 낮음 | 완료 (`ee67a5f`) |
 > | 4-a | `domain` 애그리거트 경계·레이어 방향 ArchUnit 규칙 추가 (측정 결과는 아래). `QueryFilter`의 `vo`→`entity` 의존 7건만 허용 목록으로 고정 | 낮음 | 완료 (규칙 7개 추가) |
-> | 4-b | `RecordTagPolicy`를 `domain/record/vo`로 이동 (레이어 이름 위반 1건 해소) | 낮음 | 예정 |
+> | 4-b | `RecordTagPolicy`를 `domain/record/tag/vo`로 이동하고, 태그 이름 형식을 `RecordTag.create`의 불변식(`require`)으로 승격 | 낮음 | 완료 (`0e5b671`, `e428e71`) |
 > | ~~4-c~~ | ~~애그리거트 기준 재배치~~ → 측정 결과 이미 애그리거트 단위라 **삭제** | - | 삭제 |
 > | ~~4-d~~ | ~~`sync`→`outbox` 이름 변경~~ → 클래스명(`*SyncEvent`)·`api` 패키지·테이블명과 어긋나는 대량 개명이라 **보류**(7단계에서 용어와 함께 판단) | - | 보류 |
-> | 4.5 | `QueryFilter` 7개를 순수 데이터 클래스로 변환(조건식 변환은 Repository 쪽으로) | 중간 | 예정 |
+> | 4.5-a | `QueryFilter` 변환 전 동작을 고정하는 특성화 테스트(검색 조건 7개 도메인, 정렬 3개 도메인) | 낮음 | 완료 (`5a2ba0e`, `25b6eae`, `817eb3f`, `5abfd85`) |
+> | 4.5-b | `QueryFilter` 7개를 순수 `data class`로, 조건식·정렬 번역을 Querydsl 리포지토리의 `private` 메서드로 이동(Adapter는 필터·`orderTypes`를 그대로 전달). ArchUnit `vo`→`entity` 허용 목록이 비었다 | 중간 | 완료 (`fb1d403`) |
 > | 5 | `infrastructure` 모듈 신설: Repository 구현·Provider 구현·Kafka/Redis/S3 설정 이동, `CacheKeyPrefix`를 기능별로 분리해 `infrastructure`로, `CLAUDE.md` 규칙 수정. Flyway SQL은 `domain`에 유지 | 높음 (Q-type, 자동 구성) | 예정 |
 > | 6 | `worker` 모듈 신설: relay 스케줄러·상태 동기화 Consumer 이동, 별도 Jib 이미지, `worker`는 `spring.flyway.enabled=false` | 높음 | 예정 |
 > | 7 | (게이트 통과 시) `application` 모듈 | 매우 높음 | 보류 |
@@ -196,6 +197,9 @@
 > - 마이그레이션 job 분리(배포 재설계)
 > - `V1__init_tables.sql`이 만든 `BATCH_*` 테이블 9개: 이미 적용된 마이그레이션이라 수정할 수 없고, 지우려면 DROP 마이그레이션을 새로 만들어야 한다. 운영 DB 변경이므로 의도적으로 할 때만 진행
 > - `application.yml`의 `spring.jackson` 오타(`property-naming-str ategy`, 키 중간 공백): 현재 설정이 적용되지 않아 응답이 camelCase로 나가는 것으로 보인다. 고치면 모든 응답 필드명이 바뀌므로, 의도(camelCase 유지 / snake_case)를 먼저 정하고 프론트와 맞춰 처리
+> - 소프트 삭제 처리 방식이 엔티티마다 다르다: `Subject`는 엔티티 `@Where`와 필터 조건이 중복이고, `Emotion`·`EmotionCategory`·`Record`는 필터에만 있다. 한 방식으로 통일할지 결정
+> - `Record` 검색의 "공개 + 미삭제" 조건이 `RecordQuerydslRepository.predicatesOf` 안에 숨어 있다. 호출자가 볼 수 있게 필터 필드(`onlyPublic` 등)로 올릴지, 비공개 포함 조회 경로(내 기록 등)가 필요한지 확인
+> - 정렬 특성화 테스트는 컬럼이 구분되는 `User`·`Emotion`·`EmotionCategory`만 있다. `CREATED_AT`/`UPDATED_AT` 정렬은 저장 시각이 같으면 순서가 불안정해 제외했다
 > - `application.yml`의 `spring.datasource.password`가 평문: 시크릿 로테이션 항목과 함께 처리
 > - `notification/sse/` 직하위 4개 클래스(`SseEmitterRegistry`, `LocalSseEmitterRegistry`, `NotificationSseDispatcher`, `SseEventName`)의 레이어 배치: `provider`/`service`/`dto`로 나눌지 결정
 > - `common/redis/RedisProperties.kt`의 `RedisData` 빈: 주입하는 곳이 없는 것으로 보여 삭제 후보

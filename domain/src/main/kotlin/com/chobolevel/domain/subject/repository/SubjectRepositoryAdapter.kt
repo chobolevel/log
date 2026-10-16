@@ -2,12 +2,10 @@ package com.chobolevel.domain.subject.repository
 
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.BusinessException
-import com.chobolevel.domain.subject.entity.QSubject.subject
 import com.chobolevel.domain.subject.entity.Subject
 import com.chobolevel.domain.subject.exception.SubjectErrorCode
 import com.chobolevel.domain.subject.vo.SubjectOrderType
 import com.chobolevel.domain.subject.vo.SubjectQueryFilter
-import com.querydsl.core.types.OrderSpecifier
 import org.springframework.stereotype.Component
 
 @Component
@@ -35,25 +33,14 @@ class SubjectRepositoryAdapter(
         paging: Paging,
         orderTypes: List<SubjectOrderType>
     ): List<Subject> {
-        return subjectQuerydslRepository.searchByPredicates(
-            predicates = queryFilter.toPredicates(),
+        return subjectQuerydslRepository.searchByFilter(
+            filter = queryFilter,
             paging = paging,
-            orderSpecifiers = orderTypes.toOrderSpecifiers()
+            orderTypes = orderTypes
         )
     }
 
     override fun searchSubjectsCount(queryFilter: SubjectQueryFilter): Long {
-        return subjectQuerydslRepository.countByPredicates(predicates = queryFilter.toPredicates())
-    }
-
-    private fun List<SubjectOrderType>.toOrderSpecifiers(): Array<OrderSpecifier<*>> {
-        return this.map {
-            when (it) {
-                SubjectOrderType.CREATED_AT_ASC -> subject.createdAt.asc()
-                SubjectOrderType.CREATED_AT_DESC -> subject.createdAt.desc()
-                SubjectOrderType.UPDATED_AT_ASC -> subject.updatedAt.asc()
-                SubjectOrderType.UPDATED_AT_DESC -> subject.updatedAt.desc()
-            }
-        }.toTypedArray()
+        return subjectQuerydslRepository.countByFilter(filter = queryFilter)
     }
 }

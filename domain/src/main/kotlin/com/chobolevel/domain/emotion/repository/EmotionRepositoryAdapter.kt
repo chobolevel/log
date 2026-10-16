@@ -3,11 +3,9 @@ package com.chobolevel.domain.emotion.repository
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.emotion.entity.Emotion
-import com.chobolevel.domain.emotion.entity.QEmotion.emotion
 import com.chobolevel.domain.emotion.exception.EmotionErrorCode
 import com.chobolevel.domain.emotion.vo.EmotionOrderType
 import com.chobolevel.domain.emotion.vo.EmotionQueryFilter
-import com.querydsl.core.types.OrderSpecifier
 import org.springframework.stereotype.Component
 
 @Component
@@ -35,23 +33,14 @@ class EmotionRepositoryAdapter(
         paging: Paging,
         orderTypes: List<EmotionOrderType>
     ): List<Emotion> {
-        return emotionQuerydslRepository.searchByPredicates(
-            predicates = queryFilter.toPredicates(),
+        return emotionQuerydslRepository.searchByFilter(
+            filter = queryFilter,
             paging = paging,
-            orderSpecifiers = orderTypes.toOrderSpecifiers()
+            orderTypes = orderTypes
         )
     }
 
     override fun searchEmotionsCount(queryFilter: EmotionQueryFilter): Long {
-        return emotionQuerydslRepository.countByPredicates(predicates = queryFilter.toPredicates())
-    }
-
-    private fun List<EmotionOrderType>.toOrderSpecifiers(): Array<OrderSpecifier<*>> {
-        return this.map {
-            when (it) {
-                EmotionOrderType.ORDER_ASC -> emotion.order.asc()
-                EmotionOrderType.ORDER_DESC -> emotion.order.desc()
-            }
-        }.toTypedArray()
+        return emotionQuerydslRepository.countByFilter(filter = queryFilter)
     }
 }

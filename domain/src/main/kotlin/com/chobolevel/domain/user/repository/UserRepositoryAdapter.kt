@@ -2,12 +2,10 @@ package com.chobolevel.domain.user.repository
 
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.common.exception.BusinessException
-import com.chobolevel.domain.user.entity.QUser.user
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.exception.UserErrorCode
 import com.chobolevel.domain.user.vo.UserOrderType
 import com.chobolevel.domain.user.vo.UserQueryFilter
-import com.querydsl.core.types.OrderSpecifier
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 
@@ -26,15 +24,15 @@ class UserRepositoryAdapter(
         paging: Paging,
         orderTypes: List<UserOrderType>
     ): List<User> {
-        return userQuerydslRepository.searchByPredicates(
-            predicates = queryFilter.toPredicates(),
+        return userQuerydslRepository.searchByFilter(
+            filter = queryFilter,
             paging = paging,
-            orderSpecifiers = orderTypes.toOrderSpecifiers()
+            orderTypes = orderTypes
         )
     }
 
     override fun searchUsersCount(queryFilter: UserQueryFilter): Long {
-        return userQuerydslRepository.countByPredicates(predicates = queryFilter.toPredicates())
+        return userQuerydslRepository.countByFilter(filter = queryFilter)
     }
 
     override fun findById(id: Long): User {
@@ -67,18 +65,5 @@ class UserRepositoryAdapter(
 
     override fun existsByNickname(nickname: String): Boolean {
         return userJpaRepository.existsByNicknameAndResignedFalse(nickname)
-    }
-
-    private fun List<UserOrderType>.toOrderSpecifiers(): Array<OrderSpecifier<*>> {
-        return this.map {
-            when (it) {
-                UserOrderType.CREATED_AT_ASC -> user.createdAt.asc()
-                UserOrderType.CREATED_AT_DESC -> user.createdAt.desc()
-                UserOrderType.EMAIL_ASC -> user.email.asc()
-                UserOrderType.EMAIL_DESC -> user.email.desc()
-                UserOrderType.NICKNAME_ASC -> user.nickname.asc()
-                UserOrderType.NICKNAME_DESC -> user.nickname.desc()
-            }
-        }.toTypedArray()
     }
 }

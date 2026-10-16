@@ -97,4 +97,35 @@ class EmotionCategoryRepositorySearchTest {
         assertThat(emotionCategoryRepository.searchEmotionCategoriesCount(EmotionCategoryQueryFilter(name = null, type = EmotionCategoryType.POSITIVE))).isEqualTo(2)
         assertThat(emotionCategoryRepository.searchEmotionCategoriesCount(EmotionCategoryQueryFilter(name = null, type = null))).isEqualTo(3)
     }
+
+    // 이름 순서(가 < 나 < 다)와 order 값(나=1, 다=2, 가=3)이 서로 다르게 저장해, 정렬 기준이 order 컬럼인지 검증한다.
+    private fun savedCategoriesForOrdering() {
+        savedCategory(name = "가", type = EmotionCategoryType.POSITIVE, order = 3)
+        savedCategory(name = "나", type = EmotionCategoryType.POSITIVE, order = 1)
+        savedCategory(name = "다", type = EmotionCategoryType.POSITIVE, order = 2)
+        entityManager.clear()
+    }
+
+    private fun namesOrderedBy(orderType: EmotionCategoryOrderType): List<String> {
+        entityManager.clear()
+        return emotionCategoryRepository.searchEmotionCategories(
+            queryFilter = EmotionCategoryQueryFilter(name = null, type = null),
+            paging = paging,
+            orderTypes = listOf(orderType)
+        ).map { it.name }
+    }
+
+    @Test
+    fun `ORDER_ASC는 order 오름차순으로 정렬한다`() {
+        savedCategoriesForOrdering()
+
+        assertThat(namesOrderedBy(EmotionCategoryOrderType.ORDER_ASC)).containsExactly("나", "다", "가")
+    }
+
+    @Test
+    fun `ORDER_DESC는 order 내림차순으로 정렬한다`() {
+        savedCategoriesForOrdering()
+
+        assertThat(namesOrderedBy(EmotionCategoryOrderType.ORDER_DESC)).containsExactly("가", "다", "나")
+    }
 }
