@@ -1,0 +1,3 @@
+# 테스트에서 컨텍스트 로딩이 빈 누락으로 실패할 때 Boot의 NoSuchBeanDefinitionFailureAnalyzer가 수 분 이상 걸리는 문제를 피한다.
+# (smoke/FastFailureAnalyzer 참고)
+org.springframework.boot.diagnostics.FailureAnalyzer=com.chobolevel.api.smoke.FastFailureAnalyzer
