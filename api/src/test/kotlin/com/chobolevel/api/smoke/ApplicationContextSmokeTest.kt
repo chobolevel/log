@@ -1,5 +1,6 @@
 package com.chobolevel.api.smoke
 
+import com.amazonaws.services.s3.AmazonS3
 import com.chobolevel.api.ApiApplication
 import com.chobolevel.api.common.container.MySQLTestContainer
 import com.chobolevel.api.common.container.RedisTestContainer
@@ -33,6 +34,9 @@ import com.chobolevel.domain.user.image.repository.UserImageRepository
 import com.chobolevel.domain.user.repository.UserRepository
 import com.chobolevel.domain.user.vo.UserLoginType
 import com.chobolevel.domain.user.vo.UserRoleType
+import com.tngtech.archunit.core.importer.ClassFileImporter
+import jakarta.persistence.EntityManager
+import jakarta.persistence.PersistenceContext
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -40,11 +44,14 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationContext
+import org.springframework.core.env.Environment
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.header
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.transaction.annotation.Transactional
 
@@ -76,6 +83,9 @@ import org.springframework.transaction.annotation.Transactional
     ]
 )
 @AutoConfigureMockMvc
+// 이 클래스가 끝나면 컨텍스트를 종료한다. 캐시된 채 남으면 relay 스케줄러가 공유 MySQL을 계속 폴링하고
+// Redisson·커넥션 풀이 열려 있어, 같은 DB를 쓰는 다른 테스트와 간섭할 수 있다.
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ActiveProfiles("test")
 @DisplayName("애플리케이션 컨텍스트 스모크 테스트")
 class ApplicationContextSmokeTest {
@@ -96,7 +106,13 @@ class ApplicationContextSmokeTest {
     private lateinit var applicationContext: ApplicationContext
 
     @Autowired
+    private lateinit var environment: Environment
+
+    @Autowired
     private lateinit var mockMvc: MockMvc
+
+    @PersistenceContext
+    private lateinit var entityManager: EntityManager
 
     @Autowired
     private lateinit var userRepository: UserRepository
@@ -107,6 +123,12 @@ class ApplicationContextSmokeTest {
     @Test
     fun `컨텍스트가 기동한다`() {
         assertThat(applicationContext.id).isNotBlank()
+    }
+
+    @Test
+    fun `엔티티 매핑과 스키마 일치 검증(validate)이 실제로 적용되어 있다`() {
+        // 다른 설정에 덮여 none으로 돌아가면 스키마 불일치를 기동 시점에 잡지 못하므로 값 자체를 확인한다.
+        assertThat(environment.getProperty("spring.jpa.hibernate.ddl-auto")).isEqualTo("validate")
     }
 
     @Test
@@ -134,6 +156,12 @@ class ApplicationContextSmokeTest {
 
         // when & then
         assertThat(repositoryTypes).hasSize(17)
+        // 도메인에 *Repository 인터페이스가 추가되거나 사라지면 이 목록도 함께 고치도록 실제 인터페이스와 비교한다.
+        val declaredRepositories: Set<String> = ClassFileImporter().importPackages("com.chobolevel.domain")
+            .filter { it.isInterface && it.simpleName.endsWith("Repository") && !it.simpleName.endsWith("JpaRepository") }
+            .map { it.name }
+            .toSet()
+        assertThat(repositoryTypes.map { it.name }.toSet()).isEqualTo(declaredRepositories)
         repositoryTypes.forEach { type ->
             assertThat(applicationContext.getBeansOfType(type)).describedAs(type.simpleName).hasSize(1)
         }
@@ -167,12 +195,17 @@ class ApplicationContextSmokeTest {
 
         // then
         assertThat(jwt.issuer).isEqualTo("smoke-issuer")
+        assertThat(jwt.secret).isEqualTo("c21va2Utc2VjcmV0LXNtb2tlLXNlY3JldC1zbW9rZS1zZWNyZXQ=")
         assertThat(jwt.accessTokenKey).isEqualTo("_smoke_at")
+        assertThat(jwt.refreshTokenKey).isEqualTo("_smoke_rt")
         assertThat(security.allowOrigins).containsExactly("http://localhost:3000")
         assertThat(guest.guestIdKey).isEqualTo("_smoke_gid")
         assertThat(s3.host).isEqualTo("https://smoke.example.com")
         assertThat(resend.apiKey).isEqualTo("re_smoke")
+        assertThat(front.host).isEqualTo("http://localhost:3000")
         assertThat(front.resetPasswordPath).isEqualTo("/reset-password")
+        // cloud.aws.credentials.*는 S3Properties가 아니라 S3Configuration(@Value)이 읽으므로, 클라이언트 빈이 만들어졌는지로 확인한다.
+        assertThat(applicationContext.getBean(AmazonS3::class.java)).isNotNull
     }
 
     @Test
@@ -190,6 +223,9 @@ class ApplicationContextSmokeTest {
 
         // when
         val saved: User = userRepository.save(user)
+        // 같은 영속성 컨텍스트의 1차 캐시가 아니라 실제 DB 행을 읽도록 비운다.
+        entityManager.flush()
+        entityManager.clear()
         val found: User = userRepository.findById(saved.id!!)
 
         // then
@@ -215,6 +251,9 @@ class ApplicationContextSmokeTest {
 
     @Test
     fun `루트 경로 요청이 보안 필터 체인을 거쳐 200을 반환한다`() {
-        mockMvc.perform(get("/")).andExpect(status().isOk)
+        // X-Content-Type-Options는 Spring Security의 HeaderWriterFilter가 붙이므로, 보안 필터 체인이 MockMvc에 연결됐음을 보여 준다.
+        mockMvc.perform(get("/"))
+            .andExpect(status().isOk)
+            .andExpect(header().string("X-Content-Type-Options", "nosniff"))
     }
 }
