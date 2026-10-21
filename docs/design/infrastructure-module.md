@@ -28,6 +28,8 @@
 | `BCryptPasswordProvider` | `infrastructure`로 이동 (`PasswordProvider` 포트는 `domain`) | `api`에 유지 | Provider 구현을 한 곳에 모아 일관성을 유지한다 |
 | 테스트 위치 | `api/src/test` 유지 | `infrastructure`로 이동 후 CI 확장 | CI(`:api:test`), Dummy, Testcontainers를 그대로 쓴다. 전용 테스트 소스는 6단계에서 필요할 때 만든다 |
 | 스모크 테스트의 DB와 스키마 검증 | 기존 `AbstractMySQLContainerTest`(MySQL 8.0, Flyway 적용)를 재사용하고 `ddl-auto: validate`로 엔티티-스키마 일치까지 검증. 이미 어긋난 곳이 드러나면 이 설계 안에서 고치지 않고 별도 발견 사항으로 분리하며, 그동안은 `none`으로 둔다 | H2 + `create-drop` | 마이그레이션 SQL이 MySQL 문법이라 H2에서는 Flyway를 쓸 수 없고, 운영과 같은 조건의 기동을 검증하는 것이 목적이다. 컨테이너는 JVM당 하나라 기동 시간이 늘지 않는다. 기존 H2 슬라이스 테스트는 그대로 둔다 |
+| MySQL 컨테이너 공유 방식 | 컨테이너를 `MySQLTestContainer` 객체로 분리하고 `AbstractMySQLContainerTest`는 여기에 위임 (구현 중 변경) | `AbstractMySQLContainerTest` 상속 | 상속하면 슬라이스 테스트용 `ddl-auto=none`이 서브클래스의 `validate`보다 우선해서 스키마 검증이 적용되지 않는다(변이 검증으로 확인). 기동 시점은 JVM당 한 번으로 같다 |
+| 빈 누락 시 실패 분석 | 테스트 전용 `FastFailureAnalyzer`(`META-INF/spring.factories`)로 Boot의 `NoSuchBeanDefinitionFailureAnalyzer`를 대체 (구현 중 추가) | 기본 분석기 유지 / Gradle 테스트 전체 타임아웃 | 기본 분석기가 이 앱의 빈 그래프에서 수 분 이상 걸려 배선이 깨졌을 때 CI가 매달린다. 대체하면 27초 안에 실패한다. 대신 `api` 테스트 전체에서 빈 누락 진단 메시지가 단순해진다 |
 | 스모크 테스트의 설정 복호화 | `ENC(...)` 값은 테스트용 프로퍼티로 필요한 항목만 평문 더미로 덮어쓴다 | 운영 jasypt 비밀번호를 테스트에서 사용 | 운영 비밀번호가 테스트 코드에 들어가지 않게 한다 |
 | 선행 안전망 | 컨텍스트 스모크 테스트(MySQL+Redis 컨테이너, Kafka 미연결)와 Provider 계약 테스트를 이동 전에 먼저 추가 | 안전망 없이 진행 | 빈 스캔·JPA 스캔이 모듈 경계를 넘어 바뀌는 것이 가장 큰 위험인데, 지금은 컨텍스트 전체를 띄우는 테스트가 없다 |
 
@@ -56,6 +58,8 @@
 
 **건드리지 않는 외부 계약**: HTTP API, Redis 키 문자열·TTL, DB 스키마(Flyway는 `domain` 유지), 이벤트 페이로드, `application.yml`의 설정 키 이름.
 
+**테스트 인프라(S-1에서 추가)**: `MySQLTestContainer`, `RedisTestContainer`, `smoke/ApplicationContextSmokeTest`, `smoke/FastFailureAnalyzer`와 `src/test/resources/META-INF/spring.factories`. 후자는 `api` 테스트 클래스패스 전체에 적용된다.
+
 **테스트 쪽 변경**: 포트·키·Adapter를 import하는 기존 테스트의 import 수정, `DomainJpaTestConfig`의 스캔 기준 패키지에 `infrastructure` 추가, `api`에서 Adapter를 직접 쓰는 테스트를 위한 `testImplementation`.
 
 ## 슬라이스
@@ -79,13 +83,15 @@ S-1, S-2는 production 코드를 바꾸지 않는 안전망이다. 순서는 번
 
 - 통합 (`@SpringBootTest` + Testcontainers MySQL·Redis, Kafka 미연결):
   - 컨텍스트가 기동한다 (Flyway 마이그레이션이 컨테이너 MySQL에 적용되고, `ddl-auto: validate`로 엔티티 매핑이 스키마와 일치함을 확인)
-  - 도메인 `*Repository` 인터페이스 빈 17개가 각각 정확히 1개씩 존재한다 (목록을 테스트에 명시)
+  - 도메인 `*Repository` 인터페이스 빈 17개가 각각 정확히 1개씩 존재한다 (목록을 테스트에 명시하고, 도메인의 실제 `*Repository` 인터페이스를 스캔한 결과와 일치하는지도 확인해 목록이 낡는 것을 막는다)
   - 포트 4종(`CacheProvider`, `DistributedLockProvider`, `EmailProvider`, `PasswordProvider`)이 각각 빈 1개로 해석된다
   - `JwtProperties`, `SecurityProperties`, `GuestProperties`, `S3Properties`, `ResendProperties`, `FrontServerProperties`가 빈으로 등록되고 값이 바인딩된다
-  - 엔티티 저장 → 조회 왕복이 되고 `createdAt`/`updatedAt`이 채워진다 (JPA 스캔과 감사 설정)
+  - 엔티티 저장 → (flush·clear로 1차 캐시를 비운 뒤) 조회 왕복이 되고 `createdAt`/`updatedAt`이 채워진다 (JPA 스캔과 감사 설정)
   - `CacheProvider` put → get 왕복이 Redis 컨테이너에서 된다
-  - `GET /`가 200을 반환한다 (웹 계층과 보안 필터 체인 기동)
-- 경계 / 예외: Kafka 브로커가 없어도 컨텍스트가 기동한다 (리스너·스케줄러는 연결 실패 로그만 남김)
+  - `GET /`가 200을 반환하고, 보안 필터 체인이 붙인 응답 헤더가 있다 (웹 계층과 보안 필터 체인 기동)
+  - `ddl-auto`가 실제로 `validate`로 적용되어 있다 (설정이 다른 값에 덮여도 알 수 있게)
+- 경계 / 예외: Kafka 브로커가 없어도 컨텍스트가 기동한다 (리스너는 자동 시작을 끄고, 스케줄러는 대상 이벤트가 없어 Kafka를 호출하지 않는다). 테스트 클래스가 끝나면 컨텍스트를 종료해 스케줄러가 공유 MySQL을 계속 폴링하지 않게 한다 (`@DirtiesContext`)
+- 배선이 깨졌을 때: 빈 누락·스캔 오류·엔티티-스키마 불일치가 각각 컨텍스트 기동 실패로 드러난다(변이 4건으로 확인). 기동 실패는 `FastFailureAnalyzer` 덕분에 수십 초 안에 보고된다
 
 ### S-2 Provider 계약 특성화 테스트
 
