@@ -107,7 +107,9 @@ S-1, S-2는 production 코드를 바꾸지 않는 안전망이다. 순서는 번
 
 - 단위 (ArchUnit): `domain`은 `infrastructure`에 의존하지 않는다 / `infrastructure`는 `api`에 의존하지 않는다 / `api` main 코드는 `infrastructure`에 의존하지 않는다 (현재 위반 0건)
 - 통합: S-1·S-2가 수정 없이 통과한다 (빈 모듈과 로더만 추가됨, `runtimeOnly`로 `testRuntimeClasspath`에 포함됨)
+- 통합 (스모크 테스트에 추가): `InfrastructureConfigurationLoader` 빈이 런타임에 정확히 1개 로드된다. `api`는 `infrastructure`를 `runtimeOnly`로만 연결하므로 `AutoConfiguration.imports` 등록이 끊기면 컴파일은 통과해도 이 모듈의 빈이 하나도 올라오지 않는다
 - 경계 / 예외: `@WebMvcTest`, `@DataJpaTest` 슬라이스 테스트가 로더의 영향을 받지 않는다 (기존 테스트 전체 통과)
+- 컴파일 시점 경계: `api` main 코드가 `infrastructure` 클래스를 참조하면 컴파일이 실패한다(Gradle `runtimeOnly`). ArchUnit 3개 규칙은 의존 선언이 바뀌어도 경계가 남도록 하는 두 번째 방어선이다
 
 ### S-4 포트 이동
 

@@ -34,6 +34,7 @@ import com.chobolevel.domain.user.image.repository.UserImageRepository
 import com.chobolevel.domain.user.repository.UserRepository
 import com.chobolevel.domain.user.vo.UserLoginType
 import com.chobolevel.domain.user.vo.UserRoleType
+import com.chobolevel.infrastructure.InfrastructureConfigurationLoader
 import com.tngtech.archunit.core.importer.ClassFileImporter
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
@@ -123,6 +124,13 @@ class ApplicationContextSmokeTest {
     @Test
     fun `컨텍스트가 기동한다`() {
         assertThat(applicationContext.id).isNotBlank()
+    }
+
+    @Test
+    fun `infrastructure 모듈의 자동 구성이 런타임에 로드된다`() {
+        // api는 infrastructure를 runtimeOnly로만 연결하므로, 자동 구성 등록(AutoConfiguration.imports)이 끊기면
+        // 컴파일은 통과해도 이 모듈의 빈이 하나도 올라오지 않는다.
+        assertThat(applicationContext.getBeansOfType(InfrastructureConfigurationLoader::class.java)).hasSize(1)
     }
 
     @Test

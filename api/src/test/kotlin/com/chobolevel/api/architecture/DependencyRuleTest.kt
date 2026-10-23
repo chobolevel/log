@@ -188,4 +188,29 @@ class DependencyRuleTest : BehaviorSpec({
             )
         }
     }
+
+    given("infrastructure 모듈의 경계") {
+        // Gradle 의존(domain ← infrastructure, api는 runtimeOnly)이 이미 컴파일 시점에 막지만,
+        // 의존 선언이 바뀌어도 규칙이 남도록 코드로도 고정한다.
+        then("domain은 infrastructure에 의존하지 않는다") {
+            check(
+                noClasses().that().resideInAPackage("com.chobolevel.domain..")
+                    .should().dependOnClassesThat().resideInAPackage("com.chobolevel.infrastructure..")
+            )
+        }
+
+        then("infrastructure는 api에 의존하지 않는다") {
+            check(
+                noClasses().that().resideInAPackage("com.chobolevel.infrastructure..")
+                    .should().dependOnClassesThat().resideInAPackage("com.chobolevel.api..")
+            )
+        }
+
+        then("api의 main 코드는 infrastructure에 의존하지 않는다") {
+            check(
+                noClasses().that().resideInAPackage("com.chobolevel.api..")
+                    .should().dependOnClassesThat().resideInAPackage("com.chobolevel.infrastructure..")
+            )
+        }
+    }
 })

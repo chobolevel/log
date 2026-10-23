@@ -11,6 +11,9 @@ plugins {
 dependencies {
     api(project(":domain"))
 
+    // 영속성·외부 연동 구현은 런타임에만 연결한다. api는 컴파일 시점에 infrastructure 클래스를 볼 수 없다(경계를 빌드로 강제).
+    runtimeOnly(project(":infrastructure"))
+
     // redis
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
 
@@ -72,6 +75,9 @@ dependencies {
     // test: @DataJpaTest에서 QueryDSL Q타입 직접 사용 시 필요
     // domain 모듈의 querydsl-jpa는 implementation이라 테스트 classpath에 전파되지 않는다.
     testImplementation("com.querydsl:querydsl-jpa:${libs.versions.querydsl.get()}:jakarta")
+
+    // test: 구현 클래스를 직접 쓰는 테스트(Adapter 검색 조건 테스트 등)와 자동 구성 확인용
+    testImplementation(project(":infrastructure"))
 
     // test: 패키지·모듈 의존 규칙 검증 (decisions/module-and-package-structure.md)
     testImplementation(libs.archunit)

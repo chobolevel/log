@@ -1,2 +1,2 @@
 rootProject.name = "log"
-include("domain", "api")
+include("domain", "api", "infrastructure")
