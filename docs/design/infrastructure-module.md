@@ -30,6 +30,7 @@
 | 스모크 테스트의 DB와 스키마 검증 | 기존 `AbstractMySQLContainerTest`(MySQL 8.0, Flyway 적용)를 재사용하고 `ddl-auto: validate`로 엔티티-스키마 일치까지 검증. 이미 어긋난 곳이 드러나면 이 설계 안에서 고치지 않고 별도 발견 사항으로 분리하며, 그동안은 `none`으로 둔다 | H2 + `create-drop` | 마이그레이션 SQL이 MySQL 문법이라 H2에서는 Flyway를 쓸 수 없고, 운영과 같은 조건의 기동을 검증하는 것이 목적이다. 컨테이너는 JVM당 하나라 기동 시간이 늘지 않는다. 기존 H2 슬라이스 테스트는 그대로 둔다 |
 | MySQL 컨테이너 공유 방식 | 컨테이너를 `MySQLTestContainer` 객체로 분리하고 `AbstractMySQLContainerTest`는 여기에 위임 (구현 중 변경) | `AbstractMySQLContainerTest` 상속 | 상속하면 슬라이스 테스트용 `ddl-auto=none`이 서브클래스의 `validate`보다 우선해서 스키마 검증이 적용되지 않는다(변이 검증으로 확인). 기동 시점은 JVM당 한 번으로 같다 |
 | 빈 누락 시 실패 분석 | 테스트 전용 `FastFailureAnalyzer`(`META-INF/spring.factories`)로 Boot의 `NoSuchBeanDefinitionFailureAnalyzer`를 대체 (구현 중 추가) | 기본 분석기 유지 / Gradle 테스트 전체 타임아웃 | 기본 분석기가 이 앱의 빈 그래프에서 수 분 이상 걸려 배선이 깨졌을 때 CI가 매달린다. 대체하면 27초 안에 실패한다. 대신 `api` 테스트 전체에서 빈 누락 진단 메시지가 단순해진다 |
+| Provider 계약 테스트의 Redis 템플릿 | `StringRedisTemplate` (구현 중 발견: `RedisCacheProvider`에 실제로 주입되는 템플릿) | `RedisConfiguration`의 JSON 직렬화 `redisTemplate` | `RedisTemplate<String, String>`으로 주입받을 때 제네릭 변수(T)가 있는 `@Primary` 빈은 후보에서 빠져 Boot의 `StringRedisTemplate`이 선택된다. JSON 템플릿으로 테스트하면 운영과 다른 동작(`increment` 후 `get`이 `ClassCastException`, `put`한 숫자에 `increment` 실패)을 고정하게 된다 |
 | 스모크 테스트의 설정 복호화 | `ENC(...)` 값은 테스트용 프로퍼티로 필요한 항목만 평문 더미로 덮어쓴다 | 운영 jasypt 비밀번호를 테스트에서 사용 | 운영 비밀번호가 테스트 코드에 들어가지 않게 한다 |
 | 선행 안전망 | 컨텍스트 스모크 테스트(MySQL+Redis 컨테이너, Kafka 미연결)와 Provider 계약 테스트를 이동 전에 먼저 추가 | 안전망 없이 진행 | 빈 스캔·JPA 스캔이 모듈 경계를 넘어 바뀌는 것이 가장 큰 위험인데, 지금은 컨텍스트 전체를 띄우는 테스트가 없다 |
 
@@ -96,10 +97,11 @@ S-1, S-2는 production 코드를 바꾸지 않는 안전망이다. 순서는 번
 ### S-2 Provider 계약 특성화 테스트
 
 - 단위 / 통합 (Redis 컨테이너):
-  - `CacheProvider`: `put`/`get`, TTL 지정 `put` 후 만료, `mget`이 키 순서대로 반환하고 없는 키는 `null`, `putIfAbsent`(없을 때 true / 있을 때 false, TTL 변형 포함), `increment`/`decrement`가 없는 키에서 1/-1로 시작, `delete`와 `hasKey`
-  - `DistributedLockProvider`: 락 획득 후 `action` 결과를 반환, 같은 키 동시 실행이 직렬화된다, `waitTime` 안에 획득 못 하면 `InternalSystemException`(LOCK_ACQUISITION_FAILED), `action`이 예외를 던져도 락이 해제되어 다음 획득이 된다
-  - `PasswordProvider`: `encode`가 평문과 다르고 매번 다른 값, `matches` 성공/실패
-- 경계 / 예외: `null` 입력 처리는 현재 구현 동작을 그대로 고정한다
+  - `CacheProvider`: `put`/`get`, TTL 지정 `put` 후 만료, `mget`이 키 순서대로 반환하고 없는 키는 `null`(빈 목록은 빈 결과), `putIfAbsent`(없을 때 true / 있을 때 false, TTL 변형은 만료 후 다시 저장 가능), `increment`/`decrement`가 없는 키에서 1/-1로 시작, `delete`와 `hasKey`, 카운터 경로(`put`한 숫자 문자열에 `increment` 후 `get`이 문자열), 값이 직렬화 없이 문자열 그대로 저장됨
+  - `DistributedLockProvider`: 락 획득 후 `action` 결과를 반환, 같은 키 동시 실행이 직렬화된다, 서로 다른 키는 동시에 실행된다, `waitTime` 안에 획득 못 하면 `InternalSystemException`(LOCK_ACQUISITION_FAILED), `action`이 예외를 던져도 락이 해제되어 다음 획득이 된다, `leaseTime`이 지나 락이 만료되면 다른 요청이 획득하고 기존 `action`은 예외 없이 끝난다
+  - `PasswordProvider`: `encode`가 평문과 다르고 BCrypt 형식이며 매번 다른 값, `matches` 성공/실패(대소문자·빈 문자열), 서로 다른 인코딩 값이 같은 평문과 모두 맞음
+- 경계 / 예외: `null` 입력 처리는 현재 구현 동작을 그대로 고정한다(`encode(null)`·`matches(null, …)`는 `IllegalArgumentException`, 인코딩 값이 `null`/빈 문자열이면 `matches`는 false)
+- 보강(S-1 스모크 테스트에 추가): 전체 컨텍스트에서 실제로 연결된 `CacheProvider`가 위 카운터 경로를 따른다. 계약 테스트는 템플릿을 직접 만들기 때문에, 설정 이동으로 주입되는 템플릿이 바뀌는 것은 이 스모크 케이스만 잡을 수 있다
 
 ### S-3 모듈 골격
 
@@ -149,7 +151,7 @@ S-1, S-2는 production 코드를 바꾸지 않는 안전망이다. 순서는 번
 | S-4 | 낮음 | 패키지 이동만 | - |
 | S-5 | 높음 | Redis 캐시 정합성: 키 문자열이 바뀌면 운영 캐시가 갈라지고, 토픽 이름이 바뀌면 Outbox 이벤트가 유실된다 | 12개 키 템플릿·TTL 상수·토픽 이름 8개가 이동 전과 한 글자도 다르지 않은지, 키 정의별 소속 기능 |
 | S-6 | 높음 | JPA·빈 스캔이 모듈 경계를 넘는다. 잘못되면 기동 실패 또는 리포지토리 누락 | `InfrastructureConfigurationLoader`의 스캔 범위, `DomainConfigurationLoader`에 남는 `@EntityScan`, `DomainJpaTestConfig` 기준 패키지 |
-| S-7 | 높음 | 외부 연동(Redis·Redisson 분산락·Resend·S3)과 설정 바인딩 | `RedisConfiguration`의 `@Primary` 빈, 락 예외 매핑, `@ConfigurationPropertiesScan` 범위, `S3Configuration`의 프로퍼티 키, 토픽 빈 8개의 이름·파티션·복제 수가 그대로인지 |
+| S-7 | 높음 | 외부 연동(Redis·Redisson 분산락·Resend·S3)과 설정 바인딩 | `RedisConfiguration`의 `@Primary` 빈, 락 예외 매핑, `@ConfigurationPropertiesScan` 범위, `S3Configuration`의 프로퍼티 키, 토픽 빈 8개의 이름·파티션·복제 수가 그대로인지, `CacheProvider`에 주입되는 템플릿이 `StringRedisTemplate`에서 바뀌지 않는지(`RedisConfiguration`을 옮기다 JSON `redisTemplate`이 선택되면 카운터 읽기가 `ClassCastException`) |
 | S-8 | 낮음 | 문서와 규칙 | - |
 
 ## 끝단 검증
@@ -164,6 +166,7 @@ S-1 컨텍스트 스모크 테스트와 S-2 Provider 계약 테스트가 모든 
 - `NotificationPublisher`/`NotificationOutboxPublisher` 이동 (도메인 리포지토리만 쓰는 유스케이스 협력자라 `api`에 유지)
 - 키 값·TTL 변경, 설정 키 이름 변경, Kafka 토픽·페이로드 변경
 - `ResendEmailProvider`의 외부 API 호출 검증 (SDK를 직접 호출하며 이번에 코드를 바꾸지 않는다. 빈 연결은 S-1이 확인한다)
+- `RedisConfiguration`의 JSON `redisTemplate`·`opsForHash` 빈 삭제 (어디에도 주입되지 않는 것으로 보인다. S-7에서는 그대로 옮기고, 삭제는 별도로 판단)
 - 소프트 삭제 방식 통일, 마이그레이션 job 분리, JPA 엔티티와 도메인 모델 분리
 
 ## 열린 질문

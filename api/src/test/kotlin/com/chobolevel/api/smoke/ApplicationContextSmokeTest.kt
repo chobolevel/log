@@ -250,6 +250,24 @@ class ApplicationContextSmokeTest {
     }
 
     @Test
+    fun `실제로 연결된 캐시는 숫자 문자열을 문자열 그대로 증감하고 읽는다`() {
+        // given: RedisCacheProvider에는 RedisConfiguration의 JSON 직렬화 템플릿이 아니라 Boot의 StringRedisTemplate이 주입된다.
+        // 좋아요·조회수·팔로우 카운터가 이 동작(put한 숫자 문자열에 increment, get은 문자열)에 의존하므로
+        // 설정을 옮기다 템플릿이 바뀌면(ClassCastException, increment 실패) 이 테스트가 잡는다.
+        val key: String = "smoke:counter:v1"
+        cacheProvider.put(key, "5")
+
+        // when
+        val incremented: Long = cacheProvider.increment(key)
+        val read: String? = cacheProvider.get(key)
+        cacheProvider.delete(key)
+
+        // then
+        assertThat(incremented).isEqualTo(6L)
+        assertThat(read).isEqualTo("6")
+    }
+
+    @Test
     fun `루트 경로 요청이 보안 필터 체인을 거쳐 200을 반환한다`() {
         // X-Content-Type-Options는 Spring Security의 HeaderWriterFilter가 붙이므로, 보안 필터 체인이 MockMvc에 연결됐음을 보여 준다.
         mockMvc.perform(get("/"))
