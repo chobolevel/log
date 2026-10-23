@@ -1,4 +1,4 @@
-package com.chobolevel.api.common.redis
+package com.chobolevel.domain.common.provider
 
 import java.util.concurrent.TimeUnit
 

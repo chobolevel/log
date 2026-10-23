@@ -1,7 +1,6 @@
 package com.chobolevel.api.record.service
 
 import com.chobolevel.api.common.redis.CacheKeyPrefix
-import com.chobolevel.api.common.redis.CacheProvider
 import com.chobolevel.api.common.time.toKST
 import com.chobolevel.api.common.web.PagingResponse
 import com.chobolevel.api.record.converter.RecordConverter
@@ -16,6 +15,7 @@ import com.chobolevel.api.record.updater.RecordUpdater
 import com.chobolevel.api.record.validator.RecordBusinessValidator
 import com.chobolevel.api.record.view.service.RecordViewQueryService
 import com.chobolevel.domain.common.dto.Paging
+import com.chobolevel.domain.common.provider.CacheProvider
 import com.chobolevel.domain.emotion.entity.Emotion
 import com.chobolevel.domain.emotion.repository.EmotionRepository
 import com.chobolevel.domain.record.entity.Record

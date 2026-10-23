@@ -3,7 +3,6 @@ package com.chobolevel.api.user.service
 import com.chobolevel.api.common.dummy.DummyAuth
 import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.common.email.ResendEmailProvider
-import com.chobolevel.api.common.password.PasswordProvider
 import com.chobolevel.api.common.redis.CacheKeyPrefix
 import com.chobolevel.api.common.redis.RedisCacheProvider
 import com.chobolevel.api.common.security.AuthErrorCode
@@ -15,6 +14,7 @@ import com.chobolevel.api.user.dto.SendEmailVerificationCodeRequest
 import com.chobolevel.api.user.validator.UserBusinessValidator
 import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.common.exception.CommonErrorCode
+import com.chobolevel.domain.common.provider.PasswordProvider
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.exception.UserErrorCode
 import com.chobolevel.domain.user.repository.UserRepository

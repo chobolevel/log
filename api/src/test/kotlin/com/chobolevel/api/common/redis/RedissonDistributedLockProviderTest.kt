@@ -3,6 +3,7 @@ package com.chobolevel.api.common.redis
 import com.chobolevel.api.common.container.RedisTestSupport
 import com.chobolevel.domain.common.exception.InternalSystemException
 import com.chobolevel.domain.common.exception.SystemErrorCode
+import com.chobolevel.domain.common.provider.DistributedLockProvider
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DisplayName

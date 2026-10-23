@@ -1,6 +1,5 @@
 package com.chobolevel.api.user.converter
 
-import com.chobolevel.api.common.password.PasswordProvider
 import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.SearchUserRequest
 import com.chobolevel.api.user.dto.SocialLoginRequest
@@ -8,6 +7,7 @@ import com.chobolevel.api.user.dto.UserDetailResponse
 import com.chobolevel.api.user.dto.UserResponse
 import com.chobolevel.api.user.dto.UserSummaryResponse
 import com.chobolevel.api.user.image.converter.UserImageConverter
+import com.chobolevel.domain.common.provider.PasswordProvider
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.vo.UserLoginType
 import com.chobolevel.domain.user.vo.UserQueryFilter

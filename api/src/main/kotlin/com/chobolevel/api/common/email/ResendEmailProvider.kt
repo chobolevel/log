@@ -2,6 +2,7 @@ package com.chobolevel.api.common.email
 
 import com.chobolevel.domain.common.exception.ExternalSystemException
 import com.chobolevel.domain.common.exception.SystemErrorCode
+import com.chobolevel.domain.common.provider.EmailProvider
 import com.resend.Resend
 import com.resend.core.exception.ResendException
 import com.resend.services.emails.model.CreateEmailOptions

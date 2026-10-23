@@ -1,9 +1,6 @@
 package com.chobolevel.api.user.service
 
-import com.chobolevel.api.common.email.EmailProvider
-import com.chobolevel.api.common.password.PasswordProvider
 import com.chobolevel.api.common.redis.CacheKeyPrefix
-import com.chobolevel.api.common.redis.CacheProvider
 import com.chobolevel.api.common.security.AuthErrorCode
 import com.chobolevel.api.common.security.JwtResponse
 import com.chobolevel.api.common.security.TokenProvider
@@ -16,6 +13,9 @@ import com.chobolevel.api.user.dto.SocialLoginRequest
 import com.chobolevel.api.user.validator.UserBusinessValidator
 import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.common.exception.CommonErrorCode
+import com.chobolevel.domain.common.provider.CacheProvider
+import com.chobolevel.domain.common.provider.EmailProvider
+import com.chobolevel.domain.common.provider.PasswordProvider
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.exception.UserErrorCode
 import com.chobolevel.domain.user.repository.UserRepository

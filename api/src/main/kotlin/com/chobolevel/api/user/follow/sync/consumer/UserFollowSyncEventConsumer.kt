@@ -2,9 +2,9 @@ package com.chobolevel.api.user.follow.sync.consumer
 
 import com.chobolevel.api.common.kafka.KafkaTopicConfiguration
 import com.chobolevel.api.common.redis.CacheKeyPrefix
-import com.chobolevel.api.common.redis.CacheProvider
 import com.chobolevel.api.user.follow.sync.dto.UserFollowSyncEventMessage
 import com.chobolevel.domain.common.exception.BusinessException
+import com.chobolevel.domain.common.provider.CacheProvider
 import com.chobolevel.domain.user.follow.repository.UserFollowRepository
 import com.chobolevel.domain.user.follow.sync.repository.UserFollowSyncEventRepository
 import org.slf4j.LoggerFactory

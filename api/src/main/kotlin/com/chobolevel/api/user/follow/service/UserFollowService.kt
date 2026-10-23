@@ -1,12 +1,12 @@
 package com.chobolevel.api.user.follow.service
 
 import com.chobolevel.api.common.redis.CacheKeyPrefix
-import com.chobolevel.api.common.redis.CacheProvider
 import com.chobolevel.api.common.transaction.registerAfterCommit
 import com.chobolevel.api.notification.NotificationPath
 import com.chobolevel.api.notification.provider.NotificationPublisher
 import com.chobolevel.api.user.follow.dto.UserFollowCounterResponse
 import com.chobolevel.api.user.follow.validator.UserFollowBusinessValidator
+import com.chobolevel.domain.common.provider.CacheProvider
 import com.chobolevel.domain.notification.vo.NotificationType
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.follow.entity.UserFollow

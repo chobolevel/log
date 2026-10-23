@@ -213,4 +213,13 @@ class DependencyRuleTest : BehaviorSpec({
             )
         }
     }
+
+    given("포트(Provider 인터페이스)의 위치") {
+        then("*Provider 인터페이스는 domain에만 있다") {
+            check(
+                classes().that().areInterfaces().and().haveSimpleNameEndingWith("Provider")
+                    .should().resideInAPackage("com.chobolevel.domain..")
+            )
+        }
+    }
 })

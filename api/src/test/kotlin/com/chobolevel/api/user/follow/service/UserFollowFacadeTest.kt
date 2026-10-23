@@ -1,9 +1,9 @@
 package com.chobolevel.api.user.follow.service
 
 import com.chobolevel.api.common.dummy.DummyUser
-import com.chobolevel.api.common.redis.DistributedLockProvider
 import com.chobolevel.domain.common.exception.InternalSystemException
 import com.chobolevel.domain.common.exception.SystemErrorCode
+import com.chobolevel.domain.common.provider.DistributedLockProvider
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe

@@ -1,14 +1,14 @@
 package com.chobolevel.api.user.validator
 
 import com.chobolevel.api.common.dummy.DummyUser
-import com.chobolevel.api.common.password.PasswordProvider
 import com.chobolevel.api.common.redis.CacheKeyPrefix
-import com.chobolevel.api.common.redis.CacheProvider
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.ResetUserPasswordRequest
 import com.chobolevel.api.user.dto.UpdateUserRequest
 import com.chobolevel.domain.common.exception.BusinessException
+import com.chobolevel.domain.common.provider.CacheProvider
+import com.chobolevel.domain.common.provider.PasswordProvider
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.exception.UserErrorCode
 import com.chobolevel.domain.user.repository.UserRepository

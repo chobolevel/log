@@ -1,9 +1,6 @@
 package com.chobolevel.api.user.service
 
 import com.chobolevel.api.common.dummy.DummyUser
-import com.chobolevel.api.common.email.EmailProvider
-import com.chobolevel.api.common.password.PasswordProvider
-import com.chobolevel.api.common.redis.CacheProvider
 import com.chobolevel.api.common.web.FrontServerProperties
 import com.chobolevel.api.common.web.PagingResponse
 import com.chobolevel.api.user.converter.UserConverter
@@ -18,6 +15,9 @@ import com.chobolevel.api.user.dto.UserResponse
 import com.chobolevel.api.user.follow.service.UserFollowQueryService
 import com.chobolevel.api.user.updater.UserUpdater
 import com.chobolevel.api.user.validator.UserBusinessValidator
+import com.chobolevel.domain.common.provider.CacheProvider
+import com.chobolevel.domain.common.provider.EmailProvider
+import com.chobolevel.domain.common.provider.PasswordProvider
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
 import com.chobolevel.domain.user.vo.UserQueryFilter

@@ -1,4 +1,4 @@
-package com.chobolevel.api.common.password
+package com.chobolevel.domain.common.provider
 
 interface PasswordProvider {
 

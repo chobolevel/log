@@ -1,6 +1,7 @@
 package com.chobolevel.api.common.redis
 
 import com.chobolevel.api.common.container.RedisTestSupport
+import com.chobolevel.domain.common.provider.CacheProvider
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
