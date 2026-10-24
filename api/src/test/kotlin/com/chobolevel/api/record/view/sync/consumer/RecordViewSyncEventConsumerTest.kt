@@ -1,13 +1,13 @@
 package com.chobolevel.api.record.view.sync.consumer
 
 import com.chobolevel.api.common.dummy.DummyRecordViewSyncEvent
-import com.chobolevel.api.common.redis.CacheKeyPrefix
 import com.chobolevel.api.record.view.sync.dto.RecordViewSyncEventMessage
 import com.chobolevel.domain.common.provider.CacheProvider
 import com.chobolevel.domain.record.view.repository.RecordViewRepository
 import com.chobolevel.domain.record.view.sync.entity.RecordViewSyncEvent
 import com.chobolevel.domain.record.view.sync.repository.RecordViewSyncEventRepository
 import com.chobolevel.domain.record.view.sync.vo.RecordViewSyncEventStatus
+import com.chobolevel.domain.record.view.vo.RecordViewRedisKey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
@@ -36,7 +36,7 @@ class RecordViewSyncEventConsumerTest : BehaviorSpec({
                     eventId = DummyRecordViewSyncEvent.ID,
                     recordId = DummyRecordViewSyncEvent.RECORD_ID,
                 )
-                val countKey: String = CacheKeyPrefix.recordViewCount(message.recordId)
+                val countKey: String = RecordViewRedisKey.recordViewCount(message.recordId)
                 val event: RecordViewSyncEvent = DummyRecordViewSyncEvent.toEntity()
                 every { recordViewRepository.countByRecordId(message.recordId) } returns 5L
                 every { cacheProvider.put(countKey, "5") } returns Unit

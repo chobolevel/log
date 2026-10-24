@@ -1,7 +1,7 @@
 package com.chobolevel.api.user.follow.sync.scheduler
 
-import com.chobolevel.api.common.kafka.KafkaTopicConfiguration
 import com.chobolevel.api.user.follow.sync.dto.UserFollowSyncEventMessage
+import com.chobolevel.domain.common.kafka.KafkaTopics
 import com.chobolevel.domain.user.follow.sync.entity.UserFollowSyncEvent
 import com.chobolevel.domain.user.follow.sync.repository.UserFollowSyncEventRepository
 import com.chobolevel.domain.user.follow.sync.vo.UserFollowSyncEventStatus
@@ -46,7 +46,7 @@ class UserFollowSyncEventRelayScheduler(
         pendingEvents.forEach { event ->
             runCatching {
                 kafkaTemplate.send(
-                    KafkaTopicConfiguration.USER_FOLLOW_SYNC_EVENTS,
+                    KafkaTopics.USER_FOLLOW_SYNC_EVENTS,
                     "${event.followerUserId}:${event.followingUserId}",
                     UserFollowSyncEventMessage(
                         eventId = event.id!!,

@@ -1,7 +1,6 @@
 package com.chobolevel.api.user.follow.service
 
 import com.chobolevel.api.common.dummy.DummyUser
-import com.chobolevel.api.common.redis.CacheKeyPrefix
 import com.chobolevel.api.notification.NotificationPath
 import com.chobolevel.api.notification.provider.NotificationPublisher
 import com.chobolevel.api.user.follow.dto.UserFollowCounterResponse
@@ -15,6 +14,7 @@ import com.chobolevel.domain.user.follow.entity.UserFollow
 import com.chobolevel.domain.user.follow.repository.UserFollowRepository
 import com.chobolevel.domain.user.follow.sync.entity.UserFollowSyncEvent
 import com.chobolevel.domain.user.follow.sync.repository.UserFollowSyncEventRepository
+import com.chobolevel.domain.user.follow.vo.UserFollowRedisKey
 import com.chobolevel.domain.user.repository.UserRepository
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -52,9 +52,9 @@ class UserFollowServiceTest : BehaviorSpec({
                 val followingUserId = 2L
                 val followerUser: User = DummyUser.toEntity()
                 val followingUser: User = DummyUser.toEntity().also { it.id = followingUserId }
-                val relationKey: String = CacheKeyPrefix.userFollowRelation(followerUserId, followingUserId)
-                val followingCountKey: String = CacheKeyPrefix.userFollowingCount(followerUserId)
-                val followerCountKey: String = CacheKeyPrefix.userFollowerCount(followingUserId)
+                val relationKey: String = UserFollowRedisKey.userFollowRelation(followerUserId, followingUserId)
+                val followingCountKey: String = UserFollowRedisKey.userFollowingCount(followerUserId)
+                val followerCountKey: String = UserFollowRedisKey.userFollowerCount(followingUserId)
                 every { userFollowBusinessValidator.validateFollowingUserExists(followingUserId) } returns Unit
                 every { cacheProvider.hasKey(relationKey) } returns false
                 every { userFollowRepository.existsByFollowerUserIdAndFollowingUserId(followerUserId, followingUserId) } returns false
@@ -106,9 +106,9 @@ class UserFollowServiceTest : BehaviorSpec({
                 val followingUserId = 2L
                 val followerUser: User = DummyUser.toEntity()
                 val followingUser: User = DummyUser.toEntity().also { it.id = followingUserId }
-                val relationKey: String = CacheKeyPrefix.userFollowRelation(followerUserId, followingUserId)
-                val followingCountKey: String = CacheKeyPrefix.userFollowingCount(followerUserId)
-                val followerCountKey: String = CacheKeyPrefix.userFollowerCount(followingUserId)
+                val relationKey: String = UserFollowRedisKey.userFollowRelation(followerUserId, followingUserId)
+                val followingCountKey: String = UserFollowRedisKey.userFollowingCount(followerUserId)
+                val followerCountKey: String = UserFollowRedisKey.userFollowerCount(followingUserId)
                 every { userFollowBusinessValidator.validateFollowingUserExists(followingUserId) } returns Unit
                 every { cacheProvider.hasKey(relationKey) } returns false
                 every { userFollowRepository.existsByFollowerUserIdAndFollowingUserId(followerUserId, followingUserId) } returns false
@@ -149,7 +149,7 @@ class UserFollowServiceTest : BehaviorSpec({
                 // given
                 val followerUserId: Long = DummyUser.ID
                 val followingUserId = 2L
-                val relationKey: String = CacheKeyPrefix.userFollowRelation(followerUserId, followingUserId)
+                val relationKey: String = UserFollowRedisKey.userFollowRelation(followerUserId, followingUserId)
                 every { userFollowBusinessValidator.validateFollowingUserExists(followingUserId) } returns Unit
                 every { cacheProvider.hasKey(relationKey) } returns true
 
@@ -170,7 +170,7 @@ class UserFollowServiceTest : BehaviorSpec({
                 // given
                 val followerUserId: Long = DummyUser.ID
                 val followingUserId = 2L
-                val relationKey: String = CacheKeyPrefix.userFollowRelation(followerUserId, followingUserId)
+                val relationKey: String = UserFollowRedisKey.userFollowRelation(followerUserId, followingUserId)
                 every { userFollowBusinessValidator.validateFollowingUserExists(followingUserId) } returns Unit
                 every { cacheProvider.hasKey(relationKey) } returns false
                 every { userFollowRepository.existsByFollowerUserIdAndFollowingUserId(followerUserId, followingUserId) } returns true
@@ -214,9 +214,9 @@ class UserFollowServiceTest : BehaviorSpec({
                 // given
                 val followerUserId: Long = DummyUser.ID
                 val followingUserId = 2L
-                val relationKey: String = CacheKeyPrefix.userFollowRelation(followerUserId, followingUserId)
-                val followingCountKey: String = CacheKeyPrefix.userFollowingCount(followerUserId)
-                val followerCountKey: String = CacheKeyPrefix.userFollowerCount(followingUserId)
+                val relationKey: String = UserFollowRedisKey.userFollowRelation(followerUserId, followingUserId)
+                val followingCountKey: String = UserFollowRedisKey.userFollowingCount(followerUserId)
+                val followerCountKey: String = UserFollowRedisKey.userFollowerCount(followingUserId)
                 every { cacheProvider.hasKey(relationKey) } returns true
                 every { cacheProvider.hasKey(followingCountKey) } returns true
                 every { cacheProvider.hasKey(followerCountKey) } returns true
@@ -244,7 +244,7 @@ class UserFollowServiceTest : BehaviorSpec({
                 // given
                 val followerUserId: Long = DummyUser.ID
                 val followingUserId = 2L
-                val relationKey: String = CacheKeyPrefix.userFollowRelation(followerUserId, followingUserId)
+                val relationKey: String = UserFollowRedisKey.userFollowRelation(followerUserId, followingUserId)
                 every { cacheProvider.hasKey(relationKey) } returns false
                 every { userFollowRepository.existsByFollowerUserIdAndFollowingUserId(followerUserId, followingUserId) } returns false
 
@@ -266,8 +266,8 @@ class UserFollowServiceTest : BehaviorSpec({
             then("미처리 이벤트 여부와 무관하게 DB COUNT 기준으로 캐시를 강제로 덮어쓰고 계산된 값을 반환한다") {
                 // given
                 val userId: Long = DummyUser.ID
-                val followingCountKey: String = CacheKeyPrefix.userFollowingCount(userId)
-                val followerCountKey: String = CacheKeyPrefix.userFollowerCount(userId)
+                val followingCountKey: String = UserFollowRedisKey.userFollowingCount(userId)
+                val followerCountKey: String = UserFollowRedisKey.userFollowerCount(userId)
                 every { userFollowRepository.countByFollowerUserId(userId) } returns 10L
                 every { userFollowRepository.countByFollowingUserId(userId) } returns 20L
                 every { cacheProvider.put(followingCountKey, "10") } returns Unit

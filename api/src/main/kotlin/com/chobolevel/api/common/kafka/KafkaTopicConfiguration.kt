@@ -1,5 +1,6 @@
 package com.chobolevel.api.common.kafka
 
+import com.chobolevel.domain.common.kafka.KafkaTopics
 import org.apache.kafka.clients.admin.NewTopic
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -8,20 +9,9 @@ import org.springframework.kafka.config.TopicBuilder
 @Configuration
 class KafkaTopicConfiguration {
 
-    companion object {
-        const val RECORD_LIKE_SYNC_EVENTS = "record-like-sync-events"
-        const val RECORD_LIKE_SYNC_EVENTS_DLQ = "record-like-sync-events-dlq"
-        const val RECORD_VIEW_SYNC_EVENTS = "record-view-sync-events"
-        const val RECORD_VIEW_SYNC_EVENTS_DLQ = "record-view-sync-events-dlq"
-        const val USER_FOLLOW_SYNC_EVENTS = "user-follow-sync-events"
-        const val USER_FOLLOW_SYNC_EVENTS_DLQ = "user-follow-sync-events-dlq"
-        const val NOTIFICATION_DISPATCH_EVENTS = "notification-dispatch-events"
-        const val NOTIFICATION_DISPATCH_EVENTS_DLQ = "notification-dispatch-events-dlq"
-    }
-
     @Bean
     fun recordLikeSyncEventsTopic(): NewTopic {
-        return TopicBuilder.name("record-like-sync-events")
+        return TopicBuilder.name(KafkaTopics.RECORD_LIKE_SYNC_EVENTS)
             .partitions(1)
             .replicas(1)
             .build()
@@ -29,7 +19,7 @@ class KafkaTopicConfiguration {
 
     @Bean
     fun recordLikeSyncEventsDlqTopic(): NewTopic {
-        return TopicBuilder.name("record-like-sync-events-dlq")
+        return TopicBuilder.name(KafkaTopics.RECORD_LIKE_SYNC_EVENTS_DLQ)
             .partitions(1)
             .replicas(1)
             .build()
@@ -37,7 +27,7 @@ class KafkaTopicConfiguration {
 
     @Bean
     fun recordViewSyncEventsTopic(): NewTopic {
-        return TopicBuilder.name("record-view-sync-events")
+        return TopicBuilder.name(KafkaTopics.RECORD_VIEW_SYNC_EVENTS)
             .partitions(1)
             .replicas(1)
             .build()
@@ -45,7 +35,7 @@ class KafkaTopicConfiguration {
 
     @Bean
     fun recordViewSyncEventsDlqTopic(): NewTopic {
-        return TopicBuilder.name("record-view-sync-events-dlq")
+        return TopicBuilder.name(KafkaTopics.RECORD_VIEW_SYNC_EVENTS_DLQ)
             .partitions(1)
             .replicas(1)
             .build()
@@ -53,7 +43,7 @@ class KafkaTopicConfiguration {
 
     @Bean
     fun userFollowSyncEventsTopic(): NewTopic {
-        return TopicBuilder.name("user-follow-sync-events")
+        return TopicBuilder.name(KafkaTopics.USER_FOLLOW_SYNC_EVENTS)
             .partitions(1)
             .replicas(1)
             .build()
@@ -61,7 +51,7 @@ class KafkaTopicConfiguration {
 
     @Bean
     fun userFollowSyncEventsDlqTopic(): NewTopic {
-        return TopicBuilder.name("user-follow-sync-events-dlq")
+        return TopicBuilder.name(KafkaTopics.USER_FOLLOW_SYNC_EVENTS_DLQ)
             .partitions(1)
             .replicas(1)
             .build()
@@ -69,7 +59,7 @@ class KafkaTopicConfiguration {
 
     @Bean
     fun notificationDispatchEventsTopic(): NewTopic {
-        return TopicBuilder.name("notification-dispatch-events")
+        return TopicBuilder.name(KafkaTopics.NOTIFICATION_DISPATCH_EVENTS)
             .partitions(1)
             .replicas(1)
             .build()
@@ -77,7 +67,7 @@ class KafkaTopicConfiguration {
 
     @Bean
     fun notificationDispatchEventsDlqTopic(): NewTopic {
-        return TopicBuilder.name("notification-dispatch-events-dlq")
+        return TopicBuilder.name(KafkaTopics.NOTIFICATION_DISPATCH_EVENTS_DLQ)
             .partitions(1)
             .replicas(1)
             .build()

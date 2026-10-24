@@ -1,7 +1,7 @@
 package com.chobolevel.api.record.view.sync.scheduler
 
-import com.chobolevel.api.common.kafka.KafkaTopicConfiguration
 import com.chobolevel.api.record.view.sync.dto.RecordViewSyncEventMessage
+import com.chobolevel.domain.common.kafka.KafkaTopics
 import com.chobolevel.domain.record.view.sync.entity.RecordViewSyncEvent
 import com.chobolevel.domain.record.view.sync.repository.RecordViewSyncEventRepository
 import com.chobolevel.domain.record.view.sync.vo.RecordViewSyncEventStatus
@@ -45,7 +45,7 @@ class RecordViewSyncEventRelayScheduler(
         pendingEvents.forEach { event ->
             runCatching {
                 kafkaTemplate.send(
-                    KafkaTopicConfiguration.RECORD_VIEW_SYNC_EVENTS,
+                    KafkaTopics.RECORD_VIEW_SYNC_EVENTS,
                     event.recordId.toString(),
                     RecordViewSyncEventMessage(
                         eventId = event.id!!,

@@ -1,8 +1,8 @@
 package com.chobolevel.api.record.like.service
 
-import com.chobolevel.api.common.redis.CacheKeyPrefix
 import com.chobolevel.domain.common.provider.CacheProvider
 import com.chobolevel.domain.record.like.repository.RecordLikeRepository
+import com.chobolevel.domain.record.like.vo.RecordLikeRedisKey
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.concurrent.TimeUnit
@@ -15,7 +15,7 @@ class RecordLikeQueryService(
 
     @Transactional(readOnly = true)
     fun fetchLikeCount(recordId: Long): Long {
-        val countKey: String = CacheKeyPrefix.recordLikeCount(recordId)
+        val countKey: String = RecordLikeRedisKey.recordLikeCount(recordId)
         val cached: String? = cacheProvider.get(countKey)
         if (cached != null) {
             return cached.toLong()
@@ -29,7 +29,7 @@ class RecordLikeQueryService(
             return emptyMap()
         }
 
-        val countKeys: List<String> = recordIds.map { CacheKeyPrefix.recordLikeCount(it) }
+        val countKeys: List<String> = recordIds.map { RecordLikeRedisKey.recordLikeCount(it) }
         val cached: List<String?> = cacheProvider.mget(countKeys)
 
         val result: MutableMap<Long, Long> = mutableMapOf()
@@ -42,7 +42,7 @@ class RecordLikeQueryService(
 
     @Transactional(readOnly = true)
     fun isLiked(userId: Long, recordId: Long): Boolean {
-        val likeKey: String = CacheKeyPrefix.recordLike(recordId = recordId, userId = userId)
+        val likeKey: String = RecordLikeRedisKey.recordLike(recordId = recordId, userId = userId)
         val cached: String? = cacheProvider.get(likeKey)
         if (cached != null) {
             return cached == "1"
@@ -52,7 +52,7 @@ class RecordLikeQueryService(
         cacheProvider.put(
             likeKey,
             if (liked) "1" else "0",
-            CacheKeyPrefix.RECORD_LIKE_CACHE_TTL_MINUTES,
+            RecordLikeRedisKey.RECORD_LIKE_CACHE_TTL_MINUTES,
             TimeUnit.MINUTES,
         )
         return liked
@@ -61,7 +61,7 @@ class RecordLikeQueryService(
     // cold start: 캐시에 없으면 DB COUNT(*)로 조회 후 TTL과 함께 재적재
     private fun loadAndCacheCount(recordId: Long, countKey: String): Long {
         val count: Long = recordLikeRepository.countByRecordId(recordId)
-        cacheProvider.put(countKey, count.toString(), CacheKeyPrefix.RECORD_LIKE_CACHE_TTL_MINUTES, TimeUnit.MINUTES)
+        cacheProvider.put(countKey, count.toString(), RecordLikeRedisKey.RECORD_LIKE_CACHE_TTL_MINUTES, TimeUnit.MINUTES)
         return count
     }
 }

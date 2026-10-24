@@ -222,4 +222,13 @@ class DependencyRuleTest : BehaviorSpec({
             )
         }
     }
+
+    given("Redis 키 정의의 위치") {
+        then("*RedisKey 객체는 domain에만 있다") {
+            check(
+                classes().that().haveSimpleNameEndingWith("RedisKey")
+                    .should().resideInAPackage("com.chobolevel.domain..")
+            )
+        }
+    }
 })

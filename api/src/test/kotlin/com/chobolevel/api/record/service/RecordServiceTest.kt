@@ -4,7 +4,6 @@ import com.chobolevel.api.common.dummy.DummyEmotion
 import com.chobolevel.api.common.dummy.DummyRecord
 import com.chobolevel.api.common.dummy.DummySubject
 import com.chobolevel.api.common.dummy.DummyUser
-import com.chobolevel.api.common.redis.CacheKeyPrefix
 import com.chobolevel.api.common.web.PagingResponse
 import com.chobolevel.api.record.converter.RecordConverter
 import com.chobolevel.api.record.dto.CreateRecordRequest
@@ -24,6 +23,7 @@ import com.chobolevel.domain.emotion.repository.EmotionRepository
 import com.chobolevel.domain.record.entity.Record
 import com.chobolevel.domain.record.exception.RecordErrorCode
 import com.chobolevel.domain.record.repository.RecordRepository
+import com.chobolevel.domain.record.vo.RecordContributionRedisKey
 import com.chobolevel.domain.record.vo.RecordQueryFilter
 import com.chobolevel.domain.subject.entity.Subject
 import com.chobolevel.domain.subject.repository.SubjectRepository
@@ -339,7 +339,7 @@ class RecordServiceTest : BehaviorSpec({
             then("DB에서 조회한 결과를 5분 TTL로 캐시에 저장하고 반환한다") {
                 // given
                 val userId: Long = DummyUser.ID
-                val cacheKey: String = CacheKeyPrefix.userRecordContribution(userId = userId, year = 2026)
+                val cacheKey: String = RecordContributionRedisKey.userRecordContribution(userId = userId, year = 2026)
                 val response: List<RecordContributionResponse> = listOf(DummyRecord.toContributionResponse())
                 every { cacheProvider.get(cacheKey) } returns null
                 every { recordRepository.findCreatedAtsByUserIdAndCreatedAtBetween(userId, any(), any()) } returns emptyList()
@@ -361,7 +361,7 @@ class RecordServiceTest : BehaviorSpec({
             then("DB를 조회하지 않고 캐시된 값을 역직렬화해서 반환한다") {
                 // given
                 val userId: Long = DummyUser.ID
-                val cacheKey: String = CacheKeyPrefix.userRecordContribution(userId = userId, year = 2026)
+                val cacheKey: String = RecordContributionRedisKey.userRecordContribution(userId = userId, year = 2026)
                 val cachedResponse: List<RecordContributionResponse> = listOf(DummyRecord.toContributionResponse(date = "2026-03-01", count = 3L))
                 every { cacheProvider.get(cacheKey) } returns objectMapper.writeValueAsString(cachedResponse)
 

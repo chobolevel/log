@@ -1,6 +1,5 @@
 package com.chobolevel.api.user.service
 
-import com.chobolevel.api.common.redis.CacheKeyPrefix
 import com.chobolevel.api.common.web.FrontServerProperties
 import com.chobolevel.api.common.web.PagingResponse
 import com.chobolevel.api.user.converter.UserConverter
@@ -22,6 +21,7 @@ import com.chobolevel.domain.common.provider.PasswordProvider
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
 import com.chobolevel.domain.user.vo.UserQueryFilter
+import com.chobolevel.domain.user.vo.UserRedisKey
 import io.hypersistence.tsid.TSID
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -107,7 +107,7 @@ class UserService(
     @Transactional(readOnly = true)
     fun sendResetPasswordEmail(request: SendUserPasswordResetEmailRequest): Boolean {
         val code: String = TSID.fast().toString()
-        cacheProvider.put(CacheKeyPrefix.userResetPassword(request.email), code, 10, TimeUnit.MINUTES)
+        cacheProvider.put(UserRedisKey.userResetPassword(request.email), code, 10, TimeUnit.MINUTES)
         val emailBody: String = javaClass.getResourceAsStream("/templates/email/reset-password.html")
             ?.bufferedReader()
             ?.readText()
@@ -126,7 +126,7 @@ class UserService(
         validator.validate(request = request)
         val user: User = repository.findByEmail(email = request.email)
         user.changePassword(password = passwordProvider.encode(plainText = request.password))
-        cacheProvider.delete(CacheKeyPrefix.userResetPassword(request.email))
+        cacheProvider.delete(UserRedisKey.userResetPassword(request.email))
         return true
     }
 }

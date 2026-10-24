@@ -1,6 +1,5 @@
 package com.chobolevel.api.record.service
 
-import com.chobolevel.api.common.redis.CacheKeyPrefix
 import com.chobolevel.api.common.time.toKST
 import com.chobolevel.api.common.web.PagingResponse
 import com.chobolevel.api.record.converter.RecordConverter
@@ -20,6 +19,7 @@ import com.chobolevel.domain.emotion.entity.Emotion
 import com.chobolevel.domain.emotion.repository.EmotionRepository
 import com.chobolevel.domain.record.entity.Record
 import com.chobolevel.domain.record.repository.RecordRepository
+import com.chobolevel.domain.record.vo.RecordContributionRedisKey
 import com.chobolevel.domain.record.vo.RecordQueryFilter
 import com.chobolevel.domain.subject.entity.Subject
 import com.chobolevel.domain.subject.repository.SubjectRepository
@@ -121,7 +121,7 @@ class RecordService(
     // year 기본값(현재 연도) 보정은 컨트롤러 경계(FetchRecordContributionsRequest)에서 이미 끝나 있으므로 여기서는 다루지 않는다.
     // 캐시 히트 시 불필요하게 트랜잭션(커넥션)을 잡지 않도록 @Transactional을 두지 않는다 — 조회는 repository 단위 트랜잭션으로 충분하다.
     fun fetchContributions(userId: Long, year: Int): List<RecordContributionResponse> {
-        val cacheKey: String = CacheKeyPrefix.userRecordContribution(userId = userId, year = year)
+        val cacheKey: String = RecordContributionRedisKey.userRecordContribution(userId = userId, year = year)
         val cached: String? = cacheProvider.get(cacheKey)
         if (cached != null) {
             return objectMapper.readValue(cached, object : TypeReference<List<RecordContributionResponse>>() {})
@@ -131,7 +131,7 @@ class RecordService(
         cacheProvider.put(
             cacheKey,
             objectMapper.writeValueAsString(contributions),
-            CacheKeyPrefix.RECORD_CONTRIBUTION_CACHE_TTL_MINUTES,
+            RecordContributionRedisKey.RECORD_CONTRIBUTION_CACHE_TTL_MINUTES,
             TimeUnit.MINUTES
         )
         return contributions
