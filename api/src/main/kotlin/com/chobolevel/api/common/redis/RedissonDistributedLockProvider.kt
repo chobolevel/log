@@ -2,6 +2,7 @@ package com.chobolevel.api.common.redis
 
 import com.chobolevel.domain.common.exception.InternalSystemException
 import com.chobolevel.domain.common.exception.SystemErrorCode
+import com.chobolevel.domain.common.provider.DistributedLockProvider
 import org.redisson.api.RLock
 import org.redisson.api.RedissonClient
 import org.springframework.stereotype.Component

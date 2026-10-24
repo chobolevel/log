@@ -3,11 +3,11 @@ package com.chobolevel.api.record.like.service
 import com.chobolevel.api.common.dummy.DummyRecord
 import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.common.redis.CacheKeyPrefix
-import com.chobolevel.api.common.redis.CacheProvider
 import com.chobolevel.api.notification.NotificationPath
 import com.chobolevel.api.notification.provider.NotificationPublisher
 import com.chobolevel.api.record.like.validator.RecordLikeValidator
 import com.chobolevel.domain.common.exception.BusinessException
+import com.chobolevel.domain.common.provider.CacheProvider
 import com.chobolevel.domain.notification.vo.NotificationType
 import com.chobolevel.domain.record.entity.Record
 import com.chobolevel.domain.record.exception.RecordErrorCode

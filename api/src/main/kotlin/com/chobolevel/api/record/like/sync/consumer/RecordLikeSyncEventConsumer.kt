@@ -2,9 +2,9 @@ package com.chobolevel.api.record.like.sync.consumer
 
 import com.chobolevel.api.common.kafka.KafkaTopicConfiguration
 import com.chobolevel.api.common.redis.CacheKeyPrefix
-import com.chobolevel.api.common.redis.CacheProvider
 import com.chobolevel.api.record.like.sync.dto.RecordLikeSyncEventMessage
 import com.chobolevel.domain.common.exception.BusinessException
+import com.chobolevel.domain.common.provider.CacheProvider
 import com.chobolevel.domain.record.like.repository.RecordLikeRepository
 import com.chobolevel.domain.record.like.sync.repository.RecordLikeSyncEventRepository
 import org.slf4j.LoggerFactory

@@ -3,7 +3,7 @@ package com.chobolevel.api.record.like.service
 import com.chobolevel.api.common.dummy.DummyRecord
 import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.common.redis.CacheKeyPrefix
-import com.chobolevel.api.common.redis.CacheProvider
+import com.chobolevel.domain.common.provider.CacheProvider
 import com.chobolevel.domain.record.like.repository.RecordLikeRepository
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe

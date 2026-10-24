@@ -1,7 +1,7 @@
 package com.chobolevel.api.user.follow.service
 
 import com.chobolevel.api.common.redis.CacheKeyPrefix
-import com.chobolevel.api.common.redis.DistributedLockProvider
+import com.chobolevel.domain.common.provider.DistributedLockProvider
 import org.springframework.stereotype.Service
 import java.util.concurrent.TimeUnit
 

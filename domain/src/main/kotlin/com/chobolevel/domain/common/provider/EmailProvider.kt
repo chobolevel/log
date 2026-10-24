@@ -1,4 +1,4 @@
-package com.chobolevel.api.common.email
+package com.chobolevel.domain.common.provider
 
 interface EmailProvider {
 

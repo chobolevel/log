@@ -1,13 +1,13 @@
 package com.chobolevel.api.user.follow.service
 
 import com.chobolevel.api.common.redis.CacheKeyPrefix
-import com.chobolevel.api.common.redis.CacheProvider
 import com.chobolevel.api.common.web.PagingResponse
 import com.chobolevel.api.user.follow.converter.UserFollowConverter
 import com.chobolevel.api.user.follow.dto.SearchUserFollowerRequest
 import com.chobolevel.api.user.follow.dto.SearchUserFollowingRequest
 import com.chobolevel.api.user.follow.dto.UserFollowResponse
 import com.chobolevel.domain.common.dto.Paging
+import com.chobolevel.domain.common.provider.CacheProvider
 import com.chobolevel.domain.user.follow.entity.UserFollow
 import com.chobolevel.domain.user.follow.repository.UserFollowRepository
 import com.chobolevel.domain.user.follow.vo.UserFollowQueryFilter

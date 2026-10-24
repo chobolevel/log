@@ -2,8 +2,8 @@ package com.chobolevel.api.record.view.sync.consumer
 
 import com.chobolevel.api.common.dummy.DummyRecordViewSyncEvent
 import com.chobolevel.api.common.redis.CacheKeyPrefix
-import com.chobolevel.api.common.redis.CacheProvider
 import com.chobolevel.api.record.view.sync.dto.RecordViewSyncEventMessage
+import com.chobolevel.domain.common.provider.CacheProvider
 import com.chobolevel.domain.record.view.repository.RecordViewRepository
 import com.chobolevel.domain.record.view.sync.entity.RecordViewSyncEvent
 import com.chobolevel.domain.record.view.sync.repository.RecordViewSyncEventRepository

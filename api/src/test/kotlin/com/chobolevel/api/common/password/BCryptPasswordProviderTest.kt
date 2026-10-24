@@ -1,5 +1,6 @@
 package com.chobolevel.api.common.password
 
+import com.chobolevel.domain.common.provider.PasswordProvider
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
