@@ -1,6 +1,5 @@
 package com.chobolevel.api.user.follow.service
 
-import com.chobolevel.api.common.redis.CacheKeyPrefix
 import com.chobolevel.api.common.web.PagingResponse
 import com.chobolevel.api.user.follow.converter.UserFollowConverter
 import com.chobolevel.api.user.follow.dto.SearchUserFollowerRequest
@@ -11,6 +10,7 @@ import com.chobolevel.domain.common.provider.CacheProvider
 import com.chobolevel.domain.user.follow.entity.UserFollow
 import com.chobolevel.domain.user.follow.repository.UserFollowRepository
 import com.chobolevel.domain.user.follow.vo.UserFollowQueryFilter
+import com.chobolevel.domain.user.follow.vo.UserFollowRedisKey
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -24,7 +24,7 @@ class UserFollowQueryService(
     // 팔로워 수 — 커맨드 시점에 낙관적으로 갱신되는 캐시라 DB COUNT보다 오히려 최신 값에 가깝다
     @Transactional(readOnly = true)
     fun fetchFollowerCount(userId: Long): Long {
-        val key: String = CacheKeyPrefix.userFollowerCount(userId)
+        val key: String = UserFollowRedisKey.userFollowerCount(userId)
         initFollowerCountCacheIfAbsent(userId = userId, key = key)
         return cacheProvider.get(key)?.toLong() ?: 0L
     }
@@ -32,7 +32,7 @@ class UserFollowQueryService(
     // 팔로잉 수
     @Transactional(readOnly = true)
     fun fetchFollowingCount(userId: Long): Long {
-        val key: String = CacheKeyPrefix.userFollowingCount(userId)
+        val key: String = UserFollowRedisKey.userFollowingCount(userId)
         initFollowingCountCacheIfAbsent(userId = userId, key = key)
         return cacheProvider.get(key)?.toLong() ?: 0L
     }

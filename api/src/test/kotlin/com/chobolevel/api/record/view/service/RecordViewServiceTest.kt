@@ -3,7 +3,6 @@ package com.chobolevel.api.record.view.service
 import com.chobolevel.api.common.dummy.DummyRecord
 import com.chobolevel.api.common.dummy.DummyRecordView
 import com.chobolevel.api.common.dummy.DummyUser
-import com.chobolevel.api.common.redis.CacheKeyPrefix
 import com.chobolevel.api.record.view.validator.RecordViewValidator
 import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.common.provider.CacheProvider
@@ -11,6 +10,7 @@ import com.chobolevel.domain.record.exception.RecordErrorCode
 import com.chobolevel.domain.record.view.entity.RecordView
 import com.chobolevel.domain.record.view.repository.RecordViewRepository
 import com.chobolevel.domain.record.view.sync.repository.RecordViewSyncEventRepository
+import com.chobolevel.domain.record.view.vo.RecordViewRedisKey
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -44,8 +44,8 @@ class RecordViewServiceTest : BehaviorSpec({
                 // given
                 val recordId: Long = DummyRecord.ID
                 val userId: Long = DummyUser.ID
-                val countKey: String = CacheKeyPrefix.recordViewCount(recordId)
-                val dedupKey: String = CacheKeyPrefix.recordViewDedup(recordId, "user:$userId")
+                val countKey: String = RecordViewRedisKey.recordViewCount(recordId)
+                val dedupKey: String = RecordViewRedisKey.recordViewDedup(recordId, "user:$userId")
                 val recordViewSlot: CapturingSlot<RecordView> = slot()
                 justRun { recordViewValidator.validateViewable(requesterId = userId, recordId = recordId) }
                 every { cacheProvider.putIfAbsent(dedupKey, "1", 10L, TimeUnit.SECONDS) } returns true
@@ -73,8 +73,8 @@ class RecordViewServiceTest : BehaviorSpec({
                 // given
                 val recordId: Long = DummyRecord.ID
                 val guestId: String = DummyRecordView.GUEST_ID
-                val countKey: String = CacheKeyPrefix.recordViewCount(recordId)
-                val dedupKey: String = CacheKeyPrefix.recordViewDedup(recordId, "guest:$guestId")
+                val countKey: String = RecordViewRedisKey.recordViewCount(recordId)
+                val dedupKey: String = RecordViewRedisKey.recordViewDedup(recordId, "guest:$guestId")
                 val recordViewSlot: CapturingSlot<RecordView> = slot()
                 justRun { recordViewValidator.validateViewable(requesterId = null, recordId = recordId) }
                 every { cacheProvider.putIfAbsent(dedupKey, "1", 10L, TimeUnit.SECONDS) } returns true
@@ -99,7 +99,7 @@ class RecordViewServiceTest : BehaviorSpec({
                 // given
                 val recordId: Long = DummyRecord.ID
                 val userId: Long = DummyUser.ID
-                val dedupKey: String = CacheKeyPrefix.recordViewDedup(recordId, "user:$userId")
+                val dedupKey: String = RecordViewRedisKey.recordViewDedup(recordId, "user:$userId")
                 justRun { recordViewValidator.validateViewable(requesterId = userId, recordId = recordId) }
                 every { cacheProvider.putIfAbsent(dedupKey, "1", 10L, TimeUnit.SECONDS) } returns false
 
@@ -149,8 +149,8 @@ class RecordViewServiceTest : BehaviorSpec({
                 // given
                 val recordId: Long = DummyRecord.ID
                 val userId: Long = DummyUser.ID
-                val dedupKey: String = CacheKeyPrefix.recordViewDedup(recordId, "user:$userId")
-                val countKey: String = CacheKeyPrefix.recordViewCount(recordId)
+                val dedupKey: String = RecordViewRedisKey.recordViewDedup(recordId, "user:$userId")
+                val countKey: String = RecordViewRedisKey.recordViewCount(recordId)
                 justRun { recordViewValidator.validateViewable(requesterId = userId, recordId = recordId) }
                 every { cacheProvider.putIfAbsent(dedupKey, "1", 10L, TimeUnit.SECONDS) } returns true
                 every { cacheProvider.hasKey(countKey) } returns true
@@ -170,8 +170,8 @@ class RecordViewServiceTest : BehaviorSpec({
                 // given
                 val recordId: Long = DummyRecord.ID
                 val userId: Long = DummyUser.ID
-                val countKey: String = CacheKeyPrefix.recordViewCount(recordId)
-                val dedupKey: String = CacheKeyPrefix.recordViewDedup(recordId, "user:$userId")
+                val countKey: String = RecordViewRedisKey.recordViewCount(recordId)
+                val dedupKey: String = RecordViewRedisKey.recordViewDedup(recordId, "user:$userId")
                 justRun { recordViewValidator.validateViewable(requesterId = userId, recordId = recordId) }
                 every { cacheProvider.putIfAbsent(dedupKey, "1", 10L, TimeUnit.SECONDS) } returns true
                 every { cacheProvider.hasKey(countKey) } returns false

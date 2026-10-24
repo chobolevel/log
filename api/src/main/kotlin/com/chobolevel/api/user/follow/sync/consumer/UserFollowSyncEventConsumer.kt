@@ -1,12 +1,12 @@
 package com.chobolevel.api.user.follow.sync.consumer
 
-import com.chobolevel.api.common.kafka.KafkaTopicConfiguration
-import com.chobolevel.api.common.redis.CacheKeyPrefix
 import com.chobolevel.api.user.follow.sync.dto.UserFollowSyncEventMessage
 import com.chobolevel.domain.common.exception.BusinessException
+import com.chobolevel.domain.common.kafka.KafkaTopics
 import com.chobolevel.domain.common.provider.CacheProvider
 import com.chobolevel.domain.user.follow.repository.UserFollowRepository
 import com.chobolevel.domain.user.follow.sync.repository.UserFollowSyncEventRepository
+import com.chobolevel.domain.user.follow.vo.UserFollowRedisKey
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.DltHandler
 import org.springframework.kafka.annotation.KafkaListener
@@ -41,7 +41,7 @@ class UserFollowSyncEventConsumer(
         exclude = [BusinessException::class],
         traversingCauses = "true",
     )
-    @KafkaListener(topics = [KafkaTopicConfiguration.USER_FOLLOW_SYNC_EVENTS])
+    @KafkaListener(topics = [KafkaTopics.USER_FOLLOW_SYNC_EVENTS])
     @Transactional
     fun consume(message: UserFollowSyncEventMessage) {
         reconcileCache(followerUserId = message.followerUserId, followingUserId = message.followingUserId)
@@ -66,10 +66,10 @@ class UserFollowSyncEventConsumer(
             followingUserId = followingUserId,
         )
 
-        cacheProvider.put(CacheKeyPrefix.userFollowingCount(followerUserId), followingCount.toString())
-        cacheProvider.put(CacheKeyPrefix.userFollowerCount(followingUserId), followerCount.toString())
+        cacheProvider.put(UserFollowRedisKey.userFollowingCount(followerUserId), followingCount.toString())
+        cacheProvider.put(UserFollowRedisKey.userFollowerCount(followingUserId), followerCount.toString())
 
-        val relationKey: String = CacheKeyPrefix.userFollowRelation(followerUserId, followingUserId)
+        val relationKey: String = UserFollowRedisKey.userFollowRelation(followerUserId, followingUserId)
         if (relationExists) {
             cacheProvider.put(relationKey, "1")
         } else {

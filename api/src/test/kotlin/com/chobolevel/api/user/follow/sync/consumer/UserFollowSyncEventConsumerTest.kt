@@ -1,7 +1,6 @@
 package com.chobolevel.api.user.follow.sync.consumer
 
 import com.chobolevel.api.common.dummy.DummyUserFollowSyncEvent
-import com.chobolevel.api.common.redis.CacheKeyPrefix
 import com.chobolevel.api.user.follow.sync.dto.UserFollowSyncEventMessage
 import com.chobolevel.domain.common.provider.CacheProvider
 import com.chobolevel.domain.user.follow.repository.UserFollowRepository
@@ -9,6 +8,7 @@ import com.chobolevel.domain.user.follow.sync.entity.UserFollowSyncEvent
 import com.chobolevel.domain.user.follow.sync.repository.UserFollowSyncEventRepository
 import com.chobolevel.domain.user.follow.sync.vo.UserFollowSyncEventAction
 import com.chobolevel.domain.user.follow.sync.vo.UserFollowSyncEventStatus
+import com.chobolevel.domain.user.follow.vo.UserFollowRedisKey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
@@ -42,9 +42,9 @@ class UserFollowSyncEventConsumerTest : BehaviorSpec({
                     followingUserId = followingUserId,
                     action = UserFollowSyncEventAction.FOLLOW,
                 )
-                val followingCountKey: String = CacheKeyPrefix.userFollowingCount(followerUserId)
-                val followerCountKey: String = CacheKeyPrefix.userFollowerCount(followingUserId)
-                val relationKey: String = CacheKeyPrefix.userFollowRelation(followerUserId, followingUserId)
+                val followingCountKey: String = UserFollowRedisKey.userFollowingCount(followerUserId)
+                val followerCountKey: String = UserFollowRedisKey.userFollowerCount(followingUserId)
+                val relationKey: String = UserFollowRedisKey.userFollowRelation(followerUserId, followingUserId)
                 every { userFollowRepository.countByFollowerUserId(followerUserId) } returns 1L
                 every { userFollowRepository.countByFollowingUserId(followingUserId) } returns 1L
                 every {
@@ -79,9 +79,9 @@ class UserFollowSyncEventConsumerTest : BehaviorSpec({
                     followingUserId = followingUserId,
                     action = UserFollowSyncEventAction.UNFOLLOW,
                 )
-                val followingCountKey: String = CacheKeyPrefix.userFollowingCount(followerUserId)
-                val followerCountKey: String = CacheKeyPrefix.userFollowerCount(followingUserId)
-                val relationKey: String = CacheKeyPrefix.userFollowRelation(followerUserId, followingUserId)
+                val followingCountKey: String = UserFollowRedisKey.userFollowingCount(followerUserId)
+                val followerCountKey: String = UserFollowRedisKey.userFollowerCount(followingUserId)
+                val relationKey: String = UserFollowRedisKey.userFollowRelation(followerUserId, followingUserId)
                 every { userFollowRepository.countByFollowerUserId(followerUserId) } returns 0L
                 every { userFollowRepository.countByFollowingUserId(followingUserId) } returns 0L
                 every {

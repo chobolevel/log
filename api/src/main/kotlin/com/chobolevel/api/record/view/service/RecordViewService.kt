@@ -1,6 +1,5 @@
 package com.chobolevel.api.record.view.service
 
-import com.chobolevel.api.common.redis.CacheKeyPrefix
 import com.chobolevel.api.common.transaction.registerAfterCommit
 import com.chobolevel.api.record.view.validator.RecordViewValidator
 import com.chobolevel.domain.common.provider.CacheProvider
@@ -8,6 +7,7 @@ import com.chobolevel.domain.record.view.entity.RecordView
 import com.chobolevel.domain.record.view.repository.RecordViewRepository
 import com.chobolevel.domain.record.view.sync.entity.RecordViewSyncEvent
 import com.chobolevel.domain.record.view.sync.repository.RecordViewSyncEventRepository
+import com.chobolevel.domain.record.view.vo.RecordViewRedisKey
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.concurrent.TimeUnit
@@ -40,7 +40,7 @@ class RecordViewService(
         // dedup 게이트는 짧은 TTL로 먼저 세팅해 "처리 중 락" 역할만 한다(동시 중복 요청 차단).
         // DB 저장이 실패해 afterCommit까지 못 가면 이 락은 몇 초 뒤 자동 만료되어 dedup이 스스로 풀린다 —
         // 별도 보정 코드 없이, 진짜 24시간 dedup은 커밋이 확정된 뒤에만 연장된다.
-        val dedupKey: String = CacheKeyPrefix.recordViewDedup(recordId = recordId, viewerKey = viewerKey)
+        val dedupKey: String = RecordViewRedisKey.recordViewDedup(recordId = recordId, viewerKey = viewerKey)
         val isFirstViewInWindow: Boolean = cacheProvider.putIfAbsent(dedupKey, "1", DEDUP_LOCK_SECONDS, TimeUnit.SECONDS)
         if (!isFirstViewInWindow) {
             return false
@@ -58,14 +58,14 @@ class RecordViewService(
         // increment 실패해도 Consumer의 read-repair(DB 조회 후 덮어쓰기)가 뒤따라 복구한다
         registerAfterCommit {
             cacheProvider.put(dedupKey, "1", DEDUP_WINDOW_HOURS, TimeUnit.HOURS)
-            cacheProvider.increment(CacheKeyPrefix.recordViewCount(recordId))
+            cacheProvider.increment(RecordViewRedisKey.recordViewCount(recordId))
         }
 
         return true
     }
 
     private fun warmViewCountCacheIfCold(recordId: Long) {
-        val countKey: String = CacheKeyPrefix.recordViewCount(recordId)
+        val countKey: String = RecordViewRedisKey.recordViewCount(recordId)
         if (!cacheProvider.hasKey(countKey)) {
             val currentCount: Long = recordViewRepository.countByRecordId(recordId)
             cacheProvider.putIfAbsent(countKey, currentCount.toString())

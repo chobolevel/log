@@ -1,5 +1,6 @@
 package com.chobolevel.api.common.kafka
 
+import com.chobolevel.domain.common.kafka.KafkaTopics
 import org.apache.kafka.clients.admin.NewTopic
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
@@ -14,34 +15,34 @@ class KafkaTopicConfigurationTest {
 
     @Test
     fun `토픽 이름 상수는 이전과 같은 문자열이다`() {
-        assertThat(KafkaTopicConfiguration.RECORD_LIKE_SYNC_EVENTS).isEqualTo("record-like-sync-events")
-        assertThat(KafkaTopicConfiguration.RECORD_LIKE_SYNC_EVENTS_DLQ).isEqualTo("record-like-sync-events-dlq")
-        assertThat(KafkaTopicConfiguration.RECORD_VIEW_SYNC_EVENTS).isEqualTo("record-view-sync-events")
-        assertThat(KafkaTopicConfiguration.RECORD_VIEW_SYNC_EVENTS_DLQ).isEqualTo("record-view-sync-events-dlq")
-        assertThat(KafkaTopicConfiguration.USER_FOLLOW_SYNC_EVENTS).isEqualTo("user-follow-sync-events")
-        assertThat(KafkaTopicConfiguration.USER_FOLLOW_SYNC_EVENTS_DLQ).isEqualTo("user-follow-sync-events-dlq")
-        assertThat(KafkaTopicConfiguration.NOTIFICATION_DISPATCH_EVENTS).isEqualTo("notification-dispatch-events")
-        assertThat(KafkaTopicConfiguration.NOTIFICATION_DISPATCH_EVENTS_DLQ).isEqualTo("notification-dispatch-events-dlq")
+        assertThat(KafkaTopics.RECORD_LIKE_SYNC_EVENTS).isEqualTo("record-like-sync-events")
+        assertThat(KafkaTopics.RECORD_LIKE_SYNC_EVENTS_DLQ).isEqualTo("record-like-sync-events-dlq")
+        assertThat(KafkaTopics.RECORD_VIEW_SYNC_EVENTS).isEqualTo("record-view-sync-events")
+        assertThat(KafkaTopics.RECORD_VIEW_SYNC_EVENTS_DLQ).isEqualTo("record-view-sync-events-dlq")
+        assertThat(KafkaTopics.USER_FOLLOW_SYNC_EVENTS).isEqualTo("user-follow-sync-events")
+        assertThat(KafkaTopics.USER_FOLLOW_SYNC_EVENTS_DLQ).isEqualTo("user-follow-sync-events-dlq")
+        assertThat(KafkaTopics.NOTIFICATION_DISPATCH_EVENTS).isEqualTo("notification-dispatch-events")
+        assertThat(KafkaTopics.NOTIFICATION_DISPATCH_EVENTS_DLQ).isEqualTo("notification-dispatch-events-dlq")
     }
 
     @Test
-    fun `토픽 빈은 상수와 같은 이름, 파티션 1개, 복제 1개로 만들어진다`() {
+    fun `토픽 빈은 이전과 같은 이름, 파티션 1개, 복제 1개로 만들어진다`() {
         // given
         val topics: Map<String, NewTopic> = mapOf(
-            KafkaTopicConfiguration.RECORD_LIKE_SYNC_EVENTS to configuration.recordLikeSyncEventsTopic(),
-            KafkaTopicConfiguration.RECORD_LIKE_SYNC_EVENTS_DLQ to configuration.recordLikeSyncEventsDlqTopic(),
-            KafkaTopicConfiguration.RECORD_VIEW_SYNC_EVENTS to configuration.recordViewSyncEventsTopic(),
-            KafkaTopicConfiguration.RECORD_VIEW_SYNC_EVENTS_DLQ to configuration.recordViewSyncEventsDlqTopic(),
-            KafkaTopicConfiguration.USER_FOLLOW_SYNC_EVENTS to configuration.userFollowSyncEventsTopic(),
-            KafkaTopicConfiguration.USER_FOLLOW_SYNC_EVENTS_DLQ to configuration.userFollowSyncEventsDlqTopic(),
-            KafkaTopicConfiguration.NOTIFICATION_DISPATCH_EVENTS to configuration.notificationDispatchEventsTopic(),
-            KafkaTopicConfiguration.NOTIFICATION_DISPATCH_EVENTS_DLQ to configuration.notificationDispatchEventsDlqTopic()
+            "record-like-sync-events" to configuration.recordLikeSyncEventsTopic(),
+            "record-like-sync-events-dlq" to configuration.recordLikeSyncEventsDlqTopic(),
+            "record-view-sync-events" to configuration.recordViewSyncEventsTopic(),
+            "record-view-sync-events-dlq" to configuration.recordViewSyncEventsDlqTopic(),
+            "user-follow-sync-events" to configuration.userFollowSyncEventsTopic(),
+            "user-follow-sync-events-dlq" to configuration.userFollowSyncEventsDlqTopic(),
+            "notification-dispatch-events" to configuration.notificationDispatchEventsTopic(),
+            "notification-dispatch-events-dlq" to configuration.notificationDispatchEventsDlqTopic()
         )
 
         // when & then
         assertThat(topics).hasSize(8)
-        topics.forEach { (constantName, topic) ->
-            assertThat(topic.name()).describedAs("토픽 빈 이름").isEqualTo(constantName)
+        topics.forEach { (expectedName, topic) ->
+            assertThat(topic.name()).describedAs("토픽 빈 이름").isEqualTo(expectedName)
             assertThat(topic.numPartitions()).describedAs("${topic.name()} 파티션 수").isEqualTo(1)
             assertThat(topic.replicationFactor().toInt()).describedAs("${topic.name()} 복제 수").isEqualTo(1)
         }
@@ -49,9 +50,9 @@ class KafkaTopicConfigurationTest {
 
     @Test
     fun `DLQ 토픽 이름은 원본 토픽 이름에 -dlq를 붙인 형태다`() {
-        assertThat(KafkaTopicConfiguration.RECORD_LIKE_SYNC_EVENTS_DLQ).isEqualTo("${KafkaTopicConfiguration.RECORD_LIKE_SYNC_EVENTS}-dlq")
-        assertThat(KafkaTopicConfiguration.RECORD_VIEW_SYNC_EVENTS_DLQ).isEqualTo("${KafkaTopicConfiguration.RECORD_VIEW_SYNC_EVENTS}-dlq")
-        assertThat(KafkaTopicConfiguration.USER_FOLLOW_SYNC_EVENTS_DLQ).isEqualTo("${KafkaTopicConfiguration.USER_FOLLOW_SYNC_EVENTS}-dlq")
-        assertThat(KafkaTopicConfiguration.NOTIFICATION_DISPATCH_EVENTS_DLQ).isEqualTo("${KafkaTopicConfiguration.NOTIFICATION_DISPATCH_EVENTS}-dlq")
+        assertThat(KafkaTopics.RECORD_LIKE_SYNC_EVENTS_DLQ).isEqualTo("${KafkaTopics.RECORD_LIKE_SYNC_EVENTS}-dlq")
+        assertThat(KafkaTopics.RECORD_VIEW_SYNC_EVENTS_DLQ).isEqualTo("${KafkaTopics.RECORD_VIEW_SYNC_EVENTS}-dlq")
+        assertThat(KafkaTopics.USER_FOLLOW_SYNC_EVENTS_DLQ).isEqualTo("${KafkaTopics.USER_FOLLOW_SYNC_EVENTS}-dlq")
+        assertThat(KafkaTopics.NOTIFICATION_DISPATCH_EVENTS_DLQ).isEqualTo("${KafkaTopics.NOTIFICATION_DISPATCH_EVENTS}-dlq")
     }
 }

@@ -54,8 +54,8 @@
 
 **`api`에서 `domain`으로**
 - 포트 4종: `CacheProvider`, `DistributedLockProvider`, `EmailProvider`, `PasswordProvider` → `domain/common/provider`
-- `CacheKeyPrefix` 12개 키 + TTL 상수 2개 → 기능별 키 정의(`record/like`, `record/view`, `user/follow`, `user` 등의 `vo`)
-- Kafka 토픽 이름 상수 8개(`KafkaTopicConfiguration.companion`) → `domain`의 이벤트 토픽 정의(`vo`). 사용처는 consumer·relay 스케줄러 8개 클래스
+- `CacheKeyPrefix` 12개 키 + TTL 상수 2개 → 기능별 키 정의 5개: `RecordLikeRedisKey`(`record/like/vo`), `RecordViewRedisKey`(`record/view/vo`), `RecordContributionRedisKey`(`record/vo`), `UserRedisKey`(`user/vo`), `UserFollowRedisKey`(`user/follow/vo`). 메서드 이름은 그대로 두어 사용처는 받는 객체만 바뀐다
+- Kafka 토픽 이름 상수 8개(`KafkaTopicConfiguration.companion`) → `domain/common/kafka/KafkaTopics`. 사용처는 consumer·relay 스케줄러 8개 클래스이고, `KafkaTopicConfiguration`의 토픽 빈은 같은 상수를 쓰도록 바꿔 문자열 중복을 없앤다
 
 **건드리지 않는 외부 계약**: HTTP API, Redis 키 문자열·TTL, DB 스키마(Flyway는 `domain` 유지), 이벤트 페이로드, `application.yml`의 설정 키 이름.
 
@@ -123,7 +123,8 @@ S-1, S-2는 production 코드를 바꾸지 않는 안전망이다. 순서는 번
 - 단위 (이동 전에 먼저 작성해 현재 구현으로 통과시킨다):
   - 12개 키 함수가 대표 입력에서 이동 전과 동일한 문자열을 반환한다 (기대값을 문자열로 직접 명시)
   - TTL 상수가 `RECORD_LIKE_CACHE_TTL_MINUTES = 10`, `RECORD_CONTRIBUTION_CACHE_TTL_MINUTES = 5`다
-  - Kafka 토픽 이름 상수 8개(`record-like-sync-events`, `...-dlq` 등)가 이동 전과 동일한 문자열이다
+  - Kafka 토픽 이름 상수 8개(`record-like-sync-events`, `...-dlq` 등)가 이동 전과 동일한 문자열이고, 토픽 빈 8개가 리터럴 이름·파티션 1개·복제 1개로 만들어진다
+- 단위 (ArchUnit): `*RedisKey` 객체는 `domain`에만 있다 (키 정의가 `api`로 다시 흩어지지 않게)
 - 통합: S-1 캐시 왕복, 좋아요·팔로우·조회수 서비스 단위 테스트가 통과한다
 - 경계 / 예외: `email`에 `:`가 들어간 경우, `year`, 큰 id 값에서도 치환 결과가 이동 전과 같다
 

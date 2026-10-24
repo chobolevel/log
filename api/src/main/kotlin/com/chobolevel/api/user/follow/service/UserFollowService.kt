@@ -1,6 +1,5 @@
 package com.chobolevel.api.user.follow.service
 
-import com.chobolevel.api.common.redis.CacheKeyPrefix
 import com.chobolevel.api.common.transaction.registerAfterCommit
 import com.chobolevel.api.notification.NotificationPath
 import com.chobolevel.api.notification.provider.NotificationPublisher
@@ -14,6 +13,7 @@ import com.chobolevel.domain.user.follow.repository.UserFollowRepository
 import com.chobolevel.domain.user.follow.sync.entity.UserFollowSyncEvent
 import com.chobolevel.domain.user.follow.sync.repository.UserFollowSyncEventRepository
 import com.chobolevel.domain.user.follow.sync.vo.UserFollowSyncEventAction
+import com.chobolevel.domain.user.follow.vo.UserFollowRedisKey
 import com.chobolevel.domain.user.repository.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -69,12 +69,12 @@ class UserFollowService(
             )
         }
 
-        val relationKey: String = CacheKeyPrefix.userFollowRelation(followerUserId, followingUserId)
+        val relationKey: String = UserFollowRedisKey.userFollowRelation(followerUserId, followingUserId)
         // DB 커밋 성공 후 Redis 즉시 반영 (UX) — 실패해도 Consumer의 read-repair(DB 조회 후 덮어쓰기)가 뒤따라 복구한다
         registerAfterCommit {
             cacheProvider.put(relationKey, "1")
-            cacheProvider.increment(CacheKeyPrefix.userFollowingCount(followerUserId))
-            cacheProvider.increment(CacheKeyPrefix.userFollowerCount(followingUserId))
+            cacheProvider.increment(UserFollowRedisKey.userFollowingCount(followerUserId))
+            cacheProvider.increment(UserFollowRedisKey.userFollowerCount(followingUserId))
         }
 
         return true
@@ -104,11 +104,11 @@ class UserFollowService(
             )
         )
 
-        val relationKey: String = CacheKeyPrefix.userFollowRelation(followerUserId, followingUserId)
+        val relationKey: String = UserFollowRedisKey.userFollowRelation(followerUserId, followingUserId)
         registerAfterCommit {
             cacheProvider.delete(relationKey)
-            cacheProvider.decrement(CacheKeyPrefix.userFollowingCount(followerUserId))
-            cacheProvider.decrement(CacheKeyPrefix.userFollowerCount(followingUserId))
+            cacheProvider.decrement(UserFollowRedisKey.userFollowingCount(followerUserId))
+            cacheProvider.decrement(UserFollowRedisKey.userFollowerCount(followingUserId))
         }
 
         return true
@@ -116,7 +116,7 @@ class UserFollowService(
 
     // 관계 캐시가 없으면 DB로 확인 후 있으면 재적재 (좋아요 Set과 동일한 역할 — TTL 없이 즉시 상태 반영)
     private fun isCurrentlyFollowing(followerUserId: Long, followingUserId: Long): Boolean {
-        val relationKey: String = CacheKeyPrefix.userFollowRelation(followerUserId, followingUserId)
+        val relationKey: String = UserFollowRedisKey.userFollowRelation(followerUserId, followingUserId)
         if (cacheProvider.hasKey(relationKey)) {
             return true
         }
@@ -132,7 +132,7 @@ class UserFollowService(
 
     // 콜드스타트: Redis에 카운터 키가 없으면 이번 변경이 반영되기 전의 DB COUNT로 시드값 세팅
     private fun warmFollowingCountCacheIfCold(userId: Long) {
-        val key: String = CacheKeyPrefix.userFollowingCount(userId)
+        val key: String = UserFollowRedisKey.userFollowingCount(userId)
         if (!cacheProvider.hasKey(key)) {
             val count: Long = userFollowRepository.countByFollowerUserId(followerUserId = userId)
             cacheProvider.putIfAbsent(key, count.toString())
@@ -140,7 +140,7 @@ class UserFollowService(
     }
 
     private fun warmFollowerCountCacheIfCold(userId: Long) {
-        val key: String = CacheKeyPrefix.userFollowerCount(userId)
+        val key: String = UserFollowRedisKey.userFollowerCount(userId)
         if (!cacheProvider.hasKey(key)) {
             val count: Long = userFollowRepository.countByFollowingUserId(followingUserId = userId)
             cacheProvider.putIfAbsent(key, count.toString())
@@ -154,8 +154,8 @@ class UserFollowService(
     fun recalculateFollowCounters(userId: Long): UserFollowCounterResponse {
         val followingCount: Long = userFollowRepository.countByFollowerUserId(followerUserId = userId)
         val followerCount: Long = userFollowRepository.countByFollowingUserId(followingUserId = userId)
-        cacheProvider.put(CacheKeyPrefix.userFollowingCount(userId), followingCount.toString())
-        cacheProvider.put(CacheKeyPrefix.userFollowerCount(userId), followerCount.toString())
+        cacheProvider.put(UserFollowRedisKey.userFollowingCount(userId), followingCount.toString())
+        cacheProvider.put(UserFollowRedisKey.userFollowerCount(userId), followerCount.toString())
         return UserFollowCounterResponse(followerCount = followerCount, followingCount = followingCount)
     }
 }

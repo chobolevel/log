@@ -1,6 +1,5 @@
 package com.chobolevel.api.user.validator
 
-import com.chobolevel.api.common.redis.CacheKeyPrefix
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.ResetUserPasswordRequest
@@ -12,6 +11,7 @@ import com.chobolevel.domain.common.provider.PasswordProvider
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.exception.UserErrorCode
 import com.chobolevel.domain.user.repository.UserRepository
+import com.chobolevel.domain.user.vo.UserRedisKey
 import com.chobolevel.domain.user.vo.UserUpdateMask
 import org.springframework.stereotype.Component
 
@@ -60,7 +60,7 @@ class UserBusinessValidator(
     fun validate(request: ResetUserPasswordRequest) {
         validateEmailNotExists(email = request.email)
         // 비밀번호 초기화 코드 검증
-        val cachedCode: String = cacheProvider.get(CacheKeyPrefix.userResetPassword(request.email)) ?: throw BusinessException(
+        val cachedCode: String = cacheProvider.get(UserRedisKey.userResetPassword(request.email)) ?: throw BusinessException(
             errorCode = UserErrorCode.RESET_USER_PASSWORD_CODE_NOT_EXISTS
         )
         if (cachedCode != request.code) {

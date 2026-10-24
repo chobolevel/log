@@ -1,7 +1,7 @@
 package com.chobolevel.api.notification.dispatch.scheduler
 
-import com.chobolevel.api.common.kafka.KafkaTopicConfiguration
 import com.chobolevel.api.notification.dispatch.dto.NotificationDispatchEventMessage
+import com.chobolevel.domain.common.kafka.KafkaTopics
 import com.chobolevel.domain.notification.dispatch.entity.NotificationDispatchEvent
 import com.chobolevel.domain.notification.dispatch.repository.NotificationDispatchEventRepository
 import com.chobolevel.domain.notification.dispatch.vo.NotificationDispatchEventStatus
@@ -35,7 +35,7 @@ class NotificationDispatchEventRelayScheduler(
         pendingEvents.forEach { event ->
             runCatching {
                 kafkaTemplate.send(
-                    KafkaTopicConfiguration.NOTIFICATION_DISPATCH_EVENTS,
+                    KafkaTopics.NOTIFICATION_DISPATCH_EVENTS,
                     event.userId.toString(),
                     NotificationDispatchEventMessage(
                         eventId = event.id!!,

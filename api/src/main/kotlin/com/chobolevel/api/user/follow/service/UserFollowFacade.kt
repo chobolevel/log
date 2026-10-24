@@ -1,7 +1,7 @@
 package com.chobolevel.api.user.follow.service
 
-import com.chobolevel.api.common.redis.CacheKeyPrefix
 import com.chobolevel.domain.common.provider.DistributedLockProvider
+import com.chobolevel.domain.user.follow.vo.UserFollowRedisKey
 import org.springframework.stereotype.Service
 import java.util.concurrent.TimeUnit
 
@@ -19,7 +19,7 @@ class UserFollowFacade(
     // 락이 UserFollowService의 트랜잭션 전체(커밋까지)를 감싸도록 트랜잭션 프록시 바깥에 위치한다.
     // self-invocation으로 프록시를 우회하지 않도록 userFollowService는 반드시 별도 빈이어야 한다.
     fun follow(followerUserId: Long, followingUserId: Long): Boolean {
-        val lockKey: String = CacheKeyPrefix.userFollowLock(followerUserId, followingUserId)
+        val lockKey: String = UserFollowRedisKey.userFollowLock(followerUserId, followingUserId)
         return distributedLockProvider.executeWithLock(
             key = lockKey,
             waitTime = LOCK_WAIT_SECONDS,
@@ -31,7 +31,7 @@ class UserFollowFacade(
     }
 
     fun unfollow(followerUserId: Long, followingUserId: Long): Boolean {
-        val lockKey: String = CacheKeyPrefix.userFollowLock(followerUserId, followingUserId)
+        val lockKey: String = UserFollowRedisKey.userFollowLock(followerUserId, followingUserId)
         return distributedLockProvider.executeWithLock(
             key = lockKey,
             waitTime = LOCK_WAIT_SECONDS,
