@@ -1,6 +1,5 @@
 package com.chobolevel.api.user.service
 
-import com.chobolevel.api.common.redis.CacheKeyPrefix
 import com.chobolevel.api.common.security.AuthErrorCode
 import com.chobolevel.api.common.security.JwtResponse
 import com.chobolevel.api.common.security.TokenProvider
@@ -19,6 +18,7 @@ import com.chobolevel.domain.common.provider.PasswordProvider
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.exception.UserErrorCode
 import com.chobolevel.domain.user.repository.UserRepository
+import com.chobolevel.domain.user.vo.UserRedisKey
 import io.hypersistence.tsid.TSID
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
@@ -117,7 +117,7 @@ class UserAuthService(
     fun sendEmailVerificationCode(request: SendEmailVerificationCodeRequest): Boolean {
         userBusinessValidator.validate(request = request)
         val authCode: String = TSID.fast().toString()
-        cacheProvider.put(CacheKeyPrefix.userEmailVerification(request.email), authCode, 5, TimeUnit.MINUTES)
+        cacheProvider.put(UserRedisKey.userEmailVerification(request.email), authCode, 5, TimeUnit.MINUTES)
         val emailBody: String = javaClass.getResourceAsStream("/templates/email/verification-code.html")
             ?.bufferedReader()
             ?.readText()
@@ -132,13 +132,13 @@ class UserAuthService(
     }
 
     fun checkEmailVerificationCode(request: CheckEmailVerificationCodeRequest): String {
-        val cachedVerificationCode: String? = cacheProvider.get(CacheKeyPrefix.userEmailVerification(request.email))
+        val cachedVerificationCode: String? = cacheProvider.get(UserRedisKey.userEmailVerification(request.email))
         if (request.verificationCode != cachedVerificationCode) {
             throw BusinessException(
                 errorCode = UserErrorCode.EMAIL_VERIFICATION_CODE_NOT_MATCHED,
             )
         }
-        cacheProvider.delete(CacheKeyPrefix.userEmailVerification(request.email))
+        cacheProvider.delete(UserRedisKey.userEmailVerification(request.email))
         return request.email
     }
 
@@ -150,7 +150,7 @@ class UserAuthService(
     private fun setRefreshToken(userId: Long, refreshToken: String, refreshTokenExpiredAt: Date) {
         val ttlMillis: Long = refreshTokenExpiredAt.time - System.currentTimeMillis()
         cacheProvider.put(
-            CacheKeyPrefix.userRefreshToken(userId),
+            UserRedisKey.userRefreshToken(userId),
             refreshToken,
             ttlMillis,
             TimeUnit.MILLISECONDS
@@ -158,10 +158,10 @@ class UserAuthService(
     }
 
     private fun getRefreshTokenByUserId(userId: Long): String? {
-        return cacheProvider.get(CacheKeyPrefix.userRefreshToken(userId))
+        return cacheProvider.get(UserRedisKey.userRefreshToken(userId))
     }
 
     private fun clearRefreshTokenByUserId(userId: Long) {
-        cacheProvider.delete(CacheKeyPrefix.userRefreshToken(userId))
+        cacheProvider.delete(UserRedisKey.userRefreshToken(userId))
     }
 }

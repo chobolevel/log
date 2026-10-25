@@ -133,7 +133,7 @@
 >
 >   기술별로 묶는 이유는 5단계에서 `infrastructure`로 패키지 단위로 옮기기 위해서다.
 > - 처리 결과: `CrawlingController`는 테스트용이라 jsoup과 함께 제거했고, `Extensions.kt`는 역할별 파일로 나눴으며, `Regexp`는 사용처인 `user/validator`로 옮겼다.
-> - `CacheKeyPrefix`: 12개 키의 사용처가 모두 해당 기능 안이므로 `common`에 있을 이유가 없다. 다만 sync consumer(6단계에서 `worker`로 이동)가 서비스와 같은 키를 쓰므로 `api` 안에 두면 안 되고, `api`·`worker`가 모두 접근하는 `infrastructure`에서 기능별로 소유하게 한다. **5단계에서 분리**하고, 그전에는 `common/redis`에 둔다. 서비스가 키 문자열을 직접 조립하지 않고 기능별 캐시 클래스(`RecordLikeCache` 등)가 감싸는 구조는 별도 후속 과제로 둔다.
+> - `CacheKeyPrefix`: 12개 키의 사용처가 모두 해당 기능 안이므로 `common`에 있을 이유가 없다. 다만 sync consumer(6단계에서 `worker`로 이동)가 서비스와 같은 키를 쓰므로 `api` 안에 두면 안 되고, `api`·`worker`가 모두 컴파일 시점에 접근해야 한다. 이후 5단계 설계 문서에서 `api`가 `infrastructure`를 `runtimeOnly`로만 연결하기로 해서, `infrastructure`가 아니라 `domain`의 기능별 `*RedisKey` 객체로 옮기는 것으로 수정했다(2026-10-24). **5단계에서 분리**하고, 그전에는 `common/redis`에 둔다. 서비스가 키 문자열을 직접 조립하지 않고 기능별 캐시 클래스(`RecordLikeCache` 등)가 감싸는 구조는 별도 후속 과제로 둔다.
 >
 > **domain / infrastructure: 애그리거트 기준**
 > ```
@@ -179,7 +179,7 @@
 > | ~~4-d~~ | ~~`sync`→`outbox` 이름 변경~~ → 클래스명(`*SyncEvent`)·`api` 패키지·테이블명과 어긋나는 대량 개명이라 **보류**(7단계에서 용어와 함께 판단) | - | 보류 |
 > | 4.5-a | `QueryFilter` 변환 전 동작을 고정하는 특성화 테스트(검색 조건 7개 도메인, 정렬 3개 도메인) | 낮음 | 완료 (`5a2ba0e`, `25b6eae`, `817eb3f`, `5abfd85`) |
 > | 4.5-b | `QueryFilter` 7개를 순수 `data class`로, 조건식·정렬 번역을 Querydsl 리포지토리의 `private` 메서드로 이동(Adapter는 필터·`orderTypes`를 그대로 전달). ArchUnit `vo`→`entity` 허용 목록이 비었다 | 중간 | 완료 (`fb1d403`) |
-> | 5 | `infrastructure` 모듈 신설: Repository 구현·Provider 구현·Kafka/Redis/S3 설정 이동, `CacheKeyPrefix`를 기능별로 분리해 `infrastructure`로, `CLAUDE.md` 규칙 수정. Flyway SQL은 `domain`에 유지 | 높음 (Q-type, 자동 구성) | 예정 |
+> | 5 | `infrastructure` 모듈 신설: Repository 구현·Provider 구현·Kafka/Redis/S3 설정 이동, `CacheKeyPrefix`를 기능별 `*RedisKey`로 분리해 `domain`으로(S-5, 완료), `CLAUDE.md` 규칙 수정. Flyway SQL은 `domain`에 유지 | 높음 (Q-type, 자동 구성) | 예정 |
 > | 6 | `worker` 모듈 신설: relay 스케줄러·상태 동기화 Consumer 이동, 별도 Jib 이미지, `worker`는 `spring.flyway.enabled=false` | 높음 | 예정 |
 > | 7 | (게이트 통과 시) `application` 모듈 | 매우 높음 | 보류 |
 >
@@ -226,7 +226,7 @@
 > 2. `CLAUDE.md`의 "Repository 구현체는 domain에 둔다" 규칙은 `infrastructure` 이동(5단계) 커밋에서 함께 고친다. 이동 전에 고치면 규칙이 현실과 어긋난다.
 > 3. C' 채택: `application` 모듈은 서비스의 api DTO 의존이 해소된 뒤로 미룬다.
 > 4. 모듈 이름은 `infrastructure`.
-> 7. 패키지 표준: 레이어 폴더는 파일 수와 관계없이 일관되게 유지하고, 허용 이름 목록을 ArchUnit으로 강제한다. `common`은 역할별로 재구성한다. `CacheKeyPrefix`는 5단계에서 기능별로 분리해 `infrastructure`로 옮긴다. (2026-10-13)
+> 7. 패키지 표준: 레이어 폴더는 파일 수와 관계없이 일관되게 유지하고, 허용 이름 목록을 ArchUnit으로 강제한다. `common`은 역할별로 재구성한다. `CacheKeyPrefix`는 5단계에서 기능별로 분리해 옮긴다. (2026-10-13; 옮기는 곳은 `infrastructure`에서 `domain`의 `*RedisKey`로 수정, 2026-10-24)
 >
 > 5. **Flyway SQL은 `domain`에 둔다. (확정)** 컬럼 추가 시 마이그레이션 SQL과 엔티티 필드가 항상 같은 변경 단위이므로 같은 모듈에 있어야 리뷰와 롤백이 한 번에 된다.
 >    - 단, 실행 주체를 정한다: 마이그레이션은 `api`만 실행하고 `worker`는 `spring.flyway.enabled=false`. (Flyway 락이 동시 실행은 막지만, 어느 프로세스가 스키마를 바꾸는지 모호해지는 것을 피한다.) 또는 worker는 `validate`만. 배포 단계에서 마이그레이션 job을 분리하는 것은 배포 재설계 때 다룬다.

@@ -3,7 +3,6 @@ package com.chobolevel.api.user.service
 import com.chobolevel.api.common.dummy.DummyAuth
 import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.common.email.ResendEmailProvider
-import com.chobolevel.api.common.redis.CacheKeyPrefix
 import com.chobolevel.api.common.redis.RedisCacheProvider
 import com.chobolevel.api.common.security.AuthErrorCode
 import com.chobolevel.api.common.security.JwtResponse
@@ -19,6 +18,7 @@ import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.exception.UserErrorCode
 import com.chobolevel.domain.user.repository.UserRepository
 import com.chobolevel.domain.user.vo.UserLoginType
+import com.chobolevel.domain.user.vo.UserRedisKey
 import com.chobolevel.domain.user.vo.UserRoleType
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -74,7 +74,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 result.refreshToken shouldBe DummyAuth.REFRESH_TOKEN
                 verify(exactly = 1) {
                     cacheProvider.put(
-                        CacheKeyPrefix.userRefreshToken(DummyUser.ID),
+                        UserRedisKey.userRefreshToken(DummyUser.ID),
                         DummyAuth.REFRESH_TOKEN,
                         any(),
                         TimeUnit.MILLISECONDS
@@ -141,7 +141,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 verify(exactly = 1) { userConverter.convert(request) }
                 verify(exactly = 1) {
                     cacheProvider.put(
-                        CacheKeyPrefix.userRefreshToken(DummyUser.ID),
+                        UserRedisKey.userRefreshToken(DummyUser.ID),
                         DummyAuth.REFRESH_TOKEN,
                         any(),
                         TimeUnit.MILLISECONDS
@@ -175,7 +175,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 result.refreshToken shouldBe DummyAuth.REFRESH_TOKEN
                 verify(exactly = 1) {
                     cacheProvider.put(
-                        CacheKeyPrefix.userRefreshToken(DummyUser.ID),
+                        UserRedisKey.userRefreshToken(DummyUser.ID),
                         DummyAuth.REFRESH_TOKEN,
                         any(),
                         TimeUnit.MILLISECONDS
@@ -232,7 +232,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 val jwtResponse: JwtResponse = DummyAuth.toJwtResponse()
                 every { tokenProvider.validateToken(DummyAuth.REFRESH_TOKEN) } returns true
                 every { tokenProvider.getAuthentication(DummyAuth.REFRESH_TOKEN) } returns authentication
-                every { cacheProvider.get(CacheKeyPrefix.userRefreshToken(DummyUser.ID)) } returns DummyAuth.REFRESH_TOKEN
+                every { cacheProvider.get(UserRedisKey.userRefreshToken(DummyUser.ID)) } returns DummyAuth.REFRESH_TOKEN
                 every { tokenProvider.generateTokenPair(authentication) } returns jwtResponse
                 justRun { cacheProvider.put(any(), any(), any(), any()) }
 
@@ -244,7 +244,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 result.refreshToken shouldBe DummyAuth.REFRESH_TOKEN
                 verify(exactly = 1) {
                     cacheProvider.put(
-                        CacheKeyPrefix.userRefreshToken(DummyUser.ID),
+                        UserRedisKey.userRefreshToken(DummyUser.ID),
                         DummyAuth.REFRESH_TOKEN,
                         any(),
                         TimeUnit.MILLISECONDS
@@ -259,7 +259,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 val authentication = UsernamePasswordAuthenticationToken(DummyUser.ID.toString(), null)
                 every { tokenProvider.validateToken(DummyAuth.REFRESH_TOKEN) } returns true
                 every { tokenProvider.getAuthentication(DummyAuth.REFRESH_TOKEN) } returns authentication
-                every { cacheProvider.get(CacheKeyPrefix.userRefreshToken(DummyUser.ID)) } returns null
+                every { cacheProvider.get(UserRedisKey.userRefreshToken(DummyUser.ID)) } returns null
 
                 // when & then
                 shouldThrow<BusinessException> {
@@ -274,7 +274,7 @@ class UserAuthServiceTest : BehaviorSpec({
                 val authentication = UsernamePasswordAuthenticationToken(DummyUser.ID.toString(), null)
                 every { tokenProvider.validateToken(DummyAuth.REFRESH_TOKEN) } returns true
                 every { tokenProvider.getAuthentication(DummyAuth.REFRESH_TOKEN) } returns authentication
-                every { cacheProvider.get(CacheKeyPrefix.userRefreshToken(DummyUser.ID)) } returns "other.refresh.token"
+                every { cacheProvider.get(UserRedisKey.userRefreshToken(DummyUser.ID)) } returns "other.refresh.token"
 
                 // when & then
                 shouldThrow<BusinessException> {
@@ -298,7 +298,7 @@ class UserAuthServiceTest : BehaviorSpec({
 
                 // then
                 result shouldBe true
-                verify(exactly = 1) { cacheProvider.put(eq(CacheKeyPrefix.userEmailVerification(DummyUser.EMAIL)), any(), any(), any()) }
+                verify(exactly = 1) { cacheProvider.put(eq(UserRedisKey.userEmailVerification(DummyUser.EMAIL)), any(), any(), any()) }
                 verify(exactly = 1) { emailProvider.sendEmail(to = DummyUser.EMAIL, subject = any(), content = any()) }
             }
         }
@@ -327,15 +327,15 @@ class UserAuthServiceTest : BehaviorSpec({
                     email = DummyUser.EMAIL,
                     verificationCode = DummyAuth.VERIFICATION_CODE
                 )
-                every { cacheProvider.get(CacheKeyPrefix.userEmailVerification(DummyUser.EMAIL)) } returns DummyAuth.VERIFICATION_CODE
-                justRun { cacheProvider.delete(CacheKeyPrefix.userEmailVerification(DummyUser.EMAIL)) }
+                every { cacheProvider.get(UserRedisKey.userEmailVerification(DummyUser.EMAIL)) } returns DummyAuth.VERIFICATION_CODE
+                justRun { cacheProvider.delete(UserRedisKey.userEmailVerification(DummyUser.EMAIL)) }
 
                 // when
                 val result: String = service.checkEmailVerificationCode(request)
 
                 // then
                 result shouldBe DummyUser.EMAIL
-                verify(exactly = 1) { cacheProvider.delete(CacheKeyPrefix.userEmailVerification(DummyUser.EMAIL)) }
+                verify(exactly = 1) { cacheProvider.delete(UserRedisKey.userEmailVerification(DummyUser.EMAIL)) }
             }
         }
 
@@ -346,7 +346,7 @@ class UserAuthServiceTest : BehaviorSpec({
                     email = DummyUser.EMAIL,
                     verificationCode = DummyAuth.VERIFICATION_CODE
                 )
-                every { cacheProvider.get(CacheKeyPrefix.userEmailVerification(DummyUser.EMAIL)) } returns null
+                every { cacheProvider.get(UserRedisKey.userEmailVerification(DummyUser.EMAIL)) } returns null
 
                 // when & then
                 shouldThrow<BusinessException> {
@@ -362,7 +362,7 @@ class UserAuthServiceTest : BehaviorSpec({
                     email = DummyUser.EMAIL,
                     verificationCode = "wrongCode"
                 )
-                every { cacheProvider.get(CacheKeyPrefix.userEmailVerification(DummyUser.EMAIL)) } returns DummyAuth.VERIFICATION_CODE
+                every { cacheProvider.get(UserRedisKey.userEmailVerification(DummyUser.EMAIL)) } returns DummyAuth.VERIFICATION_CODE
 
                 // when & then
                 shouldThrow<BusinessException> {
@@ -378,13 +378,13 @@ class UserAuthServiceTest : BehaviorSpec({
                 // given
                 val authentication = UsernamePasswordAuthenticationToken(DummyUser.ID.toString(), null)
                 every { tokenProvider.getAuthentication(DummyAuth.REFRESH_TOKEN) } returns authentication
-                justRun { cacheProvider.delete(CacheKeyPrefix.userRefreshToken(DummyUser.ID)) }
+                justRun { cacheProvider.delete(UserRedisKey.userRefreshToken(DummyUser.ID)) }
 
                 // when
                 service.logout(DummyAuth.REFRESH_TOKEN)
 
                 // then
-                verify(exactly = 1) { cacheProvider.delete(CacheKeyPrefix.userRefreshToken(DummyUser.ID)) }
+                verify(exactly = 1) { cacheProvider.delete(UserRedisKey.userRefreshToken(DummyUser.ID)) }
             }
         }
 

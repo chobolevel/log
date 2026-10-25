@@ -1,7 +1,7 @@
 package com.chobolevel.api.record.like.sync.scheduler
 
-import com.chobolevel.api.common.kafka.KafkaTopicConfiguration
 import com.chobolevel.api.record.like.sync.dto.RecordLikeSyncEventMessage
+import com.chobolevel.domain.common.kafka.KafkaTopics
 import com.chobolevel.domain.record.like.sync.entity.RecordLikeSyncEvent
 import com.chobolevel.domain.record.like.sync.repository.RecordLikeSyncEventRepository
 import com.chobolevel.domain.record.like.sync.vo.RecordLikeSyncEventStatus
@@ -48,7 +48,7 @@ class RecordLikeSyncEventRelayScheduler(
         pendingEvents.forEach { event ->
             runCatching {
                 kafkaTemplate.send(
-                    KafkaTopicConfiguration.RECORD_LIKE_SYNC_EVENTS,
+                    KafkaTopics.RECORD_LIKE_SYNC_EVENTS,
                     event.recordId.toString(),
                     RecordLikeSyncEventMessage(
                         eventId = event.id!!,

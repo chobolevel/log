@@ -2,7 +2,6 @@ package com.chobolevel.api.record.like.service
 
 import com.chobolevel.api.common.dummy.DummyRecord
 import com.chobolevel.api.common.dummy.DummyUser
-import com.chobolevel.api.common.redis.CacheKeyPrefix
 import com.chobolevel.api.notification.NotificationPath
 import com.chobolevel.api.notification.provider.NotificationPublisher
 import com.chobolevel.api.record.like.validator.RecordLikeValidator
@@ -15,6 +14,7 @@ import com.chobolevel.domain.record.like.entity.RecordLike
 import com.chobolevel.domain.record.like.repository.RecordLikeRepository
 import com.chobolevel.domain.record.like.sync.entity.RecordLikeSyncEvent
 import com.chobolevel.domain.record.like.sync.repository.RecordLikeSyncEventRepository
+import com.chobolevel.domain.record.like.vo.RecordLikeRedisKey
 import com.chobolevel.domain.record.repository.RecordRepository
 import com.chobolevel.domain.record.vo.RecordType
 import com.chobolevel.domain.user.entity.User
@@ -59,7 +59,7 @@ class RecordLikeServiceTest : BehaviorSpec({
                 val recordId: Long = DummyRecord.ID
                 val user: User = DummyUser.toEntity()
                 val record: Record = DummyRecord.toEntity()
-                val countKey: String = CacheKeyPrefix.recordLikeCount(recordId)
+                val countKey: String = RecordLikeRedisKey.recordLikeCount(recordId)
                 justRun { recordLikeValidator.validateRecordExists(recordId = recordId) }
                 every { recordLikeRepository.existsByRecordIdAndUserId(recordId = recordId, userId = userId) } returns false
                 every { userRepository.findById(id = userId) } returns user
@@ -70,9 +70,9 @@ class RecordLikeServiceTest : BehaviorSpec({
                 every { cacheProvider.increment(countKey) } returns 1L
                 every {
                     cacheProvider.put(
-                        CacheKeyPrefix.recordLike(recordId = recordId, userId = userId),
+                        RecordLikeRedisKey.recordLike(recordId = recordId, userId = userId),
                         "1",
-                        CacheKeyPrefix.RECORD_LIKE_CACHE_TTL_MINUTES,
+                        RecordLikeRedisKey.RECORD_LIKE_CACHE_TTL_MINUTES,
                         TimeUnit.MINUTES,
                     )
                 } returns Unit
@@ -89,9 +89,9 @@ class RecordLikeServiceTest : BehaviorSpec({
                 verify(exactly = 0) { cacheProvider.putIfAbsent(any(), any(), any(), any()) }
                 verify {
                     cacheProvider.put(
-                        CacheKeyPrefix.recordLike(recordId = recordId, userId = userId),
+                        RecordLikeRedisKey.recordLike(recordId = recordId, userId = userId),
                         "1",
-                        CacheKeyPrefix.RECORD_LIKE_CACHE_TTL_MINUTES,
+                        RecordLikeRedisKey.RECORD_LIKE_CACHE_TTL_MINUTES,
                         TimeUnit.MINUTES,
                     )
                 }
@@ -119,7 +119,7 @@ class RecordLikeServiceTest : BehaviorSpec({
                     emotion = null,
                     emotionIntensity = null,
                 ).also { ReflectionTestUtils.setField(it, "id", recordId) }
-                val countKey: String = CacheKeyPrefix.recordLikeCount(recordId)
+                val countKey: String = RecordLikeRedisKey.recordLikeCount(recordId)
                 justRun { recordLikeValidator.validateRecordExists(recordId = recordId) }
                 every { recordLikeRepository.existsByRecordIdAndUserId(recordId = recordId, userId = userId) } returns false
                 every { userRepository.findById(id = userId) } returns user
@@ -130,9 +130,9 @@ class RecordLikeServiceTest : BehaviorSpec({
                 every { cacheProvider.increment(countKey) } returns 1L
                 every {
                     cacheProvider.put(
-                        CacheKeyPrefix.recordLike(recordId = recordId, userId = userId),
+                        RecordLikeRedisKey.recordLike(recordId = recordId, userId = userId),
                         "1",
-                        CacheKeyPrefix.RECORD_LIKE_CACHE_TTL_MINUTES,
+                        RecordLikeRedisKey.RECORD_LIKE_CACHE_TTL_MINUTES,
                         TimeUnit.MINUTES,
                     )
                 } returns Unit
@@ -168,7 +168,7 @@ class RecordLikeServiceTest : BehaviorSpec({
                 val recordId: Long = DummyRecord.ID
                 val user: User = DummyUser.toEntity()
                 val record: Record = DummyRecord.toEntity()
-                val countKey: String = CacheKeyPrefix.recordLikeCount(recordId)
+                val countKey: String = RecordLikeRedisKey.recordLikeCount(recordId)
                 justRun { recordLikeValidator.validateRecordExists(recordId = recordId) }
                 every { recordLikeRepository.existsByRecordIdAndUserId(recordId = recordId, userId = userId) } returns false
                 every { userRepository.findById(id = userId) } returns user
@@ -178,14 +178,14 @@ class RecordLikeServiceTest : BehaviorSpec({
                 every { cacheProvider.hasKey(countKey) } returns false
                 every { recordLikeRepository.countByRecordId(recordId) } returns 11L
                 every {
-                    cacheProvider.putIfAbsent(countKey, "11", CacheKeyPrefix.RECORD_LIKE_CACHE_TTL_MINUTES, TimeUnit.MINUTES)
+                    cacheProvider.putIfAbsent(countKey, "11", RecordLikeRedisKey.RECORD_LIKE_CACHE_TTL_MINUTES, TimeUnit.MINUTES)
                 } returns true
                 every { cacheProvider.increment(countKey) } returns 12L
                 every {
                     cacheProvider.put(
-                        CacheKeyPrefix.recordLike(recordId = recordId, userId = userId),
+                        RecordLikeRedisKey.recordLike(recordId = recordId, userId = userId),
                         "1",
-                        CacheKeyPrefix.RECORD_LIKE_CACHE_TTL_MINUTES,
+                        RecordLikeRedisKey.RECORD_LIKE_CACHE_TTL_MINUTES,
                         TimeUnit.MINUTES,
                     )
                 } returns Unit
@@ -196,7 +196,7 @@ class RecordLikeServiceTest : BehaviorSpec({
                 // then
                 result shouldBe true
                 verify {
-                    cacheProvider.putIfAbsent(countKey, "11", CacheKeyPrefix.RECORD_LIKE_CACHE_TTL_MINUTES, TimeUnit.MINUTES)
+                    cacheProvider.putIfAbsent(countKey, "11", RecordLikeRedisKey.RECORD_LIKE_CACHE_TTL_MINUTES, TimeUnit.MINUTES)
                 }
                 verify { cacheProvider.increment(countKey) }
             }
@@ -250,7 +250,7 @@ class RecordLikeServiceTest : BehaviorSpec({
                 // given
                 val userId: Long = DummyUser.ID
                 val recordId: Long = DummyRecord.ID
-                val countKey: String = CacheKeyPrefix.recordLikeCount(recordId)
+                val countKey: String = RecordLikeRedisKey.recordLikeCount(recordId)
                 justRun { recordLikeValidator.validateRecordExists(recordId = recordId) }
                 every { recordLikeRepository.existsByRecordIdAndUserId(recordId = recordId, userId = userId) } returns true
                 justRun { recordLikeRepository.deleteByRecordIdAndUserId(recordId = recordId, userId = userId) }
@@ -259,9 +259,9 @@ class RecordLikeServiceTest : BehaviorSpec({
                 every { cacheProvider.decrement(countKey) } returns 0L
                 every {
                     cacheProvider.put(
-                        CacheKeyPrefix.recordLike(recordId = recordId, userId = userId),
+                        RecordLikeRedisKey.recordLike(recordId = recordId, userId = userId),
                         "0",
-                        CacheKeyPrefix.RECORD_LIKE_CACHE_TTL_MINUTES,
+                        RecordLikeRedisKey.RECORD_LIKE_CACHE_TTL_MINUTES,
                         TimeUnit.MINUTES,
                     )
                 } returns Unit
@@ -278,9 +278,9 @@ class RecordLikeServiceTest : BehaviorSpec({
                 verify(exactly = 0) { cacheProvider.putIfAbsent(any(), any(), any(), any()) }
                 verify {
                     cacheProvider.put(
-                        CacheKeyPrefix.recordLike(recordId = recordId, userId = userId),
+                        RecordLikeRedisKey.recordLike(recordId = recordId, userId = userId),
                         "0",
-                        CacheKeyPrefix.RECORD_LIKE_CACHE_TTL_MINUTES,
+                        RecordLikeRedisKey.RECORD_LIKE_CACHE_TTL_MINUTES,
                         TimeUnit.MINUTES,
                     )
                 }
@@ -292,7 +292,7 @@ class RecordLikeServiceTest : BehaviorSpec({
                 // given
                 val userId: Long = DummyUser.ID
                 val recordId: Long = DummyRecord.ID
-                val countKey: String = CacheKeyPrefix.recordLikeCount(recordId)
+                val countKey: String = RecordLikeRedisKey.recordLikeCount(recordId)
                 justRun { recordLikeValidator.validateRecordExists(recordId = recordId) }
                 every { recordLikeRepository.existsByRecordIdAndUserId(recordId = recordId, userId = userId) } returns true
                 justRun { recordLikeRepository.deleteByRecordIdAndUserId(recordId = recordId, userId = userId) }
@@ -300,14 +300,14 @@ class RecordLikeServiceTest : BehaviorSpec({
                 every { cacheProvider.hasKey(countKey) } returns false
                 every { recordLikeRepository.countByRecordId(recordId) } returns 5L
                 every {
-                    cacheProvider.putIfAbsent(countKey, "5", CacheKeyPrefix.RECORD_LIKE_CACHE_TTL_MINUTES, TimeUnit.MINUTES)
+                    cacheProvider.putIfAbsent(countKey, "5", RecordLikeRedisKey.RECORD_LIKE_CACHE_TTL_MINUTES, TimeUnit.MINUTES)
                 } returns true
                 every { cacheProvider.decrement(countKey) } returns 4L
                 every {
                     cacheProvider.put(
-                        CacheKeyPrefix.recordLike(recordId = recordId, userId = userId),
+                        RecordLikeRedisKey.recordLike(recordId = recordId, userId = userId),
                         "0",
-                        CacheKeyPrefix.RECORD_LIKE_CACHE_TTL_MINUTES,
+                        RecordLikeRedisKey.RECORD_LIKE_CACHE_TTL_MINUTES,
                         TimeUnit.MINUTES,
                     )
                 } returns Unit
@@ -318,7 +318,7 @@ class RecordLikeServiceTest : BehaviorSpec({
                 // then
                 result shouldBe true
                 verify {
-                    cacheProvider.putIfAbsent(countKey, "5", CacheKeyPrefix.RECORD_LIKE_CACHE_TTL_MINUTES, TimeUnit.MINUTES)
+                    cacheProvider.putIfAbsent(countKey, "5", RecordLikeRedisKey.RECORD_LIKE_CACHE_TTL_MINUTES, TimeUnit.MINUTES)
                 }
                 verify { cacheProvider.decrement(countKey) }
             }

@@ -1,12 +1,12 @@
 package com.chobolevel.api.record.like.sync.consumer
 
-import com.chobolevel.api.common.kafka.KafkaTopicConfiguration
-import com.chobolevel.api.common.redis.CacheKeyPrefix
 import com.chobolevel.api.record.like.sync.dto.RecordLikeSyncEventMessage
 import com.chobolevel.domain.common.exception.BusinessException
+import com.chobolevel.domain.common.kafka.KafkaTopics
 import com.chobolevel.domain.common.provider.CacheProvider
 import com.chobolevel.domain.record.like.repository.RecordLikeRepository
 import com.chobolevel.domain.record.like.sync.repository.RecordLikeSyncEventRepository
+import com.chobolevel.domain.record.like.vo.RecordLikeRedisKey
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.DltHandler
 import org.springframework.kafka.annotation.KafkaListener
@@ -41,7 +41,7 @@ class RecordLikeSyncEventConsumer(
         exclude = [BusinessException::class],
         traversingCauses = "true",
     )
-    @KafkaListener(topics = [KafkaTopicConfiguration.RECORD_LIKE_SYNC_EVENTS])
+    @KafkaListener(topics = [KafkaTopics.RECORD_LIKE_SYNC_EVENTS])
     @Transactional
     fun consume(message: RecordLikeSyncEventMessage) {
         reconcileCache(recordId = message.recordId, userId = message.userId)
@@ -60,15 +60,15 @@ class RecordLikeSyncEventConsumer(
         val liked: Boolean = recordLikeRepository.existsByRecordIdAndUserId(recordId = recordId, userId = userId)
 
         cacheProvider.put(
-            CacheKeyPrefix.recordLikeCount(recordId),
+            RecordLikeRedisKey.recordLikeCount(recordId),
             likeCount.toString(),
-            CacheKeyPrefix.RECORD_LIKE_CACHE_TTL_MINUTES,
+            RecordLikeRedisKey.RECORD_LIKE_CACHE_TTL_MINUTES,
             TimeUnit.MINUTES,
         )
         cacheProvider.put(
-            CacheKeyPrefix.recordLike(recordId = recordId, userId = userId),
+            RecordLikeRedisKey.recordLike(recordId = recordId, userId = userId),
             if (liked) "1" else "0",
-            CacheKeyPrefix.RECORD_LIKE_CACHE_TTL_MINUTES,
+            RecordLikeRedisKey.RECORD_LIKE_CACHE_TTL_MINUTES,
             TimeUnit.MINUTES,
         )
     }

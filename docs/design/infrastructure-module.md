@@ -54,8 +54,8 @@
 
 **`api`에서 `domain`으로**
 - 포트 4종: `CacheProvider`, `DistributedLockProvider`, `EmailProvider`, `PasswordProvider` → `domain/common/provider`
-- `CacheKeyPrefix` 12개 키 + TTL 상수 2개 → 기능별 키 정의(`record/like`, `record/view`, `user/follow`, `user` 등의 `vo`)
-- Kafka 토픽 이름 상수 8개(`KafkaTopicConfiguration.companion`) → `domain`의 이벤트 토픽 정의(`vo`). 사용처는 consumer·relay 스케줄러 8개 클래스
+- `CacheKeyPrefix` 12개 키 + TTL 상수 2개 → 기능별 키 정의 5개: `RecordLikeRedisKey`(`record/like/vo`), `RecordViewRedisKey`(`record/view/vo`), `RecordContributionRedisKey`(`record/vo`), `UserRedisKey`(`user/vo`), `UserFollowRedisKey`(`user/follow/vo`). 메서드 이름은 그대로 두어 사용처는 받는 객체만 바뀐다
+- Kafka 토픽 이름 상수 8개(`KafkaTopicConfiguration.companion`) → `domain/common/kafka/KafkaTopics`. 사용처는 consumer·relay 스케줄러 8개 클래스이고, `KafkaTopicConfiguration`의 토픽 빈은 같은 상수를 쓰도록 바꿔 문자열 중복을 없앤다
 
 **건드리지 않는 외부 계약**: HTTP API, Redis 키 문자열·TTL, DB 스키마(Flyway는 `domain` 유지), 이벤트 페이로드, `application.yml`의 설정 키 이름.
 
@@ -71,10 +71,11 @@
 | S-2 | Provider 계약 특성화 테스트 추가 (Redis 캐시, Redisson 락, BCrypt) | `api` 테스트 | 중간 |
 | S-3 | `infrastructure` 모듈 골격과 의존 규칙(빈 모듈, 로더, `runtimeOnly`) | 빌드, `api`, 신규 모듈 | 중간 |
 | S-4 | 포트 4종을 `domain/common/provider`로 이동 | `api`, `domain` | 낮음 |
-| S-5 | `CacheKeyPrefix`를 기능별 키 정의로, Kafka 토픽 이름 상수를 이벤트 토픽 정의로 분리해 `domain`으로 (문자열 불변) | `api`, `domain` | 높음 |
+| S-5 | `CacheKeyPrefix`를 기능별 키 정의로, Kafka 토픽 이름 상수를 `KafkaTopics`로 분리해 `domain`으로 (문자열 불변) | `api`, `domain` | 높음 |
 | S-6 | 영속성 구현(Adapter·Jpa·Querydsl·Audit 설정)을 `infrastructure`로 | `domain`, `infrastructure` | 높음 |
 | S-7 | 기술 어댑터(Redis·Email·Password·S3 설정·Kafka 토픽 빈)와 Properties를 `infrastructure`로 | `api`, `infrastructure` | 높음 |
-| S-8 | 문서·규칙 정리 (`CLAUDE.md`, ADR, ArchUnit 최종 점검) | 문서, 테스트 | 낮음 |
+| S-8 | 규칙 정리 (`CLAUDE.md`의 모듈 구조·Repository 위치·`runtimeOnly` 경계 규칙, ArchUnit 최종 점검) | 문서, 테스트 | 낮음 |
+| S-9 | 문서 구조 정리 (ADR에서 진행 현황 제거, ADR과 설계 문서의 역할 구분, 낡은 서술 정리) | 문서 | 낮음 |
 
 S-1, S-2는 production 코드를 바꾸지 않는 안전망이다. 순서는 번호 순이며, 모든 슬라이스는 앞 슬라이스의 테스트(S-1, S-2 포함)를 동작 변경 없이 통과해야 한다. 안전망 테스트는 import(와 이동에 따른 테스트 설정) 수정만 허용하며 assertion은 바꾸지 않는다.
 
@@ -123,7 +124,8 @@ S-1, S-2는 production 코드를 바꾸지 않는 안전망이다. 순서는 번
 - 단위 (이동 전에 먼저 작성해 현재 구현으로 통과시킨다):
   - 12개 키 함수가 대표 입력에서 이동 전과 동일한 문자열을 반환한다 (기대값을 문자열로 직접 명시)
   - TTL 상수가 `RECORD_LIKE_CACHE_TTL_MINUTES = 10`, `RECORD_CONTRIBUTION_CACHE_TTL_MINUTES = 5`다
-  - Kafka 토픽 이름 상수 8개(`record-like-sync-events`, `...-dlq` 등)가 이동 전과 동일한 문자열이다
+  - Kafka 토픽 이름 상수 8개(`record-like-sync-events`, `...-dlq` 등)가 이동 전과 동일한 문자열이고, 토픽 빈 8개가 리터럴 이름·파티션 1개·복제 1개로 만들어진다
+- 단위 (ArchUnit): `*RedisKey` 객체는 `domain`에만 있다 (키 정의가 `api`로 다시 흩어지지 않게)
 - 통합: S-1 캐시 왕복, 좋아요·팔로우·조회수 서비스 단위 테스트가 통과한다
 - 경계 / 예외: `email`에 `:`가 들어간 경우, `year`, 큰 id 값에서도 치환 결과가 이동 전과 같다
 
@@ -139,10 +141,22 @@ S-1, S-2는 production 코드를 바꾸지 않는 안전망이다. 순서는 번
 - 단위 (ArchUnit): `api`·`domain`이 `org.redisson`, `com.resend` 구현 클래스에 의존하지 않는다
 - 경계 / 예외: `@ConfigurationPropertiesScan` 범위가 `infrastructure` 로더로 이동해도 `redis.chobolevel.*`, `resend.*`, `cloud.aws.*` 키가 동일하게 바인딩된다 / `RedissonDistributedLockProvider`·`ResendEmailProvider`의 예외 매핑(`InternalSystemException`, `ExternalSystemException`)이 유지된다
 
-### S-8 문서·규칙 정리
+### S-8 규칙 정리
 
 - 단위 (ArchUnit): 최종 규칙 목록이 모두 통과한다
-- 경계 / 예외: `CLAUDE.md`의 모듈 구조·Repository 위치 규칙이 코드와 일치한다
+- 경계 / 예외: `CLAUDE.md`의 모듈 구조·Repository 위치 규칙이 코드와 일치한다 (프로젝트 개요의 모듈 목록에 `infrastructure` 반영, "3. Repository 계층 패턴"의 구현체 위치를 `infrastructure`로)
+- 경계 / 예외: `api` → `infrastructure`는 `runtimeOnly`, 포트(`*Provider`)·`*RedisKey`·`KafkaTopics`는 `domain`에 둔다는 프로젝트 전반 규칙이 `CLAUDE.md`(또는 ADR)에 한 곳으로 기록된다
+
+### S-9 문서 구조 정리
+
+문서 정리는 자동 테스트로 고정하기 어렵다. 누락되지 않도록 아래 체크리스트를 완료 조건으로 삼고, PR에서 항목별로 확인한다. (자동 검증은 마지막 항목의 검색 명령뿐이다.)
+
+- [ ] **ADR는 결정만 남긴다**: `decisions/module-and-package-structure.md`에서 진행 현황(단계 표의 상태·커밋 해시, 1~4단계 결과 요약)을 걷어낸다. 진행 기록은 이 설계 문서의 슬라이스 표와 PR 이력으로 남는다
+- [ ] **한 사실은 한 곳에만 둔다**: 같은 내용이 ADR과 설계 문서에 중복된 곳(모듈 구성, 캐시 키·토픽 위치, 포트 위치 등)을 한쪽에서 지우고 다른 쪽을 링크한다
+- [ ] **바뀐 결정에 흔적을 남긴다**: 번복·수정된 결정(캐시 키의 위치가 `infrastructure`에서 `domain`으로 바뀐 것 등)에 수정 사유와 날짜가 있거나 새 ADR이 이전 ADR을 대체한다고 표시한다
+- [ ] **ADR 대상 기준을 적는다**: `docs/design/README.md`에 ADR과 설계 문서의 역할 구분을 한 단락 추가할지 결정한다. 후보: ADR은 되돌리기 어렵고 여러 기능에 걸치는 결정(모듈 구조, 의존 방향 등)만, 한 기능 안의 이름·구조 결정은 설계 문서의 결정 사항 표로 (워크플로 문서라 사용자가 결정)
+- [ ] **이 설계 문서를 마무리한다**: 상태를 "완료"로 바꾸고, 슬라이스 표에 각 슬라이스의 PR 링크 또는 커밋을 적는다
+- [ ] **낡은 이름이 남지 않았다**: 아래를 검색해 결과가 없거나 "옛 서술"로 명시된 곳뿐이다 — `git grep -nE "CacheKeyPrefix|EventTopics|infrastructure.*CacheKey" -- decisions docs CLAUDE.md`
 
 ## 위험도와 리뷰 깊이
 
@@ -156,6 +170,7 @@ S-1, S-2는 production 코드를 바꾸지 않는 안전망이다. 순서는 번
 | S-6 | 높음 | JPA·빈 스캔이 모듈 경계를 넘는다. 잘못되면 기동 실패 또는 리포지토리 누락 | `InfrastructureConfigurationLoader`의 스캔 범위, `DomainConfigurationLoader`에 남는 `@EntityScan`, `DomainJpaTestConfig` 기준 패키지 |
 | S-7 | 높음 | 외부 연동(Redis·Redisson 분산락·Resend·S3)과 설정 바인딩 | `RedisConfiguration`의 `@Primary` 빈, 락 예외 매핑, `@ConfigurationPropertiesScan` 범위, `S3Configuration`의 프로퍼티 키, 토픽 빈 8개의 이름·파티션·복제 수가 그대로인지, `CacheProvider`에 주입되는 템플릿이 `StringRedisTemplate`에서 바뀌지 않는지(`RedisConfiguration`을 옮기다 JSON `redisTemplate`이 선택되면 카운터 읽기가 `ClassCastException`) |
 | S-8 | 낮음 | 문서와 규칙 | - |
+| S-9 | 낮음 | 문서만 변경. 자동 테스트가 없어 체크리스트 누락이 유일한 위험 | 체크리스트 6개 항목이 모두 처리됐는지 |
 
 ## 끝단 검증
 

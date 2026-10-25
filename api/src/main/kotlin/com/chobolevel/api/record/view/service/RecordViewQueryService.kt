@@ -1,8 +1,8 @@
 package com.chobolevel.api.record.view.service
 
-import com.chobolevel.api.common.redis.CacheKeyPrefix
 import com.chobolevel.domain.common.provider.CacheProvider
 import com.chobolevel.domain.record.view.repository.RecordViewRepository
+import com.chobolevel.domain.record.view.vo.RecordViewRedisKey
 import org.springframework.stereotype.Service
 
 @Service
@@ -12,14 +12,14 @@ class RecordViewQueryService(
 ) {
 
     fun fetchViewCount(recordId: Long): Long {
-        val countKey: String = CacheKeyPrefix.recordViewCount(recordId)
+        val countKey: String = RecordViewRedisKey.recordViewCount(recordId)
         initCountCacheIfAbsent(recordId = recordId, countKey = countKey)
         return cacheProvider.get(countKey)?.toLong() ?: 0L
     }
 
     fun fetchViewCounts(recordIds: List<Long>): Map<Long, Long> {
         return recordIds.associateWith { recordId ->
-            val countKey: String = CacheKeyPrefix.recordViewCount(recordId)
+            val countKey: String = RecordViewRedisKey.recordViewCount(recordId)
             initCountCacheIfAbsent(recordId = recordId, countKey = countKey)
             cacheProvider.get(countKey)?.toLong() ?: 0L
         }

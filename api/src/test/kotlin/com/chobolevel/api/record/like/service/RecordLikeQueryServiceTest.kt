@@ -2,9 +2,9 @@ package com.chobolevel.api.record.like.service
 
 import com.chobolevel.api.common.dummy.DummyRecord
 import com.chobolevel.api.common.dummy.DummyUser
-import com.chobolevel.api.common.redis.CacheKeyPrefix
 import com.chobolevel.domain.common.provider.CacheProvider
 import com.chobolevel.domain.record.like.repository.RecordLikeRepository
+import com.chobolevel.domain.record.like.vo.RecordLikeRedisKey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
@@ -29,7 +29,7 @@ class RecordLikeQueryServiceTest : BehaviorSpec({
             then("DB 조회 없이 캐시 값을 반환한다") {
                 // given
                 val recordId: Long = DummyRecord.ID
-                val countKey: String = CacheKeyPrefix.recordLikeCount(recordId)
+                val countKey: String = RecordLikeRedisKey.recordLikeCount(recordId)
                 every { cacheProvider.get(countKey) } returns "3"
 
                 // when
@@ -45,11 +45,11 @@ class RecordLikeQueryServiceTest : BehaviorSpec({
             then("DB COUNT(*)로 조회 후 TTL과 함께 캐시에 적재한다") {
                 // given
                 val recordId: Long = DummyRecord.ID
-                val countKey: String = CacheKeyPrefix.recordLikeCount(recordId)
+                val countKey: String = RecordLikeRedisKey.recordLikeCount(recordId)
                 every { cacheProvider.get(countKey) } returns null
                 every { recordLikeRepository.countByRecordId(recordId) } returns 5L
                 every {
-                    cacheProvider.put(countKey, "5", CacheKeyPrefix.RECORD_LIKE_CACHE_TTL_MINUTES, TimeUnit.MINUTES)
+                    cacheProvider.put(countKey, "5", RecordLikeRedisKey.RECORD_LIKE_CACHE_TTL_MINUTES, TimeUnit.MINUTES)
                 } returns Unit
 
                 // when
@@ -58,7 +58,7 @@ class RecordLikeQueryServiceTest : BehaviorSpec({
                 // then
                 result shouldBe 5L
                 verify {
-                    cacheProvider.put(countKey, "5", CacheKeyPrefix.RECORD_LIKE_CACHE_TTL_MINUTES, TimeUnit.MINUTES)
+                    cacheProvider.put(countKey, "5", RecordLikeRedisKey.RECORD_LIKE_CACHE_TTL_MINUTES, TimeUnit.MINUTES)
                 }
             }
         }
@@ -70,12 +70,12 @@ class RecordLikeQueryServiceTest : BehaviorSpec({
                 // given
                 val hitRecordId: Long = 1L
                 val missRecordId: Long = 2L
-                val hitKey: String = CacheKeyPrefix.recordLikeCount(hitRecordId)
-                val missKey: String = CacheKeyPrefix.recordLikeCount(missRecordId)
+                val hitKey: String = RecordLikeRedisKey.recordLikeCount(hitRecordId)
+                val missKey: String = RecordLikeRedisKey.recordLikeCount(missRecordId)
                 every { cacheProvider.mget(listOf(hitKey, missKey)) } returns listOf("7", null)
                 every { recordLikeRepository.countByRecordId(missRecordId) } returns 2L
                 every {
-                    cacheProvider.put(missKey, "2", CacheKeyPrefix.RECORD_LIKE_CACHE_TTL_MINUTES, TimeUnit.MINUTES)
+                    cacheProvider.put(missKey, "2", RecordLikeRedisKey.RECORD_LIKE_CACHE_TTL_MINUTES, TimeUnit.MINUTES)
                 } returns Unit
 
                 // when
@@ -95,7 +95,7 @@ class RecordLikeQueryServiceTest : BehaviorSpec({
                 // given
                 val userId: Long = DummyUser.ID
                 val recordId: Long = DummyRecord.ID
-                val likeKey: String = CacheKeyPrefix.recordLike(recordId = recordId, userId = userId)
+                val likeKey: String = RecordLikeRedisKey.recordLike(recordId = recordId, userId = userId)
                 every { cacheProvider.get(likeKey) } returns "1"
 
                 // when
@@ -112,7 +112,7 @@ class RecordLikeQueryServiceTest : BehaviorSpec({
                 // given
                 val userId: Long = DummyUser.ID
                 val recordId: Long = DummyRecord.ID
-                val likeKey: String = CacheKeyPrefix.recordLike(recordId = recordId, userId = userId)
+                val likeKey: String = RecordLikeRedisKey.recordLike(recordId = recordId, userId = userId)
                 every { cacheProvider.get(likeKey) } returns "0"
 
                 // when
@@ -129,11 +129,11 @@ class RecordLikeQueryServiceTest : BehaviorSpec({
                 // given
                 val userId: Long = DummyUser.ID
                 val recordId: Long = DummyRecord.ID
-                val likeKey: String = CacheKeyPrefix.recordLike(recordId = recordId, userId = userId)
+                val likeKey: String = RecordLikeRedisKey.recordLike(recordId = recordId, userId = userId)
                 every { cacheProvider.get(likeKey) } returns null
                 every { recordLikeRepository.existsByRecordIdAndUserId(recordId = recordId, userId = userId) } returns true
                 every {
-                    cacheProvider.put(likeKey, "1", CacheKeyPrefix.RECORD_LIKE_CACHE_TTL_MINUTES, TimeUnit.MINUTES)
+                    cacheProvider.put(likeKey, "1", RecordLikeRedisKey.RECORD_LIKE_CACHE_TTL_MINUTES, TimeUnit.MINUTES)
                 } returns Unit
 
                 // when
@@ -142,7 +142,7 @@ class RecordLikeQueryServiceTest : BehaviorSpec({
                 // then
                 result shouldBe true
                 verify {
-                    cacheProvider.put(likeKey, "1", CacheKeyPrefix.RECORD_LIKE_CACHE_TTL_MINUTES, TimeUnit.MINUTES)
+                    cacheProvider.put(likeKey, "1", RecordLikeRedisKey.RECORD_LIKE_CACHE_TTL_MINUTES, TimeUnit.MINUTES)
                 }
             }
         }

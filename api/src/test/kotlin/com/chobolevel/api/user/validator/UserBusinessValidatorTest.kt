@@ -1,7 +1,6 @@
 package com.chobolevel.api.user.validator
 
 import com.chobolevel.api.common.dummy.DummyUser
-import com.chobolevel.api.common.redis.CacheKeyPrefix
 import com.chobolevel.api.user.dto.ChangeUserPasswordRequest
 import com.chobolevel.api.user.dto.CreateUserRequest
 import com.chobolevel.api.user.dto.ResetUserPasswordRequest
@@ -12,6 +11,7 @@ import com.chobolevel.domain.common.provider.PasswordProvider
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.exception.UserErrorCode
 import com.chobolevel.domain.user.repository.UserRepository
+import com.chobolevel.domain.user.vo.UserRedisKey
 import com.chobolevel.domain.user.vo.UserUpdateMask
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
@@ -239,7 +239,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 // given
                 val request: ResetUserPasswordRequest = DummyUser.toResetPasswordRequest()
                 every { userRepository.existsByEmail(DummyUser.EMAIL) } returns true
-                every { cacheProvider.get(CacheKeyPrefix.userResetPassword(DummyUser.EMAIL)) } returns null
+                every { cacheProvider.get(UserRedisKey.userResetPassword(DummyUser.EMAIL)) } returns null
 
                 // when
                 val exception: BusinessException = shouldThrow<BusinessException> {
@@ -256,7 +256,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 // given
                 val request: ResetUserPasswordRequest = DummyUser.toResetPasswordRequest()
                 every { userRepository.existsByEmail(DummyUser.EMAIL) } returns true
-                every { cacheProvider.get(CacheKeyPrefix.userResetPassword(DummyUser.EMAIL)) } returns "wrongCode"
+                every { cacheProvider.get(UserRedisKey.userResetPassword(DummyUser.EMAIL)) } returns "wrongCode"
 
                 // when
                 val exception: BusinessException = shouldThrow<BusinessException> {
@@ -273,7 +273,7 @@ class UserBusinessValidatorTest : BehaviorSpec({
                 // given
                 val request: ResetUserPasswordRequest = DummyUser.toResetPasswordRequest()
                 every { userRepository.existsByEmail(DummyUser.EMAIL) } returns true
-                every { cacheProvider.get(CacheKeyPrefix.userResetPassword(DummyUser.EMAIL)) } returns DummyUser.RESET_CODE
+                every { cacheProvider.get(UserRedisKey.userResetPassword(DummyUser.EMAIL)) } returns DummyUser.RESET_CODE
 
                 // when + then
                 shouldNotThrow<Exception> { validator.validate(request) }

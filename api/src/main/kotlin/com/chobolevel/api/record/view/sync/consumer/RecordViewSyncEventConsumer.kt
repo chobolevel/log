@@ -1,12 +1,12 @@
 package com.chobolevel.api.record.view.sync.consumer
 
-import com.chobolevel.api.common.kafka.KafkaTopicConfiguration
-import com.chobolevel.api.common.redis.CacheKeyPrefix
 import com.chobolevel.api.record.view.sync.dto.RecordViewSyncEventMessage
 import com.chobolevel.domain.common.exception.BusinessException
+import com.chobolevel.domain.common.kafka.KafkaTopics
 import com.chobolevel.domain.common.provider.CacheProvider
 import com.chobolevel.domain.record.view.repository.RecordViewRepository
 import com.chobolevel.domain.record.view.sync.repository.RecordViewSyncEventRepository
+import com.chobolevel.domain.record.view.vo.RecordViewRedisKey
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.DltHandler
 import org.springframework.kafka.annotation.KafkaListener
@@ -40,7 +40,7 @@ class RecordViewSyncEventConsumer(
         exclude = [BusinessException::class],
         traversingCauses = "true",
     )
-    @KafkaListener(topics = [KafkaTopicConfiguration.RECORD_VIEW_SYNC_EVENTS])
+    @KafkaListener(topics = [KafkaTopics.RECORD_VIEW_SYNC_EVENTS])
     @Transactional
     fun consume(message: RecordViewSyncEventMessage) {
         reconcileCache(recordId = message.recordId)
@@ -56,6 +56,6 @@ class RecordViewSyncEventConsumer(
 
     private fun reconcileCache(recordId: Long) {
         val viewCount: Long = recordViewRepository.countByRecordId(recordId)
-        cacheProvider.put(CacheKeyPrefix.recordViewCount(recordId), viewCount.toString())
+        cacheProvider.put(RecordViewRedisKey.recordViewCount(recordId), viewCount.toString())
     }
 }

@@ -1,6 +1,5 @@
 package com.chobolevel.api.record.like.service
 
-import com.chobolevel.api.common.redis.CacheKeyPrefix
 import com.chobolevel.api.common.transaction.registerAfterCommit
 import com.chobolevel.api.notification.NotificationPath
 import com.chobolevel.api.notification.provider.NotificationPublisher
@@ -13,6 +12,7 @@ import com.chobolevel.domain.record.like.repository.RecordLikeRepository
 import com.chobolevel.domain.record.like.sync.entity.RecordLikeSyncEvent
 import com.chobolevel.domain.record.like.sync.repository.RecordLikeSyncEventRepository
 import com.chobolevel.domain.record.like.sync.vo.RecordLikeSyncEventAction
+import com.chobolevel.domain.record.like.vo.RecordLikeRedisKey
 import com.chobolevel.domain.record.repository.RecordRepository
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.repository.UserRepository
@@ -73,11 +73,11 @@ class RecordLikeService(
 
         // DB 커밋 성공 후 Redis 즉시 반영 (UX) — 실패해도 Consumer의 read-repair(DB 조회 후 덮어쓰기)가 뒤따라 복구한다
         registerAfterCommit {
-            cacheProvider.increment(CacheKeyPrefix.recordLikeCount(recordId))
+            cacheProvider.increment(RecordLikeRedisKey.recordLikeCount(recordId))
             cacheProvider.put(
-                CacheKeyPrefix.recordLike(recordId = recordId, userId = userId),
+                RecordLikeRedisKey.recordLike(recordId = recordId, userId = userId),
                 "1",
-                CacheKeyPrefix.RECORD_LIKE_CACHE_TTL_MINUTES,
+                RecordLikeRedisKey.RECORD_LIKE_CACHE_TTL_MINUTES,
                 TimeUnit.MINUTES,
             )
         }
@@ -110,11 +110,11 @@ class RecordLikeService(
 
         // DB 커밋 성공 후 Redis 즉시 반영 (UX) — 실패해도 Consumer의 read-repair(DB 조회 후 덮어쓰기)가 뒤따라 복구한다
         registerAfterCommit {
-            cacheProvider.decrement(CacheKeyPrefix.recordLikeCount(recordId))
+            cacheProvider.decrement(RecordLikeRedisKey.recordLikeCount(recordId))
             cacheProvider.put(
-                CacheKeyPrefix.recordLike(recordId = recordId, userId = userId),
+                RecordLikeRedisKey.recordLike(recordId = recordId, userId = userId),
                 "0",
-                CacheKeyPrefix.RECORD_LIKE_CACHE_TTL_MINUTES,
+                RecordLikeRedisKey.RECORD_LIKE_CACHE_TTL_MINUTES,
                 TimeUnit.MINUTES,
             )
         }
@@ -126,10 +126,10 @@ class RecordLikeService(
     // like()/dislike()의 DB 쓰기보다 반드시 먼저 호출해야 "이전" 값으로 시드되고, afterCommit의 increment/decrement가
     // 매번 무조건 실행돼도 정확하다 (RecordViewService.initCountCacheIfAbsent와 동일한 순서/원리).
     private fun warmLikeCountCacheIfCold(recordId: Long) {
-        val countKey: String = CacheKeyPrefix.recordLikeCount(recordId)
+        val countKey: String = RecordLikeRedisKey.recordLikeCount(recordId)
         if (!cacheProvider.hasKey(countKey)) {
             val currentCount: Long = recordLikeRepository.countByRecordId(recordId)
-            cacheProvider.putIfAbsent(countKey, currentCount.toString(), CacheKeyPrefix.RECORD_LIKE_CACHE_TTL_MINUTES, TimeUnit.MINUTES)
+            cacheProvider.putIfAbsent(countKey, currentCount.toString(), RecordLikeRedisKey.RECORD_LIKE_CACHE_TTL_MINUTES, TimeUnit.MINUTES)
         }
     }
 }
