@@ -32,6 +32,9 @@
 | 빈 누락 시 실패 분석 | 테스트 전용 `FastFailureAnalyzer`(`META-INF/spring.factories`)로 Boot의 `NoSuchBeanDefinitionFailureAnalyzer`를 대체 (구현 중 추가) | 기본 분석기 유지 / Gradle 테스트 전체 타임아웃 | 기본 분석기가 이 앱의 빈 그래프에서 수 분 이상 걸려 배선이 깨졌을 때 CI가 매달린다. 대체하면 27초 안에 실패한다. 대신 `api` 테스트 전체에서 빈 누락 진단 메시지가 단순해진다 |
 | Provider 계약 테스트의 Redis 템플릿 | `StringRedisTemplate` (구현 중 발견: `RedisCacheProvider`에 실제로 주입되는 템플릿) | `RedisConfiguration`의 JSON 직렬화 `redisTemplate` | `RedisTemplate<String, String>`으로 주입받을 때 제네릭 변수(T)가 있는 `@Primary` 빈은 후보에서 빠져 Boot의 `StringRedisTemplate`이 선택된다. JSON 템플릿으로 테스트하면 운영과 다른 동작(`increment` 후 `get`이 `ClassCastException`, `put`한 숫자에 `increment` 실패)을 고정하게 된다 |
 | 스모크 테스트의 설정 복호화 | `ENC(...)` 값은 테스트용 프로퍼티로 필요한 항목만 평문 더미로 덮어쓴다 | 운영 jasypt 비밀번호를 테스트에서 사용 | 운영 비밀번호가 테스트 코드에 들어가지 않게 한다 |
+| S-6 테스트 구성 | 이동 전에 공백인 리포지토리 계약(Outbox 4종, 존재·개수·삭제, 조회, 기록 잔디)을 MySQL 컨테이너 계약 테스트로 먼저 채운다 | 기존 테스트만으로 진행 / Outbox만 추가 | Spring Data 파생 쿼리는 기동 시 검증되지만 동작(상태 필터, id 정렬, 소프트 삭제 제외)은 검증되지 않았다. 이동 후에도 같은 동작임을 보여 줄 근거가 필요하다 |
+| S-6 테스트 스캔 설정 | `DomainJpaTestConfig`를 `PersistenceTestConfig`로 이름을 바꾸고 `infrastructure`의 JPA 리포지토리를 스캔한다 | 이름 유지 | 이제 domain이 아니라 infrastructure의 리포지토리를 스캔하므로 이름이 맞지 않는다 |
+| S-6 PR 구성 | 슬라이스 하나(PR 하나) | 도메인별 분할 | 분할하면 `@EnableJpaRepositories` 기준 패키지를 두 곳에 걸치는 과도기 상태가 생겨 오히려 위험하다 |
 | 선행 안전망 | 컨텍스트 스모크 테스트(MySQL+Redis 컨테이너, Kafka 미연결)와 Provider 계약 테스트를 이동 전에 먼저 추가 | 안전망 없이 진행 | 빈 스캔·JPA 스캔이 모듈 경계를 넘어 바뀌는 것이 가장 큰 위험인데, 지금은 컨텍스트 전체를 띄우는 테스트가 없다 |
 
 ## 영향 범위
@@ -131,9 +134,19 @@ S-1, S-2는 production 코드를 바꾸지 않는 안전망이다. 순서는 번
 
 ### S-6 영속성 구현 이동
 
-- 단위 (ArchUnit): `domain`에 `JpaRepository`/`QuerydslRepositorySupport`를 상속한 클래스가 없다
+**이동 전에 추가하는 리포지토리 계약 테스트** (MySQL 컨테이너, 공개 계약인 Adapter 경유라 이동 후에도 import만 바뀌고 그대로 통과한다). 기존 DB 수준 테스트가 호출하지 않던 메서드(약 39개)를 위험도순으로 채운다.
+
+| 묶음 | 테스트 (파일) | 고정하는 계약 |
+|---|---|---|
+| Outbox 4종 | `OutboxRepositoryContractTest` (5케이스 × 이벤트 4종) | 상태별 조회, `findAllByStatusOrderByIdAsc`가 id 오름차순으로 limit개만 반환하고 다른 상태를 제외, 페이지 조회가 중복 없이 나뉨, 상태별 개수, id 조회(없으면 null) |
+| 존재·개수·삭제 | `UserFollowRepositoryContractTest`, `RecordLikeRepositoryContractTest`, `RecordViewRepositoryContractTest`, `EmotionExistenceContractTest` | 방향·쌍 단위의 존재/개수/삭제, 조회수(회원+비회원), 소프트 삭제된 감정·기록 감정 제외 |
+| 조회 | `UserRepositoryLookupContractTest`, `NotificationRepositoryContractTest` | 탈퇴 회원(`resigned`) 제외 규칙, 없는 id 처리 |
+| 기록 잔디 | `RecordRepositoryContractTest` | `existsById`의 삭제 제외, `findCreatedAtsByUserIdAndCreatedAtBetween`의 시작 포함·끝 제외, 다른 회원·삭제된 기록 제외 |
+
+- 단위 (ArchUnit): `domain`에 `JpaRepository`/`QuerydslRepositorySupport`를 상속한 클래스가 없고, `*RepositoryAdapter`는 `infrastructure`에만 있다
 - 통합: S-1의 `*Repository` 빈 17개 / 기존 `*RepositorySearchTest`(검색 조건·정렬 특성화), `UserJpaRepositoryTest`, `UserJpaRepositoryContainerTest`가 수정 없이(import 제외) 통과한다
 - 경계 / 예외: `@Where` 기반 소프트 삭제, `createdAt` 자동 채움이 이동 후에도 동작한다 / `@EntityScan`(`domain`)과 `@EnableJpaRepositories`(`infrastructure`) 기준 패키지가 분리돼도 엔티티와 리포지토리가 모두 스캔된다
+- 이동 후 변이 검증: `@EnableJpaRepositories` 기준 패키지 오류, Adapter의 `@Component` 누락, `AuditConfiguration` 미등록, Querydsl 리포지토리 누락이 각각 스모크·계약 테스트에서 실패한다
 
 ### S-7 기술 어댑터 이동
 
