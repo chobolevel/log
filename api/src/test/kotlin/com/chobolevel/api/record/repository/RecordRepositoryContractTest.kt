@@ -1,14 +1,14 @@
 package com.chobolevel.api.record.repository
 
-import com.chobolevel.api.common.config.DomainJpaTestConfig
+import com.chobolevel.api.common.config.PersistenceTestConfig
 import com.chobolevel.api.common.container.AbstractMySQLContainerTest
 import com.chobolevel.api.common.fixture.PersistenceFixtures
-import com.chobolevel.domain.common.config.AuditConfiguration
 import com.chobolevel.domain.record.entity.Record
-import com.chobolevel.domain.record.repository.RecordQuerydslRepository
 import com.chobolevel.domain.record.repository.RecordRepository
-import com.chobolevel.domain.record.repository.RecordRepositoryAdapter
 import com.chobolevel.domain.user.entity.User
+import com.chobolevel.infrastructure.common.config.AuditConfiguration
+import com.chobolevel.infrastructure.record.repository.RecordQuerydslRepository
+import com.chobolevel.infrastructure.record.repository.RecordRepositoryAdapter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -23,7 +23,7 @@ import java.time.OffsetDateTime
 // 모듈 재편 5단계(docs/design/infrastructure-module.md, S-6): 영속성 구현을 옮기기 전에 리포지토리(Adapter)의 현재 계약을 MySQL 컨테이너로 고정한다.
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import(DomainJpaTestConfig::class, AuditConfiguration::class, RecordRepositoryAdapter::class, RecordQuerydslRepository::class)
+@Import(PersistenceTestConfig::class, AuditConfiguration::class, RecordRepositoryAdapter::class, RecordQuerydslRepository::class)
 @ActiveProfiles("test")
 @DisplayName("RecordRepository 존재 여부·기록 잔디 쿼리 계약 테스트 (MySQL 컨테이너)")
 class RecordRepositoryContractTest : AbstractMySQLContainerTest() {

@@ -1,16 +1,16 @@
 package com.chobolevel.api.user.follow.repository
 
-import com.chobolevel.api.common.config.DomainJpaTestConfig
-import com.chobolevel.domain.common.config.AuditConfiguration
+import com.chobolevel.api.common.config.PersistenceTestConfig
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.follow.entity.UserFollow
-import com.chobolevel.domain.user.follow.repository.UserFollowQuerydslRepository
-import com.chobolevel.domain.user.follow.repository.UserFollowRepositoryAdapter
 import com.chobolevel.domain.user.follow.vo.UserFollowOrderType
 import com.chobolevel.domain.user.follow.vo.UserFollowQueryFilter
 import com.chobolevel.domain.user.vo.UserLoginType
 import com.chobolevel.domain.user.vo.UserRoleType
+import com.chobolevel.infrastructure.common.config.AuditConfiguration
+import com.chobolevel.infrastructure.user.follow.repository.UserFollowQuerydslRepository
+import com.chobolevel.infrastructure.user.follow.repository.UserFollowRepositoryAdapter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -25,7 +25,7 @@ import org.springframework.test.context.ActiveProfiles
 // 핵심은 nickname 조건의 대상이 조회 방향에 따라 달라지는 분기다.
 //   followingUserId 지정(= 팔로워 목록) → 팔로워의 닉네임, 그 외(= 팔로잉 목록) → 팔로잉 대상의 닉네임
 @DataJpaTest
-@Import(DomainJpaTestConfig::class, AuditConfiguration::class, UserFollowRepositoryAdapter::class, UserFollowQuerydslRepository::class)
+@Import(PersistenceTestConfig::class, AuditConfiguration::class, UserFollowRepositoryAdapter::class, UserFollowQuerydslRepository::class)
 @ActiveProfiles("test")
 @DisplayName("UserFollowRepository 검색 조건 테스트")
 class UserFollowRepositorySearchTest {

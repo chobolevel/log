@@ -1,19 +1,19 @@
 package com.chobolevel.api.emotion.repository
 
-import com.chobolevel.api.common.config.DomainJpaTestConfig
+import com.chobolevel.api.common.config.PersistenceTestConfig
 import com.chobolevel.api.common.container.AbstractMySQLContainerTest
 import com.chobolevel.api.common.fixture.PersistenceFixtures
-import com.chobolevel.domain.common.config.AuditConfiguration
 import com.chobolevel.domain.emotion.category.entity.EmotionCategory
 import com.chobolevel.domain.emotion.category.vo.EmotionCategoryType
 import com.chobolevel.domain.emotion.entity.Emotion
-import com.chobolevel.domain.emotion.repository.EmotionQuerydslRepository
 import com.chobolevel.domain.emotion.repository.EmotionRepository
-import com.chobolevel.domain.emotion.repository.EmotionRepositoryAdapter
 import com.chobolevel.domain.record.emotion.repository.RecordEmotionRepository
-import com.chobolevel.domain.record.emotion.repository.RecordEmotionRepositoryAdapter
 import com.chobolevel.domain.record.entity.Record
 import com.chobolevel.domain.user.entity.User
+import com.chobolevel.infrastructure.common.config.AuditConfiguration
+import com.chobolevel.infrastructure.emotion.repository.EmotionQuerydslRepository
+import com.chobolevel.infrastructure.emotion.repository.EmotionRepositoryAdapter
+import com.chobolevel.infrastructure.record.emotion.repository.RecordEmotionRepositoryAdapter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -29,7 +29,7 @@ import org.springframework.test.context.ActiveProfiles
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(
-    DomainJpaTestConfig::class,
+    PersistenceTestConfig::class,
     AuditConfiguration::class,
     EmotionRepositoryAdapter::class,
     EmotionQuerydslRepository::class,

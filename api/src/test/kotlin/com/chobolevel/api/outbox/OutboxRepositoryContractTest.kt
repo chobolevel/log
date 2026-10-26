@@ -1,30 +1,30 @@
 package com.chobolevel.api.outbox
 
-import com.chobolevel.api.common.config.DomainJpaTestConfig
+import com.chobolevel.api.common.config.PersistenceTestConfig
 import com.chobolevel.api.common.container.AbstractMySQLContainerTest
 import com.chobolevel.api.common.fixture.PersistenceFixtures
-import com.chobolevel.domain.common.config.AuditConfiguration
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.notification.dispatch.entity.NotificationDispatchEvent
 import com.chobolevel.domain.notification.dispatch.repository.NotificationDispatchEventRepository
-import com.chobolevel.domain.notification.dispatch.repository.NotificationDispatchEventRepositoryAdapter
 import com.chobolevel.domain.notification.dispatch.vo.NotificationDispatchEventStatus
 import com.chobolevel.domain.notification.vo.NotificationType
 import com.chobolevel.domain.record.like.sync.entity.RecordLikeSyncEvent
 import com.chobolevel.domain.record.like.sync.repository.RecordLikeSyncEventRepository
-import com.chobolevel.domain.record.like.sync.repository.RecordLikeSyncEventRepositoryAdapter
 import com.chobolevel.domain.record.like.sync.vo.RecordLikeSyncEventAction
 import com.chobolevel.domain.record.like.sync.vo.RecordLikeSyncEventStatus
 import com.chobolevel.domain.record.view.sync.entity.RecordViewSyncEvent
 import com.chobolevel.domain.record.view.sync.repository.RecordViewSyncEventRepository
-import com.chobolevel.domain.record.view.sync.repository.RecordViewSyncEventRepositoryAdapter
 import com.chobolevel.domain.record.view.sync.vo.RecordViewSyncEventStatus
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.follow.sync.entity.UserFollowSyncEvent
 import com.chobolevel.domain.user.follow.sync.repository.UserFollowSyncEventRepository
-import com.chobolevel.domain.user.follow.sync.repository.UserFollowSyncEventRepositoryAdapter
 import com.chobolevel.domain.user.follow.sync.vo.UserFollowSyncEventAction
 import com.chobolevel.domain.user.follow.sync.vo.UserFollowSyncEventStatus
+import com.chobolevel.infrastructure.common.config.AuditConfiguration
+import com.chobolevel.infrastructure.notification.dispatch.repository.NotificationDispatchEventRepositoryAdapter
+import com.chobolevel.infrastructure.record.like.sync.repository.RecordLikeSyncEventRepositoryAdapter
+import com.chobolevel.infrastructure.record.view.sync.repository.RecordViewSyncEventRepositoryAdapter
+import com.chobolevel.infrastructure.user.follow.sync.repository.UserFollowSyncEventRepositoryAdapter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -44,7 +44,7 @@ import org.springframework.test.context.ActiveProfiles
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(
-    DomainJpaTestConfig::class,
+    PersistenceTestConfig::class,
     AuditConfiguration::class,
     RecordLikeSyncEventRepositoryAdapter::class,
     RecordViewSyncEventRepositoryAdapter::class,

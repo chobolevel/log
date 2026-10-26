@@ -1,13 +1,13 @@
 package com.chobolevel.api.user.follow.repository
 
-import com.chobolevel.api.common.config.DomainJpaTestConfig
+import com.chobolevel.api.common.config.PersistenceTestConfig
 import com.chobolevel.api.common.container.AbstractMySQLContainerTest
 import com.chobolevel.api.common.fixture.PersistenceFixtures
-import com.chobolevel.domain.common.config.AuditConfiguration
 import com.chobolevel.domain.user.entity.User
-import com.chobolevel.domain.user.follow.repository.UserFollowQuerydslRepository
 import com.chobolevel.domain.user.follow.repository.UserFollowRepository
-import com.chobolevel.domain.user.follow.repository.UserFollowRepositoryAdapter
+import com.chobolevel.infrastructure.common.config.AuditConfiguration
+import com.chobolevel.infrastructure.user.follow.repository.UserFollowQuerydslRepository
+import com.chobolevel.infrastructure.user.follow.repository.UserFollowRepositoryAdapter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -21,7 +21,7 @@ import org.springframework.test.context.ActiveProfiles
 // 모듈 재편 5단계(docs/design/infrastructure-module.md, S-6): 영속성 구현을 옮기기 전에 리포지토리(Adapter)의 현재 계약을 MySQL 컨테이너로 고정한다.
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import(DomainJpaTestConfig::class, AuditConfiguration::class, UserFollowRepositoryAdapter::class, UserFollowQuerydslRepository::class)
+@Import(PersistenceTestConfig::class, AuditConfiguration::class, UserFollowRepositoryAdapter::class, UserFollowQuerydslRepository::class)
 @ActiveProfiles("test")
 @DisplayName("UserFollowRepository 존재·개수·삭제 계약 테스트 (MySQL 컨테이너)")
 class UserFollowRepositoryContractTest : AbstractMySQLContainerTest() {

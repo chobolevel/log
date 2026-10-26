@@ -1,15 +1,15 @@
 package com.chobolevel.api.user.repository
 
-import com.chobolevel.api.common.config.DomainJpaTestConfig
+import com.chobolevel.api.common.config.PersistenceTestConfig
 import com.chobolevel.api.common.container.AbstractMySQLContainerTest
 import com.chobolevel.api.common.fixture.PersistenceFixtures
-import com.chobolevel.domain.common.config.AuditConfiguration
 import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.exception.UserErrorCode
-import com.chobolevel.domain.user.repository.UserQuerydslRepository
 import com.chobolevel.domain.user.repository.UserRepository
-import com.chobolevel.domain.user.repository.UserRepositoryAdapter
+import com.chobolevel.infrastructure.common.config.AuditConfiguration
+import com.chobolevel.infrastructure.user.repository.UserQuerydslRepository
+import com.chobolevel.infrastructure.user.repository.UserRepositoryAdapter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -25,7 +25,7 @@ import org.springframework.test.context.ActiveProfiles
 // 탈퇴한 회원(resigned)은 이메일·닉네임·id 목록 조회와 중복 검사에서 제외된다.
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import(DomainJpaTestConfig::class, AuditConfiguration::class, UserRepositoryAdapter::class, UserQuerydslRepository::class)
+@Import(PersistenceTestConfig::class, AuditConfiguration::class, UserRepositoryAdapter::class, UserQuerydslRepository::class)
 @ActiveProfiles("test")
 @DisplayName("UserRepository 조회 계약 테스트 (MySQL 컨테이너)")
 class UserRepositoryLookupContractTest : AbstractMySQLContainerTest() {

@@ -1,0 +1,70 @@
+package com.chobolevel.infrastructure.user.repository
+
+import com.chobolevel.domain.common.dto.Paging
+import com.chobolevel.domain.common.exception.BusinessException
+import com.chobolevel.domain.user.entity.User
+import com.chobolevel.domain.user.exception.UserErrorCode
+import com.chobolevel.domain.user.repository.UserRepository
+import com.chobolevel.domain.user.vo.UserOrderType
+import com.chobolevel.domain.user.vo.UserQueryFilter
+import org.springframework.data.repository.findByIdOrNull
+import org.springframework.stereotype.Component
+
+@Component
+class UserRepositoryAdapter(
+    private val userJpaRepository: UserJpaRepository,
+    private val userQuerydslRepository: UserQuerydslRepository
+) : UserRepository {
+
+    override fun save(user: User): User {
+        return userJpaRepository.save(user)
+    }
+
+    override fun searchUsers(
+        queryFilter: UserQueryFilter,
+        paging: Paging,
+        orderTypes: List<UserOrderType>
+    ): List<User> {
+        return userQuerydslRepository.searchByFilter(
+            filter = queryFilter,
+            paging = paging,
+            orderTypes = orderTypes
+        )
+    }
+
+    override fun searchUsersCount(queryFilter: UserQueryFilter): Long {
+        return userQuerydslRepository.countByFilter(filter = queryFilter)
+    }
+
+    override fun findById(id: Long): User {
+        return userJpaRepository.findByIdOrNull(id) ?: throw BusinessException(
+            errorCode = UserErrorCode.USER_NOT_FOUND
+        )
+    }
+
+    override fun existsById(id: Long): Boolean {
+        return userJpaRepository.existsById(id)
+    }
+
+    override fun findByEmail(email: String): User {
+        return userJpaRepository.findByEmailAndResignedFalse(email) ?: throw BusinessException(
+            errorCode = UserErrorCode.USER_NOT_FOUND
+        )
+    }
+
+    override fun findByEmailOrNull(email: String): User? {
+        return userJpaRepository.findByEmailAndResignedFalse(email)
+    }
+
+    override fun findAllByIds(ids: List<Long>): List<User> {
+        return userJpaRepository.findAllByIdInAndResignedFalse(ids)
+    }
+
+    override fun existsByEmail(email: String): Boolean {
+        return userJpaRepository.existsByEmailAndResignedFalse(email)
+    }
+
+    override fun existsByNickname(nickname: String): Boolean {
+        return userJpaRepository.existsByNicknameAndResignedFalse(nickname)
+    }
+}
