@@ -17,7 +17,6 @@ dependencies {
     // Redis 캐시(StringRedisTemplate)와 Redisson 분산 락 구현
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation(libs.redisson.starter)
-    implementation(libs.jackson.module.kotlin)
 
     // 이메일 발송 구현(Resend SDK)
     implementation(libs.resend)
