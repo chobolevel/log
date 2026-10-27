@@ -1,19 +1,18 @@
 package com.chobolevel.api.common.password
 
 import com.chobolevel.domain.common.provider.PasswordProvider
+import com.chobolevel.infrastructure.password.BCryptPasswordProvider
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 
 // 모듈 재편 5단계(docs/design/infrastructure-module.md, S-2): 이동 전에 PasswordProvider 구현의 현재 계약을 고정한다.
 // 외부 인프라가 필요 없는 단위 테스트다.
 @DisplayName("BCryptPasswordProvider 계약 테스트")
 class BCryptPasswordProviderTest {
 
-    // 운영에서 주입되는 인코더와 같은 강도(10)로 만든다. (이동 후에는 구현이 인코더를 직접 소유하므로 BCryptPasswordProvider()로 바꾼다)
-    private val passwordProvider: PasswordProvider = BCryptPasswordProvider(BCryptPasswordEncoder(10))
+    private val passwordProvider: PasswordProvider = BCryptPasswordProvider()
 
     @Test
     fun `인코딩한 값은 평문과 다르고 BCrypt 형식이다`() {

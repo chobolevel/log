@@ -21,4 +21,7 @@ dependencies {
 
     // 이메일 발송 구현(Resend SDK)
     implementation(libs.resend)
+
+    // 비밀번호 해시 구현. 암호화 라이브러리만 의존하고 Spring Security 웹 구성(starter-security)은 api가 가진다.
+    implementation("org.springframework.security:spring-security-crypto")
 }
