@@ -34,7 +34,12 @@ class DependencyRuleTest : BehaviorSpec({
     )
     // common은 레이어가 아니라 역할로 나눈다. 새 잡동사니 패키지가 생기지 않도록 허용 역할을 고정한다.
     val allowedCommonRoles: Set<String> = setOf(
-        "web", "security", "redis", "kafka", "email", "s3", "password", "time", "transaction", "exception"
+        "web",
+        "security",
+        "s3",
+        "time",
+        "transaction",
+        "exception"
     )
     // 애그리거트(루트 + 소속 하위 엔티티) 구성. 외부에서는 루트 패키지로만 접근한다.
     val aggregateMembers: Map<String, List<String>> = mapOf(
@@ -69,7 +74,34 @@ class DependencyRuleTest : BehaviorSpec({
                         "org.springframework.data.redis..",
                         "org.springframework.mail..",
                         "org.redisson..",
+                        "com.amazonaws..",
+                        "com.resend..",
                         "okhttp3.."
+                    )
+            )
+        }
+
+        then("domain에는 스프링 빈(@Configuration, @Component)이 없다") {
+            // 빈 등록은 구현 모듈(infrastructure)과 api가 맡는다. domain은 엔티티·포트·값 객체만 둔다.
+            // 엔티티 스캔을 등록하는 자동 구성 클래스(DomainConfigurationLoader)만 예외다.
+            check(
+                noClasses().that().resideInAPackage("com.chobolevel.domain..")
+                    .and().doNotHaveSimpleName("DomainConfigurationLoader")
+                    .should().beAnnotatedWith(org.springframework.context.annotation.Configuration::class.java)
+                    .orShould().beMetaAnnotatedWith(org.springframework.stereotype.Component::class.java)
+            )
+        }
+    }
+
+    given("api의 구현 기술 의존") {
+        then("api는 Redis·Redisson·Resend 구현 기술에 의존하지 않는다") {
+            // 이 기술들은 infrastructure가 맡는다. api는 domain의 포트(CacheProvider 등)로만 쓴다.
+            check(
+                noClasses().that().resideInAPackage("com.chobolevel.api..")
+                    .should().dependOnClassesThat().resideInAnyPackage(
+                        "org.springframework.data.redis..",
+                        "org.redisson..",
+                        "com.resend.."
                     )
             )
         }
