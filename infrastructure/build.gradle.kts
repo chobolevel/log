@@ -27,4 +27,7 @@ dependencies {
 
     // S3 클라이언트(AmazonS3) 구성
     implementation(libs.spring.cloud.aws)
+
+    // Kafka 토픽 생성(NewTopic). 발행·구독 코드는 api가 spring-kafka를 직접 쓴다.
+    implementation("org.springframework.kafka:spring-kafka")
 }
