@@ -57,9 +57,6 @@ dependencies {
     // kafka
     implementation("org.springframework.kafka:spring-kafka")
 
-    // Resend(sending email SDK)
-    implementation(libs.resend)
-
     // test: @WebMvcTest에서 MockK 기반 Bean 등록 지원
     testImplementation(libs.springmockk)
 
@@ -73,6 +70,9 @@ dependencies {
     // test: Redis 구현 계약 테스트(RedisTestSupport)가 템플릿·Redisson 클라이언트를 직접 만든다.
     testImplementation("org.springframework.boot:spring-boot-starter-data-redis")
     testImplementation(libs.redisson.starter)
+
+    // test: ResendEmailProviderTest가 Resend SDK 생성자를 모킹한다.
+    testImplementation(libs.resend)
 
     // test: 구현 클래스를 직접 쓰는 테스트(Adapter 검색 조건 테스트 등)와 자동 구성 확인용
     testImplementation(project(":infrastructure"))

@@ -18,4 +18,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation(libs.redisson.starter)
     implementation(libs.jackson.module.kotlin)
+
+    // 이메일 발송 구현(Resend SDK)
+    implementation(libs.resend)
 }

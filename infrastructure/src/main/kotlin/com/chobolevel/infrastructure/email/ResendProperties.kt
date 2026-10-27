@@ -1,4 +1,4 @@
-package com.chobolevel.api.common.email
+package com.chobolevel.infrastructure.email
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 

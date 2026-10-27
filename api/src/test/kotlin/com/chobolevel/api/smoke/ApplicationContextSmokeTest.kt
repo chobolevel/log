@@ -4,7 +4,6 @@ import com.amazonaws.services.s3.AmazonS3
 import com.chobolevel.api.ApiApplication
 import com.chobolevel.api.common.container.MySQLTestContainer
 import com.chobolevel.api.common.container.RedisTestContainer
-import com.chobolevel.api.common.email.ResendProperties
 import com.chobolevel.api.common.s3.S3Properties
 import com.chobolevel.api.common.security.GuestProperties
 import com.chobolevel.api.common.security.JwtProperties
@@ -36,6 +35,7 @@ import com.chobolevel.domain.user.repository.UserRepository
 import com.chobolevel.domain.user.vo.UserLoginType
 import com.chobolevel.domain.user.vo.UserRoleType
 import com.chobolevel.infrastructure.InfrastructureConfigurationLoader
+import com.chobolevel.infrastructure.email.ResendProperties
 import com.tngtech.archunit.core.importer.ClassFileImporter
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
