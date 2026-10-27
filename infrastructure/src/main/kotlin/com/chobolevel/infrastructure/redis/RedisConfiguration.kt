@@ -1,4 +1,4 @@
-package com.chobolevel.api.common.redis
+package com.chobolevel.infrastructure.redis
 
 import org.redisson.Redisson
 import org.redisson.api.RedissonClient

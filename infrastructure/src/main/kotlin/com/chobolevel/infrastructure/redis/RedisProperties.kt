@@ -1,4 +1,4 @@
-package com.chobolevel.api.common.redis
+package com.chobolevel.infrastructure.redis
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Bean

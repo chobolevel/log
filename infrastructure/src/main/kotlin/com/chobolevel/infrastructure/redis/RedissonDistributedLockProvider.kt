@@ -1,4 +1,4 @@
-package com.chobolevel.api.common.redis
+package com.chobolevel.infrastructure.redis
 
 import com.chobolevel.domain.common.exception.InternalSystemException
 import com.chobolevel.domain.common.exception.SystemErrorCode

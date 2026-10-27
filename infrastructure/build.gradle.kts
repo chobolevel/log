@@ -13,4 +13,9 @@ dependencies {
 
     // Querydsl 리포지토리 구현. Q-type은 domain(kapt)이 생성하고, 여기서는 그 클래스를 쓴다. jakarta classifier는 카탈로그에 표현할 수 없어 버전만 참조한다.
     implementation("com.querydsl:querydsl-jpa:${libs.versions.querydsl.get()}:jakarta")
+
+    // Redis 캐시(StringRedisTemplate)와 Redisson 분산 락 구현
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    implementation(libs.redisson.starter)
+    implementation(libs.jackson.module.kotlin)
 }

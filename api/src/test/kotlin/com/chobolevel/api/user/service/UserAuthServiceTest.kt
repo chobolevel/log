@@ -3,7 +3,6 @@ package com.chobolevel.api.user.service
 import com.chobolevel.api.common.dummy.DummyAuth
 import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.common.email.ResendEmailProvider
-import com.chobolevel.api.common.redis.RedisCacheProvider
 import com.chobolevel.api.common.security.AuthErrorCode
 import com.chobolevel.api.common.security.JwtResponse
 import com.chobolevel.api.common.security.TokenProvider
@@ -20,6 +19,7 @@ import com.chobolevel.domain.user.repository.UserRepository
 import com.chobolevel.domain.user.vo.UserLoginType
 import com.chobolevel.domain.user.vo.UserRedisKey
 import com.chobolevel.domain.user.vo.UserRoleType
+import com.chobolevel.infrastructure.redis.RedisCacheProvider
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
