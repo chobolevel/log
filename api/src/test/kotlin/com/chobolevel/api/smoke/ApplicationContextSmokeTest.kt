@@ -46,6 +46,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationContext
 import org.springframework.core.env.Environment
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
@@ -172,6 +174,25 @@ class ApplicationContextSmokeTest {
         assertThat(repositoryTypes.map { it.name }.toSet()).isEqualTo(declaredRepositories)
         repositoryTypes.forEach { type ->
             assertThat(applicationContext.getBeansOfType(type)).describedAs(type.simpleName).hasSize(1)
+        }
+    }
+
+    @Test
+    fun `Spring Data JPA 리포지토리와 Querydsl 리포지토리가 각각 정확히 한 번씩 등록된다`() {
+        // 리포지토리 스캔은 InfrastructureConfigurationLoader(@EnableJpaRepositories)가, 엔티티 스캔은 DomainConfigurationLoader(@EntityScan)가 맡는다.
+        // 책임이 둘로 나뉘어도 중복 등록이나 누락이 없는지 구현 클래스를 직접 찾아 빈 개수를 확인한다.
+        val classes = ClassFileImporter().importPackages("com.chobolevel.infrastructure")
+        val jpaRepositories: List<String> = classes
+            .filter { it.isInterface && it.isAssignableTo(JpaRepository::class.java) }
+            .map { it.name }
+        val querydslRepositories: List<String> = classes
+            .filter { !it.isInterface && it.isAssignableTo(QuerydslRepositorySupport::class.java) }
+            .map { it.name }
+
+        assertThat(jpaRepositories).hasSize(17)
+        assertThat(querydslRepositories).hasSize(7)
+        (jpaRepositories + querydslRepositories).forEach { name ->
+            assertThat(applicationContext.getBeansOfType(Class.forName(name))).describedAs(name).hasSize(1)
         }
     }
 
