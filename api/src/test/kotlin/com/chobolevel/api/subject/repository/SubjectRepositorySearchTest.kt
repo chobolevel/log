@@ -1,15 +1,15 @@
 package com.chobolevel.api.subject.repository
 
-import com.chobolevel.api.common.config.DomainJpaTestConfig
-import com.chobolevel.domain.common.config.AuditConfiguration
+import com.chobolevel.api.common.config.PersistenceTestConfig
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.subject.dto.CreateSubjectCommand
 import com.chobolevel.domain.subject.entity.Subject
-import com.chobolevel.domain.subject.repository.SubjectQuerydslRepository
-import com.chobolevel.domain.subject.repository.SubjectRepositoryAdapter
 import com.chobolevel.domain.subject.vo.SubjectOrderType
 import com.chobolevel.domain.subject.vo.SubjectQueryFilter
 import com.chobolevel.domain.subject.vo.SubjectType
+import com.chobolevel.infrastructure.common.config.AuditConfiguration
+import com.chobolevel.infrastructure.subject.repository.SubjectQuerydslRepository
+import com.chobolevel.infrastructure.subject.repository.SubjectRepositoryAdapter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -22,7 +22,7 @@ import org.springframework.test.util.ReflectionTestUtils
 
 // QueryFilter → QueryDSL 조건식 변환의 동작을 고정하는 특성화 테스트. 필터 구현 위치가 바뀌어도 공개 계약인 Repository(Adapter)로 검증하므로 그대로 유지된다.
 @DataJpaTest
-@Import(DomainJpaTestConfig::class, AuditConfiguration::class, SubjectRepositoryAdapter::class, SubjectQuerydslRepository::class)
+@Import(PersistenceTestConfig::class, AuditConfiguration::class, SubjectRepositoryAdapter::class, SubjectQuerydslRepository::class)
 @ActiveProfiles("test")
 @DisplayName("SubjectRepository 검색 조건 테스트")
 class SubjectRepositorySearchTest {

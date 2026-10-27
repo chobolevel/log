@@ -1,16 +1,16 @@
 package com.chobolevel.api.user.repository
 
-import com.chobolevel.api.common.config.DomainJpaTestConfig
-import com.chobolevel.domain.common.config.AuditConfiguration
+import com.chobolevel.api.common.config.PersistenceTestConfig
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.user.entity.QUser.user
 import com.chobolevel.domain.user.entity.User
-import com.chobolevel.domain.user.repository.UserJpaRepository
-import com.chobolevel.domain.user.repository.UserQuerydslRepository
 import com.chobolevel.domain.user.vo.UserLoginType
 import com.chobolevel.domain.user.vo.UserOrderType
 import com.chobolevel.domain.user.vo.UserQueryFilter
 import com.chobolevel.domain.user.vo.UserRoleType
+import com.chobolevel.infrastructure.common.config.AuditConfiguration
+import com.chobolevel.infrastructure.user.repository.UserJpaRepository
+import com.chobolevel.infrastructure.user.repository.UserQuerydslRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 
 @DataJpaTest
-@Import(DomainJpaTestConfig::class, AuditConfiguration::class, UserQuerydslRepository::class)
+@Import(PersistenceTestConfig::class, AuditConfiguration::class, UserQuerydslRepository::class)
 @ActiveProfiles("test")
 @DisplayName("UserJpaRepository 슬라이스 테스트")
 class UserJpaRepositoryTest {

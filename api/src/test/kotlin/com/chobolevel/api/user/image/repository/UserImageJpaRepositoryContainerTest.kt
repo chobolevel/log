@@ -1,14 +1,14 @@
 package com.chobolevel.api.user.image.repository
 
-import com.chobolevel.api.common.config.DomainJpaTestConfig
+import com.chobolevel.api.common.config.PersistenceTestConfig
 import com.chobolevel.api.common.container.AbstractMySQLContainerTest
-import com.chobolevel.domain.common.config.AuditConfiguration
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.image.entity.UserImage
-import com.chobolevel.domain.user.image.repository.UserImageJpaRepository
 import com.chobolevel.domain.user.image.vo.UserImageType
 import com.chobolevel.domain.user.vo.UserLoginType
 import com.chobolevel.domain.user.vo.UserRoleType
+import com.chobolevel.infrastructure.common.config.AuditConfiguration
+import com.chobolevel.infrastructure.user.image.repository.UserImageJpaRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -21,7 +21,7 @@ import org.springframework.test.context.ActiveProfiles
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import(DomainJpaTestConfig::class, AuditConfiguration::class)
+@Import(PersistenceTestConfig::class, AuditConfiguration::class)
 @ActiveProfiles("test")
 @DisplayName("UserImageJpaRepository Testcontainers(MySQL) 슬라이스 테스트")
 class UserImageJpaRepositoryContainerTest : AbstractMySQLContainerTest() {

@@ -1,0 +1,33 @@
+package com.chobolevel.infrastructure.record.like.repository
+
+import com.chobolevel.domain.record.like.entity.RecordLike
+import com.chobolevel.domain.record.like.repository.RecordLikeRepository
+import org.springframework.stereotype.Component
+
+@Component
+class RecordLikeRepositoryAdapter(
+    private val recordLikeJpaRepository: RecordLikeJpaRepository
+) : RecordLikeRepository {
+
+    override fun save(recordLike: RecordLike): RecordLike {
+        return recordLikeJpaRepository.save(recordLike)
+    }
+
+    override fun countByRecordId(recordId: Long): Long {
+        return recordLikeJpaRepository.countByRecordId(recordId = recordId)
+    }
+
+    override fun existsByRecordIdAndUserId(recordId: Long, userId: Long): Boolean {
+        return recordLikeJpaRepository.existsByRecordIdAndUserId(
+            recordId = recordId,
+            userId = userId,
+        )
+    }
+
+    override fun deleteByRecordIdAndUserId(recordId: Long, userId: Long) {
+        recordLikeJpaRepository.deleteByRecordIdAndUserId(
+            recordId = recordId,
+            userId = userId
+        )
+    }
+}

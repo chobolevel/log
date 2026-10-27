@@ -1,14 +1,14 @@
 package com.chobolevel.api.notification.repository
 
-import com.chobolevel.api.common.config.DomainJpaTestConfig
-import com.chobolevel.domain.common.config.AuditConfiguration
+import com.chobolevel.api.common.config.PersistenceTestConfig
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.notification.entity.Notification
-import com.chobolevel.domain.notification.repository.NotificationQuerydslRepository
-import com.chobolevel.domain.notification.repository.NotificationRepositoryAdapter
 import com.chobolevel.domain.notification.vo.NotificationOrderType
 import com.chobolevel.domain.notification.vo.NotificationQueryFilter
 import com.chobolevel.domain.notification.vo.NotificationType
+import com.chobolevel.infrastructure.common.config.AuditConfiguration
+import com.chobolevel.infrastructure.notification.repository.NotificationQuerydslRepository
+import com.chobolevel.infrastructure.notification.repository.NotificationRepositoryAdapter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -20,7 +20,7 @@ import org.springframework.test.context.ActiveProfiles
 
 // QueryFilter → QueryDSL 조건식 변환의 동작을 고정하는 특성화 테스트. 필터 구현 위치가 바뀌어도 공개 계약인 Repository(Adapter)로 검증하므로 그대로 유지된다.
 @DataJpaTest
-@Import(DomainJpaTestConfig::class, AuditConfiguration::class, NotificationRepositoryAdapter::class, NotificationQuerydslRepository::class)
+@Import(PersistenceTestConfig::class, AuditConfiguration::class, NotificationRepositoryAdapter::class, NotificationQuerydslRepository::class)
 @ActiveProfiles("test")
 @DisplayName("NotificationRepository 검색 조건 테스트")
 class NotificationRepositorySearchTest {

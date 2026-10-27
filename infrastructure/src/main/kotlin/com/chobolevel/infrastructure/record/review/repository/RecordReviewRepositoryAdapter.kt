@@ -1,0 +1,19 @@
+package com.chobolevel.infrastructure.record.review.repository
+
+import com.chobolevel.domain.common.exception.BusinessException
+import com.chobolevel.domain.record.exception.RecordErrorCode
+import com.chobolevel.domain.record.review.entity.RecordReview
+import com.chobolevel.domain.record.review.repository.RecordReviewRepository
+import org.springframework.stereotype.Component
+
+@Component
+class RecordReviewRepositoryAdapter(
+    private val recordReviewJpaRepository: RecordReviewJpaRepository
+) : RecordReviewRepository {
+
+    override fun findById(id: Long): RecordReview {
+        return recordReviewJpaRepository.findByIdAndIsDeletedFalse(id) ?: throw BusinessException(
+            errorCode = RecordErrorCode.RECORD_REVIEW_NOT_FOUND
+        )
+    }
+}

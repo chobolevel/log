@@ -15,6 +15,8 @@ import com.tngtech.archunit.library.dependencies.Slice
 import com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices
 import com.tngtech.archunit.library.freeze.FreezingArchRule
 import io.kotest.core.spec.style.BehaviorSpec
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 
 // 모듈·패키지 의존 규칙(decisions/module-and-package-structure.md)을 코드로 고정한다.
 // 이미 존재하는 위반은 archunit_store에 얼려 두고(FreezingArchRule), 새 위반만 막는다.
@@ -228,6 +230,23 @@ class DependencyRuleTest : BehaviorSpec({
             check(
                 classes().that().haveSimpleNameEndingWith("RedisKey")
                     .should().resideInAPackage("com.chobolevel.domain..")
+            )
+        }
+    }
+
+    given("영속성 구현의 위치") {
+        then("domain에는 Spring Data JPA·QueryDSL 리포지토리 구현이 없다") {
+            check(
+                noClasses().that().resideInAPackage("com.chobolevel.domain..")
+                    .should().beAssignableTo(JpaRepository::class.java)
+                    .orShould().beAssignableTo(QuerydslRepositorySupport::class.java)
+            )
+        }
+
+        then("*RepositoryAdapter는 infrastructure에만 있다") {
+            check(
+                classes().that().haveSimpleNameEndingWith("RepositoryAdapter")
+                    .should().resideInAPackage("com.chobolevel.infrastructure..")
             )
         }
     }

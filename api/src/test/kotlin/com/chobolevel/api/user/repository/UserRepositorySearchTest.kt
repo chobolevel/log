@@ -1,15 +1,15 @@
 package com.chobolevel.api.user.repository
 
-import com.chobolevel.api.common.config.DomainJpaTestConfig
-import com.chobolevel.domain.common.config.AuditConfiguration
+import com.chobolevel.api.common.config.PersistenceTestConfig
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.user.entity.User
-import com.chobolevel.domain.user.repository.UserQuerydslRepository
-import com.chobolevel.domain.user.repository.UserRepositoryAdapter
 import com.chobolevel.domain.user.vo.UserLoginType
 import com.chobolevel.domain.user.vo.UserOrderType
 import com.chobolevel.domain.user.vo.UserQueryFilter
 import com.chobolevel.domain.user.vo.UserRoleType
+import com.chobolevel.infrastructure.common.config.AuditConfiguration
+import com.chobolevel.infrastructure.user.repository.UserQuerydslRepository
+import com.chobolevel.infrastructure.user.repository.UserRepositoryAdapter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -22,7 +22,7 @@ import org.springframework.test.context.ActiveProfiles
 // QueryFilter → QueryDSL 조건식 변환의 동작을 고정하는 특성화 테스트. 필터 구현 위치가 바뀌어도 공개 계약인 Repository(Adapter)로 검증하므로 그대로 유지된다.
 // email, excludeUserIds 조건은 UserJpaRepositoryTest가 다룬다. 여기서는 나머지 조건과 조합, 개수 조회를 고정한다.
 @DataJpaTest
-@Import(DomainJpaTestConfig::class, AuditConfiguration::class, UserRepositoryAdapter::class, UserQuerydslRepository::class)
+@Import(PersistenceTestConfig::class, AuditConfiguration::class, UserRepositoryAdapter::class, UserQuerydslRepository::class)
 @ActiveProfiles("test")
 @DisplayName("UserRepository 검색 조건 테스트")
 class UserRepositorySearchTest {

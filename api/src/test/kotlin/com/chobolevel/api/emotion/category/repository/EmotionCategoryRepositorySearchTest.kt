@@ -1,14 +1,14 @@
 package com.chobolevel.api.emotion.category.repository
 
-import com.chobolevel.api.common.config.DomainJpaTestConfig
-import com.chobolevel.domain.common.config.AuditConfiguration
+import com.chobolevel.api.common.config.PersistenceTestConfig
 import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.emotion.category.entity.EmotionCategory
-import com.chobolevel.domain.emotion.category.repository.EmotionCategoryQuerydslRepository
-import com.chobolevel.domain.emotion.category.repository.EmotionCategoryRepositoryAdapter
 import com.chobolevel.domain.emotion.category.vo.EmotionCategoryOrderType
 import com.chobolevel.domain.emotion.category.vo.EmotionCategoryQueryFilter
 import com.chobolevel.domain.emotion.category.vo.EmotionCategoryType
+import com.chobolevel.infrastructure.common.config.AuditConfiguration
+import com.chobolevel.infrastructure.emotion.category.repository.EmotionCategoryQuerydslRepository
+import com.chobolevel.infrastructure.emotion.category.repository.EmotionCategoryRepositoryAdapter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -20,7 +20,7 @@ import org.springframework.test.context.ActiveProfiles
 
 // QueryFilter → QueryDSL 조건식 변환의 동작을 고정하는 특성화 테스트. 필터 구현 위치가 바뀌어도 공개 계약인 Repository(Adapter)로 검증하므로 그대로 유지된다.
 @DataJpaTest
-@Import(DomainJpaTestConfig::class, AuditConfiguration::class, EmotionCategoryRepositoryAdapter::class, EmotionCategoryQuerydslRepository::class)
+@Import(PersistenceTestConfig::class, AuditConfiguration::class, EmotionCategoryRepositoryAdapter::class, EmotionCategoryQuerydslRepository::class)
 @ActiveProfiles("test")
 @DisplayName("EmotionCategoryRepository 검색 조건 테스트")
 class EmotionCategoryRepositorySearchTest {
