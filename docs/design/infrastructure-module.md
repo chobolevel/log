@@ -64,7 +64,7 @@
 
 **테스트 인프라(S-1에서 추가)**: `MySQLTestContainer`, `RedisTestContainer`, `smoke/ApplicationContextSmokeTest`, `smoke/FastFailureAnalyzer`와 `src/test/resources/META-INF/spring.factories`. 후자는 `api` 테스트 클래스패스 전체에 적용된다.
 
-**테스트 쪽 변경**: 포트·키·Adapter를 import하는 기존 테스트의 import 수정, `DomainJpaTestConfig`의 스캔 기준 패키지에 `infrastructure` 추가, `api`에서 Adapter를 직접 쓰는 테스트를 위한 `testImplementation`.
+**테스트 쪽 변경**: 포트·키·Adapter를 import하는 기존 테스트의 import 수정, `PersistenceTestConfig`(구 `DomainJpaTestConfig`)의 스캔 기준 패키지에 `infrastructure` 추가, `api`에서 Adapter를 직접 쓰는 테스트를 위한 `testImplementation`.
 
 ## 슬라이스
 
@@ -146,7 +146,8 @@ S-1, S-2는 production 코드를 바꾸지 않는 안전망이다. 순서는 번
 - 단위 (ArchUnit): `domain`에 `JpaRepository`/`QuerydslRepositorySupport`를 상속한 클래스가 없고, `*RepositoryAdapter`는 `infrastructure`에만 있다
 - 통합: S-1의 `*Repository` 빈 17개 / 기존 `*RepositorySearchTest`(검색 조건·정렬 특성화), `UserJpaRepositoryTest`, `UserJpaRepositoryContainerTest`가 수정 없이(import 제외) 통과한다
 - 경계 / 예외: `@Where` 기반 소프트 삭제, `createdAt` 자동 채움이 이동 후에도 동작한다 / `@EntityScan`(`domain`)과 `@EnableJpaRepositories`(`infrastructure`) 기준 패키지가 분리돼도 엔티티와 리포지토리가 모두 스캔된다
-- 이동 후 변이 검증: `@EnableJpaRepositories` 기준 패키지 오류, Adapter의 `@Component` 누락, `AuditConfiguration` 미등록, Querydsl 리포지토리 누락이 각각 스모크·계약 테스트에서 실패한다
+- 스캔 책임 분리(리포지토리는 `InfrastructureConfigurationLoader`, 엔티티는 `DomainConfigurationLoader`): 스모크 테스트가 Spring Data JPA 리포지토리 17개와 Querydsl 리포지토리 7개를 구현 클래스에서 직접 찾아 각각 빈이 정확히 1개인지 확인한다. 같은 범위를 두 로더가 스캔하면 `BeanDefinitionOverrideException`으로 기동이 실패해 중복 등록은 스프링이 막는다
+- 이동 후 변이 검증: `@EnableJpaRepositories` 기준 패키지 오류·일부만 스캔·중복 스캔, Adapter의 `@Component` 누락, `AuditConfiguration` 미등록, Querydsl 리포지토리 누락이 각각 스모크·계약 테스트에서 실패한다
 
 ### S-7 기술 어댑터 이동
 
@@ -180,7 +181,7 @@ S-1, S-2는 production 코드를 바꾸지 않는 안전망이다. 순서는 번
 | S-3 | 중간 | 모듈 의존 방향과 자동 구성 등록 | `runtimeOnly` 선언, `AutoConfiguration.imports` |
 | S-4 | 낮음 | 패키지 이동만 | - |
 | S-5 | 높음 | Redis 캐시 정합성: 키 문자열이 바뀌면 운영 캐시가 갈라지고, 토픽 이름이 바뀌면 Outbox 이벤트가 유실된다 | 12개 키 템플릿·TTL 상수·토픽 이름 8개가 이동 전과 한 글자도 다르지 않은지, 키 정의별 소속 기능 |
-| S-6 | 높음 | JPA·빈 스캔이 모듈 경계를 넘는다. 잘못되면 기동 실패 또는 리포지토리 누락 | `InfrastructureConfigurationLoader`의 스캔 범위, `DomainConfigurationLoader`에 남는 `@EntityScan`, `DomainJpaTestConfig` 기준 패키지 |
+| S-6 | 높음 | JPA·빈 스캔이 모듈 경계를 넘는다. 잘못되면 기동 실패 또는 리포지토리 누락 | `InfrastructureConfigurationLoader`의 스캔 범위, `DomainConfigurationLoader`에 남는 `@EntityScan`, `PersistenceTestConfig` 기준 패키지 |
 | S-7 | 높음 | 외부 연동(Redis·Redisson 분산락·Resend·S3)과 설정 바인딩 | `RedisConfiguration`의 `@Primary` 빈, 락 예외 매핑, `@ConfigurationPropertiesScan` 범위, `S3Configuration`의 프로퍼티 키, 토픽 빈 8개의 이름·파티션·복제 수가 그대로인지, `CacheProvider`에 주입되는 템플릿이 `StringRedisTemplate`에서 바뀌지 않는지(`RedisConfiguration`을 옮기다 JSON `redisTemplate`이 선택되면 카운터 읽기가 `ClassCastException`) |
 | S-8 | 낮음 | 문서와 규칙 | - |
 | S-9 | 낮음 | 문서만 변경. 자동 테스트가 없어 체크리스트 누락이 유일한 위험 | 체크리스트 6개 항목이 모두 처리됐는지 |

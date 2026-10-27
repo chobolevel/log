@@ -26,7 +26,7 @@
 
 - H2 통과는 MySQL 통과가 아니다. 실제로 발견된 차이: `@Where`와 quoted identifiers 충돌(H2는 `CASE_INSENSITIVE_IDENTIFIERS=TRUE` 필요), `order` 같은 예약어 칼럼, `LIKE` 대소문자 구분. 방언에 의존하는 동작은 Testcontainers MySQL로 검증한다.
 - Testcontainers는 Singleton Container 패턴(`AbstractMySQLContainerTest`, `companion object` + `@JvmField`)으로 JVM당 하나만 기동하고, 포트는 `@DynamicPropertySource`로 주입한다.
-- 멀티 모듈 `@DataJpaTest`는 `DomainJpaTestConfig`(`@EnableJpaRepositories` + `@EntityScan`)를 사용한다. `DomainConfigurationLoader`를 직접 import하면 비JPA 빈까지 로드되어 `JavaMailSender` 의존성 에러가 난다.
+- 멀티 모듈 `@DataJpaTest`는 `PersistenceTestConfig`(`@EnableJpaRepositories`는 `infrastructure`, `@EntityScan`은 `domain`)를 사용한다. 엔티티는 `domain`에, Spring Data 리포지토리 구현은 `infrastructure`에 있어서 `@DataJpaTest`의 기본 스캔(`@SpringBootApplication` 패키지인 `com.chobolevel.api`)에 잡히지 않기 때문이다. `DomainConfigurationLoader`·`InfrastructureConfigurationLoader`를 그대로 import하면 JPA와 무관한 빈(`S3Configuration` 등)까지 컴포넌트 스캔으로 함께 올라와 슬라이스가 커지므로 쓰지 않는다.
 - `@WebMvcTest`는 `@EnableWebSecurity`를 로드하지 않으므로 `TestSecurityConfig`로 FilterChain을 직접 정의하고, 인증이 필요하면 `@WithMockUser(username = "1")`를 쓴다.
 - `entityManager.clear()`는 REMOVED 상태의 엔티티까지 지워서 DELETE SQL이 실행되지 않는다. 삭제 검증은 `count()` 같은 조회 쿼리가 flush를 일으키게 두고 확인한다.
 - `@Async` 메서드는 Spring 컨텍스트 없는 단위 테스트에서 동기로 실행된다. 실제 비동기 동작은 슬라이스/통합 테스트에서 확인한다.
