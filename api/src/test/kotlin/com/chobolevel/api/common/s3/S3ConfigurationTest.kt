@@ -1,7 +1,7 @@
 package com.chobolevel.api.common.s3
 
 import com.amazonaws.services.s3.AmazonS3
-import com.chobolevel.domain.common.config.S3Configuration
+import com.chobolevel.infrastructure.s3.S3Configuration
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
