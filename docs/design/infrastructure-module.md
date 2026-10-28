@@ -2,7 +2,7 @@
 
 - 상태: 확정
 - 작성일: 2026-10-17
-- 관련: [모듈·패키지·의존 구조 재편 ADR](../../decisions/module-and-package-structure.md) (5단계), 후속 6단계(worker 모듈)
+- 관련: [모듈·패키지·의존 구조 ADR](../../decisions/module-and-package-structure.md) (`infrastructure` 모듈 분리), `worker` 분리는 이 ADR의 범위 밖(별도 결정)
 
 ## 배경과 목표
 
@@ -219,8 +219,8 @@ S-1 컨텍스트 스모크 테스트와 S-2 Provider 계약 테스트가 모든 
 
 ## 비범위
 
-- `worker` 모듈 신설과 relay 스케줄러·consumer 이동 (6단계)
-- `application` 모듈 분리 (7단계, 서비스가 `api` DTO에서 벗어난 뒤)
+- `worker` 모듈 신설과 relay 스케줄러·consumer 이동 (멀티 인스턴스 확장과 함께 별도 ADR에서 결정)
+- `application` 모듈 분리 (서비스가 `api` DTO에서 벗어난 뒤 별도로 판단)
 - 서비스가 캐시 키 문자열을 조립하는 방식을 기능별 캐시 클래스(`RecordLikeCache` 등)로 감싸는 변경
 - `NotificationPublisher`/`NotificationOutboxPublisher` 이동 (도메인 리포지토리만 쓰는 유스케이스 협력자라 `api`에 유지)
 - 키 값·TTL 변경, 설정 키 이름 변경, Kafka 토픽·페이로드 변경
@@ -229,6 +229,18 @@ S-1 컨텍스트 스모크 테스트와 S-2 Provider 계약 테스트가 모든 
 - `PasswordProvider` 포트 시그니처의 nullable(`String?`) 정리: Spring 인코더의 시그니처가 포트까지 번진 것이라 non-null로 좁히는 것이 맞지만 호출부가 `null`을 먼저 처리해야 해서 별도 작업으로 둔다
 - `TokenProvider`(JWT) 포트화: 지금은 Spring Security 타입과 섞여 있고 `worker`가 쓰지 않아 `api`에 둔다
 - 소프트 삭제 방식 통일, 마이그레이션 job 분리, JPA 엔티티와 도메인 모델 분리
+
+## 재편 전반의 후속 과제
+
+모듈·패키지 재편(1~4단계 포함) 중에 발견했지만 범위 밖이라 남긴 것이다. 위 비범위와 겹치는 항목은 적지 않는다.
+
+- Jib JVM 플래그의 `-Djasypt.encryptor.password`와 `application.yml`의 `spring.datasource.password` 평문 값: 시크릿 로테이션 항목으로 함께 처리
+- `V1__init_tables.sql`이 만든 `BATCH_*` 테이블 9개: 이미 적용된 마이그레이션이라 수정할 수 없고, 지우려면 DROP 마이그레이션을 새로 만들어야 한다. 운영 DB 변경이므로 의도적으로 할 때만 진행
+- `application.yml`의 `spring.jackson` 오타(`property-naming-str ategy`, 키 중간 공백): 현재 설정이 적용되지 않아 응답이 camelCase로 나가는 것으로 보인다. 고치면 모든 응답 필드명이 바뀌므로, 의도(camelCase 유지 / snake_case)를 먼저 정하고 프론트와 맞춰 처리
+- 소프트 삭제 처리 방식이 엔티티마다 다르다: `Subject`는 엔티티 `@Where`와 필터 조건이 중복이고, `Emotion`·`EmotionCategory`·`Record`는 필터에만 있다
+- `Record` 검색의 "공개 + 미삭제" 조건이 `RecordQuerydslRepository.predicatesOf` 안에 숨어 있다. 호출자가 볼 수 있게 필터 필드(`onlyPublic` 등)로 올릴지, 비공개 포함 조회 경로(내 기록 등)가 필요한지 확인
+- 정렬 특성화 테스트는 컬럼이 구분되는 `User`·`Emotion`·`EmotionCategory`만 있다. `CREATED_AT`/`UPDATED_AT` 정렬은 저장 시각이 같으면 순서가 불안정해 제외했다
+- `notification/sse/` 직하위 4개 클래스(`SseEmitterRegistry`, `LocalSseEmitterRegistry`, `NotificationSseDispatcher`, `SseEventName`)의 레이어 배치: `provider`/`service`/`dto`로 나눌지 결정
 
 ## 열린 질문
 
