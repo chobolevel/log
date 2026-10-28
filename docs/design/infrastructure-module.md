@@ -164,7 +164,7 @@ S-1, S-2는 production 코드를 바꾸지 않는 안전망이다. 순서는 번
 | Email (`ResendEmailProvider`) | 스모크: `EmailProvider` 빈, `ResendProperties` 바인딩 | 단위(MockK 생성자 모킹): 성공 시 from·to·subject·html로 `send` 호출, `ResendException`이 `ExternalSystemException(EMAIL_SEND_FAILED)`로 매핑되고 원인이 보존됨 |
 | Password (`BCryptPasswordProvider`) | S-2 계약 6케이스 | 해시 접두어 `$2a$10$` 고정, 기존 해시 호환(골든 값, 다른 강도로 만든 해시 포함), 스모크: 연결된 빈의 `encode`/`matches` 왕복 |
 | S3 (`S3Configuration`) | 스모크: `AmazonS3` 빈 존재 | 단위: 만든 클라이언트의 리전·URL 형태, 스모크: 연결된 클라이언트의 리전 |
-| Kafka 토픽 빈 (`KafkaTopicConfiguration`) | `KafkaTopicConfigurationTest`(이름·파티션·복제) | 스모크: `NewTopic` 빈 8개와 이름이 `KafkaTopics` 상수와 일치 |
+| Kafka 토픽 빈 (`KafkaTopicConfiguration`) | `KafkaTopicConfigurationTest`(이름·파티션·복제) | 스모크: `KafkaTopics` 상수 8개 이름마다 파티션 1·복제 1인 `NewTopic` 빈이 있다(스프링 카프카 재시도 구성이 같은 이름·`-retry-*` 토픽 빈을 따로 등록하므로 "정확히 8개"로는 단언하지 않는다) |
 | `@ConfigurationPropertiesScan` | 스모크: 프로퍼티 6종 바인딩 | 없음 |
 
 **이동 후 공통 검증**
@@ -175,6 +175,12 @@ S-1, S-2는 production 코드를 바꾸지 않는 안전망이다. 순서는 번
 - 경계 / 예외: `redis.chobolevel.*`, `resend.*`, `cloud.aws.*` 키가 동일하게 바인딩된다 / `RedissonDistributedLockProvider`·`ResendEmailProvider`의 예외 매핑(`InternalSystemException`, `ExternalSystemException`)이 유지된다
 
 **진행 순서**: 설계 문서 → 이동 전 테스트 → 기술별 이동 커밋(Redis, Email, Password, S3, Kafka) → 정리(로더 `@ComponentScan` 제거, `domain` aws 의존 제거, `api` 빌드 정리, ArchUnit) → 죽은 빈 삭제 → 변이 검증
+
+**구현 결과** (계획과 달라진 점만)
+- `api`의 런타임 classpath는 이동 전후가 동일하다(229개 항목 비교). `bootJar`의 `BOOT-INF/lib`에는 infrastructure·domain jar와 resend·redisson·spring-cloud-aws·spring-kafka·spring-data-redis·spring-security-crypto가 들어 있다
+- ArchUnit의 "domain에 스프링 빈이 없다" 규칙은 `DomainConfigurationLoader`만 예외로 둔다. `@AutoConfiguration`이 `@Component`를 메타 어노테이션으로 가져서 위반으로 잡히기 때문이다. 위반을 `archunit_store`에 얼리지 않고 규칙에서 제외했다
+- `api`에서 `starter-data-redis`·Redisson·Resend는 main에서 빠졌고 계약 테스트용 `testImplementation`으로만 남았다. `spring-cloud-aws`(`UploadService`)와 `spring-kafka`(consumer·relay)는 `api` main이 직접 써서 유지한다
+- 죽은 빈 삭제는 계획대로 마지막 별도 커밋이다. `RedisConfiguration`이 구현한 `CachingConfigurer`는 `@EnableCaching` 사용처가 없어 보이지만 이번 범위에는 넣지 않았다(후속 과제)
 
 ### S-8 규칙 정리
 
@@ -219,7 +225,7 @@ S-1 컨텍스트 스모크 테스트와 S-2 Provider 계약 테스트가 모든 
 - `NotificationPublisher`/`NotificationOutboxPublisher` 이동 (도메인 리포지토리만 쓰는 유스케이스 협력자라 `api`에 유지)
 - 키 값·TTL 변경, 설정 키 이름 변경, Kafka 토픽·페이로드 변경
 - `ResendEmailProvider`의 외부 API 호출 검증 (SDK를 직접 호출하며 이번에 코드를 바꾸지 않는다. 빈 연결은 S-1이 확인한다)
-- `RedisConfiguration`의 JSON `redisTemplate`·`opsForHash` 빈 삭제 (어디에도 주입되지 않는 것으로 보인다. S-7에서는 그대로 옮기고, 삭제는 별도로 판단)
+- `RedisConfiguration`의 `CachingConfigurer` 구현 제거 (캐시 애노테이션 사용처가 없어 보이지만 S-7은 빈 삭제까지만 다룬다)
 - `PasswordProvider` 포트 시그니처의 nullable(`String?`) 정리: Spring 인코더의 시그니처가 포트까지 번진 것이라 non-null로 좁히는 것이 맞지만 호출부가 `null`을 먼저 처리해야 해서 별도 작업으로 둔다
 - `TokenProvider`(JWT) 포트화: 지금은 Spring Security 타입과 섞여 있고 `worker`가 쓰지 않아 `api`에 둔다
 - 소프트 삭제 방식 통일, 마이그레이션 job 분리, JPA 엔티티와 도메인 모델 분리
