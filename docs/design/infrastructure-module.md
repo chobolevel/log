@@ -1,8 +1,8 @@
 # infrastructure 모듈 신설 (모듈 재편 5단계)
 
-- 상태: 확정
+- 상태: 완료
 - 작성일: 2026-10-17
-- 관련: [모듈·패키지·의존 구조 재편 ADR](../../decisions/module-and-package-structure.md) (5단계), 후속 6단계(worker 모듈)
+- 관련: [모듈·패키지·의존 구조 ADR](../../decisions/module-and-package-structure.md) (`infrastructure` 모듈 분리), `worker` 분리는 이 ADR의 범위 밖(별도 결정)
 
 ## 배경과 목표
 
@@ -72,17 +72,17 @@
 
 ## 슬라이스
 
-| # | 동작 변화 | 영향 모듈/패키지 | 위험도 |
-|---|---|---|---|
-| S-1 | 컨텍스트 스모크 테스트 추가 (현재 구조에서 먼저 통과) | `api` 테스트 | 중간 |
-| S-2 | Provider 계약 특성화 테스트 추가 (Redis 캐시, Redisson 락, BCrypt) | `api` 테스트 | 중간 |
-| S-3 | `infrastructure` 모듈 골격과 의존 규칙(빈 모듈, 로더, `runtimeOnly`) | 빌드, `api`, 신규 모듈 | 중간 |
-| S-4 | 포트 4종을 `domain/common/provider`로 이동 | `api`, `domain` | 낮음 |
-| S-5 | `CacheKeyPrefix`를 기능별 키 정의로, Kafka 토픽 이름 상수를 `KafkaTopics`로 분리해 `domain`으로 (문자열 불변) | `api`, `domain` | 높음 |
-| S-6 | 영속성 구현(Adapter·Jpa·Querydsl·Audit 설정)을 `infrastructure`로 | `domain`, `infrastructure` | 높음 |
-| S-7 | 기술 어댑터(Redis·Email·Password·S3 설정·Kafka 토픽 빈)와 Properties를 `infrastructure`로 | `api`, `infrastructure` | 높음 |
-| S-8 | 규칙 정리 (`CLAUDE.md`의 모듈 구조·Repository 위치·`runtimeOnly` 경계 규칙, ArchUnit 최종 점검) | 문서, 테스트 | 낮음 |
-| S-9 | 문서 구조 정리 (ADR에서 진행 현황 제거, ADR과 설계 문서의 역할 구분, 낡은 서술 정리) | 문서 | 낮음 |
+| # | 동작 변화 | 영향 모듈/패키지 | 위험도 | PR |
+|---|---|---|---|---|
+| S-1 | 컨텍스트 스모크 테스트 추가 (현재 구조에서 먼저 통과) | `api` 테스트 | 중간 | #345 |
+| S-2 | Provider 계약 특성화 테스트 추가 (Redis 캐시, Redisson 락, BCrypt) | `api` 테스트 | 중간 | #346 |
+| S-3 | `infrastructure` 모듈 골격과 의존 규칙(빈 모듈, 로더, `runtimeOnly`) | 빌드, `api`, 신규 모듈 | 중간 | #347 |
+| S-4 | 포트 4종을 `domain/common/provider`로 이동 | `api`, `domain` | 낮음 | #348 |
+| S-5 | `CacheKeyPrefix`를 기능별 키 정의로, Kafka 토픽 이름 상수를 `KafkaTopics`로 분리해 `domain`으로 (문자열 불변) | `api`, `domain` | 높음 | #349 |
+| S-6 | 영속성 구현(Adapter·Jpa·Querydsl·Audit 설정)을 `infrastructure`로 | `domain`, `infrastructure` | 높음 | #350, #351 |
+| S-7 | 기술 어댑터(Redis·Email·Password·S3 설정·Kafka 토픽 빈)와 Properties를 `infrastructure`로 | `api`, `infrastructure` | 높음 | #352 |
+| S-8 | 규칙 정리 (`CLAUDE.md`의 모듈 구조·Repository 위치·`runtimeOnly` 경계 규칙, ArchUnit 최종 점검) | 문서, 테스트 | 낮음 | #353 |
+| S-9 | 문서 구조 정리 (ADR에서 진행 현황 제거, ADR과 설계 문서의 역할 구분, 낡은 서술 정리) | 문서 | 낮음 | #354 |
 
 S-1, S-2는 production 코드를 바꾸지 않는 안전망이다. 순서는 번호 순이며, 모든 슬라이스는 앞 슬라이스의 테스트(S-1, S-2 포함)를 동작 변경 없이 통과해야 한다. 안전망 테스트는 import(와 이동에 따른 테스트 설정) 수정만 허용하며 assertion은 바꾸지 않는다.
 
@@ -192,12 +192,12 @@ S-1, S-2는 production 코드를 바꾸지 않는 안전망이다. 순서는 번
 
 문서 정리는 자동 테스트로 고정하기 어렵다. 누락되지 않도록 아래 체크리스트를 완료 조건으로 삼고, PR에서 항목별로 확인한다. (자동 검증은 마지막 항목의 검색 명령뿐이다.)
 
-- [ ] **ADR는 결정만 남긴다**: `decisions/module-and-package-structure.md`에서 진행 현황(단계 표의 상태·커밋 해시, 1~4단계 결과 요약)을 걷어낸다. 진행 기록은 이 설계 문서의 슬라이스 표와 PR 이력으로 남는다
-- [ ] **한 사실은 한 곳에만 둔다**: 같은 내용이 ADR과 설계 문서에 중복된 곳(모듈 구성, 캐시 키·토픽 위치, 포트 위치 등)을 한쪽에서 지우고 다른 쪽을 링크한다
-- [ ] **바뀐 결정에 흔적을 남긴다**: 번복·수정된 결정(캐시 키의 위치가 `infrastructure`에서 `domain`으로 바뀐 것 등)에 수정 사유와 날짜가 있거나 새 ADR이 이전 ADR을 대체한다고 표시한다
-- [ ] **ADR 대상 기준을 적는다**: `docs/design/README.md`에 ADR과 설계 문서의 역할 구분을 한 단락 추가할지 결정한다. 후보: ADR은 되돌리기 어렵고 여러 기능에 걸치는 결정(모듈 구조, 의존 방향 등)만, 한 기능 안의 이름·구조 결정은 설계 문서의 결정 사항 표로 (워크플로 문서라 사용자가 결정)
-- [ ] **이 설계 문서를 마무리한다**: 상태를 "완료"로 바꾸고, 슬라이스 표에 각 슬라이스의 PR 링크 또는 커밋을 적는다
-- [ ] **낡은 이름이 남지 않았다**: 아래를 검색해 결과가 없거나 "옛 서술"로 명시된 곳뿐이다 — `git grep -nE "CacheKeyPrefix|EventTopics|infrastructure.*CacheKey" -- decisions docs CLAUDE.md`
+- [x] **ADR는 결정만 남긴다**: `decisions/module-and-package-structure.md`에서 진행 현황(단계 표의 상태·커밋 해시, 1~4단계 결과 요약)을 걷어낸다. 진행 기록은 이 설계 문서의 슬라이스 표와 PR 이력으로 남는다
+- [x] **한 사실은 한 곳에만 둔다**: 같은 내용이 ADR과 설계 문서에 중복된 곳(모듈 구성, 캐시 키·토픽 위치, 포트 위치 등)을 한쪽에서 지우고 다른 쪽을 링크한다
+- [x] **바뀐 결정에 흔적을 남긴다**: 번복·수정된 결정(캐시 키의 위치가 `infrastructure`에서 `domain`으로 바뀐 것 등)에 수정 사유와 날짜가 있거나 새 ADR이 이전 ADR을 대체한다고 표시한다
+- [x] **ADR 대상 기준을 적는다**: `docs/design/README.md`에 ADR과 설계 문서의 역할 구분을 한 단락 추가할지 결정한다. 후보: ADR은 되돌리기 어렵고 여러 기능에 걸치는 결정(모듈 구조, 의존 방향 등)만, 한 기능 안의 이름·구조 결정은 설계 문서의 결정 사항 표로 (워크플로 문서라 사용자가 결정)
+- [x] **이 설계 문서를 마무리한다**: 상태를 "완료"로 바꾸고, 슬라이스 표에 각 슬라이스의 PR 링크 또는 커밋을 적는다
+- [x] **낡은 이름이 남지 않았다**: 아래를 검색해 결과가 없거나 "옛 서술"로 명시된 곳뿐이다 — `git grep -nE "CacheKeyPrefix|EventTopics|infrastructure.*CacheKey" -- decisions docs CLAUDE.md`
 
 ## 위험도와 리뷰 깊이
 
@@ -219,8 +219,8 @@ S-1 컨텍스트 스모크 테스트와 S-2 Provider 계약 테스트가 모든 
 
 ## 비범위
 
-- `worker` 모듈 신설과 relay 스케줄러·consumer 이동 (6단계)
-- `application` 모듈 분리 (7단계, 서비스가 `api` DTO에서 벗어난 뒤)
+- `worker` 모듈 신설과 relay 스케줄러·consumer 이동 (멀티 인스턴스 확장과 함께 별도 ADR에서 결정)
+- `application` 모듈 분리 (서비스가 `api` DTO에서 벗어난 뒤 별도로 판단)
 - 서비스가 캐시 키 문자열을 조립하는 방식을 기능별 캐시 클래스(`RecordLikeCache` 등)로 감싸는 변경
 - `NotificationPublisher`/`NotificationOutboxPublisher` 이동 (도메인 리포지토리만 쓰는 유스케이스 협력자라 `api`에 유지)
 - 키 값·TTL 변경, 설정 키 이름 변경, Kafka 토픽·페이로드 변경
@@ -229,6 +229,18 @@ S-1 컨텍스트 스모크 테스트와 S-2 Provider 계약 테스트가 모든 
 - `PasswordProvider` 포트 시그니처의 nullable(`String?`) 정리: Spring 인코더의 시그니처가 포트까지 번진 것이라 non-null로 좁히는 것이 맞지만 호출부가 `null`을 먼저 처리해야 해서 별도 작업으로 둔다
 - `TokenProvider`(JWT) 포트화: 지금은 Spring Security 타입과 섞여 있고 `worker`가 쓰지 않아 `api`에 둔다
 - 소프트 삭제 방식 통일, 마이그레이션 job 분리, JPA 엔티티와 도메인 모델 분리
+
+## 재편 전반의 후속 과제
+
+모듈·패키지 재편(1~4단계 포함) 중에 발견했지만 범위 밖이라 남긴 것이다. 위 비범위와 겹치는 항목은 적지 않는다.
+
+- Jib JVM 플래그의 `-Djasypt.encryptor.password`와 `application.yml`의 `spring.datasource.password` 평문 값: 시크릿 로테이션 항목으로 함께 처리
+- `V1__init_tables.sql`이 만든 `BATCH_*` 테이블 9개: 이미 적용된 마이그레이션이라 수정할 수 없고, 지우려면 DROP 마이그레이션을 새로 만들어야 한다. 운영 DB 변경이므로 의도적으로 할 때만 진행
+- `application.yml`의 `spring.jackson` 오타(`property-naming-str ategy`, 키 중간 공백): 현재 설정이 적용되지 않아 응답이 camelCase로 나가는 것으로 보인다. 고치면 모든 응답 필드명이 바뀌므로, 의도(camelCase 유지 / snake_case)를 먼저 정하고 프론트와 맞춰 처리
+- 소프트 삭제 처리 방식이 엔티티마다 다르다: `Subject`는 엔티티 `@Where`와 필터 조건이 중복이고, `Emotion`·`EmotionCategory`·`Record`는 필터에만 있다
+- `Record` 검색의 "공개 + 미삭제" 조건이 `RecordQuerydslRepository.predicatesOf` 안에 숨어 있다. 호출자가 볼 수 있게 필터 필드(`onlyPublic` 등)로 올릴지, 비공개 포함 조회 경로(내 기록 등)가 필요한지 확인
+- 정렬 특성화 테스트는 컬럼이 구분되는 `User`·`Emotion`·`EmotionCategory`만 있다. `CREATED_AT`/`UPDATED_AT` 정렬은 저장 시각이 같으면 순서가 불안정해 제외했다
+- `notification/sse/` 직하위 4개 클래스(`SseEmitterRegistry`, `LocalSseEmitterRegistry`, `NotificationSseDispatcher`, `SseEventName`)의 레이어 배치: `provider`/`service`/`dto`로 나눌지 결정
 
 ## 열린 질문
 
