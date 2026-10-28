@@ -266,6 +266,15 @@ class DependencyRuleTest : BehaviorSpec({
         }
     }
 
+    given("Kafka 토픽 이름 상수의 위치") {
+        then("KafkaTopics는 domain에만 있다") {
+            check(
+                classes().that().haveSimpleName("KafkaTopics")
+                    .should().resideInAPackage("com.chobolevel.domain..")
+            )
+        }
+    }
+
     given("영속성 구현의 위치") {
         then("domain에는 Spring Data JPA·QueryDSL 리포지토리 구현이 없다") {
             check(
