@@ -1,6 +1,6 @@
 # infrastructure 모듈 신설 (모듈 재편 5단계)
 
-- 상태: 확정
+- 상태: 완료
 - 작성일: 2026-10-17
 - 관련: [모듈·패키지·의존 구조 ADR](../../decisions/module-and-package-structure.md) (`infrastructure` 모듈 분리), `worker` 분리는 이 ADR의 범위 밖(별도 결정)
 
@@ -72,17 +72,17 @@
 
 ## 슬라이스
 
-| # | 동작 변화 | 영향 모듈/패키지 | 위험도 |
-|---|---|---|---|
-| S-1 | 컨텍스트 스모크 테스트 추가 (현재 구조에서 먼저 통과) | `api` 테스트 | 중간 |
-| S-2 | Provider 계약 특성화 테스트 추가 (Redis 캐시, Redisson 락, BCrypt) | `api` 테스트 | 중간 |
-| S-3 | `infrastructure` 모듈 골격과 의존 규칙(빈 모듈, 로더, `runtimeOnly`) | 빌드, `api`, 신규 모듈 | 중간 |
-| S-4 | 포트 4종을 `domain/common/provider`로 이동 | `api`, `domain` | 낮음 |
-| S-5 | `CacheKeyPrefix`를 기능별 키 정의로, Kafka 토픽 이름 상수를 `KafkaTopics`로 분리해 `domain`으로 (문자열 불변) | `api`, `domain` | 높음 |
-| S-6 | 영속성 구현(Adapter·Jpa·Querydsl·Audit 설정)을 `infrastructure`로 | `domain`, `infrastructure` | 높음 |
-| S-7 | 기술 어댑터(Redis·Email·Password·S3 설정·Kafka 토픽 빈)와 Properties를 `infrastructure`로 | `api`, `infrastructure` | 높음 |
-| S-8 | 규칙 정리 (`CLAUDE.md`의 모듈 구조·Repository 위치·`runtimeOnly` 경계 규칙, ArchUnit 최종 점검) | 문서, 테스트 | 낮음 |
-| S-9 | 문서 구조 정리 (ADR에서 진행 현황 제거, ADR과 설계 문서의 역할 구분, 낡은 서술 정리) | 문서 | 낮음 |
+| # | 동작 변화 | 영향 모듈/패키지 | 위험도 | PR |
+|---|---|---|---|---|
+| S-1 | 컨텍스트 스모크 테스트 추가 (현재 구조에서 먼저 통과) | `api` 테스트 | 중간 | #345 |
+| S-2 | Provider 계약 특성화 테스트 추가 (Redis 캐시, Redisson 락, BCrypt) | `api` 테스트 | 중간 | #346 |
+| S-3 | `infrastructure` 모듈 골격과 의존 규칙(빈 모듈, 로더, `runtimeOnly`) | 빌드, `api`, 신규 모듈 | 중간 | #347 |
+| S-4 | 포트 4종을 `domain/common/provider`로 이동 | `api`, `domain` | 낮음 | #348 |
+| S-5 | `CacheKeyPrefix`를 기능별 키 정의로, Kafka 토픽 이름 상수를 `KafkaTopics`로 분리해 `domain`으로 (문자열 불변) | `api`, `domain` | 높음 | #349 |
+| S-6 | 영속성 구현(Adapter·Jpa·Querydsl·Audit 설정)을 `infrastructure`로 | `domain`, `infrastructure` | 높음 | #350, #351 |
+| S-7 | 기술 어댑터(Redis·Email·Password·S3 설정·Kafka 토픽 빈)와 Properties를 `infrastructure`로 | `api`, `infrastructure` | 높음 | #352 |
+| S-8 | 규칙 정리 (`CLAUDE.md`의 모듈 구조·Repository 위치·`runtimeOnly` 경계 규칙, ArchUnit 최종 점검) | 문서, 테스트 | 낮음 | #353 |
+| S-9 | 문서 구조 정리 (ADR에서 진행 현황 제거, ADR과 설계 문서의 역할 구분, 낡은 서술 정리) | 문서 | 낮음 | #354 |
 
 S-1, S-2는 production 코드를 바꾸지 않는 안전망이다. 순서는 번호 순이며, 모든 슬라이스는 앞 슬라이스의 테스트(S-1, S-2 포함)를 동작 변경 없이 통과해야 한다. 안전망 테스트는 import(와 이동에 따른 테스트 설정) 수정만 허용하며 assertion은 바꾸지 않는다.
 
@@ -192,12 +192,12 @@ S-1, S-2는 production 코드를 바꾸지 않는 안전망이다. 순서는 번
 
 문서 정리는 자동 테스트로 고정하기 어렵다. 누락되지 않도록 아래 체크리스트를 완료 조건으로 삼고, PR에서 항목별로 확인한다. (자동 검증은 마지막 항목의 검색 명령뿐이다.)
 
-- [ ] **ADR는 결정만 남긴다**: `decisions/module-and-package-structure.md`에서 진행 현황(단계 표의 상태·커밋 해시, 1~4단계 결과 요약)을 걷어낸다. 진행 기록은 이 설계 문서의 슬라이스 표와 PR 이력으로 남는다
-- [ ] **한 사실은 한 곳에만 둔다**: 같은 내용이 ADR과 설계 문서에 중복된 곳(모듈 구성, 캐시 키·토픽 위치, 포트 위치 등)을 한쪽에서 지우고 다른 쪽을 링크한다
-- [ ] **바뀐 결정에 흔적을 남긴다**: 번복·수정된 결정(캐시 키의 위치가 `infrastructure`에서 `domain`으로 바뀐 것 등)에 수정 사유와 날짜가 있거나 새 ADR이 이전 ADR을 대체한다고 표시한다
-- [ ] **ADR 대상 기준을 적는다**: `docs/design/README.md`에 ADR과 설계 문서의 역할 구분을 한 단락 추가할지 결정한다. 후보: ADR은 되돌리기 어렵고 여러 기능에 걸치는 결정(모듈 구조, 의존 방향 등)만, 한 기능 안의 이름·구조 결정은 설계 문서의 결정 사항 표로 (워크플로 문서라 사용자가 결정)
-- [ ] **이 설계 문서를 마무리한다**: 상태를 "완료"로 바꾸고, 슬라이스 표에 각 슬라이스의 PR 링크 또는 커밋을 적는다
-- [ ] **낡은 이름이 남지 않았다**: 아래를 검색해 결과가 없거나 "옛 서술"로 명시된 곳뿐이다 — `git grep -nE "CacheKeyPrefix|EventTopics|infrastructure.*CacheKey" -- decisions docs CLAUDE.md`
+- [x] **ADR는 결정만 남긴다**: `decisions/module-and-package-structure.md`에서 진행 현황(단계 표의 상태·커밋 해시, 1~4단계 결과 요약)을 걷어낸다. 진행 기록은 이 설계 문서의 슬라이스 표와 PR 이력으로 남는다
+- [x] **한 사실은 한 곳에만 둔다**: 같은 내용이 ADR과 설계 문서에 중복된 곳(모듈 구성, 캐시 키·토픽 위치, 포트 위치 등)을 한쪽에서 지우고 다른 쪽을 링크한다
+- [x] **바뀐 결정에 흔적을 남긴다**: 번복·수정된 결정(캐시 키의 위치가 `infrastructure`에서 `domain`으로 바뀐 것 등)에 수정 사유와 날짜가 있거나 새 ADR이 이전 ADR을 대체한다고 표시한다
+- [x] **ADR 대상 기준을 적는다**: `docs/design/README.md`에 ADR과 설계 문서의 역할 구분을 한 단락 추가할지 결정한다. 후보: ADR은 되돌리기 어렵고 여러 기능에 걸치는 결정(모듈 구조, 의존 방향 등)만, 한 기능 안의 이름·구조 결정은 설계 문서의 결정 사항 표로 (워크플로 문서라 사용자가 결정)
+- [x] **이 설계 문서를 마무리한다**: 상태를 "완료"로 바꾸고, 슬라이스 표에 각 슬라이스의 PR 링크 또는 커밋을 적는다
+- [x] **낡은 이름이 남지 않았다**: 아래를 검색해 결과가 없거나 "옛 서술"로 명시된 곳뿐이다 — `git grep -nE "CacheKeyPrefix|EventTopics|infrastructure.*CacheKey" -- decisions docs CLAUDE.md`
 
 ## 위험도와 리뷰 깊이
 
