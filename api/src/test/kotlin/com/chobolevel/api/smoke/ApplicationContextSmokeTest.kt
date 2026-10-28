@@ -4,12 +4,12 @@ import com.amazonaws.services.s3.AmazonS3
 import com.chobolevel.api.ApiApplication
 import com.chobolevel.api.common.container.MySQLTestContainer
 import com.chobolevel.api.common.container.RedisTestContainer
-import com.chobolevel.api.common.email.ResendProperties
 import com.chobolevel.api.common.s3.S3Properties
 import com.chobolevel.api.common.security.GuestProperties
 import com.chobolevel.api.common.security.JwtProperties
 import com.chobolevel.api.common.security.SecurityProperties
 import com.chobolevel.api.common.web.FrontServerProperties
+import com.chobolevel.domain.common.kafka.KafkaTopics
 import com.chobolevel.domain.common.provider.CacheProvider
 import com.chobolevel.domain.common.provider.DistributedLockProvider
 import com.chobolevel.domain.common.provider.EmailProvider
@@ -35,9 +35,11 @@ import com.chobolevel.domain.user.repository.UserRepository
 import com.chobolevel.domain.user.vo.UserLoginType
 import com.chobolevel.domain.user.vo.UserRoleType
 import com.chobolevel.infrastructure.InfrastructureConfigurationLoader
+import com.chobolevel.infrastructure.email.ResendProperties
 import com.tngtech.archunit.core.importer.ClassFileImporter
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
+import org.apache.kafka.clients.admin.NewTopic
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -57,6 +59,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.header
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.transaction.annotation.Transactional
+import java.util.concurrent.TimeUnit
 
 // 모듈 재편 5단계(docs/design/infrastructure-module.md)의 안전망.
 // 운영과 같은 조건(MySQL + Flyway 스키마, Redis)에서 애플리케이션이 기동하고, 빈 스캔·JPA 스캔·포트-구현 연결·설정 바인딩이
@@ -122,6 +125,15 @@ class ApplicationContextSmokeTest {
 
     @Autowired
     private lateinit var cacheProvider: CacheProvider
+
+    @Autowired
+    private lateinit var distributedLockProvider: DistributedLockProvider
+
+    @Autowired
+    private lateinit var passwordProvider: PasswordProvider
+
+    @Autowired
+    private lateinit var amazonS3: AmazonS3
 
     @Test
     fun `컨텍스트가 기동한다`() {
@@ -294,6 +306,54 @@ class ApplicationContextSmokeTest {
         // then
         assertThat(incremented).isEqualTo(6L)
         assertThat(read).isEqualTo("6")
+    }
+
+    @Test
+    fun `실제로 연결된 분산 락은 락을 잡고 결과를 반환하며 해제 후 다시 잡을 수 있다`() {
+        // 계약 테스트는 RedisConfiguration을 직접 만들어 쓰므로, 프로퍼티(redis.chobolevel.*)가 바인딩된 스프링의 RedissonClient가 실제 Redis에 닿는지는 여기서 확인한다.
+        val first: String = distributedLockProvider.executeWithLock("smoke:lock:v1", 1, 5, TimeUnit.SECONDS) { "first" }
+        val second: String = distributedLockProvider.executeWithLock("smoke:lock:v1", 0, 5, TimeUnit.SECONDS) { "second" }
+
+        assertThat(first).isEqualTo("first")
+        assertThat(second).isEqualTo("second")
+    }
+
+    @Test
+    fun `실제로 연결된 PasswordProvider는 강도 10의 BCrypt로 인코딩하고 다시 매칭한다`() {
+        val encoded: String = passwordProvider.encode("password1!")
+
+        assertThat(encoded).startsWith("\$2a\$10\$")
+        assertThat(passwordProvider.matches("password1!", encoded)).isTrue
+        assertThat(passwordProvider.matches("password1?", encoded)).isFalse
+    }
+
+    @Test
+    fun `실제로 연결된 S3 클라이언트는 설정한 리전을 쓴다`() {
+        assertThat(amazonS3.regionName).isEqualTo("ap-northeast-2")
+    }
+
+    @Test
+    fun `Kafka 토픽 상수 8개가 파티션 1개 복제 1개 토픽 빈으로 등록된다`() {
+        // 스프링 카프카의 재시도 구성이 같은 이름(파티션·복제 -1)이나 -retry-* 토픽 빈을 따로 등록하므로, 이름별로 묶어 확인한다.
+        val topics: Map<String, List<NewTopic>> = applicationContext.getBeansOfType(NewTopic::class.java).values
+            .groupBy { it.name() }
+        val expectedNames: List<String> = listOf(
+            KafkaTopics.RECORD_LIKE_SYNC_EVENTS,
+            KafkaTopics.RECORD_LIKE_SYNC_EVENTS_DLQ,
+            KafkaTopics.RECORD_VIEW_SYNC_EVENTS,
+            KafkaTopics.RECORD_VIEW_SYNC_EVENTS_DLQ,
+            KafkaTopics.USER_FOLLOW_SYNC_EVENTS,
+            KafkaTopics.USER_FOLLOW_SYNC_EVENTS_DLQ,
+            KafkaTopics.NOTIFICATION_DISPATCH_EVENTS,
+            KafkaTopics.NOTIFICATION_DISPATCH_EVENTS_DLQ
+        )
+
+        assertThat(topics.keys).containsAll(expectedNames)
+        expectedNames.forEach {
+            assertThat(topics.getValue(it).any { topic -> topic.numPartitions() == 1 && topic.replicationFactor() == 1.toShort() })
+                .describedAs("토픽 $it 의 파티션 1·복제 1 빈")
+                .isTrue
+        }
     }
 
     @Test

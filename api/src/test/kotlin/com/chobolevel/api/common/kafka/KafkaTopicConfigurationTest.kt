@@ -1,6 +1,7 @@
 package com.chobolevel.api.common.kafka
 
 import com.chobolevel.domain.common.kafka.KafkaTopics
+import com.chobolevel.infrastructure.kafka.KafkaTopicConfiguration
 import org.apache.kafka.clients.admin.NewTopic
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName

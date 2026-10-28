@@ -1,6 +1,6 @@
 package com.chobolevel.api.common.container
 
-import com.chobolevel.api.common.redis.RedisConfiguration
+import com.chobolevel.infrastructure.redis.RedisConfiguration
 import org.redisson.api.RedissonClient
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
 import org.springframework.data.redis.core.StringRedisTemplate

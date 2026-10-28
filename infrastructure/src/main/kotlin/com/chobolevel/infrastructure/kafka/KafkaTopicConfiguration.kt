@@ -1,4 +1,4 @@
-package com.chobolevel.api.common.kafka
+package com.chobolevel.infrastructure.kafka
 
 import com.chobolevel.domain.common.kafka.KafkaTopics
 import org.apache.kafka.clients.admin.NewTopic

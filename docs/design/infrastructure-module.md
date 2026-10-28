@@ -35,6 +35,10 @@
 | S-6 테스트 구성 | 이동 전에 공백인 리포지토리 계약(Outbox 4종, 존재·개수·삭제, 조회, 기록 잔디)을 MySQL 컨테이너 계약 테스트로 먼저 채운다 | 기존 테스트만으로 진행 / Outbox만 추가 | Spring Data 파생 쿼리는 기동 시 검증되지만 동작(상태 필터, id 정렬, 소프트 삭제 제외)은 검증되지 않았다. 이동 후에도 같은 동작임을 보여 줄 근거가 필요하다 |
 | S-6 테스트 스캔 설정 | `DomainJpaTestConfig`를 `PersistenceTestConfig`로 이름을 바꾸고 `infrastructure`의 JPA 리포지토리를 스캔한다 | 이름 유지 | 이제 domain이 아니라 infrastructure의 리포지토리를 스캔하므로 이름이 맞지 않는다 |
 | S-6 PR 구성 | 슬라이스 하나(PR 하나) | 도메인별 분할 | 분할하면 `@EnableJpaRepositories` 기준 패키지를 두 곳에 걸치는 과도기 상태가 생겨 오히려 위험하다 |
+| S-7 `BCryptPasswordProvider`의 인코더 | 구현이 `BCryptPasswordEncoder(10)`을 직접 소유하고 `api`의 `SecurityConfiguration`(빈 하나만 정의하던 클래스)을 삭제. `infrastructure`는 `spring-security-crypto`만 의존 | `api`의 인코더 빈 주입 유지 / `infrastructure`가 `PasswordEncoder` 빈 제공 / `api`에 포트 위임 어댑터 | Spring Security 인증(`httpBasic`, `formLogin`, `AuthenticationManager`)을 쓰지 않아 인코더 빈의 소비자가 이 클래스뿐이다. 빈 주입을 유지하면 `infrastructure`가 `api`의 빈에 의존하는 역방향이 되고 `worker`가 기동하지 못한다. 나중에 Spring Security 인증을 도입하면 포트(`PasswordProvider`)에 위임하는 `PasswordEncoder` 어댑터를 `api`에 둔다 |
+| 웹 보안 프레임워크의 위치 | `api`에 둔다 (`WebConfiguration`, JWT 필터, `TokenProvider`, `UserDetailsServiceImpl`, `@HasAuthority*`) | `infrastructure`로 이동 | 애플리케이션을 호출하는 입구를 지키는 인바운드 어댑터이고 `api`가 컴파일 시점에 직접 쓴다. `worker`는 필요 없다. `infrastructure`는 애플리케이션이 호출하는 바깥 시스템의 구현만 둔다 |
+| S-7 죽은 빈 | `RedisConfiguration`의 `RedisData`, JSON `redisTemplate`, `opsForHash`는 옮긴 뒤 같은 PR의 마지막 별도 커밋에서 삭제 | 그대로 유지 / 이동 전에 삭제 | 어디에도 주입되지 않는다. 이동과 삭제를 섞지 않고, 삭제 후에도 `CacheProvider`의 템플릿이 `StringRedisTemplate`임을 스모크 카운터 케이스가 지킨다 |
+| S-7 빌드 의존 | `starter-data-redis`, Redisson, Resend를 `api`에서 `infrastructure`로 이동(`spring-cloud-aws`, `spring-kafka`는 `api`도 유지). `api`는 계약 테스트용 `testImplementation`만 유지 | `api`에 그대로 | `api` main 코드는 더 이상 이 라이브러리를 쓰지 않는다 |
 | 선행 안전망 | 컨텍스트 스모크 테스트(MySQL+Redis 컨테이너, Kafka 미연결)와 Provider 계약 테스트를 이동 전에 먼저 추가 | 안전망 없이 진행 | 빈 스캔·JPA 스캔이 모듈 경계를 넘어 바뀌는 것이 가장 큰 위험인데, 지금은 컨텍스트 전체를 띄우는 테스트가 없다 |
 
 ## 영향 범위
@@ -151,9 +155,32 @@ S-1, S-2는 production 코드를 바꾸지 않는 안전망이다. 순서는 번
 
 ### S-7 기술 어댑터 이동
 
-- 통합: S-1(Properties 바인딩 포함)·S-2(캐시·락·비밀번호 계약)가 수정 없이 통과한다
-- 단위 (ArchUnit): `api`·`domain`이 `org.redisson`, `com.resend` 구현 클래스에 의존하지 않는다
-- 경계 / 예외: `@ConfigurationPropertiesScan` 범위가 `infrastructure` 로더로 이동해도 `redis.chobolevel.*`, `resend.*`, `cloud.aws.*` 키가 동일하게 바인딩된다 / `RedissonDistributedLockProvider`·`ResendEmailProvider`의 예외 매핑(`InternalSystemException`, `ExternalSystemException`)이 유지된다
+**이동 전에 추가하는 테스트** (현재 코드에서 먼저 통과시키고, 이동 후 import와 생성자 호출만 바꿔 그대로 통과해야 한다)
+
+| 대상 | 이미 있는 검증 | 이동 전에 추가 |
+|---|---|---|
+| Redis 캐시 (`RedisCacheProvider`) | S-2 계약 14케이스, 스모크 카운터 케이스 | 없음 |
+| Redis 락 (`RedissonDistributedLockProvider`, `redissonClient` 빈) | S-2 계약 6케이스(단, `RedisConfiguration`을 직접 만들어 씀) | 스모크: 컨텍스트에 연결된 `DistributedLockProvider`로 락을 잡고 해제(프로퍼티 바인딩된 실제 `RedissonClient` 검증) |
+| Email (`ResendEmailProvider`) | 스모크: `EmailProvider` 빈, `ResendProperties` 바인딩 | 단위(MockK 생성자 모킹): 성공 시 from·to·subject·html로 `send` 호출, `ResendException`이 `ExternalSystemException(EMAIL_SEND_FAILED)`로 매핑되고 원인이 보존됨 |
+| Password (`BCryptPasswordProvider`) | S-2 계약 6케이스 | 해시 접두어 `$2a$10$` 고정, 기존 해시 호환(골든 값, 다른 강도로 만든 해시 포함), 스모크: 연결된 빈의 `encode`/`matches` 왕복 |
+| S3 (`S3Configuration`) | 스모크: `AmazonS3` 빈 존재 | 단위: 만든 클라이언트의 리전·URL 형태, 스모크: 연결된 클라이언트의 리전 |
+| Kafka 토픽 빈 (`KafkaTopicConfiguration`) | `KafkaTopicConfigurationTest`(이름·파티션·복제) | 스모크: `KafkaTopics` 상수 8개 이름마다 파티션 1·복제 1인 `NewTopic` 빈이 있다(스프링 카프카 재시도 구성이 같은 이름·`-retry-*` 토픽 빈을 따로 등록하므로 "정확히 8개"로는 단언하지 않는다) |
+| `@ConfigurationPropertiesScan` | 스모크: 프로퍼티 6종 바인딩 | 없음 |
+
+**이동 후 공통 검증**
+- 의존성 이동: 이동 전후 `:api:dependencies`의 런타임 classpath에서 빠지는 라이브러리가 없다. 컴파일 classpath에서는 Redis·Redisson·Resend가 빠진다(의도). `bootJar`의 `BOOT-INF/lib`에 그대로 들어 있다
+- 단위 (ArchUnit): `api`·`domain`이 `org.redisson`, `com.resend` 구현 클래스에 의존하지 않는다 / `api.common`의 허용 역할에서 `redis`, `kafka`, `email`, `password`를 뺀다 / `domain`에 `@Configuration`·`@Component`가 없다(`DomainConfigurationLoader`의 `@ComponentScan` 제거의 근거)
+- 통합: S-1 스모크·S-2 계약 테스트가 import 수정 외에 그대로 통과한다
+- 이동 후 변이 검증: `@ConfigurationPropertiesScan` 범위 오류, `RedisCacheProvider` `@Component` 누락, JSON `redisTemplate`이 `CacheProvider`에 선택됨(스모크 카운터 케이스 실패), BCrypt 강도 10→4, S3 리전 변경, 토픽 빈 이름 변경
+- 경계 / 예외: `redis.chobolevel.*`, `resend.*`, `cloud.aws.*` 키가 동일하게 바인딩된다 / `RedissonDistributedLockProvider`·`ResendEmailProvider`의 예외 매핑(`InternalSystemException`, `ExternalSystemException`)이 유지된다
+
+**진행 순서**: 설계 문서 → 이동 전 테스트 → 기술별 이동 커밋(Redis, Email, Password, S3, Kafka) → 정리(로더 `@ComponentScan` 제거, `domain` aws 의존 제거, `api` 빌드 정리, ArchUnit) → 죽은 빈 삭제 → 변이 검증
+
+**구현 결과** (계획과 달라진 점만)
+- `api`의 런타임 classpath는 이동 전후가 동일하다(229개 항목 비교). `bootJar`의 `BOOT-INF/lib`에는 infrastructure·domain jar와 resend·redisson·spring-cloud-aws·spring-kafka·spring-data-redis·spring-security-crypto가 들어 있다
+- ArchUnit의 "domain에 스프링 빈이 없다" 규칙은 `DomainConfigurationLoader`만 예외로 둔다. `@AutoConfiguration`이 `@Component`를 메타 어노테이션으로 가져서 위반으로 잡히기 때문이다. 위반을 `archunit_store`에 얼리지 않고 규칙에서 제외했다
+- `api`에서 `starter-data-redis`·Redisson·Resend는 main에서 빠졌고 계약 테스트용 `testImplementation`으로만 남았다. `spring-cloud-aws`(`UploadService`)와 `spring-kafka`(consumer·relay)는 `api` main이 직접 써서 유지한다
+- 죽은 빈 삭제는 계획대로 마지막 별도 커밋이다. `RedisConfiguration`이 구현한 `CachingConfigurer`는 `@EnableCaching` 사용처가 없어 보이지만 이번 범위에는 넣지 않았다(후속 과제)
 
 ### S-8 규칙 정리
 
@@ -182,7 +209,7 @@ S-1, S-2는 production 코드를 바꾸지 않는 안전망이다. 순서는 번
 | S-4 | 낮음 | 패키지 이동만 | - |
 | S-5 | 높음 | Redis 캐시 정합성: 키 문자열이 바뀌면 운영 캐시가 갈라지고, 토픽 이름이 바뀌면 Outbox 이벤트가 유실된다 | 12개 키 템플릿·TTL 상수·토픽 이름 8개가 이동 전과 한 글자도 다르지 않은지, 키 정의별 소속 기능 |
 | S-6 | 높음 | JPA·빈 스캔이 모듈 경계를 넘는다. 잘못되면 기동 실패 또는 리포지토리 누락 | `InfrastructureConfigurationLoader`의 스캔 범위, `DomainConfigurationLoader`에 남는 `@EntityScan`, `PersistenceTestConfig` 기준 패키지 |
-| S-7 | 높음 | 외부 연동(Redis·Redisson 분산락·Resend·S3)과 설정 바인딩 | `RedisConfiguration`의 `@Primary` 빈, 락 예외 매핑, `@ConfigurationPropertiesScan` 범위, `S3Configuration`의 프로퍼티 키, 토픽 빈 8개의 이름·파티션·복제 수가 그대로인지, `CacheProvider`에 주입되는 템플릿이 `StringRedisTemplate`에서 바뀌지 않는지(`RedisConfiguration`을 옮기다 JSON `redisTemplate`이 선택되면 카운터 읽기가 `ClassCastException`) |
+| S-7 | 높음 | 외부 연동(Redis·Redisson 분산락·Resend·S3)과 설정 바인딩 | `RedisConfiguration`의 `@Primary` 빈, 락 예외 매핑, `@ConfigurationPropertiesScan` 범위, `S3Configuration`의 프로퍼티 키, 토픽 빈 8개의 이름·파티션·복제 수가 그대로인지, `CacheProvider`에 주입되는 템플릿이 `StringRedisTemplate`에서 바뀌지 않는지(`RedisConfiguration`을 옮기다 JSON `redisTemplate`이 선택되면 카운터 읽기가 `ClassCastException`), `BCryptPasswordProvider`의 강도(10)와 `SecurityConfiguration` 삭제가 다른 빈 의존을 깨지 않는지 |
 | S-8 | 낮음 | 문서와 규칙 | - |
 | S-9 | 낮음 | 문서만 변경. 자동 테스트가 없어 체크리스트 누락이 유일한 위험 | 체크리스트 6개 항목이 모두 처리됐는지 |
 
@@ -198,7 +225,9 @@ S-1 컨텍스트 스모크 테스트와 S-2 Provider 계약 테스트가 모든 
 - `NotificationPublisher`/`NotificationOutboxPublisher` 이동 (도메인 리포지토리만 쓰는 유스케이스 협력자라 `api`에 유지)
 - 키 값·TTL 변경, 설정 키 이름 변경, Kafka 토픽·페이로드 변경
 - `ResendEmailProvider`의 외부 API 호출 검증 (SDK를 직접 호출하며 이번에 코드를 바꾸지 않는다. 빈 연결은 S-1이 확인한다)
-- `RedisConfiguration`의 JSON `redisTemplate`·`opsForHash` 빈 삭제 (어디에도 주입되지 않는 것으로 보인다. S-7에서는 그대로 옮기고, 삭제는 별도로 판단)
+- `RedisConfiguration`의 `CachingConfigurer` 구현 제거 (캐시 애노테이션 사용처가 없어 보이지만 S-7은 빈 삭제까지만 다룬다)
+- `PasswordProvider` 포트 시그니처의 nullable(`String?`) 정리: Spring 인코더의 시그니처가 포트까지 번진 것이라 non-null로 좁히는 것이 맞지만 호출부가 `null`을 먼저 처리해야 해서 별도 작업으로 둔다
+- `TokenProvider`(JWT) 포트화: 지금은 Spring Security 타입과 섞여 있고 `worker`가 쓰지 않아 `api`에 둔다
 - 소프트 삭제 방식 통일, 마이그레이션 job 분리, JPA 엔티티와 도메인 모델 분리
 
 ## 열린 질문

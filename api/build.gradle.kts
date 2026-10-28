@@ -14,9 +14,6 @@ dependencies {
     // 영속성·외부 연동 구현은 런타임에만 연결한다. api는 컴파일 시점에 infrastructure 클래스를 볼 수 없다(경계를 빌드로 강제).
     runtimeOnly(project(":infrastructure"))
 
-    // redis
-    implementation("org.springframework.boot:spring-boot-starter-data-redis")
-
     // jackson
     implementation(libs.jackson.module.kotlin)
     implementation(libs.jackson.databind)
@@ -60,12 +57,6 @@ dependencies {
     // kafka
     implementation("org.springframework.kafka:spring-kafka")
 
-    // redisson: 분산 락
-    implementation(libs.redisson.starter)
-
-    // Resend(sending email SDK)
-    implementation(libs.resend)
-
     // test: @WebMvcTest에서 MockK 기반 Bean 등록 지원
     testImplementation(libs.springmockk)
 
@@ -75,6 +66,13 @@ dependencies {
     // test: @DataJpaTest에서 QueryDSL Q타입 직접 사용 시 필요
     // domain 모듈의 querydsl-jpa는 implementation이라 테스트 classpath에 전파되지 않는다.
     testImplementation("com.querydsl:querydsl-jpa:${libs.versions.querydsl.get()}:jakarta")
+
+    // test: Redis 구현 계약 테스트(RedisTestSupport)가 템플릿·Redisson 클라이언트를 직접 만든다.
+    testImplementation("org.springframework.boot:spring-boot-starter-data-redis")
+    testImplementation(libs.redisson.starter)
+
+    // test: ResendEmailProviderTest가 Resend SDK 생성자를 모킹한다.
+    testImplementation(libs.resend)
 
     // test: 구현 클래스를 직접 쓰는 테스트(Adapter 검색 조건 테스트 등)와 자동 구성 확인용
     testImplementation(project(":infrastructure"))

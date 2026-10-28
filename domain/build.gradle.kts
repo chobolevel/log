@@ -25,9 +25,6 @@ dependencies {
     // 웹이 없는 모듈(worker)이 domain에 의존해도 컴파일되도록 api로 선언한다.
     api("org.springframework:spring-web")
 
-    // aws s3 (S3Configuration)
-    implementation(libs.spring.cloud.aws)
-
     // envers
     implementation("org.springframework.data:spring-data-envers")
 

@@ -13,4 +13,20 @@ dependencies {
 
     // Querydsl 리포지토리 구현. Q-type은 domain(kapt)이 생성하고, 여기서는 그 클래스를 쓴다. jakarta classifier는 카탈로그에 표현할 수 없어 버전만 참조한다.
     implementation("com.querydsl:querydsl-jpa:${libs.versions.querydsl.get()}:jakarta")
+
+    // Redis 캐시(StringRedisTemplate)와 Redisson 분산 락 구현
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    implementation(libs.redisson.starter)
+
+    // 이메일 발송 구현(Resend SDK)
+    implementation(libs.resend)
+
+    // 비밀번호 해시 구현. 암호화 라이브러리만 의존하고 Spring Security 웹 구성(starter-security)은 api가 가진다.
+    implementation("org.springframework.security:spring-security-crypto")
+
+    // S3 클라이언트(AmazonS3) 구성
+    implementation(libs.spring.cloud.aws)
+
+    // Kafka 토픽 생성(NewTopic). 발행·구독 코드는 api가 spring-kafka를 직접 쓴다.
+    implementation("org.springframework.kafka:spring-kafka")
 }

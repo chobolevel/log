@@ -1,4 +1,4 @@
-package com.chobolevel.api.common.email
+package com.chobolevel.infrastructure.email
 
 import com.chobolevel.domain.common.exception.ExternalSystemException
 import com.chobolevel.domain.common.exception.SystemErrorCode

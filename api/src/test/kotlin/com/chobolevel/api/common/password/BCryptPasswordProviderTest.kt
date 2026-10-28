@@ -1,18 +1,18 @@
 package com.chobolevel.api.common.password
 
 import com.chobolevel.domain.common.provider.PasswordProvider
+import com.chobolevel.infrastructure.password.BCryptPasswordProvider
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 
 // 모듈 재편 5단계(docs/design/infrastructure-module.md, S-2): 이동 전에 PasswordProvider 구현의 현재 계약을 고정한다.
 // 외부 인프라가 필요 없는 단위 테스트다.
 @DisplayName("BCryptPasswordProvider 계약 테스트")
 class BCryptPasswordProviderTest {
 
-    private val passwordProvider: PasswordProvider = BCryptPasswordProvider(BCryptPasswordEncoder())
+    private val passwordProvider: PasswordProvider = BCryptPasswordProvider()
 
     @Test
     fun `인코딩한 값은 평문과 다르고 BCrypt 형식이다`() {
@@ -71,5 +71,28 @@ class BCryptPasswordProviderTest {
         // when & then: 현재 구현(BCryptPasswordEncoder)의 동작을 그대로 고정한다.
         assertThrows<IllegalArgumentException> { passwordProvider.encode(null) }
         assertThrows<IllegalArgumentException> { passwordProvider.matches(null, encoded) }
+    }
+
+    @Test
+    fun `인코딩한 값은 강도 10의 BCrypt 형식이다`() {
+        // 강도(cost)가 바뀌면 새로 만드는 해시의 형식이 달라지므로 고정한다.
+        assertThat(passwordProvider.encode("password1!")).startsWith("\$2a\$10\$")
+    }
+
+    @Test
+    fun `이전에 저장된 해시와 계속 매칭된다`() {
+        // 운영 DB에 이미 저장된 해시로 로그인할 수 있어야 하므로, 현재 구현이 만든 해시를 값으로 고정한다.
+        val storedHash: String = "\$2a\$10\$a7CYOmRrik/ZoAYpzE3vW.1e51cvQhBf1dFENpZBEUcHO2Ah1aed6"
+
+        assertThat(passwordProvider.matches("password1!", storedHash)).isTrue
+        assertThat(passwordProvider.matches("password1?", storedHash)).isFalse
+    }
+
+    @Test
+    fun `다른 강도로 만들어진 해시도 매칭된다`() {
+        // BCrypt 해시에는 강도가 들어 있어서 강도를 바꾼 뒤에도 이전 해시로 로그인할 수 있다.
+        val hashWithLowCost: String = "\$2a\$04\$DGRM5lKjDcMIWGv7GU1/V.RF1z6Py45j683b3jkaE8m8dhgqT5daS"
+
+        assertThat(passwordProvider.matches("password1!", hashWithLowCost)).isTrue
     }
 }
