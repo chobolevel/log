@@ -27,7 +27,8 @@
 |---|---|---|---|
 | 정렬과 cursor | `id DESC`. cursor는 마지막으로 **스캔한** 기록 id를 불투명 문자열(Base64)로 인코딩 | `created_at + id` 복합 cursor / offset | PK는 단조 증가하고 유일해서 동률이 없고 PK 인덱스만으로 조회된다. offset은 깊어질수록 읽는 행이 늘고, 도중에 기록이 등록되면 중복·누락이 생긴다. 새 기록은 더 큰 id라 이미 받은 페이지 뒤쪽에 영향이 없다 |
 | 응답 형식 | `data`와 `nextCursor`(마지막 페이지면 null). `totalCount` 없음 | `totalCount` 포함 / `hasNext` 불리언 | 전체 개수 `COUNT`는 피드에서 쓸모가 없고 비용만 든다. `nextCursor`가 `hasNext`를 겸한다. 한 건 더 조회(`size+1`)로 다음 페이지 유무를 판단한다 |
-| 메서드 이름 | 서비스 `searchRecordFeeds(...)`, 저장소 `searchFeedRecords(...)` | 서비스 `fetchRecordFeed(...)` / 둘 다 `searchFeedRecords` | "피드 항목 하나"를 `RecordFeed`로 보면 `searchRecordFeeds`는 `searchRecords`(기록 하나 → 기록 여러 개 검색)와 같은 규칙이다. 저장소는 `Record` 엔티티를 반환하므로 타입에 맞게 `searchFeedRecords`(피드용으로 조회한 기록)로 둔다 |
+| 메서드 이름 | 서비스와 저장소 모두 `searchRecordFeeds(...)` | 서비스 `searchRecordFeeds`, 저장소 `searchFeedRecords` / `fetchRecordFeed` | 이 코드베이스는 서비스와 저장소가 같은 이름을 쓴다(`searchRecords`, `searchSubjects`, `searchEmotions`, `searchNotifications`). 호출 흐름에서 이름이 이어지고 검색하기 쉽다. "피드 항목 하나"를 `RecordFeed`로 보면 `searchRecordFeeds`는 `searchRecords`와 같은 규칙이다. 저장소가 `Record` 엔티티를 반환하는 점은 `searchRecords`도 같다 |
+| cursor 인코딩 | 정책을 담은 범용 `UrlSafeBase64`(`api/common/web`, `object`)를 쓴다. 인코딩은 URL 안전 알파벳·패딩 없음·UTF-8, 디코딩은 URL 디코더로 엄격하게 하고 실패하면 `null`을 돌려준다. 기록 id 해석과 `INVALID_FEED_CURSOR` 변환은 `RecordFeedCursorConverter`에 남긴다 | cursor 전용 코덱 / 호출 지점에서 `java.util.Base64`를 직접 사용 | cursor는 응답으로 내려간 뒤 쿼리 파라미터로 되돌아오는 값이다. 정책(알파벳·패딩·문자셋)이 호출 지점마다 흩어지면 일관성이 깨지고, 출력이 URL의 unreserved 문자(`A-Z a-z 0-9 - _`)뿐이면 어떤 위치에서도 퍼센트 인코딩이 필요 없다. 현재 payload(숫자)는 Basic으로도 `+`·`/`가 나오지 않지만 S-4·S-6의 cursor는 숫자만 담지 않을 수 있어 처음부터 못 박는다. `common`의 역할 목록에 `util`은 없으므로 정책의 성격(웹 계약)에 맞는 `common/web`에 둔다. 디코더는 깨진 입력을 예외로 드러내는 URL 디코더를 쓴다(MIME 디코더는 깨진 입력도 빈 값으로 통과시킨다) |
 | 응답 항목 타입 | 기존 `RecordResponse` 재사용 | 처음부터 `RecordFeedResponse`로 분리 | S-1~S-4까지 `RecordResponse`와 달라질 필드가 확정된 것이 없다. 피드 전용 필드(예: 노출 이유)가 실제로 필요해지면 `api/record/feed` 안에서 분리한다. 소비자가 피드 컨트롤러 하나뿐이라 분리 비용이 작다 |
 | 점수 노출 | 점수는 응답에 노출하지 않는다 | 점수를 응답에 포함 | 점수는 서버 내부의 랭킹 구현이다. 노출하면 공식을 바꿀 때마다 API 계약이 흔들리고, 클라이언트는 순서만 필요하다 |
 | 페이지 크기 | 기본 20, 최대 50 | 상한 없음 | 한 요청이 읽는 행과 Redis 배치 조회를 제한한다 |
@@ -50,8 +51,9 @@
 - `api/record/feed/dto`: 요청(`cursor`, `size`)과 응답(`data`, `nextCursor`). `data`의 항목은 기존 `RecordResponse`를 재사용한다
 - `api/record/feed/validator/RecordFeedParameterValidator`: `size` 범위와 cursor 형식. `@QueryObject`는 Bean Validation을 타지 않으므로 검증기에서 한다
 - `api/record/feed/converter`: cursor 문자열 ↔ 기록 id
+- `api/common/web/UrlSafeBase64`: URL 안전 Base64 인코딩 정책(알파벳·패딩·문자셋)을 담은 범용 유틸
 - `domain/record/vo/RecordFeedQueryFilter`: `beforeRecordId`, `excludeWriterId`
-- `RecordRepository.searchFeedRecords(...)`(반환: `Record` 엔티티 목록)와 `infrastructure`의 Adapter·`RecordQuerydslRepository` 구현
+- `RecordRepository.searchRecordFeeds(...)`(반환: `Record` 엔티티 목록)와 `infrastructure`의 Adapter·`RecordQuerydslRepository` 구현
 - `RecordErrorCode`에 `INVALID_FEED_CURSOR`(`INVALID`) 추가
 
 **새로 만든다 (S-3)**
@@ -95,6 +97,7 @@
   - 로그인 사용자의 id가 `excludeWriterId`로, 비로그인은 null로 전달됨
   - 좋아요·조회수는 응답 기록 id 목록으로 배치 조회 1회씩
 - 단위 (cursor 변환): 인코딩↔디코딩 왕복, 숫자가 아닌 값·0·음수·깨진 Base64는 `INVALID_FEED_CURSOR`
+- 단위 (`UrlSafeBase64`): 한글·구분 기호가 섞인 값까지 왕복, 표준 `Base64`라면 `+`·`/`·`=`가 나오는 값에서 출력이 `A-Z a-z 0-9 - _`뿐이고 패딩이 없음, 패딩이 붙은 입력도 해석, 알파벳 밖 문자·표준 알파벳 문자·UTF-8이 아닌 바이트는 `null`
 - 단위 (검증기): `size`가 1 미만이거나 50 초과면 400
 - 저장소 계약 (MySQL 컨테이너): `id DESC` 정렬, `id < cursor` 조건, 비공개 제외, 삭제 제외, 탈퇴 작성자 제외, `excludeWriterId` 제외, 공개 `DIARY` 포함, `limit` 적용
 - API / 통합:
