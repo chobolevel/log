@@ -361,7 +361,8 @@ class ExceptionHandlerTest {
                     UserErrorCode.USER_PASSWORD_NOT_MATCHED,
                     UserErrorCode.USER_PASSWORD_REUSING_NOT_ALLOWED,
                     UserErrorCode.RESET_USER_PASSWORD_CODE_NOT_EXISTS,
-                    UserErrorCode.USER_FOLLOW_SELF_NOT_ALLOWED
+                    UserErrorCode.USER_FOLLOW_SELF_NOT_ALLOWED,
+                    RecordErrorCode.INVALID_FEED_CURSOR
                 )
             ),
             // ----- 401 UNAUTHENTICATED -----

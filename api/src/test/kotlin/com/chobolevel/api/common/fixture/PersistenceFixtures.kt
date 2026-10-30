@@ -26,13 +26,13 @@ object PersistenceFixtures {
         return entityManager.persistAndFlush(user)
     }
 
-    fun record(entityManager: TestEntityManager, user: User, deleted: Boolean = false): Record {
+    fun record(entityManager: TestEntityManager, user: User, deleted: Boolean = false, isPrivate: Boolean = false): Record {
         val record: Record = Record.create(
             user = user,
             type = RecordType.BLOG_TECH,
             title = "제목",
             content = "내용",
-            isPrivate = false,
+            isPrivate = isPrivate,
             reviewSubject = null,
             reviewRating = null,
             emotion = null,
