@@ -12,6 +12,9 @@ enum class RecordErrorCode(
     RESTRICTED_TO_RECORD_WRITER(ErrorType.FORBIDDEN, "기록 작성자만 접근 가능합니다."),
     PRIVATE_RECORD(ErrorType.FORBIDDEN, "비밀 기록입니다."),
 
+    // RECORD FEED
+    INVALID_FEED_CURSOR(ErrorType.INVALID, "유효하지 않은 cursor입니다."),
+
     // RECORD REVIEW
     RECORD_REVIEW_NOT_FOUND(ErrorType.NOT_FOUND, "기록 리뷰를 찾을 수 없습니다."),
 

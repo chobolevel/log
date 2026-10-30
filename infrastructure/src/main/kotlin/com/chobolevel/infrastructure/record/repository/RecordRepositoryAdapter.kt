@@ -5,6 +5,7 @@ import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.record.entity.Record
 import com.chobolevel.domain.record.exception.RecordErrorCode
 import com.chobolevel.domain.record.repository.RecordRepository
+import com.chobolevel.domain.record.vo.RecordFeedQueryFilter
 import com.chobolevel.domain.record.vo.RecordOrderType
 import com.chobolevel.domain.record.vo.RecordQueryFilter
 import org.springframework.stereotype.Component
@@ -44,6 +45,10 @@ class RecordRepositoryAdapter(
 
     override fun searchRecordsCount(queryFilter: RecordQueryFilter): Long {
         return recordQuerydslRepository.countByFilter(filter = queryFilter)
+    }
+
+    override fun searchRecordFeeds(queryFilter: RecordFeedQueryFilter, limit: Long): List<Record> {
+        return recordQuerydslRepository.searchFeedByFilter(filter = queryFilter, limit = limit)
     }
 
     override fun findCreatedAtsByUserIdAndCreatedAtBetween(userId: Long, start: OffsetDateTime, end: OffsetDateTime): List<OffsetDateTime> {

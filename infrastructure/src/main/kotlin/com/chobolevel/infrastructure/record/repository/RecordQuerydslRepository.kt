@@ -4,8 +4,10 @@ import com.chobolevel.domain.common.dto.Paging
 import com.chobolevel.domain.record.entity.QRecord.record
 import com.chobolevel.domain.record.entity.Record
 import com.chobolevel.domain.record.tag.entity.QRecordTag
+import com.chobolevel.domain.record.vo.RecordFeedQueryFilter
 import com.chobolevel.domain.record.vo.RecordOrderType
 import com.chobolevel.domain.record.vo.RecordQueryFilter
+import com.chobolevel.domain.user.entity.QUser.user
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.core.types.dsl.BooleanExpression
 import com.querydsl.jpa.JPAExpressions
@@ -26,6 +28,24 @@ class RecordQuerydslRepository : QuerydslRepositorySupport(Record::class.java) {
             .orderBy(*orderSpecifiersOf(orderTypes))
             .offset(paging.offset)
             .limit(paging.limit)
+            .fetch()
+    }
+
+    // 피드는 id 내림차순(등록 순서의 역순) 하나로만 정렬한다. PK는 유일하고 단조 증가해서 cursor 하나로 위치가 정해지고 PK 인덱스를 탄다.
+    // 탈퇴한 작성자의 기록은 기존 목록과 달리 피드에서만 제외한다.
+    // user 조인은 탈퇴 작성자 조건용이다(fetchJoin이 아니라 작성자를 같이 로딩하지 않는다). 로딩 비용은 S-2에서 측정한 뒤 정한다.
+    fun searchFeedByFilter(filter: RecordFeedQueryFilter, limit: Long): List<Record> {
+        return from(record)
+            .join(record.user, user)
+            .where(
+                record.isPrivate.isFalse,
+                record.isDeleted.isFalse,
+                user.resigned.isFalse,
+                filter.beforeRecordId?.let { record.id.lt(it) },
+                filter.excludeWriterId?.let { user.id.ne(it) },
+            )
+            .orderBy(record.id.desc())
+            .limit(limit)
             .fetch()
     }
 
