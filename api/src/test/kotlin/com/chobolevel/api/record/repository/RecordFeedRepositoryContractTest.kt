@@ -77,6 +77,19 @@ class RecordFeedRepositoryContractTest : AbstractMySQLContainerTest() {
     }
 
     @Test
+    fun `존재하는 최대 id보다 큰 cursor는 cursor가 없을 때와 같은 결과를 반환한다`() {
+        // given
+        val writer: User = PersistenceFixtures.user(entityManager, "writer")
+        val first: Record = PersistenceFixtures.record(entityManager, writer)
+        val second: Record = PersistenceFixtures.record(entityManager, writer)
+        val third: Record = PersistenceFixtures.record(entityManager, writer)
+
+        // when & then
+        assertThat(feed(beforeRecordId = third.id!! + 1000)).containsExactly(third.id, second.id, first.id)
+        assertThat(feed(beforeRecordId = Long.MAX_VALUE)).isEqualTo(feed())
+    }
+
+    @Test
     fun `limit만큼만 반환한다`() {
         // given
         val writer: User = PersistenceFixtures.user(entityManager, "writer")

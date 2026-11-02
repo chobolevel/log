@@ -100,6 +100,21 @@ class RecordFeedControllerTest {
     }
 
     @Test
+    fun `조회된 기록이 없으면 빈 목록과 nextCursor 없이 200을 반환한다`() {
+        // given
+        every {
+            recordFeedService.searchRecordFeeds(requesterId = null, request = any())
+        } returns CursorPagingResponse(data = emptyList<RecordResponse>(), nextCursor = null)
+
+        // when & then
+        mockMvc.perform(get("/api/v1/records/feed"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.data.data").isArray)
+            .andExpect(jsonPath("$.data.data").isEmpty)
+            .andExpect(jsonPath("$.data.next_cursor").doesNotExist())
+    }
+
+    @Test
     @WithMockUser(username = "${DummyUser.ID}", roles = ["USER"])
     fun `인증된 사용자가 요청하면 본인 id가 서비스에 전달된다`() {
         // given

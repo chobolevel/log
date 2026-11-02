@@ -3,6 +3,7 @@ package com.chobolevel.api.record.feed
 import com.chobolevel.api.ApiApplication
 import com.chobolevel.api.common.container.MySQLTestContainer
 import com.chobolevel.api.common.container.RedisTestContainer
+import com.chobolevel.api.common.web.UrlSafeBase64
 import com.chobolevel.domain.record.entity.Record
 import com.chobolevel.domain.record.vo.RecordType
 import com.chobolevel.domain.user.entity.User
@@ -218,6 +219,48 @@ class RecordFeedIntegrationTest {
         assertThat(rest).doesNotContainAnyElementsOf(firstPage.ids)
         assertThat(rest).doesNotContainAnyElementsOf(newIds)
         assertThat(firstPage.ids + rest).isEqualTo(visibleIds.sortedDescending())
+    }
+
+    @Test
+    fun `size가 1이면 가장 최신 기록 한 건과 nextCursor를 반환한다`() {
+        // when
+        val page: FeedPage = fetchPage(cursor = null, size = 1)
+
+        // then
+        assertThat(page.ids).containsExactly(visibleIds.max())
+        assertThat(page.nextCursor).isNotNull
+    }
+
+    @Test
+    fun `size가 50이고 노출 가능한 기록이 그보다 적으면 모두 반환하고 nextCursor가 없다`() {
+        // when
+        val page: FeedPage = fetchPage(cursor = null, size = 50)
+
+        // then
+        assertThat(page.ids).hasSize(45).isEqualTo(visibleIds.sortedDescending())
+        assertThat(page.nextCursor).isNull()
+    }
+
+    @Test
+    fun `존재하는 최대 id보다 큰 cursor는 cursor가 없을 때와 같은 첫 페이지를 반환한다`() {
+        // given
+        val beyondMax: String = UrlSafeBase64.encode((visibleIds.max() + 1000).toString())
+
+        // when & then
+        assertThat(fetchPage(cursor = beyondMax, size = 20)).isEqualTo(fetchPage(cursor = null, size = 20))
+    }
+
+    @Test
+    fun `가장 오래된 노출 기록을 가리키는 cursor는 빈 목록과 nextCursor 없이 200을 반환한다`() {
+        // given
+        val oldest: String = UrlSafeBase64.encode(visibleIds.min().toString())
+
+        // when
+        val page: FeedPage = fetchPage(cursor = oldest, size = 20)
+
+        // then
+        assertThat(page.ids).isEmpty()
+        assertThat(page.nextCursor).isNull()
     }
 
     @Test

@@ -63,7 +63,8 @@ class RecordFeedParameterValidatorTest : BehaviorSpec({
             "!!!broken!!!" to "Base64가 아닌 값",
             java.util.Base64.getUrlEncoder().withoutPadding().encodeToString("abc".toByteArray()) to "숫자가 아닌 값",
             java.util.Base64.getUrlEncoder().withoutPadding().encodeToString("0".toByteArray()) to "0",
-            java.util.Base64.getUrlEncoder().withoutPadding().encodeToString("-5".toByteArray()) to "음수"
+            java.util.Base64.getUrlEncoder().withoutPadding().encodeToString("-5".toByteArray()) to "음수",
+            java.util.Base64.getUrlEncoder().withoutPadding().encodeToString("99999999999999999999".toByteArray()) to "Long 범위를 넘는 값"
         )
         brokenCursors.forEach { (cursor: String, description: String) ->
             `when`("cursor가 $description 이면") {
