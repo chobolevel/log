@@ -167,6 +167,18 @@ class RecordFeedQueryCountTest {
     }
 
     @Test
+    fun `캐시가 따뜻하면 Redis 명령 수가 size와 무관하다`() {
+        requestPage(50, "콜드")
+
+        val small: PageCost = requestPage(5, "웜")
+        val large: PageCost = requestPage(50, "웜")
+
+        // 좋아요·조회수 카운터를 각각 mget 한 번으로 읽는다(측정값 2).
+        assertThat(large.redisCommands).describedAs("Redis 명령 수(size=50)").isEqualTo(small.redisCommands)
+        assertThat(large.redisCommands).describedAs("Redis 명령 수 상한").isLessThanOrEqualTo(3)
+    }
+
+    @Test
     fun `참고 - 콜드 캐시의 쿼리 수를 출력한다`() {
         println("PERF ===== 콜드(참고, 단언 없음): 캐시에 없는 기록마다 좋아요·조회수 COUNT 쿼리가 나간다 =====")
         requestPage(20, "콜드")
