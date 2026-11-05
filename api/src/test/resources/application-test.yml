@@ -25,7 +25,10 @@ spring:
     # 대소문자 무감각하게 동일시한다.
     # @Where(clause = "deleted = false")의 unquoted 'deleted'가 Hibernate가 생성한
     # quoted "deleted" 칼럼과 매칭되도록 하기 위해 필요하다.
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;CASE_INSENSITIVE_IDENTIFIERS=TRUE
+    # DB 이름을 컨텍스트마다 고유하게 한다(${random.uuid}는 Environment마다 한 번 풀린다).
+    # 이름이 같으면 ddl-auto: create-drop이 컨텍스트가 닫힐 때(Spring 테스트 컨텍스트 캐시가 한도를 넘어 오래된 컨텍스트를 닫을 때)
+    # 공유 DB의 테이블을 DROP해서, 캐시에 남은 다른 H2 컨텍스트가 "Table not found"로 실패한다.
+    url: jdbc:h2:mem:${random.uuid};DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;CASE_INSENSITIVE_IDENTIFIERS=TRUE
     driver-class-name: org.h2.Driver
     username: sa
     password: ""

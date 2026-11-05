@@ -33,10 +33,16 @@ class RecordQuerydslRepository : QuerydslRepositorySupport(Record::class.java) {
 
     // 피드는 id 내림차순(등록 순서의 역순) 하나로만 정렬한다. PK는 유일하고 단조 증가해서 cursor 하나로 위치가 정해지고 PK 인덱스를 탄다.
     // 탈퇴한 작성자의 기록은 기존 목록과 달리 피드에서만 제외한다.
-    // user 조인은 탈퇴 작성자 조건용이다(fetchJoin이 아니라 작성자를 같이 로딩하지 않는다). 로딩 비용은 S-2에서 측정한 뒤 정한다.
+    //
+    // 두 번에 나눠 조회한다(deferred join).
+    //  1) 필터·정렬·limit은 id만 뽑는 쿼리로 처리한다. user 조인은 탈퇴 작성자 조건용이다(작성자를 같이 로딩하지 않는다).
+    //  2) 뽑은 id의 기록을 리뷰·감정과 함께 가져온다. 리뷰·감정은 역방향 OneToOne이라 fetch = LAZY를 줘도 지연 로딩되지 않고
+    //     기록마다 추가 쿼리가 나가므로(N+1) 같이 fetch join한다.
+    // 한 쿼리에 fetch join을 합치면 조인 순서가 바뀌어 풀 스캔과 filesort로 뒤집힌 것을 측정으로 확인했다(RecordFeedPerformanceTest).
     fun searchFeedByFilter(filter: RecordFeedQueryFilter, limit: Long): List<Record> {
-        return from(record)
+        val ids: List<Long> = from(record)
             .join(record.user, user)
+            .select(record.id)
             .where(
                 record.isPrivate.isFalse,
                 record.isDeleted.isFalse,
@@ -46,6 +52,15 @@ class RecordQuerydslRepository : QuerydslRepositorySupport(Record::class.java) {
             )
             .orderBy(record.id.desc())
             .limit(limit)
+            .fetch()
+        if (ids.isEmpty()) {
+            return emptyList()
+        }
+        return from(record)
+            .leftJoin(record._recordReview).fetchJoin()
+            .leftJoin(record._recordEmotion).fetchJoin()
+            .where(record.id.`in`(ids))
+            .orderBy(record.id.desc())
             .fetch()
     }
 
