@@ -3,11 +3,15 @@ package com.chobolevel.api.record.view.service
 import com.chobolevel.api.common.transaction.registerAfterCommit
 import com.chobolevel.api.record.view.validator.RecordViewValidator
 import com.chobolevel.domain.common.provider.CacheProvider
+import com.chobolevel.domain.record.provider.RecordSeenProvider
 import com.chobolevel.domain.record.view.entity.RecordView
 import com.chobolevel.domain.record.view.repository.RecordViewRepository
 import com.chobolevel.domain.record.view.sync.entity.RecordViewSyncEvent
 import com.chobolevel.domain.record.view.sync.repository.RecordViewSyncEventRepository
 import com.chobolevel.domain.record.view.vo.RecordViewRedisKey
+import com.chobolevel.domain.record.view.vo.RecordViewer
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.concurrent.TimeUnit
@@ -18,7 +22,10 @@ class RecordViewService(
     private val recordViewRepository: RecordViewRepository,
     private val recordViewSyncEventRepository: RecordViewSyncEventRepository,
     private val cacheProvider: CacheProvider,
+    private val recordSeenProvider: RecordSeenProvider,
 ) {
+
+    private val logger: Logger = LoggerFactory.getLogger(javaClass)
 
     companion object {
         private const val DEDUP_WINDOW_HOURS = 24L
@@ -33,7 +40,7 @@ class RecordViewService(
     // userId가 있으면(로그인) guestId는 무시하고 userId로만 귀속시킨다 — RecordView는 둘 중 하나만 가져야 한다.
     @Transactional
     fun recordView(recordId: Long, userId: Long?, guestId: String?): Boolean {
-        val viewerKey: String = userId?.let { "user:$it" } ?: guestId?.let { "guest:$it" } ?: return false
+        val viewerKey: String = RecordViewer.of(userId = userId, guestId = guestId)?.key ?: return false
 
         recordViewValidator.validateViewable(requesterId = userId, recordId = recordId)
 
@@ -59,9 +66,20 @@ class RecordViewService(
         registerAfterCommit {
             cacheProvider.put(dedupKey, "1", DEDUP_WINDOW_HOURS, TimeUnit.HOURS)
             cacheProvider.increment(RecordViewRedisKey.recordViewCount(recordId))
+            markSeenQuietly(viewerKey = viewerKey, recordId = recordId)
         }
 
         return true
+    }
+
+    // 피드가 이미 본 기록을 거르는 데 쓰는 seen-set에 기록한다. 부가 캐시라서 실패해도 조회 결과와 조회수 반영에는 영향을 주지 않는다.
+    // 조회 이력(DB)이 원천이라 놓쳐도 다음 피드 요청의 웜업이 이 조회를 포함한다. 조회수 반영 뒤에 두어 그쪽이 먼저 끝나게 한다.
+    private fun markSeenQuietly(viewerKey: String, recordId: Long) {
+        try {
+            recordSeenProvider.markSeen(viewerKey = viewerKey, recordId = recordId)
+        } catch (e: Exception) {
+            logger.warn("seen-set 기록 실패 - viewerKey: $viewerKey, recordId: $recordId", e)
+        }
     }
 
     private fun warmViewCountCacheIfCold(recordId: Long) {

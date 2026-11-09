@@ -7,6 +7,7 @@ import com.chobolevel.api.record.view.validator.RecordViewValidator
 import com.chobolevel.domain.common.exception.BusinessException
 import com.chobolevel.domain.common.provider.CacheProvider
 import com.chobolevel.domain.record.exception.RecordErrorCode
+import com.chobolevel.domain.record.provider.RecordSeenProvider
 import com.chobolevel.domain.record.view.entity.RecordView
 import com.chobolevel.domain.record.view.repository.RecordViewRepository
 import com.chobolevel.domain.record.view.sync.repository.RecordViewSyncEventRepository
@@ -29,11 +30,14 @@ class RecordViewServiceTest : BehaviorSpec({
     val recordViewRepository: RecordViewRepository = mockk()
     val recordViewSyncEventRepository: RecordViewSyncEventRepository = mockk()
     val cacheProvider: CacheProvider = mockk()
+    // 기존 케이스는 seen-set과 무관하므로 relaxed로 두고, seen-set 기록은 아래 전용 케이스에서 검증한다.
+    val recordSeenProvider: RecordSeenProvider = mockk(relaxed = true)
     val service: RecordViewService = RecordViewService(
         recordViewValidator = recordViewValidator,
         recordViewRepository = recordViewRepository,
         recordViewSyncEventRepository = recordViewSyncEventRepository,
         cacheProvider = cacheProvider,
+        recordSeenProvider = recordSeenProvider,
     )
 
     beforeEach { clearAllMocks() }
@@ -189,6 +193,94 @@ class RecordViewServiceTest : BehaviorSpec({
                 verify { recordViewRepository.countByRecordId(recordId) }
                 verify { cacheProvider.putIfAbsent(countKey, "10") }
                 verify { cacheProvider.increment(countKey) }
+            }
+        }
+    }
+
+    given("조회가 성공하면 seen-set에 기록할 때") {
+        val recordId: Long = DummyRecord.ID
+        val countKey: String = RecordViewRedisKey.recordViewCount(recordId)
+
+        fun stubSuccessfulView(viewerKey: String, requesterId: Long?) {
+            val dedupKey: String = RecordViewRedisKey.recordViewDedup(recordId, viewerKey)
+            justRun { recordViewValidator.validateViewable(requesterId = requesterId, recordId = recordId) }
+            every { cacheProvider.putIfAbsent(dedupKey, "1", 10L, TimeUnit.SECONDS) } returns true
+            every { cacheProvider.hasKey(countKey) } returns true
+            every { recordViewRepository.save(any()) } answers { firstArg() }
+            every { recordViewSyncEventRepository.save(any()) } answers { firstArg() }
+            justRun { cacheProvider.put(dedupKey, "1", 24L, TimeUnit.HOURS) }
+            every { cacheProvider.increment(countKey) } returns 1L
+        }
+
+        `when`("로그인 사용자가 처음 조회하면") {
+            then("user 조회자 키로 기록한다") {
+                // given
+                stubSuccessfulView(viewerKey = "user:${DummyUser.ID}", requesterId = DummyUser.ID)
+
+                // when
+                service.recordView(recordId = recordId, userId = DummyUser.ID, guestId = "guest-id")
+
+                // then: 회원이면 비회원 식별자는 무시한다
+                verify(exactly = 1) { recordSeenProvider.markSeen("user:${DummyUser.ID}", recordId) }
+                verify(exactly = 0) { recordSeenProvider.markSeen(match { it.startsWith("guest:") }, any()) }
+            }
+        }
+
+        `when`("비회원이 처음 조회하면") {
+            then("guest 조회자 키로 기록한다") {
+                // given
+                val guestId: String = DummyRecordView.GUEST_ID
+                stubSuccessfulView(viewerKey = "guest:$guestId", requesterId = null)
+
+                // when
+                service.recordView(recordId = recordId, userId = null, guestId = guestId)
+
+                // then
+                verify(exactly = 1) { recordSeenProvider.markSeen("guest:$guestId", recordId) }
+            }
+        }
+
+        `when`("seen-set 기록이 실패하면") {
+            then("조회 결과와 조회수 반영에는 영향이 없다") {
+                // given
+                val dedupKey: String = RecordViewRedisKey.recordViewDedup(recordId, "user:${DummyUser.ID}")
+                stubSuccessfulView(viewerKey = "user:${DummyUser.ID}", requesterId = DummyUser.ID)
+                every { recordSeenProvider.markSeen(any(), any()) } throws IllegalStateException("redis down")
+
+                // when
+                val result: Boolean = service.recordView(recordId = recordId, userId = DummyUser.ID, guestId = null)
+
+                // then
+                result shouldBe true
+                verify(exactly = 1) { cacheProvider.put(dedupKey, "1", 24L, TimeUnit.HOURS) }
+                verify(exactly = 1) { cacheProvider.increment(countKey) }
+            }
+        }
+
+        `when`("24시간 안의 재조회라 dedup으로 차단되면") {
+            then("seen-set에 기록하지 않는다") {
+                // given
+                val dedupKey: String = RecordViewRedisKey.recordViewDedup(recordId, "user:${DummyUser.ID}")
+                justRun { recordViewValidator.validateViewable(requesterId = DummyUser.ID, recordId = recordId) }
+                every { cacheProvider.putIfAbsent(dedupKey, "1", 10L, TimeUnit.SECONDS) } returns false
+
+                // when
+                val result: Boolean = service.recordView(recordId = recordId, userId = DummyUser.ID, guestId = null)
+
+                // then
+                result shouldBe false
+                verify(exactly = 0) { recordSeenProvider.markSeen(any(), any()) }
+            }
+        }
+
+        `when`("조회자를 식별할 수 없으면") {
+            then("아무것도 기록하지 않는다") {
+                // when
+                val result: Boolean = service.recordView(recordId = recordId, userId = null, guestId = null)
+
+                // then
+                result shouldBe false
+                verify(exactly = 0) { recordSeenProvider.markSeen(any(), any()) }
             }
         }
     }
