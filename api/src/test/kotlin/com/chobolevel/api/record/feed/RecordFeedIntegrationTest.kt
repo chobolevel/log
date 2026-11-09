@@ -5,6 +5,7 @@ import com.chobolevel.api.common.container.MySQLTestContainer
 import com.chobolevel.api.common.container.RedisTestContainer
 import com.chobolevel.api.common.web.UrlSafeBase64
 import com.chobolevel.domain.record.entity.Record
+import com.chobolevel.domain.record.vo.RecordFeedRedisKey
 import com.chobolevel.domain.record.vo.RecordType
 import com.chobolevel.domain.user.entity.User
 import com.chobolevel.domain.user.vo.UserLoginType
@@ -12,6 +13,7 @@ import com.chobolevel.domain.user.vo.UserRoleType
 import com.jayway.jsonpath.JsonPath
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
+import jakarta.servlet.http.Cookie
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -19,6 +21,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
@@ -27,6 +30,7 @@ import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.transaction.annotation.Transactional
 
@@ -62,6 +66,9 @@ import org.springframework.transaction.annotation.Transactional
 class RecordFeedIntegrationTest {
 
     companion object {
+        // 테스트 프로퍼티 guest.guest-id-key와 같다
+        private const val GUEST_COOKIE_NAME = "_feed_gid"
+
         @DynamicPropertySource
         @JvmStatic
         fun feedProperties(registry: DynamicPropertyRegistry) {
@@ -77,6 +84,9 @@ class RecordFeedIntegrationTest {
 
     @PersistenceContext
     private lateinit var entityManager: EntityManager
+
+    @Autowired
+    private lateinit var redisTemplate: StringRedisTemplate
 
     private lateinit var me: User
     private lateinit var writerA: User
@@ -148,8 +158,25 @@ class RecordFeedIntegrationTest {
 
     private data class FeedPage(val ids: List<Long>, val nextCursor: String?)
 
-    private fun fetchPage(cursor: String?, size: Int, requesterId: Long? = null): FeedPage {
+    // 조회 API로 기록을 본다. 테스트 트랜잭션은 커밋되지 않아 커밋 후 처리(seen-set 기록)는 실행되지 않고,
+    // 조회 이력(record_views)만 같은 트랜잭션에 남는다. 피드는 seen-set이 없으면 이 이력으로 웜업한다.
+    private fun viewRecord(recordId: Long, requesterId: Long? = null, guestCookie: String? = null) {
+        var request: MockHttpServletRequestBuilder = post("/api/v1/records/$recordId/view")
+        if (guestCookie != null) {
+            request = request.cookie(Cookie(GUEST_COOKIE_NAME, guestCookie))
+        }
+        if (requesterId != null) {
+            request = request.with(user(requesterId.toString()).roles("USER"))
+        }
+        mockMvc.perform(request).andExpect(status().isOk)
+        entityManager.flush()
+    }
+
+    private fun fetchPage(cursor: String?, size: Int, requesterId: Long? = null, guestCookie: String? = null): FeedPage {
         var request: MockHttpServletRequestBuilder = get("/api/v1/records/feed").param("size", size.toString())
+        if (guestCookie != null) {
+            request = request.cookie(Cookie(GUEST_COOKIE_NAME, guestCookie))
+        }
         if (cursor != null) {
             request = request.param("cursor", cursor)
         }
@@ -164,11 +191,11 @@ class RecordFeedIntegrationTest {
         return FeedPage(ids = ids, nextCursor = nextCursor)
     }
 
-    private fun fetchAll(size: Int, requesterId: Long? = null): List<FeedPage> {
+    private fun fetchAll(size: Int, requesterId: Long? = null, guestCookie: String? = null): List<FeedPage> {
         val pages: MutableList<FeedPage> = mutableListOf()
         var cursor: String? = null
         do {
-            val page: FeedPage = fetchPage(cursor = cursor, size = size, requesterId = requesterId)
+            val page: FeedPage = fetchPage(cursor = cursor, size = size, requesterId = requesterId, guestCookie = guestCookie)
             pages += page
             cursor = page.nextCursor
         } while (cursor != null)
@@ -261,6 +288,80 @@ class RecordFeedIntegrationTest {
         // then
         assertThat(page.ids).isEmpty()
         assertThat(page.nextCursor).isNull()
+    }
+
+    @Test
+    fun `조회 API로 본 기록은 같은 회원의 피드에서 빠지고 다른 사용자에게는 유지된다`() {
+        // given: me가 writerA·writerB의 공개 기록을 한 건씩 본다
+        val viewedByA: Long = visibleIds[0]
+        val viewedByB: Long = visibleIds[1]
+        viewRecord(recordId = viewedByA, requesterId = me.id)
+        viewRecord(recordId = viewedByB, requesterId = me.id)
+
+        // when
+        val forMe: List<Long> = fetchAll(size = 20, requesterId = me.id).flatMap { it.ids }
+        val forAnonymous: List<Long> = fetchAll(size = 20).flatMap { it.ids }
+        val forWriterB: List<Long> = fetchAll(size = 20, requesterId = writerB.id).flatMap { it.ids }
+
+        // then: 내가 쓴 기록과 본 기록이 모두 빠지고 중복이 없다
+        assertThat(forMe).doesNotHaveDuplicates()
+        assertThat(forMe).isEqualTo((visibleIds - myIds.toSet() - setOf(viewedByA, viewedByB)).sortedDescending())
+        // 다른 사용자(비회원, 다른 회원)에게는 같은 기록이 그대로 보인다
+        assertThat(forAnonymous).hasSize(45).contains(viewedByA, viewedByB)
+        assertThat(forWriterB).contains(viewedByA)
+    }
+
+    @Test
+    fun `비회원이 본 기록은 같은 guest 쿠키의 피드에서만 빠진다`() {
+        // given
+        val viewed: List<Long> = listOf(visibleIds[0], visibleIds[1])
+        viewed.forEach { viewRecord(recordId = it, guestCookie = "guest-int-1") }
+
+        // when
+        val sameGuest: List<Long> = fetchAll(size = 20, guestCookie = "guest-int-1").flatMap { it.ids }
+        val otherGuest: List<Long> = fetchAll(size = 20, guestCookie = "guest-int-2").flatMap { it.ids }
+
+        // then
+        assertThat(sameGuest).isEqualTo((visibleIds - viewed.toSet()).sortedDescending())
+        assertThat(otherGuest).hasSize(45).containsAll(viewed)
+    }
+
+    @Test
+    fun `seen-set이 사라져도 DB 조회 이력으로 복구되어 여전히 제외된다`() {
+        // given
+        val viewed: Long = visibleIds[0]
+        viewRecord(recordId = viewed, requesterId = me.id)
+        val key: String = RecordFeedRedisKey.recordSeen("user:${me.id}")
+        redisTemplate.delete(key)
+
+        // when: 첫 피드가 DB 이력으로 seen-set을 웜업한다
+        val first: List<Long> = fetchAll(size = 20, requesterId = me.id).flatMap { it.ids }
+        assertThat(redisTemplate.hasKey(key)).isTrue
+        assertThat(redisTemplate.opsForZSet().score(key, viewed.toString())).isNotNull
+
+        // then: 집합을 지워도(만료 등) 다음 피드가 다시 복구한다
+        redisTemplate.delete(key)
+        val second: List<Long> = fetchAll(size = 20, requesterId = me.id).flatMap { it.ids }
+        assertThat(first).doesNotContain(viewed)
+        assertThat(second).isEqualTo(first)
+        assertThat(redisTemplate.hasKey(key)).isTrue
+    }
+
+    @Test
+    fun `본 기록이 많아 페이지가 짧아져도 nextCursor를 따라가면 나머지를 모두 받는다`() {
+        // given: me가 가장 최근 공개 기록 25건을 본다(내 기록은 이미 피드에서 빠진다)
+        val newestOthers: List<Long> = visibleIds.sortedDescending().filter { it !in myIds }.take(25)
+        newestOthers.forEach { viewRecord(recordId = it, requesterId = me.id) }
+
+        // when
+        val pages: List<FeedPage> = fetchAll(size = 5, requesterId = me.id)
+
+        // then: 앞쪽 후보가 전부 본 기록이라 size보다 짧거나 빈 페이지가 나올 수 있지만 cursor가 이어져 나머지를 모두 받는다
+        assertThat(pages.any { it.ids.size < 5 }).isTrue
+        val received: List<Long> = pages.flatMap { it.ids }
+        assertThat(received).doesNotHaveDuplicates()
+        assertThat(received).isEqualTo((visibleIds - myIds.toSet() - newestOthers.toSet()).sortedDescending())
+        assertThat(pages.last().nextCursor).isNull()
     }
 
     @Test
