@@ -62,7 +62,8 @@ class RecordFeedService(
             val seen: Set<Long> = seenFinder.find(batch.map { it.id!! })
             val filledAt: Int? = fillUpTo(size = size, batch = batch, seen = seen, accepted = accepted)
             if (filledAt != null) {
-                val hasMoreAfter: Boolean = filledAt < batch.lastIndex || hasMoreBeyondBatch
+                // 배치 뒤에 더 읽을 기록이 있으면 알 수 없으므로 있는 것으로 본다. 없으면 배치에 남은 후보 중 안 본 기록이 있을 때만 이어진다.
+                val hasMoreAfter: Boolean = hasMoreBeyondBatch || batch.drop(filledAt + 1).any { it.id !in seen }
                 nextCursorId = if (hasMoreAfter) batch[filledAt].id else null
                 break
             }

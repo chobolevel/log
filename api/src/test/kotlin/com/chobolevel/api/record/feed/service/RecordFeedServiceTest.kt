@@ -266,6 +266,30 @@ class RecordFeedServiceTest : BehaviorSpec({
             }
         }
 
+        `when`("채운 지점 뒤에 읽을 기록이 없고 배치에 남은 후보가 모두 본 기록이면") {
+            then("남은 것이 없으므로 cursor가 null이다(빈 마지막 페이지를 만들지 않는다)") {
+                // given: size=3. 2라운드의 배치 [7,6,5] 중 7·6으로 채워지고 남은 5는 본 기록이며, 배치 뒤에는 더 없다
+                stubScan(
+                    pagesByBefore = mapOf(
+                        null to listOf(10L, 9L, 8L, 7L),
+                        8L to listOf(7L, 6L, 5L)
+                    ),
+                    seen = setOf(9L, 8L, 5L)
+                )
+
+                // when
+                val result: CursorPagingResponse<RecordResponse> = recordFeedService.searchRecordFeeds(
+                    requesterId = DummyUser.ID,
+                    guestId = null,
+                    request = SearchRecordFeedRequest(size = 3)
+                )
+
+                // then: cursor가 있으면 다음 요청이 빈 페이지만 돌려준다
+                result.data.map { it.id } shouldBe listOf(10L, 7L, 6L)
+                result.nextCursor shouldBe null
+            }
+        }
+
         `when`("모든 라운드의 후보가 본 기록이어도 더 남아 있으면") {
             then("최대 3라운드에서 멈추고 빈 목록과 스캔한 마지막 id의 cursor를 반환한다") {
                 // given: size=2, 후보는 전부 본 기록
