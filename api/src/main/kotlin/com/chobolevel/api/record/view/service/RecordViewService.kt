@@ -64,16 +64,18 @@ class RecordViewService(
         // DB 커밋 성공 후에만 dedup을 24시간으로 연장하고 Redis 조회수를 반영한다.
         // increment 실패해도 Consumer의 read-repair(DB 조회 후 덮어쓰기)가 뒤따라 복구한다
         registerAfterCommit {
+            // seen-set 기록은 자체적으로 예외를 삼키므로 맨 앞에 두어도 아래 반영에 영향이 없고, 아래가 던져도 기록이 빠지지 않는다.
+            // 키가 있는 seen-set에 이 조회가 빠지면 TTL(30일) 동안 피드에서 걸러지지 않기 때문이다.
+            markSeenQuietly(viewerKey = viewerKey, recordId = recordId)
             cacheProvider.put(dedupKey, "1", DEDUP_WINDOW_HOURS, TimeUnit.HOURS)
             cacheProvider.increment(RecordViewRedisKey.recordViewCount(recordId))
-            markSeenQuietly(viewerKey = viewerKey, recordId = recordId)
         }
 
         return true
     }
 
     // 피드가 이미 본 기록을 거르는 데 쓰는 seen-set에 기록한다. 부가 캐시라서 실패해도 조회 결과와 조회수 반영에는 영향을 주지 않는다.
-    // 조회 이력(DB)이 원천이라 놓쳐도 다음 피드 요청의 웜업이 이 조회를 포함한다. 조회수 반영 뒤에 두어 그쪽이 먼저 끝나게 한다.
+    // 조회 이력(DB)이 원천이라 키가 없을 때 놓쳐도 다음 피드 요청의 웜업이 이 조회를 포함한다.
     private fun markSeenQuietly(viewerKey: String, recordId: Long) {
         try {
             recordSeenProvider.markSeen(viewerKey = viewerKey, recordId = recordId)

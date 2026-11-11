@@ -257,6 +257,39 @@ class RecordViewServiceTest : BehaviorSpec({
             }
         }
 
+        `when`("조회수 반영(increment)이 실패해도") {
+            then("seen-set에는 기록한다") {
+                // given: Redis는 정상이지만 카운터 키에 정수가 아닌 값이 있는 상황 등으로 increment만 실패한다
+                stubSuccessfulView(viewerKey = "user:${DummyUser.ID}", requesterId = DummyUser.ID)
+                every { cacheProvider.increment(countKey) } throws IllegalStateException("value is not an integer")
+
+                // when: 조회수 반영 실패가 응답 오류로 이어지는 기존 동작은 그대로다
+                shouldThrow<IllegalStateException> {
+                    service.recordView(recordId = recordId, userId = DummyUser.ID, guestId = null)
+                }
+
+                // then: 키가 있는 seen-set에 조회가 빠지면 30일 동안 걸러지지 않는다
+                verify(exactly = 1) { recordSeenProvider.markSeen("user:${DummyUser.ID}", recordId) }
+            }
+        }
+
+        `when`("dedup 연장(put)이 실패해도") {
+            then("seen-set에는 기록한다") {
+                // given
+                val dedupKey: String = RecordViewRedisKey.recordViewDedup(recordId, "user:${DummyUser.ID}")
+                stubSuccessfulView(viewerKey = "user:${DummyUser.ID}", requesterId = DummyUser.ID)
+                every { cacheProvider.put(dedupKey, "1", 24L, TimeUnit.HOURS) } throws IllegalStateException("redis down")
+
+                // when
+                shouldThrow<IllegalStateException> {
+                    service.recordView(recordId = recordId, userId = DummyUser.ID, guestId = null)
+                }
+
+                // then
+                verify(exactly = 1) { recordSeenProvider.markSeen("user:${DummyUser.ID}", recordId) }
+            }
+        }
+
         `when`("24시간 안의 재조회라 dedup으로 차단되면") {
             then("seen-set에 기록하지 않는다") {
                 // given
