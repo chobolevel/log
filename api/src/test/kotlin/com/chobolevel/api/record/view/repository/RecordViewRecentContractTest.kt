@@ -123,6 +123,19 @@ class RecordViewRecentContractTest : AbstractMySQLContainerTest() {
     }
 
     @Test
+    fun `알려진 한계 - 비회원 이력은 같은 사람이 로그인해도 회원 조회에 포함되지 않는다`() {
+        // given: 비회원으로 본 이력이 guest_id 행으로만 남아 있다
+        val viewer: User = PersistenceFixtures.user(entityManager, "viewer")
+        val (a) = records(1)
+        view(a, guestId = "guest-pre-lgn")
+
+        // when & then: 비회원 이력을 회원으로 병합하는 기능이 구현되어 있지 않다(V8 주석은 의도만 적은 것).
+        // 병합을 구현하면 이 테스트가 실패하므로 그때 기대를 바꾼다.
+        assertThat(recordViewRepository.findRecentRecordIdsByGuestId("guest-pre-lgn", limit = 10)).containsExactly(a.id)
+        assertThat(recordViewRepository.findRecentRecordIdsByUserId(viewer.id!!, limit = 10)).isEmpty()
+    }
+
+    @Test
     fun `읽는 이력은 상한의 두 배로 제한되어 같은 기록을 매우 자주 봤으면 목록이 상한보다 짧을 수 있다`() {
         // given: 가장 오래된 기록 x 뒤에 같은 기록 a를 연속으로 5번 봤다
         val viewer: User = PersistenceFixtures.user(entityManager, "viewer")

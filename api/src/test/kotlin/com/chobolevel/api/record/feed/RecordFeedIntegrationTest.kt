@@ -305,6 +305,8 @@ class RecordFeedIntegrationTest {
 
         // then: 내가 쓴 기록과 본 기록이 모두 빠지고 중복이 없다
         assertThat(forMe).doesNotHaveDuplicates()
+        assertThat(forMe).doesNotContainAnyElementsOf(myIds)
+        assertThat(forMe).doesNotContain(viewedByA, viewedByB)
         assertThat(forMe).isEqualTo((visibleIds - myIds.toSet() - setOf(viewedByA, viewedByB)).sortedDescending())
         // 다른 사용자(비회원, 다른 회원)에게는 같은 기록이 그대로 보인다
         assertThat(forAnonymous).hasSize(45).contains(viewedByA, viewedByB)
@@ -324,6 +326,22 @@ class RecordFeedIntegrationTest {
         // then
         assertThat(sameGuest).isEqualTo((visibleIds - viewed.toSet()).sortedDescending())
         assertThat(otherGuest).hasSize(45).containsAll(viewed)
+    }
+
+    @Test
+    fun `알려진 한계 - 로그인 전에 비회원으로 본 기록은 로그인 후 피드에 다시 나타난다`() {
+        // given: 같은 사람이 비회원으로 기록을 본 뒤 로그인한다(쿠키는 그대로)
+        val viewedAsGuest: Long = visibleIds[0]
+        viewRecord(recordId = viewedAsGuest, guestCookie = "guest-int-lgn")
+
+        // when
+        val beforeLogin: List<Long> = fetchAll(size = 20, guestCookie = "guest-int-lgn").flatMap { it.ids }
+        val afterLogin: List<Long> = fetchAll(size = 20, requesterId = me.id, guestCookie = "guest-int-lgn").flatMap { it.ids }
+
+        // then: 비회원 이력을 회원으로 병합하는 기능이 구현되어 있지 않아 로그인하면 조회자가 바뀌고 본 기록이 다시 보인다.
+        // 병합을 구현하면 이 테스트가 실패하므로 그때 기대를 바꾼다(docs/design/record-feed.md의 알려진 한계).
+        assertThat(beforeLogin).doesNotContain(viewedAsGuest)
+        assertThat(afterLogin).contains(viewedAsGuest)
     }
 
     @Test
