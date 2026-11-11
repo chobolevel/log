@@ -3,6 +3,7 @@ package com.chobolevel.api.record.feed.controller
 import com.chobolevel.api.common.dummy.DummyRecord
 import com.chobolevel.api.common.dummy.DummyUser
 import com.chobolevel.api.common.web.CursorPagingResponse
+import com.chobolevel.api.common.web.RequestAttributeKey
 import com.chobolevel.api.record.controller.RecordController
 import com.chobolevel.api.record.dto.RecordResponse
 import com.chobolevel.api.record.feed.dto.SearchRecordFeedRequest
@@ -87,7 +88,7 @@ class RecordFeedControllerTest {
     fun `인증 없이 기록 피드를 조회할 수 있다`() {
         // given
         every {
-            recordFeedService.searchRecordFeeds(requesterId = null, request = any())
+            recordFeedService.searchRecordFeeds(requesterId = null, guestId = any(), request = any())
         } returns feedPage(nextCursor = "bmV4dA")
 
         // when & then
@@ -96,14 +97,14 @@ class RecordFeedControllerTest {
             .andExpect(jsonPath("$.data.data").isArray)
             .andExpect(jsonPath("$.data.next_cursor").value("bmV4dA"))
 
-        verify { recordFeedService.searchRecordFeeds(requesterId = null, request = any()) }
+        verify { recordFeedService.searchRecordFeeds(requesterId = null, guestId = any(), request = any()) }
     }
 
     @Test
     fun `조회된 기록이 없으면 빈 목록과 nextCursor 없이 200을 반환한다`() {
         // given
         every {
-            recordFeedService.searchRecordFeeds(requesterId = null, request = any())
+            recordFeedService.searchRecordFeeds(requesterId = null, guestId = any(), request = any())
         } returns CursorPagingResponse(data = emptyList<RecordResponse>(), nextCursor = null)
 
         // when & then
@@ -119,7 +120,7 @@ class RecordFeedControllerTest {
     fun `인증된 사용자가 요청하면 본인 id가 서비스에 전달된다`() {
         // given
         every {
-            recordFeedService.searchRecordFeeds(requesterId = DummyUser.ID, request = any())
+            recordFeedService.searchRecordFeeds(requesterId = DummyUser.ID, guestId = any(), request = any())
         } returns feedPage(nextCursor = null)
 
         // when & then
@@ -127,7 +128,53 @@ class RecordFeedControllerTest {
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.data.next_cursor").doesNotExist())
 
-        verify { recordFeedService.searchRecordFeeds(requesterId = DummyUser.ID, request = any()) }
+        verify { recordFeedService.searchRecordFeeds(requesterId = DummyUser.ID, guestId = any(), request = any()) }
+    }
+
+    @Test
+    fun `비회원 식별자가 서비스에 전달된다`() {
+        // given
+        every {
+            recordFeedService.searchRecordFeeds(requesterId = null, guestId = "guest-1", request = any())
+        } returns feedPage(nextCursor = null)
+
+        // when & then
+        mockMvc.perform(get("/api/v1/records/feed").requestAttr(RequestAttributeKey.GUEST_ID, "guest-1"))
+            .andExpect(status().isOk)
+
+        verify(exactly = 1) { recordFeedService.searchRecordFeeds(requesterId = null, guestId = "guest-1", request = any()) }
+    }
+
+    @Test
+    fun `방금 발급된 비회원 식별자는 이력이 있을 수 없으므로 서비스에 전달하지 않는다`() {
+        // given: 쿠키 없는 요청에 필터가 새 식별자를 발급한 상태
+        every {
+            recordFeedService.searchRecordFeeds(requesterId = null, guestId = null, request = any())
+        } returns feedPage(nextCursor = null)
+
+        // when & then
+        mockMvc.perform(
+            get("/api/v1/records/feed")
+                .requestAttr(RequestAttributeKey.GUEST_ID, "guest-new")
+                .requestAttr(RequestAttributeKey.GUEST_ID_ISSUED, true)
+        ).andExpect(status().isOk)
+
+        verify(exactly = 1) { recordFeedService.searchRecordFeeds(requesterId = null, guestId = null, request = any()) }
+    }
+
+    @Test
+    @WithMockUser(username = "${DummyUser.ID}", roles = ["USER"])
+    fun `로그인한 요청에도 비회원 식별자가 있으면 함께 전달된다(회원 우선은 서비스가 정한다)`() {
+        // given
+        every {
+            recordFeedService.searchRecordFeeds(requesterId = DummyUser.ID, guestId = "guest-1", request = any())
+        } returns feedPage(nextCursor = null)
+
+        // when & then
+        mockMvc.perform(get("/api/v1/records/feed").requestAttr(RequestAttributeKey.GUEST_ID, "guest-1"))
+            .andExpect(status().isOk)
+
+        verify(exactly = 1) { recordFeedService.searchRecordFeeds(requesterId = DummyUser.ID, guestId = "guest-1", request = any()) }
     }
 
     @Test
@@ -135,7 +182,7 @@ class RecordFeedControllerTest {
         // given
         val requestSlot: CapturingSlot<SearchRecordFeedRequest> = slot()
         every {
-            recordFeedService.searchRecordFeeds(requesterId = any(), request = capture(requestSlot))
+            recordFeedService.searchRecordFeeds(requesterId = any(), guestId = any(), request = capture(requestSlot))
         } returns feedPage(nextCursor = null)
 
         // when
@@ -177,7 +224,7 @@ class RecordFeedControllerTest {
     fun `feed 경로는 기록 단건 조회로 라우팅되지 않고 숫자 id 경로는 기존대로 단건 조회다`() {
         // given
         every {
-            recordFeedService.searchRecordFeeds(requesterId = any(), request = any())
+            recordFeedService.searchRecordFeeds(requesterId = any(), guestId = any(), request = any())
         } returns feedPage(nextCursor = null)
         every {
             recordService.fetchRecord(requesterId = any(), recordId = DummyRecord.ID)
@@ -187,7 +234,7 @@ class RecordFeedControllerTest {
         mockMvc.perform(get("/api/v1/records/feed")).andExpect(status().isOk)
         mockMvc.perform(get("/api/v1/records/${DummyRecord.ID}")).andExpect(status().isOk)
 
-        verify(exactly = 1) { recordFeedService.searchRecordFeeds(requesterId = any(), request = any()) }
+        verify(exactly = 1) { recordFeedService.searchRecordFeeds(requesterId = any(), guestId = any(), request = any()) }
         verify(exactly = 1) { recordService.fetchRecord(requesterId = any(), recordId = DummyRecord.ID) }
     }
 }

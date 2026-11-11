@@ -16,6 +16,7 @@ import com.chobolevel.domain.user.vo.UserLoginType
 import com.chobolevel.domain.user.vo.UserRoleType
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
+import jakarta.servlet.http.Cookie
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -29,6 +30,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.transaction.annotation.Transactional
@@ -131,7 +133,8 @@ class RecordFeedQueryCountTest {
 
     private data class PageCost(val dbQueries: Int, val redisCommands: Long)
 
-    private fun requestPage(size: Int, label: String): PageCost {
+    // guestCookie: 같은 값을 주면 재방문자(seen-set이 데워짐), 매번 다른 값을 주면 첫 방문자(요청마다 콜드 웜업)다.
+    private fun requestPage(size: Int, label: String, guestCookie: String? = null): PageCost {
         entityManager.flush()
         entityManager.clear()
         RecordingStatementInspector.statements.clear()
@@ -140,7 +143,11 @@ class RecordFeedQueryCountTest {
         val noise: Long = noiseAfter - noiseBase
 
         val redisBefore: Long = redisCommandCount()
-        mockMvc.perform(get("/api/v1/records/feed").param("size", size.toString())).andExpect(status().isOk)
+        var request: MockHttpServletRequestBuilder = get("/api/v1/records/feed").param("size", size.toString())
+        if (guestCookie != null) {
+            request = request.cookie(Cookie("_feed_gid", guestCookie))
+        }
+        mockMvc.perform(request).andExpect(status().isOk)
         val redisAfter: Long = redisCommandCount()
 
         val grouped: Map<String, Int> = RecordingStatementInspector.statements.groupingBy { tableOf(it) }.eachCount()
@@ -154,34 +161,62 @@ class RecordFeedQueryCountTest {
     }
 
     @Test
-    fun `캐시가 따뜻하면 DB 쿼리 수가 size와 무관하다`() {
-        // 가장 큰 size로 한 번 불러 카운터 캐시를 데운다(콜드 비용은 이 측정에서 제외한다)
-        requestPage(50, "콜드")
+    fun `재방문자는 DB 쿼리 수가 size와 무관하다`() {
+        // 같은 쿠키로 한 번 불러 카운터 캐시와 seen-set을 데운다(콜드 비용은 이 측정에서 제외한다)
+        val visitor: String = "count-returning-visitor-db"
+        requestPage(50, "콜드", visitor)
 
-        val small: PageCost = requestPage(5, "웜")
-        val large: PageCost = requestPage(50, "웜")
+        val small: PageCost = requestPage(5, "재방문", visitor)
+        val large: PageCost = requestPage(50, "재방문", visitor)
 
-        // 기록 수가 10배여도 쿼리 수가 같아야 한다. 상한은 측정값(7)에 여유를 둔 값이다.
+        // 기록 수가 10배여도 쿼리 수가 같아야 한다. 상한은 측정값(8)에 여유를 둔 값이다.
         assertThat(large.dbQueries).describedAs("DB 쿼리 수(size=50)").isEqualTo(small.dbQueries)
         assertThat(large.dbQueries).describedAs("DB 쿼리 수 상한").isLessThanOrEqualTo(10)
     }
 
     @Test
-    fun `캐시가 따뜻하면 Redis 명령 수가 size와 무관하다`() {
-        requestPage(50, "콜드")
+    fun `재방문자는 Redis 명령 수가 size와 무관하다`() {
+        val visitor: String = "count-returning-visitor-redis"
+        requestPage(50, "콜드", visitor)
 
-        val small: PageCost = requestPage(5, "웜")
-        val large: PageCost = requestPage(50, "웜")
+        val small: PageCost = requestPage(5, "재방문", visitor)
+        val large: PageCost = requestPage(50, "재방문", visitor)
 
-        // 좋아요·조회수 카운터를 각각 mget 한 번으로 읽는다(측정값 2).
+        // 좋아요·조회수 카운터 mget 2 + seen-set 확인(존재 확인 + 후보 점수 조회) 2
         assertThat(large.redisCommands).describedAs("Redis 명령 수(size=50)").isEqualTo(small.redisCommands)
-        assertThat(large.redisCommands).describedAs("Redis 명령 수 상한").isLessThanOrEqualTo(3)
+        assertThat(large.redisCommands).describedAs("Redis 명령 수 상한").isLessThanOrEqualTo(6)
+    }
+
+    @Test
+    fun `쿠키 없는 요청은 조회 제외를 건너뛰어 S-3 이전과 같은 비용이다`() {
+        // 쿠키 없이 반복 요청하는 클라이언트(크롤러 등)는 요청마다 새 식별자를 받는다. 이력이 있을 수 없으므로 DB·Redis 비용이 더해지지 않아야 한다.
+        requestPage(50, "콜드", "count-warmup-no-cookie")
+        val small: PageCost = requestPage(5, "쿠키 없음")
+        val large: PageCost = requestPage(50, "쿠키 없음")
+
+        assertThat(large.dbQueries).describedAs("DB 쿼리 수(size=50)").isEqualTo(small.dbQueries)
+        assertThat(large.dbQueries).describedAs("DB 쿼리 수").isLessThanOrEqualTo(8)
+        assertThat(large.redisCommands).describedAs("Redis 명령 수(size=50)").isEqualTo(small.redisCommands)
+        assertThat(large.redisCommands).describedAs("Redis 명령 수").isLessThanOrEqualTo(2)
+    }
+
+    @Test
+    fun `첫 방문자는 콜드 웜업 비용이 더해져도 size와 무관하다`() {
+        // 쿠키 없는 방문자는 요청마다 새 조회자라 매번 seen-set이 없다: 조회 이력 조회 1회와 웜업이 고정으로 더해진다
+        requestPage(50, "콜드", "count-warmup")
+        val small: PageCost = requestPage(5, "첫 방문", "count-first-visit-1")
+        val large: PageCost = requestPage(50, "첫 방문", "count-first-visit-2")
+
+        assertThat(large.dbQueries).describedAs("DB 쿼리 수(size=50)").isEqualTo(small.dbQueries)
+        assertThat(large.dbQueries).describedAs("DB 쿼리 수 상한").isLessThanOrEqualTo(11)
+        assertThat(large.redisCommands).describedAs("Redis 명령 수(size=50)").isEqualTo(small.redisCommands)
+        assertThat(large.redisCommands).describedAs("Redis 명령 수 상한").isLessThanOrEqualTo(14)
     }
 
     @Test
     fun `참고 - 콜드 캐시의 쿼리 수를 출력한다`() {
         println("PERF ===== 콜드(참고, 단언 없음): 캐시에 없는 기록마다 좋아요·조회수 COUNT 쿼리가 나간다 =====")
-        requestPage(20, "콜드")
-        requestPage(20, "웜")
+        requestPage(20, "콜드", "count-reference")
+        requestPage(20, "웜", "count-reference")
     }
 }
