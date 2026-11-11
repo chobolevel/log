@@ -11,6 +11,7 @@ import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
+import io.mockk.verifyOrder
 
 class RecordFeedSeenServiceTest : BehaviorSpec({
 
@@ -25,7 +26,10 @@ class RecordFeedSeenServiceTest : BehaviorSpec({
     val member: RecordViewer = RecordViewer.of(userId = 7L, guestId = null)!!
     val guest: RecordViewer = RecordViewer.of(userId = null, guestId = "guest-1")!!
 
-    beforeEach { clearAllMocks() }
+    beforeEach {
+        clearAllMocks()
+        justRun { recordSeenProvider.beginWarm(any()) }
+    }
 
     given("조회자가 없을 때") {
         `when`("조회자가 null이면") {
@@ -70,6 +74,27 @@ class RecordFeedSeenServiceTest : BehaviorSpec({
                 result shouldBe setOf(2L)
                 verify(exactly = 1) { recordViewRepository.findRecentRecordIdsByUserId(7L, maxSize) }
                 verify(exactly = 1) { recordSeenProvider.warm("user:7", listOf(2L, 9L)) }
+            }
+        }
+
+        `when`("콜드라 웜업하면") {
+            then("DB 이력을 읽기 전에 표식을 먼저 만든다") {
+                // given
+                every { recordSeenProvider.findSeen("user:7", listOf(1L, 2L)) } returnsMany listOf(null, setOf(2L))
+                every { recordViewRepository.findRecentRecordIdsByUserId(7L, maxSize) } returns listOf(2L)
+                justRun { recordSeenProvider.warm("user:7", listOf(2L)) }
+
+                // when
+                service.finderFor(member).find(listOf(1L, 2L))
+
+                // then: DB를 읽은 뒤 키를 만들면 그 사이 커밋된 조회의 markSeen이 건너뛰어져 걸러지지 않는다
+                verifyOrder {
+                    recordSeenProvider.findSeen("user:7", listOf(1L, 2L))
+                    recordSeenProvider.beginWarm("user:7")
+                    recordViewRepository.findRecentRecordIdsByUserId(7L, maxSize)
+                    recordSeenProvider.warm("user:7", listOf(2L))
+                    recordSeenProvider.findSeen("user:7", listOf(1L, 2L))
+                }
             }
         }
 

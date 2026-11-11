@@ -56,6 +56,8 @@ class RecordFeedSeenService(
                 return emptySet()
             }
             warmed = true
+            // DB를 읽기 전에 표식을 먼저 만든다. 읽은 뒤에 만들면 그 사이 커밋된 조회의 markSeen(키가 없어 건너뜀)이 빠진 채로 집합이 만들어진다.
+            recordSeenProvider.beginWarm(viewerKey = viewer.key)
             val limit: Int = RecordFeedRedisKey.RECORD_SEEN_MAX_SIZE.toInt()
             val recent: List<Long> = viewer.userId
                 ?.let { recordViewRepository.findRecentRecordIdsByUserId(userId = it, limit = limit) }

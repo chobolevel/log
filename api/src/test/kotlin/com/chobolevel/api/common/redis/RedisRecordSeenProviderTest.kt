@@ -182,6 +182,64 @@ class RedisRecordSeenProviderTest {
     }
 
     @Test
+    fun `beginWarm은 표식만 든 집합을 짧은 만료 시간으로 만든다`() {
+        // given
+        val viewer: String = newViewer()
+        val emptyTtlSeconds: Long = TimeUnit.MINUTES.toSeconds(RecordFeedRedisKey.RECORD_SEEN_EMPTY_TTL_MINUTES)
+
+        // when
+        provider.beginWarm(viewer)
+
+        // then: 집합이 생겨 콜드와 구분되고, 아직 채워지지 않았으므로 본 기록은 없다
+        assertThat(provider.findSeen(viewer, listOf(1L, 2L))).isEmpty()
+        assertThat(RedisTestSupport.template.opsForZSet().zCard(redisKey(viewer))).isEqualTo(1L)
+        assertThat(RedisTestSupport.template.getExpire(redisKey(viewer), TimeUnit.SECONDS)).isBetween(emptyTtlSeconds - 60, emptyTtlSeconds)
+    }
+
+    @Test
+    fun `beginWarm은 이미 있는 집합의 내용과 만료 시간을 바꾸지 않는다`() {
+        // given
+        val viewer: String = newViewer()
+        val ttlSeconds: Long = TimeUnit.DAYS.toSeconds(RecordFeedRedisKey.RECORD_SEEN_TTL_DAYS)
+        provider.warm(viewer, listOf(1L))
+
+        // when
+        provider.beginWarm(viewer)
+
+        // then
+        assertThat(provider.findSeen(viewer, listOf(1L))).containsExactly(1L)
+        assertThat(RedisTestSupport.template.getExpire(redisKey(viewer), TimeUnit.SECONDS)).isBetween(ttlSeconds - 60, ttlSeconds)
+    }
+
+    @Test
+    fun `웜업이 DB를 읽는 사이 커밋된 조회의 markSeen이 beginWarm 이후이면 이후 warm이 와도 유지된다`() {
+        // given: 경합 시퀀스 — 표식 생성 → (DB 읽기 중) 조회가 커밋되어 markSeen → 조회가 빠진 과거 이력으로 warm
+        val viewer: String = newViewer()
+        provider.beginWarm(viewer)
+
+        // when
+        provider.markSeen(viewer, 5L)
+        provider.warm(viewer, listOf(1L))
+
+        // then: 표식이 없었다면 markSeen이 건너뛰어져 5가 영영 빠진다
+        assertThat(provider.findSeen(viewer, listOf(1L, 5L))).containsExactlyInAnyOrder(1L, 5L)
+    }
+
+    @Test
+    fun `표식 없이 도착한 markSeen은 건너뛰고 그 뒤의 웜업이 DB 이력으로 채운다`() {
+        // given: 표식 생성 전에 markSeen이 도착했다. 이 경우 DB 읽기가 커밋 이후라 이력에 이미 포함된다(beginWarm 이후에 읽기 때문).
+        val viewer: String = newViewer()
+
+        // when
+        provider.markSeen(viewer, 5L)
+        provider.beginWarm(viewer)
+        provider.warm(viewer, listOf(5L))
+
+        // then
+        assertThat(provider.findSeen(viewer, listOf(5L))).containsExactly(5L)
+    }
+
+    @Test
     fun `조회자마다 집합이 독립적이다`() {
         // given
         val id: String = UUID.randomUUID().toString()

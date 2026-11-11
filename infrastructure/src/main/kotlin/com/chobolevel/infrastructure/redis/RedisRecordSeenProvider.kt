@@ -30,6 +30,18 @@ class RedisRecordSeenProvider(
             Long::class.java
         )
 
+        // 키가 없을 때만 표식 멤버를 넣고 짧은 만료 시간을 건다. 이미 있는 집합은 건드리지 않는다.
+        // ARGV: 짧은 TTL(초)
+        private val BEGIN_WARM_SCRIPT: DefaultRedisScript<Long> = DefaultRedisScript(
+            """
+            if redis.call('EXISTS', KEYS[1]) == 1 then return 0 end
+            redis.call('ZADD', KEYS[1], 'NX', 0, '$SENTINEL_MEMBER')
+            redis.call('EXPIRE', KEYS[1], tonumber(ARGV[1]))
+            return 1
+            """.trimIndent(),
+            Long::class.java
+        )
+
         // 이미 있는 항목의 점수는 건드리지 않는다(NX). 표식 멤버를 넣어 이력이 없어도 집합이 생기게 한다.
         // 만료는 이력이 있으면 항상 갱신하고, 이력이 없는 웜업은 집합을 새로 만들 때만 건다(이미 있는 집합의 만료를 줄이지 않는다).
         // ARGV: 상한, TTL(초), 만료 갱신 여부(1/0), 이후 (점수, 멤버) 쌍
@@ -75,6 +87,14 @@ class RedisRecordSeenProvider(
             recordId.toString(),
             RecordFeedRedisKey.RECORD_SEEN_MAX_SIZE.toString(),
             TTL_SECONDS.toString(),
+        )
+    }
+
+    override fun beginWarm(viewerKey: String) {
+        redisTemplate.execute(
+            BEGIN_WARM_SCRIPT,
+            listOf(RecordFeedRedisKey.recordSeen(viewerKey)),
+            EMPTY_TTL_SECONDS.toString(),
         )
     }
 
