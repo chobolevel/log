@@ -13,5 +13,6 @@ class WebMvcConfiguration(
     override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
         resolvers.add(QueryObjectArgumentResolver(objectMapper))
         resolvers.add(GuestIdArgumentResolver())
+        resolvers.add(ReturningGuestIdArgumentResolver())
     }
 }

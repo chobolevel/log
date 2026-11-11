@@ -2,9 +2,9 @@ package com.chobolevel.api.record.feed.controller
 
 import com.chobolevel.api.common.security.getUserId
 import com.chobolevel.api.common.web.CursorPagingResponse
-import com.chobolevel.api.common.web.GuestId
 import com.chobolevel.api.common.web.QueryObject
 import com.chobolevel.api.common.web.ResultResponse
+import com.chobolevel.api.common.web.ReturningGuestId
 import com.chobolevel.api.record.dto.RecordResponse
 import com.chobolevel.api.record.feed.dto.SearchRecordFeedRequest
 import com.chobolevel.api.record.feed.service.RecordFeedService
@@ -31,7 +31,7 @@ class RecordFeedController(
     @GetMapping("/records/feed")
     fun searchRecordFeeds(
         authentication: Authentication?,
-        @GuestId guestId: String?,
+        @ReturningGuestId guestId: String?,
         @QueryObject request: SearchRecordFeedRequest
     ): ResponseEntity<ResultResponse<CursorPagingResponse<RecordResponse>>> {
         validator.validate(request = request)

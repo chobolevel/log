@@ -21,8 +21,13 @@ class GuestIdAssignFilter(
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        val guestId: String = request.getCookie(guestProperties.guestIdKey) ?: issueGuestId(response)
+        val cookieGuestId: String? = request.getCookie(guestProperties.guestIdKey)
+        val guestId: String = cookieGuestId ?: issueGuestId(response)
         request.setAttribute(RequestAttributeKey.GUEST_ID, guestId)
+        if (cookieGuestId == null) {
+            // 방금 발급한 식별자는 이력이 있을 수 없다. 이력을 조회하는 쪽(피드의 조회 제외)이 건너뛸 수 있게 표시한다.
+            request.setAttribute(RequestAttributeKey.GUEST_ID_ISSUED, true)
+        }
         filterChain.doFilter(request, response)
     }
 

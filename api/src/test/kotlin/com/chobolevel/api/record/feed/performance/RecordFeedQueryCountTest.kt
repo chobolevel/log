@@ -188,6 +188,19 @@ class RecordFeedQueryCountTest {
     }
 
     @Test
+    fun `쿠키 없는 요청은 조회 제외를 건너뛰어 S-3 이전과 같은 비용이다`() {
+        // 쿠키 없이 반복 요청하는 클라이언트(크롤러 등)는 요청마다 새 식별자를 받는다. 이력이 있을 수 없으므로 DB·Redis 비용이 더해지지 않아야 한다.
+        requestPage(50, "콜드", "count-warmup-no-cookie")
+        val small: PageCost = requestPage(5, "쿠키 없음")
+        val large: PageCost = requestPage(50, "쿠키 없음")
+
+        assertThat(large.dbQueries).describedAs("DB 쿼리 수(size=50)").isEqualTo(small.dbQueries)
+        assertThat(large.dbQueries).describedAs("DB 쿼리 수").isLessThanOrEqualTo(8)
+        assertThat(large.redisCommands).describedAs("Redis 명령 수(size=50)").isEqualTo(small.redisCommands)
+        assertThat(large.redisCommands).describedAs("Redis 명령 수").isLessThanOrEqualTo(2)
+    }
+
+    @Test
     fun `첫 방문자는 콜드 웜업 비용이 더해져도 size와 무관하다`() {
         // 쿠키 없는 방문자는 요청마다 새 조회자라 매번 seen-set이 없다: 조회 이력 조회 1회와 웜업이 고정으로 더해진다
         requestPage(50, "콜드", "count-warmup")
