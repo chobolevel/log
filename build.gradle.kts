@@ -54,6 +54,9 @@ subprojects {
         }
     }
 
+    // Boot 3.1 BOM의 Testcontainers(1.18.0)는 Docker Engine 29.x(최소 API 1.44)와 호환되지 않아 BOM 값을 덮어쓴다.
+    extra["testcontainers.version"] = "1.21.4"
+
     // 모듈별 런타임 의존성은 각 모듈의 build.gradle.kts에서 선언한다. 여기에는 모든 모듈에 공통인 테스트 도구만 둔다.
     dependencies {
         // test

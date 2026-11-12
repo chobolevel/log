@@ -6,9 +6,7 @@ on:
 jobs:
   test:
     name: Test
-    # ubuntu-latest가 ubuntu-26.04로 바뀌면서 Testcontainers(1.18.0)가 Docker 환경을 찾지 못해 컨테이너 테스트가 전부 실패했다.
-    # Testcontainers를 최신 Docker 엔진을 지원하는 버전으로 올린 뒤 고정을 해제한다.
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -38,7 +36,7 @@ jobs:
 
   lint:
     name: Lint
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
